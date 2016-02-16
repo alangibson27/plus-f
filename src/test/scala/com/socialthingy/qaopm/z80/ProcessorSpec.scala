@@ -56,19 +56,35 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
 
   def splitWord(word: Int) = ((word & 0xff00) >> 8, word & 0x00ff)
 
+  def binary(value: String): Int = Integer.parseInt(value, 2)
+
   implicit class WrappedWord(n: Int) {
     def +%(x: Int): Int = (n + x) & 0xffff
   }
 }
 
 class FlagBuilder(name: String, processor: Processor) {
-  def isSet(): Unit = {
-    processor.setFlag(name, true)
+  val flagsRegister = processor.flagsRegister()
+
+  def isSet(): Unit = set(name, true)
+
+  def isReset(): Unit = set(name, false)
+
+  private def set(name: String, value: Boolean) = name match {
+    case "c" => flagsRegister.setC(value)
+    case "n" => flagsRegister.setN(value)
+    case "p" => flagsRegister.setP(value)
+    case "h" => flagsRegister.setH(value)
+    case "z" => flagsRegister.setZ(value)
+    case "s" => flagsRegister.setS(value)
   }
 
-  def isReset(): Unit = {
-    processor.setFlag(name, false)
+  def value(): Boolean = name match {
+    case "c" => flagsRegister.getC
+    case "n" => flagsRegister.getN
+    case "p" => flagsRegister.getP
+    case "h" => flagsRegister.getH
+    case "z" => flagsRegister.getZ
+    case "s" => flagsRegister.getS
   }
-
-  def value(): Boolean = processor.getFlag(name)
 }

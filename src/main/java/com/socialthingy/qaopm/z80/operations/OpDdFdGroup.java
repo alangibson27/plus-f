@@ -86,17 +86,17 @@ public class OpDdFdGroup implements Operation {
 //
 //        operations[0x84] = new Undocumented("add a, ixh");
 //        operations[0x85] = new Undocumented("add a, ixl");
-//        operations[0x86] = new OpAddAIndexedIndirect(processor, memory, register);
+        operations[0x86] = new OpAddAIndexedIndirect(processor, memory, indexRegister, false);
 //        operations[0x8c] = new Undocumented("adc a, ixh");
 //        operations[0x8d] = new Undocumented("adc a, ixl");
-//        operations[0x8e] = new OpAdcAIndexedIndirect(processor, memory, register);
+        operations[0x8e] = new OpAddAIndexedIndirect(processor, memory, indexRegister, true);
 //
 //        operations[0x94] = new Undocumented("sub ixh");
 //        operations[0x95] = new Undocumented("sub ixl");
-//        operations[0x96] = new OpSubAIndexedIndirect(processor, memory, register);
+        operations[0x96] = new OpSubAIndexedIndirect(processor, memory, indexRegister, false);
 //        operations[0x9c] = new Undocumented("sbc a, ixh");
 //        operations[0x9d] = new Undocumented("sbc a, ixl");
-//        operations[0x9e] = new OpSbcAIndexedIndirect(processor, memory, register);
+        operations[0x9e] = new OpSubAIndexedIndirect(processor, memory, indexRegister, true);
 //
 //        operations[0xa4] = new Undocumented("and ixh");
 //        operations[0xa5] = new Undocumented("and ixl");
@@ -110,7 +110,7 @@ public class OpDdFdGroup implements Operation {
 //        operations[0xb6] = new OpOrIndexedIndirect(processor, memory, register);
 //        operations[0xbc] = new Undocumented("cp ixh");
 //        operations[0xbd] = new Undocumented("cp ixl");
-//        operations[0xbe] = new OpCpIndexedIndirect(processor, memory, register);
+        operations[0xbe] = new OpCpIndexedIndirect(processor, memory, indexRegister);
 //
 //        operations[0xcb] = new OpIndexedCbGroup(register, processor, memory);
 //

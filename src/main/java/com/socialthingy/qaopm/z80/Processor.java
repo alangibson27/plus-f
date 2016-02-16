@@ -14,6 +14,9 @@ public class Processor {
     private boolean enableIffAfterOp = false;
     private boolean iffs[] = new boolean[2];
     private final WordRegister pcReg = new WordRegister();
+    private final FlagsRegister fReg = new FlagsRegister();
+
+//    private
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -160,40 +163,40 @@ public class Processor {
                 operations[0x7d] = new OpLd8RegFrom8Reg(registers.get("a"), registers.get("l"));
                 operations[0x7e] = new OpLd8RegFrom16RegIndirect(memory, registers.get("a"), registers.get("hl"));
                 operations[0x7f] = new OpLd8RegFrom8Reg(registers.get("a"), registers.get("a"));
+
+                operations[0x80] = new OpAddA8Reg(this, registers.get("b"), false);
+                operations[0x81] = new OpAddA8Reg(this, registers.get("c"), false);
+                operations[0x82] = new OpAddA8Reg(this, registers.get("d"), false);
+                operations[0x83] = new OpAddA8Reg(this, registers.get("e"), false);
+                operations[0x84] = new OpAddA8Reg(this, registers.get("h"), false);
+                operations[0x85] = new OpAddA8Reg(this, registers.get("l"), false);
+                operations[0x86] = new OpAddAHlIndirect(this, memory, false);
+                operations[0x87] = new OpAddA8Reg(this, registers.get("a"), false);
+                operations[0x88] = new OpAddA8Reg(this, registers.get("b"), true);
+                operations[0x89] = new OpAddA8Reg(this, registers.get("c"), true);
+                operations[0x8a] = new OpAddA8Reg(this, registers.get("d"), true);
+                operations[0x8b] = new OpAddA8Reg(this, registers.get("e"), true);
+                operations[0x8c] = new OpAddA8Reg(this, registers.get("h"), true);
+                operations[0x8d] = new OpAddA8Reg(this, registers.get("l"), true);
+                operations[0x8e] = new OpAddAHlIndirect(this, memory, true);
+                operations[0x8f] = new OpAddA8Reg(this, registers.get("a"), true);
 //
-//                operations[0x80] = new OpAddA8Reg(this, 'b');
-//                operations[0x81] = new OpAddA8Reg(this, 'c');
-//                operations[0x82] = new OpAddA8Reg(this, 'd');
-//                operations[0x83] = new OpAddA8Reg(this, 'e');
-//                operations[0x84] = new OpAddA8Reg(this, 'h');
-//                operations[0x85] = new OpAddA8Reg(this, 'l');
-//                operations[0x86] = new OpAddAHlIndirect(this, this.memory);
-//                operations[0x87] = new OpAddA8Reg(this, 'a');
-//                operations[0x88] = new OpAdcA8Reg(this, 'b');
-//                operations[0x89] = new OpAdcA8Reg(this, 'c');
-//                operations[0x8a] = new OpAdcA8Reg(this, 'd');
-//                operations[0x8b] = new OpAdcA8Reg(this, 'e');
-//                operations[0x8c] = new OpAdcA8Reg(this, 'h');
-//                operations[0x8d] = new OpAdcA8Reg(this, 'l');
-//                operations[0x8e] = new OpAdcAHlIndirect(this, this.memory);
-//                operations[0x8f] = new OpAdcA8Reg(this, 'a');
-//
-//                operations[0x90] = new OpSubA8Reg(this, 'b');
-//                operations[0x91] = new OpSubA8Reg(this, 'c');
-//                operations[0x92] = new OpSubA8Reg(this, 'd');
-//                operations[0x93] = new OpSubA8Reg(this, 'e');
-//                operations[0x94] = new OpSubA8Reg(this, 'h');
-//                operations[0x95] = new OpSubA8Reg(this, 'l');
-//                operations[0x96] = new OpSubAHlIndirect(this, this.memory);
-//                operations[0x97] = new OpSubA8Reg(this, 'a');
-//                operations[0x98] = new OpSbcA8Reg(this, 'b');
-//                operations[0x99] = new OpSbcA8Reg(this, 'c');
-//                operations[0x9a] = new OpSbcA8Reg(this, 'd');
-//                operations[0x9b] = new OpSbcA8Reg(this, 'e');
-//                operations[0x9c] = new OpSbcA8Reg(this, 'h');
-//                operations[0x9d] = new OpSbcA8Reg(this, 'l');
-//                operations[0x9e] = new OpSbcAHlIndirect(this, this.memory);
-//                operations[0x9f] = new OpSbcA8Reg(this, 'a');
+                operations[0x90] = new OpSubA8Reg(this, registers.get("b"), false);
+                operations[0x91] = new OpSubA8Reg(this, registers.get("c"), false);
+                operations[0x92] = new OpSubA8Reg(this, registers.get("d"), false);
+                operations[0x93] = new OpSubA8Reg(this, registers.get("e"), false);
+                operations[0x94] = new OpSubA8Reg(this, registers.get("h"), false);
+                operations[0x95] = new OpSubA8Reg(this, registers.get("l"), false);
+                operations[0x96] = new OpSubAHlIndirect(this, memory, false);
+                operations[0x97] = new OpSubA8Reg(this, registers.get("a"), false);
+                operations[0x98] = new OpSubA8Reg(this, registers.get("b"), true);
+                operations[0x99] = new OpSubA8Reg(this, registers.get("c"), true);
+                operations[0x9a] = new OpSubA8Reg(this, registers.get("d"), true);
+                operations[0x9b] = new OpSubA8Reg(this, registers.get("e"), true);
+                operations[0x9c] = new OpSubA8Reg(this, registers.get("h"), true);
+                operations[0x9d] = new OpSubA8Reg(this, registers.get("l"), true);
+                operations[0x9e] = new OpSubAHlIndirect(this, memory, true);
+                operations[0x9f] = new OpSubA8Reg(this, registers.get("a"), true);
 //
 //                operations[0xa0] = new OpAndA8Reg(this, 'b');
 //                operations[0xa1] = new OpAndA8Reg(this, 'c');
@@ -220,14 +223,14 @@ public class Processor {
 //                operations[0xb5] = new OpOrA8Reg(this, 'l');
 //                operations[0xb6] = new OpOrAHlIndirect(this, this.memory);
 //                operations[0xb7] = new OpOrA8Reg(this, 'a');
-//                operations[0xb8] = new OpCpA8Reg(this, 'b');
-//                operations[0xb9] = new OpCpA8Reg(this, 'c');
-//                operations[0xba] = new OpCpA8Reg(this, 'd');
-//                operations[0xbb] = new OpCpA8Reg(this, 'e');
-//                operations[0xbc] = new OpCpA8Reg(this, 'h');
-//                operations[0xbd] = new OpCpA8Reg(this, 'l');
-//                operations[0xbe] = new OpCpAHlIndirect(this, this.memory);
-//                operations[0xbf] = new OpCpA8Reg(this, 'a');
+                operations[0xb8] = new OpCpA8Reg(this, register("b"));
+                operations[0xb9] = new OpCpA8Reg(this, register("c"));
+                operations[0xba] = new OpCpA8Reg(this, register("d"));
+                operations[0xbb] = new OpCpA8Reg(this, register("e"));
+                operations[0xbc] = new OpCpA8Reg(this, register("h"));
+                operations[0xbd] = new OpCpA8Reg(this, register("l"));
+                operations[0xbe] = new OpCpAHlIndirect(this, memory);
+                operations[0xbf] = new OpCpA8Reg(this, register("a"));
 //
 //                operations[0xc0] = new OpRetNz(this);
 //                operations[0xc1] = new OpPop16Reg(this, 'bc');
@@ -235,14 +238,14 @@ public class Processor {
 //                operations[0xc3] = new OpJp(this);
 //                operations[0xc4] = new OpCallNz(this);
 //                operations[0xc5] = new OpPush16Reg(this, 'bc');
-//                operations[0xc6] = new OpAddAImmediate(this, this.memory);
+                operations[0xc6] = new OpAddAImmediate(this, false);
 //                operations[0xc7] = new OpRst(this, 0x00);
 //                operations[0xc8] = new OpRetZ(this);
 //                operations[0xc9] = new OpRet(this);
 //                operations[0xca] = new OpJpZ(this);
 //                operations[0xcc] = new OpCallZ(this);
 //                operations[0xcd] = new OpCall(this);
-//                operations[0xce] = new OpAdcAImmediate(this, this.memory);
+                operations[0xce] = new OpAddAImmediate(this, true);
 //                operations[0xcf] = new OpRst(this, 0x08);
 //
 //                operations[0xd0] = new OpRetNc(this);
@@ -251,14 +254,14 @@ public class Processor {
 //                operations[0xd3] = new OpOutA(this, this.io);
 //                operations[0xd4] = new OpCallNc(this);
 //                operations[0xd5] = new OpPush16Reg(this, 'de');
-//                operations[0xd6] = new OpSubAImmediate(this, this.memory);
+                operations[0xd6] = new OpSubAImmediate(this, false);
 //                operations[0xd7] = new OpRst(this, 0x10);
 //                operations[0xd8] = new OpRetC(this);
 //                operations[0xd9] = new OpExx(this);
 //                operations[0xda] = new OpJpC(this);
 //                operations[0xdb] = new OpInA(this, this.io);
 //                operations[0xdc] = new OpCallC(this);
-//                operations[0xde] = new OpSbcAImmediate(this, this.memory);
+                operations[0xde] = new OpSubAImmediate(this, true);
 //                operations[0xdf] = new OpRst(this, 0x18);
 //
 //                operations[0xe0] = new OpRetPo(this);
@@ -290,7 +293,7 @@ public class Processor {
 //                operations[0xfa] = new OpJpM(this);
 //                operations[0xfb] = new OpEi(this);
 //                operations[0xfc] = new OpCallM(this);
-//                operations[0xfe] = new OpCpImmediate(this);
+                operations[0xfe] = new OpCpImmediate(this);
 //                operations[0xff] = new OpRst(this, 0x38);
 //
 //                operations[0xcb] = new OpCbGroup(this, this.memory);
@@ -302,7 +305,6 @@ public class Processor {
 
     private void prepareRegisters() {
         final ByteRegister aReg = new ByteRegister();
-        final ByteRegister fReg = new ByteRegister();
         final ByteRegister bReg = new ByteRegister();
         final ByteRegister cReg = new ByteRegister();
         final ByteRegister dReg = new ByteRegister();
@@ -317,8 +319,8 @@ public class Processor {
         final BytePairRegister deReg = new BytePairRegister(dReg, eReg);
         final BytePairRegister hlReg = new BytePairRegister(hReg, lReg);
 
-        final WordRegister ixReg = new WordRegister();
-        final WordRegister iyReg = new WordRegister();
+        final IndexRegister ixReg = new IndexRegister();
+        final IndexRegister iyReg = new IndexRegister();
         final WordRegister spReg = new WordRegister();
 
         registers.put("a", aReg);
@@ -347,12 +349,8 @@ public class Processor {
         return this.registers.get(name);
     }
 
-    public boolean setFlag(final String name, final boolean state) {
-        return state;
-    }
-
-    public boolean getFlag(final String name) {
-        return false;
+    public FlagsRegister flagsRegister() {
+        return this.fReg;
     }
 
     public void execute() {
