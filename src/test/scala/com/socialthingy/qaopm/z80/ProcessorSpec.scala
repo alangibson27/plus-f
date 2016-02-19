@@ -5,6 +5,8 @@ import org.mockito.Matchers._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, GivenWhenThen, FlatSpec}
 
+import com.socialthingy.qaopm.z80.FlagsRegister.Flag
+
 import scala.util.Random
 
 trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with MockitoSugar {
@@ -26,6 +28,7 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
 
     def registerContainsValue(register: String, value: Int): Unit = {
       processor.register(register.toLowerCase()).set(value)
+      if (register.equals("pc")) instructionPointer = value
     }
 
     def stackPointerIs(value: Int): Unit = {
@@ -66,25 +69,23 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
 class FlagBuilder(name: String, processor: Processor) {
   val flagsRegister = processor.flagsRegister()
 
-  def isSet(): Unit = set(name, true)
-
-  def isReset(): Unit = set(name, false)
+  def is(value: Boolean): Unit = set(name, value)
 
   private def set(name: String, value: Boolean) = name match {
-    case "c" => flagsRegister.setC(value)
-    case "n" => flagsRegister.setN(value)
-    case "p" => flagsRegister.setP(value)
-    case "h" => flagsRegister.setH(value)
-    case "z" => flagsRegister.setZ(value)
-    case "s" => flagsRegister.setS(value)
+    case "c" => flagsRegister.set(Flag.C, value)
+    case "n" => flagsRegister.set(Flag.N, value)
+    case "p" => flagsRegister.set(Flag.P, value)
+    case "h" => flagsRegister.set(Flag.H, value)
+    case "z" => flagsRegister.set(Flag.Z, value)
+    case "s" => flagsRegister.set(Flag.S, value)
   }
 
   def value(): Boolean = name match {
-    case "c" => flagsRegister.getC
-    case "n" => flagsRegister.getN
-    case "p" => flagsRegister.getP
-    case "h" => flagsRegister.getH
-    case "z" => flagsRegister.getZ
-    case "s" => flagsRegister.getS
+    case "c" => flagsRegister.get(Flag.C)
+    case "n" => flagsRegister.get(Flag.N)
+    case "p" => flagsRegister.get(Flag.P)
+    case "h" => flagsRegister.get(Flag.H)
+    case "z" => flagsRegister.get(Flag.Z)
+    case "s" => flagsRegister.get(Flag.S)
   }
 }

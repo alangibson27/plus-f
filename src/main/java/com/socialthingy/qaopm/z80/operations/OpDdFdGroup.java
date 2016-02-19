@@ -117,7 +117,7 @@ public class OpDdFdGroup implements Operation {
 //        operations[0xe1] = new OpPopIndexed(processor, register);
 //        operations[0xe3] = new OpExSpIndirectIndexed(processor, memory, register);
 //        operations[0xe5] = new OpPushIndexed(processor, register);
-//        operations[0xe9] = new OpJpIndexedIndirect(processor, register);
+        operations[0xe9] = new OpJpIndexedIndirect(processor, indexRegister);
 //
 //        operations[0xf9] = new OpLdSpIndexed(processor, register);
     }

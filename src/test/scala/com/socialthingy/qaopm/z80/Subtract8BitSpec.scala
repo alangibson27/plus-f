@@ -186,7 +186,7 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         // given
         registerContainsValue("a", binary("00001000"))
         registerContainsValue(register, binary("00000001"))
-        if (carry) flag("c").isSet() else flag("c").isReset()
+        flag("c") is carry
 
         nextInstructionIs(opcode)
 
@@ -211,7 +211,7 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("a", 0x01)
     registerContainsValue("b", 0x01)
-    flag("c").isSet()
+    flag("c") is true
 
     nextInstructionIs(0x98)
 
@@ -233,7 +233,7 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "sbc a, a with carry set" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("a", 0x01)
-    flag("c").isSet()
+    flag("c") is true
 
     nextInstructionIs(0x9f)
 
@@ -254,7 +254,7 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "sbc a, n with carry set" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("a", binary("00001000"))
-    flag("c").isSet()
+    flag("c") is true
 
     nextInstructionIs(0xde, binary("00000001"))
 
@@ -275,7 +275,7 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "sbc a, n with carry reset" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("a", binary("00001000"))
-    flag("c").isReset()
+    flag("c") is false
 
     nextInstructionIs(0xde, binary("00000001"))
 
@@ -296,7 +296,7 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "sbc a, (hl) with carry set" should "calculate the correct value" in new Machine {
     // given
     registerContainsValue("a", binary("00001000"))
-    flag("c").isSet()
+    flag("c") is true
 
     registerContainsValue("hl", 0xa000)
     memory(0xa000) = binary("00000001")
@@ -327,7 +327,7 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     s"sbc a, ($register + d) with carry set" should "calculate the correct result" in new Machine {
       // given
       registerContainsValue("a", binary("00001000"))
-      flag("c").isSet()
+      flag("c") is true
       registerContainsValue(register, 0xbeef)
 
       val offset = randomByte

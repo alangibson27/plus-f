@@ -227,7 +227,7 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         // given
         registerContainsValue("a", binary("00000100"))
         registerContainsValue(register, binary("00000001"))
-        if (carry) flag("c").isSet() else flag("c").isReset()
+        flag("c") is carry
 
         nextInstructionIs(opcode)
 
@@ -252,7 +252,7 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("a", 0xfe)
     registerContainsValue("b", 0x01)
-    flag("c").isSet()
+    flag("c") is true
 
     nextInstructionIs(0x88)
 
@@ -274,7 +274,7 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "adc a, a with carry set" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("a", 0x00)
-    flag("c").isSet()
+    flag("c") is true
 
     nextInstructionIs(0x8f)
 
@@ -295,7 +295,7 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "adc a, n with carry set" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("a", binary("00001000"))
-    flag("c").isSet()
+    flag("c") is true
 
     nextInstructionIs(0xce, binary("01000001"))
 
@@ -316,7 +316,7 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "adc a, n with carry reset" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("a", binary("00001000"))
-    flag("c").isReset()
+    flag("c") is false
 
     nextInstructionIs(0xce, binary("01000001"))
 
@@ -337,7 +337,7 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "adc a, (hl) with carry set" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("a", binary("00001000"))
-    flag("c").isSet()
+    flag("c") is true
 
     registerContainsValue("hl", 0xa000)
     memory(0xa000) = binary("01000001")
@@ -368,7 +368,7 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     s"adc a, ($register + d) with carry set" should "calculate the correct result" in new Machine {
       // given
       registerContainsValue("a", binary("00001000"))
-      flag("c").isSet()
+      flag("c") is true
       registerContainsValue(register, 0xbeef)
 
       val offset = randomByte

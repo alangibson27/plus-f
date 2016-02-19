@@ -1,6 +1,9 @@
 package com.socialthingy.qaopm.z80;
 
+import com.socialthingy.qaopm.util.Word;
 import com.socialthingy.qaopm.z80.operations.*;
+
+import com.socialthingy.qaopm.z80.FlagsRegister.Flag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +18,6 @@ public class Processor {
     private boolean iffs[] = new boolean[2];
     private final WordRegister pcReg = new WordRegister();
     private final FlagsRegister fReg = new FlagsRegister();
-
-//    private
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -45,7 +46,7 @@ public class Processor {
                 operations[0x0e] = new OpLd8RegImmediate(this, registers.get("c"));
 //                operations[0x0f] = new OpRrca(this);
 //
-//                operations[0x10] = new OpDjnz(this);
+                operations[0x10] = new OpDjnz(this);
 //                operations[0x11] = new OpLd16RegImmediate(this, this.memory, 'de');
                 operations[0x12] = new OpLd16RegIndirectFrom8Reg(memory, registers.get("de"), registers.get("a"));
 //                operations[0x13] = new OpInc16Reg(this, 'de');
@@ -53,7 +54,7 @@ public class Processor {
 //                operations[0x15] = new OpDec8Reg(this, 'd');
                 operations[0x16] = new OpLd8RegImmediate(this, registers.get("d"));
 //                operations[0x17] = new OpRla(this);
-//                operations[0x18] = new OpJr(this);
+                operations[0x18] = new OpJr(this);
 //                operations[0x19] = new OpAddHl16Reg(this, 'de');
                 operations[0x1a] = new OpLd8RegFrom16RegIndirect(memory, registers.get("a"), registers.get("de"));
 //                operations[0x1b] = new OpDec16Reg(this, 'de');
@@ -62,7 +63,7 @@ public class Processor {
                 operations[0x1e] = new OpLd8RegImmediate(this, registers.get("e"));
 //                operations[0x1f] = new OpRra(this);
 //
-//                operations[0x20] = new OpJrNz(this);
+                operations[0x20] = new OpJrConditional(this, Flag.Z, false);
 //                operations[0x21] = new OpLd16RegImmediate(this, this.memory, 'hl');
 //                operations[0x22] = new OpLdAddressHl(this, this.memory);
 //                operations[0x23] = new OpInc16Reg(this, 'hl');
@@ -70,7 +71,7 @@ public class Processor {
 //                operations[0x25] = new OpDec8Reg(this, 'h');
                 operations[0x26] = new OpLd8RegImmediate(this, registers.get("h"));
 //                operations[0x27] = new OpDaa(this);
-//                operations[0x28] = new OpJrZ(this);
+                operations[0x28] = new OpJrConditional(this, Flag.Z, true);
 //                operations[0x29] = new OpAddHl16Reg(this, 'hl');
 //                operations[0x2a] = new OpLdHlAddress(this, this.memory);
 //                operations[0x2b] = new OpDec16Reg(this, 'hl');
@@ -79,7 +80,7 @@ public class Processor {
                 operations[0x2e] = new OpLd8RegImmediate(this, registers.get("l"));
 //                operations[0x2f] = new OpCpl(this);
 //
-//                operations[0x30] = new OpJrNc(this);
+                operations[0x30] = new OpJrConditional(this, Flag.C, false);
 //                operations[0x31] = new OpLdSpImmediate(this);
                 operations[0x32] = new OpLdAddressA(this, memory);
 //                operations[0x33] = new OpInc16Reg(this, 'sp');
@@ -87,7 +88,7 @@ public class Processor {
 //                operations[0x35] = new OpDecHlIndirect(this, this.memory);
                 operations[0x36] = new OpLdHlIndirectImmediate(this, memory);
 //                operations[0x37] = new OpScf(this);
-//                operations[0x38] = new OpJrC(this);
+                operations[0x38] = new OpJrConditional(this, Flag.C, true);
 //                operations[0x39] = new OpAddHl16Reg(this, 'sp');
                 operations[0x3a] = new OpLdAAddress(this, memory);
 //                operations[0x3b] = new OpDec16Reg(this, 'sp');
@@ -234,15 +235,15 @@ public class Processor {
 //
 //                operations[0xc0] = new OpRetNz(this);
 //                operations[0xc1] = new OpPop16Reg(this, 'bc');
-//                operations[0xc2] = new OpJpNz(this);
-//                operations[0xc3] = new OpJp(this);
+                operations[0xc2] = new OpJpConditional(this, Flag.Z, false);
+                operations[0xc3] = new OpJp(this);
 //                operations[0xc4] = new OpCallNz(this);
 //                operations[0xc5] = new OpPush16Reg(this, 'bc');
                 operations[0xc6] = new OpAddAImmediate(this, false);
 //                operations[0xc7] = new OpRst(this, 0x00);
 //                operations[0xc8] = new OpRetZ(this);
 //                operations[0xc9] = new OpRet(this);
-//                operations[0xca] = new OpJpZ(this);
+                operations[0xca] = new OpJpConditional(this, Flag.Z, true);
 //                operations[0xcc] = new OpCallZ(this);
 //                operations[0xcd] = new OpCall(this);
                 operations[0xce] = new OpAddAImmediate(this, true);
@@ -250,7 +251,7 @@ public class Processor {
 //
 //                operations[0xd0] = new OpRetNc(this);
 //                operations[0xd1] = new OpPop16Reg(this, 'de');
-//                operations[0xd2] = new OpJpNc(this);
+                operations[0xd2] = new OpJpConditional(this, Flag.C, false);
 //                operations[0xd3] = new OpOutA(this, this.io);
 //                operations[0xd4] = new OpCallNc(this);
 //                operations[0xd5] = new OpPush16Reg(this, 'de');
@@ -258,7 +259,7 @@ public class Processor {
 //                operations[0xd7] = new OpRst(this, 0x10);
 //                operations[0xd8] = new OpRetC(this);
 //                operations[0xd9] = new OpExx(this);
-//                operations[0xda] = new OpJpC(this);
+                operations[0xda] = new OpJpConditional(this, Flag.C, true);
 //                operations[0xdb] = new OpInA(this, this.io);
 //                operations[0xdc] = new OpCallC(this);
                 operations[0xde] = new OpSubAImmediate(this, true);
@@ -266,15 +267,15 @@ public class Processor {
 //
 //                operations[0xe0] = new OpRetPo(this);
 //                operations[0xe1] = new OpPop16Reg(this, 'hl');
-//                operations[0xe2] = new OpJpPo(this);
+                operations[0xe2] = new OpJpConditional(this, Flag.P, false);
 //                operations[0xe3] = new OpExSpIndirectHl(this, this.memory);
 //                operations[0xe4] = new OpCallPo(this);
 //                operations[0xe5] = new OpPush16Reg(this, 'hl');
 //                operations[0xe6] = new OpAndAImmediate(this);
 //                operations[0xe7] = new OpRst(this, 0x20);
 //                operations[0xe8] = new OpRetPe(this);
-//                operations[0xe9] = new OpJpHlIndirect(this);
-//                operations[0xea] = new OpJpPe(this);
+                operations[0xe9] = new OpJpHlIndirect(this);
+                operations[0xea] = new OpJpConditional(this, Flag.P, true);
 //                operations[0xeb] = new OpExDeHl(this);
 //                operations[0xec] = new OpCallPe(this);
 //                operations[0xee] = new OpXorAImmediate(this);
@@ -282,7 +283,7 @@ public class Processor {
 //
 //                operations[0xf0] = new OpRetP(this);
 //                operations[0xf1] = new OpPop16Reg(this, 'af');
-//                operations[0xf2] = new OpJpP(this);
+                operations[0xf2] = new OpJpConditional(this, Flag.S, false);
 //                operations[0xf3] = new OpDi(this);
 //                operations[0xf4] = new OpCallP(this);
 //                operations[0xf5] = new OpPush16Reg(this, 'af');
@@ -290,7 +291,7 @@ public class Processor {
 //                operations[0xf7] = new OpRst(this, 0x30);
 //                operations[0xf8] = new OpRetM(this);
 //                operations[0xf9] = new OpLdSpHl(this);
-//                operations[0xfa] = new OpJpM(this);
+                operations[0xfa] = new OpJpConditional(this, Flag.S, true);
 //                operations[0xfb] = new OpEi(this);
 //                operations[0xfc] = new OpCallM(this);
                 operations[0xfe] = new OpCpImmediate(this);
@@ -300,7 +301,6 @@ public class Processor {
 //                operations[0xed] = new OpEdGroup(this, this.memory, this.io);
                 operations[0xdd] = new OpDdFdGroup(this, memory, registers.get("ix"));
                 operations[0xfd] = new OpDdFdGroup(this, memory, registers.get("iy"));
-
     }
 
     private void prepareRegisters() {
@@ -368,5 +368,9 @@ public class Processor {
 
     public int fetchNextPC() {
         return memory[pcReg.getAndInc()];
+    }
+
+    public int fetchNextWord() {
+        return Word.from(fetchNextPC(), fetchNextPC());
     }
 }
