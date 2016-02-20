@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.z80.operations;
 
+import com.socialthingy.qaopm.z80.IndexRegister;
 import com.socialthingy.qaopm.z80.Operation;
 import com.socialthingy.qaopm.z80.Processor;
 import com.socialthingy.qaopm.z80.Register;
@@ -8,10 +9,10 @@ public class OpDdFdGroup implements Operation {
 
     private final Processor processor;
     private final int[] memory;
-    private final Register indexRegister;
+    private final IndexRegister indexRegister;
     private final Operation[] operations = new Operation[0x100];
 
-    public OpDdFdGroup(final Processor processor, final int[] memory, final Register indexRegister) {
+    public OpDdFdGroup(final Processor processor, final int[] memory, final IndexRegister indexRegister) {
         this.processor = processor;
         this.memory = memory;
         this.indexRegister = indexRegister;
@@ -37,8 +38,8 @@ public class OpDdFdGroup implements Operation {
 //        operations[0x2d] = new Undocumented("dec ixl");
 //        operations[0x2e] = new Undocumented("ld ixl, n");
 //
-//        operations[0x34] = new OpIncIndexedIndirect(processor, memory, register);
-//        operations[0x35] = new OpDecIndexedIndirect(processor, memory, register);
+        operations[0x34] = new OpIncIndexedIndirect(processor, memory, indexRegister);
+        operations[0x35] = new OpDecIndexedIndirect(processor, memory, indexRegister);
         operations[0x36] = new OpLdIndexedIndirectImmediate(processor, memory, indexRegister);
 //        operations[0x39] = new OpAddIndexedReg(processor, register, "sp");
 //

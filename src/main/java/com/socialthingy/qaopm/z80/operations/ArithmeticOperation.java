@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.z80.operations;
 
+import com.socialthingy.qaopm.util.Bitwise;
 import com.socialthingy.qaopm.z80.FlagsRegister;
 import com.socialthingy.qaopm.z80.FlagsRegister.Flag;
 import com.socialthingy.qaopm.z80.Operation;
@@ -26,7 +27,7 @@ abstract class ArithmeticOperation implements Operation {
             value = (value + 1) & 0xff;
         }
 
-        final int[] result = bitwiseAdd(accumulator.get(), value);
+        final int[] result = Bitwise.add(accumulator.get(), value);
         accumulator.set(result[0]);
         flagsRegister.set(Flag.N, false);
         setCommonFlags(signedAccumulator, result);
@@ -39,7 +40,7 @@ abstract class ArithmeticOperation implements Operation {
             value = (value + 1) & 0xff;
         }
 
-        final int[] result = bitwiseSub(accumulator.get(), value);
+        final int[] result = Bitwise.sub(accumulator.get(), value);
         flagsRegister.set(Flag.N, true);
         setCommonFlags(signedAccumulator, result);
         return result[0];
@@ -54,21 +55,4 @@ abstract class ArithmeticOperation implements Operation {
         flagsRegister.set(Flag.C, result[2] == 1);
     }
 
-    private int[] bitwiseAdd(final int v1, final int v2) {
-        final int v1Low = v1 & 0x0f;
-        final int v2Low = v2 & 0x0f;
-
-        final int resultLow = v1Low + v2Low;
-        final int result = v1 + v2;
-        return new int[] {result & 0xff, resultLow > 0x0f ? 1 : 0, result > 0xff ? 1 : 0};
-    }
-
-    private int[] bitwiseSub(final int v1, final int v2) {
-        final int v1Low = v1 & 0x0f;
-        final int v2Low = v2 & 0x0f;
-
-        final int resultLow = v1Low - v2Low;
-        final int result = v1 - v2;
-        return new int[] {result & 0xff, resultLow < 0x00 ? 1 : 0, result < 0x00 ? 1 : 0};
-    }
 }
