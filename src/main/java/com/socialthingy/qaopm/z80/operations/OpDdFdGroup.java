@@ -113,7 +113,7 @@ public class OpDdFdGroup implements Operation {
 //        operations[0xbd] = new Undocumented("cp ixl");
         operations[0xbe] = new OpCpIndexedIndirect(processor, memory, indexRegister);
 //
-//        operations[0xcb] = new OpIndexedCbGroup(register, processor, memory);
+        operations[0xcb] = new OpIndexedCbGroup(indexRegister, processor, memory);
 //
 //        operations[0xe1] = new OpPopIndexed(processor, register);
 //        operations[0xe3] = new OpExSpIndirectIndexed(processor, memory, register);

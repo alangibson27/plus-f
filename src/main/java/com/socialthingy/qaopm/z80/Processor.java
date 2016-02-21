@@ -297,7 +297,7 @@ public class Processor {
                 operations[0xfe] = new OpCpImmediate(this);
 //                operations[0xff] = new OpRst(this, 0x38);
 //
-//                operations[0xcb] = new OpCbGroup(this, this.memory);
+                operations[0xcb] = new OpCbGroup(this, memory);
 //                operations[0xed] = new OpEdGroup(this, this.memory, this.io);
                 operations[0xdd] = new OpDdFdGroup(this, memory, IndexRegister.class.cast(registers.get("ix")));
                 operations[0xfd] = new OpDdFdGroup(this, memory, IndexRegister.class.cast(registers.get("iy")));
@@ -372,5 +372,9 @@ public class Processor {
 
     public int fetchNextWord() {
         return Word.from(fetchNextPC(), fetchNextPC());
+    }
+
+    public int fetchRelative(final int offset) {
+        return memory[(pcReg.get() + offset) & 0xffff];
     }
 }
