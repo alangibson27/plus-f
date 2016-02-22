@@ -28,8 +28,8 @@ public class Processor {
     }
 
     private void prepareOperations() {
-//                operations[0x00] = new Nop()
-//
+                operations[0x00] = new Nop();
+
 //                operations[0x01] = new OpLd16RegImmediate(this, this.memory, "bc");
                 operations[0x02] = new OpLd16RegIndirectFrom8Reg(memory, registers.get("bc"), registers.get("a"));
 //                operations[0x03] = new OpInc16Reg(this, "bc");
