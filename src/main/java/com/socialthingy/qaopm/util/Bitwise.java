@@ -22,10 +22,10 @@ public class Bitwise {
     public static boolean hasParity(int value) {
         boolean parity = true;
         for (int i = 0; i < 8; i++) {
-            if ((value % 2) > 0) {
+            if ((value & 0b1) > 0) {
                 parity = !parity;
             }
-            value /= 2;
+            value >>= 1;
         }
         return parity;
     }
