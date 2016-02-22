@@ -20,10 +20,10 @@ public class OpIndexedCbGroup implements Operation {
     }
 
     private final void prepareOperations() {
-//            operations[0x06] = new OpRlcIndexedIndirect(processor, memory, register);
-//            operations[0x0e] = new OpRrcIndexedIndirect(processor, memory, register);
-//            operations[0x16] = new OpRlIndexedIndirect(processor, memory, register);
-//            operations[0x1e] = new OpRrIndexedIndirect(processor, memory, register);
+            operations[0x06] = new OpRlcIndexedIndirect(processor, memory, indexRegister);
+            operations[0x0e] = new OpRrcIndexedIndirect(processor, memory, indexRegister);
+            operations[0x16] = new OpRlIndexedIndirect(processor, memory, indexRegister);
+            operations[0x1e] = new OpRrIndexedIndirect(processor, memory, indexRegister);
 //            operations[0x26] = new OpSlaIndexedIndirect(processor, memory, register);
 //            operations[0x2e] = new OpSraIndexedIndirect(processor, memory, register);
 //            operations[0x3e] = new OpSrlIndexedIndirect(processor, memory, register);

@@ -1,0 +1,25 @@
+package com.socialthingy.qaopm.z80.operations;
+
+import com.socialthingy.qaopm.z80.Processor;
+import com.socialthingy.qaopm.z80.Register;
+
+public class OpRlHlIndirect extends RotateOperation {
+
+    private final int[] memory;
+    private final Register hlReg;
+
+    public OpRlHlIndirect(final Processor processor, final int[] memory) {
+        super(processor);
+        this.memory = memory;
+        this.hlReg = processor.register("hl");
+    }
+
+    @Override
+    public int execute() {
+        final int address = hlReg.get();
+        final int result = rlValue(memory[address]);
+        setSignZeroAndParity(result);
+        memory[address] = result;
+        return 15;
+    }
+}

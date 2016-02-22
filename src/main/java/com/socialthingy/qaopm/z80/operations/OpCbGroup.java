@@ -17,40 +17,40 @@ public class OpCbGroup implements Operation {
     }
 
     private void prepareOperations() {
-//            operations[0x00] = OpRlcReg(processor, "b");
-//            operations[0x01] = new OpRlcReg(processor, "c");
-//            operations[0x02] = new OpRlcReg(processor, "d");
-//            operations[0x03] = new OpRlcReg(processor, "e");
-//            operations[0x04] = new OpRlcReg(processor, "h");
-//            operations[0x05] = new OpRlcReg(processor, "l");
-//            operations[0x06] = new OpRlcHlIndirect(processor, memory);
-//            operations[0x07] = new OpRlcReg(processor, "a");
-//            operations[0x08] = new OpRrcReg(processor, "b");
-//            operations[0x09] = new OpRrcReg(processor, "c");
-//            operations[0x0a] = new OpRrcReg(processor, "d");
-//            operations[0x0b] = new OpRrcReg(processor, "e");
-//            operations[0x0c] = new OpRrcReg(processor, "h");
-//            operations[0x0d] = new OpRrcReg(processor, "l");
-//            operations[0x0e] = new OpRrcHlIndirect(processor, memory);
-//            operations[0x0f] = new OpRrcReg(processor, "a");
-//
-//            operations[0x10] = new OpRlReg(processor, "b");
-//            operations[0x11] = new OpRlReg(processor, "c");
-//            operations[0x12] = new OpRlReg(processor, "d");
-//            operations[0x13] = new OpRlReg(processor, "e");
-//            operations[0x14] = new OpRlReg(processor, "h");
-//            operations[0x15] = new OpRlReg(processor, "l");
-//            operations[0x16] = new OpRlHlIndirect(processor, memory);
-//            operations[0x17] = new OpRlReg(processor, "a");
-//            operations[0x18] = new OpRrReg(processor, "b");
-//            operations[0x19] = new OpRrReg(processor, "c");
-//            operations[0x1a] = new OpRrReg(processor, "d");
-//            operations[0x1b] = new OpRrReg(processor, "e");
-//            operations[0x1c] = new OpRrReg(processor, "h");
-//            operations[0x1d] = new OpRrReg(processor, "l");
-//            operations[0x1e] = new OpRrHlIndirect(processor, memory);
-//            operations[0x1f] = new OpRrReg(processor, "a");
-//
+            operations[0x00] = new OpRlcReg(processor, processor.register("b"));
+            operations[0x01] = new OpRlcReg(processor, processor.register("c"));
+            operations[0x02] = new OpRlcReg(processor, processor.register("d"));
+            operations[0x03] = new OpRlcReg(processor, processor.register("e"));
+            operations[0x04] = new OpRlcReg(processor, processor.register("h"));
+            operations[0x05] = new OpRlcReg(processor, processor.register("l"));
+            operations[0x06] = new OpRlcHlIndirect(processor, memory);
+            operations[0x07] = new OpRlcReg(processor, processor.register("a"));
+            operations[0x08] = new OpRrcReg(processor, processor.register("b"));
+            operations[0x09] = new OpRrcReg(processor, processor.register("c"));
+            operations[0x0a] = new OpRrcReg(processor, processor.register("d"));
+            operations[0x0b] = new OpRrcReg(processor, processor.register("e"));
+            operations[0x0c] = new OpRrcReg(processor, processor.register("h"));
+            operations[0x0d] = new OpRrcReg(processor, processor.register("l"));
+            operations[0x0e] = new OpRrcHlIndirect(processor, memory);
+            operations[0x0f] = new OpRrcReg(processor, processor.register("a"));
+
+            operations[0x10] = new OpRlReg(processor, processor.register("b"));
+            operations[0x11] = new OpRlReg(processor, processor.register("c"));
+            operations[0x12] = new OpRlReg(processor, processor.register("d"));
+            operations[0x13] = new OpRlReg(processor, processor.register("e"));
+            operations[0x14] = new OpRlReg(processor, processor.register("h"));
+            operations[0x15] = new OpRlReg(processor, processor.register("l"));
+            operations[0x16] = new OpRlHlIndirect(processor, memory);
+            operations[0x17] = new OpRlReg(processor, processor.register("a"));
+            operations[0x18] = new OpRrReg(processor, processor.register("b"));
+            operations[0x19] = new OpRrReg(processor, processor.register("c"));
+            operations[0x1a] = new OpRrReg(processor, processor.register("d"));
+            operations[0x1b] = new OpRrReg(processor, processor.register("e"));
+            operations[0x1c] = new OpRrReg(processor, processor.register("h"));
+            operations[0x1d] = new OpRrReg(processor, processor.register("l"));
+            operations[0x1e] = new OpRrHlIndirect(processor, memory);
+            operations[0x1f] = new OpRrReg(processor, processor.register("a"));
+
 //            operations[0x20] = new OpSlaReg(processor, "b");
 //            operations[0x21] = new OpSlaReg(processor, "c");
 //            operations[0x22] = new OpSlaReg(processor, "d");

@@ -101,14 +101,14 @@ public class OpDdFdGroup implements Operation {
 //
 //        operations[0xa4] = new Undocumented("and ixh");
 //        operations[0xa5] = new Undocumented("and ixl");
-//        operations[0xa6] = new OpAndIndexedIndirect(processor, memory, register);
+        operations[0xa6] = new OpAndIndexedIndirect(processor, memory, indexRegister);
 //        operations[0xac] = new Undocumented("xor a, ixh");
 //        operations[0xad] = new Undocumented("xor a, ixl");
-//        operations[0xae] = new OpXorIndexedIndirect(processor, memory, register);
+        operations[0xae] = new OpXorIndexedIndirect(processor, memory, indexRegister);
 //
 //        operations[0xb4] = new Undocumented("or ixh");
 //        operations[0xb5] = new Undocumented("or ixl");
-//        operations[0xb6] = new OpOrIndexedIndirect(processor, memory, register);
+        operations[0xb6] = new OpOrIndexedIndirect(processor, memory, indexRegister);
 //        operations[0xbc] = new Undocumented("cp ixh");
 //        operations[0xbd] = new Undocumented("cp ixl");
         operations[0xbe] = new OpCpIndexedIndirect(processor, memory, indexRegister);

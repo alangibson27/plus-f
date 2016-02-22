@@ -36,7 +36,7 @@ public class Processor {
                 operations[0x04] = new OpInc8Reg(this, registers.get("b"));
                 operations[0x05] = new OpDec8Reg(this, registers.get("b"));
                 operations[0x06] = new OpLd8RegImmediate(this, registers.get("b"));
-//                operations[0x07] = new OpRlca(this);
+                operations[0x07] = new OpRlca(this);
 //                operations[0x08] = new OpExAfAfPrime(this);
 //                operations[0x09] = new OpAddHl16Reg(this, "bc");
                 operations[0x0a] = new OpLd8RegFrom16RegIndirect(memory, registers.get("a"), registers.get("bc"));
@@ -44,7 +44,7 @@ public class Processor {
                 operations[0x0c] = new OpInc8Reg(this, registers.get("c"));
                 operations[0x0d] = new OpDec8Reg(this, registers.get("c"));
                 operations[0x0e] = new OpLd8RegImmediate(this, registers.get("c"));
-//                operations[0x0f] = new OpRrca(this);
+                operations[0x0f] = new OpRrca(this);
 //
                 operations[0x10] = new OpDjnz(this);
 //                operations[0x11] = new OpLd16RegImmediate(this, this.memory, "de");
@@ -53,7 +53,7 @@ public class Processor {
                 operations[0x14] = new OpInc8Reg(this, registers.get("d"));
                 operations[0x15] = new OpDec8Reg(this, registers.get("d"));
                 operations[0x16] = new OpLd8RegImmediate(this, registers.get("d"));
-//                operations[0x17] = new OpRla(this);
+                operations[0x17] = new OpRla(this);
                 operations[0x18] = new OpJr(this);
 //                operations[0x19] = new OpAddHl16Reg(this, "de");
                 operations[0x1a] = new OpLd8RegFrom16RegIndirect(memory, registers.get("a"), registers.get("de"));
@@ -61,7 +61,7 @@ public class Processor {
                 operations[0x1c] = new OpInc8Reg(this, registers.get("e"));
                 operations[0x1d] = new OpDec8Reg(this, registers.get("e"));
                 operations[0x1e] = new OpLd8RegImmediate(this, registers.get("e"));
-//                operations[0x1f] = new OpRra(this);
+                operations[0x1f] = new OpRra(this);
 //
                 operations[0x20] = new OpJrConditional(this, Flag.Z, false);
 //                operations[0x21] = new OpLd16RegImmediate(this, this.memory, "hl");
@@ -199,31 +199,31 @@ public class Processor {
                 operations[0x9e] = new OpSubAHlIndirect(this, memory, true);
                 operations[0x9f] = new OpSubA8Reg(this, registers.get("a"), true);
 //
-//                operations[0xa0] = new OpAndA8Reg(this, "b");
-//                operations[0xa1] = new OpAndA8Reg(this, "c");
-//                operations[0xa2] = new OpAndA8Reg(this, "d");
-//                operations[0xa3] = new OpAndA8Reg(this, "e");
-//                operations[0xa4] = new OpAndA8Reg(this, "h");
-//                operations[0xa5] = new OpAndA8Reg(this, "l");
-//                operations[0xa6] = new OpAndAHlIndirect(this, this.memory);
-//                operations[0xa7] = new OpAndA8Reg(this, "a");
-//                operations[0xa8] = new OpXorA8Reg(this, "b");
-//                operations[0xa9] = new OpXorA8Reg(this, "c");
-//                operations[0xaa] = new OpXorA8Reg(this, "d");
-//                operations[0xab] = new OpXorA8Reg(this, "e");
-//                operations[0xac] = new OpXorA8Reg(this, "h");
-//                operations[0xad] = new OpXorA8Reg(this, "l");
-//                operations[0xae] = new OpXorAHlIndirect(this, this.memory);
-//                operations[0xaf] = new OpXorA8Reg(this, "a");
-//
-//                operations[0xb0] = new OpOrA8Reg(this, "b");
-//                operations[0xb1] = new OpOrA8Reg(this, "c");
-//                operations[0xb2] = new OpOrA8Reg(this, "d");
-//                operations[0xb3] = new OpOrA8Reg(this, "e");
-//                operations[0xb4] = new OpOrA8Reg(this, "h");
-//                operations[0xb5] = new OpOrA8Reg(this, "l");
-//                operations[0xb6] = new OpOrAHlIndirect(this, this.memory);
-//                operations[0xb7] = new OpOrA8Reg(this, "a");
+                operations[0xa0] = new OpAndA8Reg(this, registers.get("b"));
+                operations[0xa1] = new OpAndA8Reg(this, registers.get("c"));
+                operations[0xa2] = new OpAndA8Reg(this, registers.get("d"));
+                operations[0xa3] = new OpAndA8Reg(this, registers.get("e"));
+                operations[0xa4] = new OpAndA8Reg(this, registers.get("h"));
+                operations[0xa5] = new OpAndA8Reg(this, registers.get("l"));
+                operations[0xa6] = new OpAndAHlIndirect(this, memory);
+                operations[0xa7] = new OpAndA8Reg(this, registers.get("a"));
+                operations[0xa8] = new OpXorA8Reg(this, registers.get("b"));
+                operations[0xa9] = new OpXorA8Reg(this, registers.get("c"));
+                operations[0xaa] = new OpXorA8Reg(this, registers.get("d"));
+                operations[0xab] = new OpXorA8Reg(this, registers.get("e"));
+                operations[0xac] = new OpXorA8Reg(this, registers.get("h"));
+                operations[0xad] = new OpXorA8Reg(this, registers.get("l"));
+                operations[0xae] = new OpXorAHlIndirect(this, memory);
+                operations[0xaf] = new OpXorA8Reg(this, registers.get("a"));
+
+                operations[0xb0] = new OpOrA8Reg(this, registers.get("b"));
+                operations[0xb1] = new OpOrA8Reg(this, registers.get("c"));
+                operations[0xb2] = new OpOrA8Reg(this, registers.get("d"));
+                operations[0xb3] = new OpOrA8Reg(this, registers.get("e"));
+                operations[0xb4] = new OpOrA8Reg(this, registers.get("h"));
+                operations[0xb5] = new OpOrA8Reg(this, registers.get("l"));
+                operations[0xb6] = new OpOrAHlIndirect(this, memory);
+                operations[0xb7] = new OpOrA8Reg(this, registers.get("a"));
                 operations[0xb8] = new OpCpA8Reg(this, register("b"));
                 operations[0xb9] = new OpCpA8Reg(this, register("c"));
                 operations[0xba] = new OpCpA8Reg(this, register("d"));
@@ -271,14 +271,14 @@ public class Processor {
 //                operations[0xe3] = new OpExSpIndirectHl(this, this.memory);
 //                operations[0xe4] = new OpCallPo(this);
 //                operations[0xe5] = new OpPush16Reg(this, "hl");
-//                operations[0xe6] = new OpAndAImmediate(this);
+                operations[0xe6] = new OpAndAImmediate(this);
 //                operations[0xe7] = new OpRst(this, 0x20);
 //                operations[0xe8] = new OpRetPe(this);
                 operations[0xe9] = new OpJpHlIndirect(this);
                 operations[0xea] = new OpJpConditional(this, Flag.P, true);
 //                operations[0xeb] = new OpExDeHl(this);
 //                operations[0xec] = new OpCallPe(this);
-//                operations[0xee] = new OpXorAImmediate(this);
+                operations[0xee] = new OpXorAImmediate(this);
 //                operations[0xef] = new OpRst(this, 0x28);
 //
 //                operations[0xf0] = new OpRetP(this);
@@ -287,7 +287,7 @@ public class Processor {
 //                operations[0xf3] = new OpDi(this);
 //                operations[0xf4] = new OpCallP(this);
 //                operations[0xf5] = new OpPush16Reg(this, "af");
-//                operations[0xf6] = new OpOrAImmediate(this);
+                operations[0xf6] = new OpOrAImmediate(this);
 //                operations[0xf7] = new OpRst(this, 0x30);
 //                operations[0xf8] = new OpRetM(this);
 //                operations[0xf9] = new OpLdSpHl(this);
@@ -298,7 +298,7 @@ public class Processor {
 //                operations[0xff] = new OpRst(this, 0x38);
 //
                 operations[0xcb] = new OpCbGroup(this, memory);
-//                operations[0xed] = new OpEdGroup(this, this.memory, this.io);
+                operations[0xed] = new OpEdGroup(this, memory, io);
                 operations[0xdd] = new OpDdFdGroup(this, memory, IndexRegister.class.cast(registers.get("ix")));
                 operations[0xfd] = new OpDdFdGroup(this, memory, IndexRegister.class.cast(registers.get("iy")));
     }

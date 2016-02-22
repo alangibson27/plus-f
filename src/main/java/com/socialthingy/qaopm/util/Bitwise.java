@@ -18,4 +18,22 @@ public class Bitwise {
         final int result = v1 - v2;
         return new int[] {result & 0xff, resultLow < 0x00 ? 1 : 0, result < 0x00 ? 1 : 0};
     }
+
+    public static boolean hasParity(int value) {
+        boolean parity = true;
+        for (int i = 0; i < 8; i++) {
+            if ((value % 2) > 0) {
+                parity = !parity;
+            }
+            value /= 2;
+        }
+        return parity;
+    }
+
+    public static int[] nibbles(final int value) {
+        final int[] nibbles = new int[2];
+        nibbles[0] = (value & 0b11110000) >> 4;
+        nibbles[1] = value & 0b1111;
+        return nibbles;
+    }
 }
