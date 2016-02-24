@@ -25,14 +25,14 @@ public class OpDdFdGroup implements Operation {
 //
 //        operations[0x19] = new OpAddIndexedReg(processor, register, "de");
 //
-//        operations[0x21] = new OpLdIndexedImmediate(processor, register);
-//        operations[0x22] = new OpLdExtIndexed(processor, memory, register);
+        operations[0x21] = new OpLdIndexedImmediate(processor, indexRegister);
+        operations[0x22] = new OpLdAddress16Reg(processor, memory, indexRegister);
 //        operations[0x23] = new OpIncIndexed(processor, register);
 //        operations[0x24] = new Undocumented("inc ixh");
 //        operations[0x25] = new Undocumented("dec ixh");
 //        operations[0x26] = new Undocumented("ld ixh, n");
 //        operations[0x29] = new OpAddIndexedReg(processor, register, register);
-//        operations[0x2a] = new OpLdIndexedExt(processor, memory, register);
+        operations[0x2a] = new OpLd16RegAddress(processor, memory, indexRegister);
 //        operations[0x2b] = new OpDecIndexed(processor, register);
 //        operations[0x2c] = new Undocumented("inc ixl");
 //        operations[0x2d] = new Undocumented("dec ixl");
@@ -115,12 +115,12 @@ public class OpDdFdGroup implements Operation {
 //
         operations[0xcb] = new OpIndexedCbGroup(indexRegister, processor, memory);
 //
-//        operations[0xe1] = new OpPopIndexed(processor, register);
+        operations[0xe1] = new OpPopIndexed(processor, indexRegister);
 //        operations[0xe3] = new OpExSpIndirectIndexed(processor, memory, register);
-//        operations[0xe5] = new OpPushIndexed(processor, register);
+        operations[0xe5] = new OpPushIndexed(processor, indexRegister);
         operations[0xe9] = new OpJpIndexedIndirect(processor, indexRegister);
 //
-//        operations[0xf9] = new OpLdSpIndexed(processor, register);
+        operations[0xf9] = new OpLdSpIndexed(processor, indexRegister);
     }
 
     @Override

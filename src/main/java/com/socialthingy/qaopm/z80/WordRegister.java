@@ -21,4 +21,8 @@ class WordRegister implements Register {
         set(value + 1);
         return value;
     }
+
+    public int decAndGet() {
+        return set(value - 1);
+    }
 }
