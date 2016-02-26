@@ -21,19 +21,19 @@ public class OpDdFdGroup implements Operation {
     }
 
     private void prepareOperations() {
-//        operations[0x09] = new OpAddIndexedReg(processor, register, "bc");
+        operations[0x09] = new OpAddIndexedReg(processor, indexRegister, processor.register("bc"));
 //
-//        operations[0x19] = new OpAddIndexedReg(processor, register, "de");
+        operations[0x19] = new OpAddIndexedReg(processor, indexRegister, processor.register("de"));
 //
         operations[0x21] = new OpLdIndexedImmediate(processor, indexRegister);
         operations[0x22] = new OpLdAddress16Reg(processor, memory, indexRegister);
-//        operations[0x23] = new OpIncIndexed(processor, register);
+        operations[0x23] = new OpIncIndexed(indexRegister);
 //        operations[0x24] = new Undocumented("inc ixh");
 //        operations[0x25] = new Undocumented("dec ixh");
 //        operations[0x26] = new Undocumented("ld ixh, n");
-//        operations[0x29] = new OpAddIndexedReg(processor, register, register);
+        operations[0x29] = new OpAddIndexedReg(processor, indexRegister, indexRegister);
         operations[0x2a] = new OpLd16RegAddress(processor, memory, indexRegister);
-//        operations[0x2b] = new OpDecIndexed(processor, register);
+        operations[0x2b] = new OpDecIndexed(indexRegister);
 //        operations[0x2c] = new Undocumented("inc ixl");
 //        operations[0x2d] = new Undocumented("dec ixl");
 //        operations[0x2e] = new Undocumented("ld ixl, n");
@@ -41,7 +41,7 @@ public class OpDdFdGroup implements Operation {
         operations[0x34] = new OpIncIndexedIndirect(processor, memory, indexRegister);
         operations[0x35] = new OpDecIndexedIndirect(processor, memory, indexRegister);
         operations[0x36] = new OpLdIndexedIndirectImmediate(processor, memory, indexRegister);
-//        operations[0x39] = new OpAddIndexedReg(processor, register, "sp");
+        operations[0x39] = new OpAddIndexedReg(processor, indexRegister, processor.register("sp"));
 //
 //        operations[0x44] = new Undocumented("ld b, ixh");
 //        operations[0x45] = new Undocumented("ld b, ixl");

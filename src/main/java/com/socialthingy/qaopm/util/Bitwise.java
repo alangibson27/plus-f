@@ -10,6 +10,24 @@ public class Bitwise {
         return new int[] {result & 0xff, resultLow > 0x0f ? 1 : 0, result > 0xff ? 1 : 0};
     }
 
+    public static int[] addWord(final int v1, final int v2) {
+        final int v1Low = v1 & 0x0fff;
+        final int v2Low = v2 & 0x0fff;
+
+        final int resultLow = v1Low + v2Low;
+        final int result = v1 + v2;
+        return new int[] {result & 0xffff, resultLow > 0x0fff ? 1 : 0, result > 0xffff ? 1 : 0};
+    }
+
+    public static int[] subWord(final int v1, final int v2) {
+        final int v1Low = v1 & 0x0fff;
+        final int v2Low = v2 & 0x0fff;
+
+        final int resultLow = v1Low - v2Low;
+        final int result = v1 - v2;
+        return new int[] {result & 0xffff, resultLow < 0 ? 1 : 0, result < 0 ? 1 : 0};
+    }
+
     public static int[] sub(final int v1, final int v2) {
         final int v1Low = v1 & 0x0f;
         final int v2Low = v2 & 0x0f;

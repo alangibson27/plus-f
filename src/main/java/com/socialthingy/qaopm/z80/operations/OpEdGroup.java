@@ -23,7 +23,7 @@ public class OpEdGroup implements Operation {
         final Operation opNeg = new OpNeg(processor);
 //            operations[0x40] = new OpIn8RegC(processor, io, "b");
 //            operations[0x41] = new OpOutC8Reg(processor, io, "b");
-//            operations[0x42] = new OpSbcHl16Reg(processor, "bc");
+            operations[0x42] = new OpSbcHl16Reg(processor, processor.register("bc"));
             operations[0x43] = new OpLdAddress16Reg(processor, memory, processor.register("bc"));
             operations[0x44] = opNeg;
 //            0x45: op_retn,
@@ -31,7 +31,7 @@ public class OpEdGroup implements Operation {
 //            operations[0x47] = new OpLdIA(processor);
 //            operations[0x48] = new OpIn8RegC(processor, io, "c");
 //            operations[0x49] = new OpOutC8Reg(processor, io, "c");
-//            operations[0x4a] = new OpAdcHl16Reg(processor, "bc");
+            operations[0x4a] = new OpAdcHl16Reg(processor, processor.register("bc"));
             operations[0x4b] = new OpLd16RegAddress(processor, memory, processor.register("bc"));
             operations[0x4c] = opNeg;
 //            operations[0x4d] = new OpReti(processor);
@@ -40,7 +40,7 @@ public class OpEdGroup implements Operation {
 //
 //            operations[0x50] = new OpIn8RegC(processor, io, "d");
 //            operations[0x51] = new OpOutC8Reg(processor, io, "d");
-//            operations[0x52] = new OpSbcHl16Reg(processor, "de");
+            operations[0x52] = new OpSbcHl16Reg(processor, processor.register("de"));
             operations[0x53] = new OpLdAddress16Reg(processor, memory, processor.register("de"));
             operations[0x54] = opNeg;
 //            0x55: op_retn,
@@ -48,7 +48,7 @@ public class OpEdGroup implements Operation {
 //            operations[0x57] = new OpLdAI(processor);
 //            operations[0x58] = new OpIn8RegC(processor, io, "e");
 //            operations[0x59] = new OpOutC8Reg(processor, io, "e");
-//            operations[0x5a] = new OpAdcHl16Reg(processor, "de");
+            operations[0x5a] = new OpAdcHl16Reg(processor, processor.register("de"));
             operations[0x5b] = new OpLd16RegAddress(processor, memory, processor.register("de"));
             operations[0x5c] = opNeg;
 //            0x5d: op_retn,
@@ -57,7 +57,7 @@ public class OpEdGroup implements Operation {
 //
 //            operations[0x60] = new OpIn8RegC(processor, io, "h");
 //            operations[0x61] = new OpOutC8Reg(processor, io, "h");
-//            operations[0x62] = new OpSbcHl16Reg(processor, "hl");
+            operations[0x62] = new OpSbcHl16Reg(processor, processor.register("hl"));
             operations[0x63] = new OpLdAddress16Reg(processor, memory, processor.register("hl"));
             operations[0x64] = opNeg;
 //            0x65: op_retn,
@@ -65,7 +65,7 @@ public class OpEdGroup implements Operation {
             operations[0x67] = new OpRrd(processor, memory);
 //            operations[0x68] = new OpIn8RegC(processor, io, "l");
 //            operations[0x69] = new OpOutC8Reg(processor, io, "l");
-//            operations[0x6a] = new OpAdcHl16Reg(processor, "hl");
+            operations[0x6a] = new OpAdcHl16Reg(processor, processor.register("hl"));
             operations[0x6b] = new OpLd16RegAddress(processor, memory, processor.register("hl"));
             operations[0x6c] = opNeg;
 //            0x6d: op_retn,
@@ -74,14 +74,14 @@ public class OpEdGroup implements Operation {
 //
 //            0x70: op_in_a_c,
 //            operations[0x71] = new OpOutCZero(processor, io);
-//            operations[0x72] = new OpSbcHl16Reg(processor, "sp");
+            operations[0x72] = new OpSbcHl16Reg(processor, processor.register("sp"));
             operations[0x73] = new OpLdAddress16Reg(processor, memory, processor.register("sp"));
             operations[0x74] = opNeg;
 //            0x75: op_retn,
 //            operations[0x76] = new OpIm(processor, 1);
 //            0x78: op_in_a_c,
 //            operations[0x79] = new OpOutC8Reg(processor, io, "a");
-//            operations[0x7a] = new OpAdcHl16Reg(processor, "sp");
+            operations[0x7a] = new OpAdcHl16Reg(processor, processor.register("sp"));
             operations[0x7b] = new OpLd16RegAddress(processor, memory, processor.register("sp"));
             operations[0x7c] = opNeg;
 //            0x7d: op_retn,
