@@ -38,7 +38,7 @@ public class Processor {
                 operations[0x05] = new OpDec8Reg(this, registers.get("b"));
                 operations[0x06] = new OpLd8RegImmediate(this, registers.get("b"));
                 operations[0x07] = new OpRlca(this);
-//                operations[0x08] = new OpExAfAfPrime(this);
+                operations[0x08] = new OpExRegister(registers.get("af"), registers.get("af'"));
                 operations[0x09] = new OpAddHl16Reg(this, registers.get("bc"));
                 operations[0x0a] = new OpLd8RegFrom16RegIndirect(memory, registers.get("a"), registers.get("bc"));
                 operations[0x0b] = new OpDec16Reg(registers.get("bc"));
@@ -259,7 +259,7 @@ public class Processor {
                 operations[0xd6] = new OpSubAImmediate(this, false);
 //                operations[0xd7] = new OpRst(this, 0x10);
 //                operations[0xd8] = new OpRetC(this);
-//                operations[0xd9] = new OpExx(this);
+                operations[0xd9] = new OpExx(this);
                 operations[0xda] = new OpJpConditional(this, Flag.C, true);
 //                operations[0xdb] = new OpInA(this, this.io);
 //                operations[0xdc] = new OpCallC(this);
@@ -269,7 +269,7 @@ public class Processor {
 //                operations[0xe0] = new OpRetPo(this);
                 operations[0xe1] = new OpPop16Reg(this, registers.get("hl"));
                 operations[0xe2] = new OpJpConditional(this, Flag.P, false);
-//                operations[0xe3] = new OpExSpIndirectHl(this, this.memory);
+                operations[0xe3] = new OpExSpIndirectHl(this, memory);
 //                operations[0xe4] = new OpCallPo(this);
                 operations[0xe5] = new OpPush16Reg(this, registers.get("hl"));
                 operations[0xe6] = new OpAndAImmediate(this);
@@ -277,7 +277,7 @@ public class Processor {
 //                operations[0xe8] = new OpRetPe(this);
                 operations[0xe9] = new OpJpHlIndirect(this);
                 operations[0xea] = new OpJpConditional(this, Flag.P, true);
-//                operations[0xeb] = new OpExDeHl(this);
+                operations[0xeb] = new OpExRegister(registers.get("de"), registers.get("hl"));
 //                operations[0xec] = new OpCallPe(this);
                 operations[0xee] = new OpXorAImmediate(this);
 //                operations[0xef] = new OpRst(this, 0x28);
@@ -343,6 +343,16 @@ public class Processor {
         registers.put("iy", iyReg);
         registers.put("pc", pcReg);
         registers.put("sp", spReg);
+
+        final WordRegister afPrimeReg = new WordRegister();
+        final WordRegister bcPrimeReg = new WordRegister();
+        final WordRegister dePrimeReg = new WordRegister();
+        final WordRegister hlPrimeReg = new WordRegister();
+
+        registers.put("af'", afPrimeReg);
+        registers.put("bc'", bcPrimeReg);
+        registers.put("de'", dePrimeReg);
+        registers.put("hl'", hlPrimeReg);
     }
 
     public Register register(final String name) {

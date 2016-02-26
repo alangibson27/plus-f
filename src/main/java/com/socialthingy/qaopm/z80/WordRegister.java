@@ -1,8 +1,5 @@
 package com.socialthingy.qaopm.z80;
 
-/**
- * Created by alan on 15/02/16.
- */
 class WordRegister implements Register {
     private int value;
 
