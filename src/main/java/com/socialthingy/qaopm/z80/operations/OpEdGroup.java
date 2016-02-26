@@ -87,21 +87,21 @@ public class OpEdGroup implements Operation {
 //            0x7d: op_retn,
 //            operations[0x7e] = new OpIm(processor, 2);
 //
-//            operations[0xa0] = new OpLdi(processor, memory);
-//            operations[0xa1] = new OpCpi(processor, memory);
+            operations[0xa0] = new OpLdi(processor, memory);
+            operations[0xa1] = new OpCpi(processor, memory);
 //            operations[0xa2] = new OpIni(processor, memory, io);
 //            operations[0xa3] = new OpOuti(processor, memory, io);
-//            operations[0xa8] = new OpLdd(processor, memory);
-//            operations[0xa9] = new OpCpd(processor, memory);
+            operations[0xa8] = new OpLdd(processor, memory);
+            operations[0xa9] = new OpCpd(processor, memory);
 //            operations[0xaa] = new OpInd(processor, memory, io);
 //            operations[0xab] = new OpOutd(processor, memory, io);
 //
-//            operations[0xb0] = new OpLdir(processor, memory);
-//            operations[0xb1] = new OpCpir(processor, memory);
+            operations[0xb0] = new OpLdir(processor, memory);
+            operations[0xb1] = new OpCpir(processor, memory);
 //            operations[0xb2] = new OpInir(processor, memory, io);
 //            operations[0xb3] = new OpOtir(processor, memory, io);
-//            operations[0xb8] = new OpLddr(processor, memory);
-//            operations[0xb9] = new OpCpdr(processor, memory);
+            operations[0xb8] = new OpLddr(processor, memory);
+            operations[0xb9] = new OpCpdr(processor, memory);
 //            operations[0xba] = new OpIndr(processor, memory, io);
 //            operations[0xbb] = new OpOtdr(processor, memory, io;
     }
