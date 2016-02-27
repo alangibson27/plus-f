@@ -1,6 +1,6 @@
 package com.socialthingy.qaopm.z80;
 
-class WordRegister implements Register {
+public class WordRegister implements Register {
     private int value;
 
     @Override
@@ -21,5 +21,13 @@ class WordRegister implements Register {
 
     public int decAndGet() {
         return set(value - 1);
+    }
+
+    public int getLow() {
+        return get() & 0xff;
+    }
+
+    public int getHigh() {
+        return get() >> 8;
     }
 }
