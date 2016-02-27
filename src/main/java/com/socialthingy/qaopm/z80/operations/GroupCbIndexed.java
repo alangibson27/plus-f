@@ -4,14 +4,14 @@ import com.socialthingy.qaopm.z80.IndexRegister;
 import com.socialthingy.qaopm.z80.Operation;
 import com.socialthingy.qaopm.z80.Processor;
 
-public class OpIndexedCbGroup implements Operation {
+public class GroupCbIndexed implements Operation {
 
     private final IndexRegister indexRegister;
     private final Processor processor;
     private final int[] memory;
     private final Operation[] operations = new Operation[0x100];
 
-    public OpIndexedCbGroup(final IndexRegister indexRegister, final Processor processor, final int[] memory) {
+    public GroupCbIndexed(final IndexRegister indexRegister, final Processor processor, final int[] memory) {
         this.indexRegister = indexRegister;
         this.processor = processor;
         this.memory = memory;
@@ -24,10 +24,10 @@ public class OpIndexedCbGroup implements Operation {
             operations[0x0e] = new OpRrcIndexedIndirect(processor, memory, indexRegister);
             operations[0x16] = new OpRlIndexedIndirect(processor, memory, indexRegister);
             operations[0x1e] = new OpRrIndexedIndirect(processor, memory, indexRegister);
-//            operations[0x26] = new OpSlaIndexedIndirect(processor, memory, register);
-//            operations[0x2e] = new OpSraIndexedIndirect(processor, memory, register);
-//            operations[0x3e] = new OpSrlIndexedIndirect(processor, memory, register);
-//
+            operations[0x26] = new OpSlaIndexedIndirect(processor, memory, indexRegister);
+            operations[0x2e] = new OpSraIndexedIndirect(processor, memory, indexRegister);
+            operations[0x3e] = new OpSrlIndexedIndirect(processor, memory, indexRegister);
+
             operations[0x46] = new OpBitIndexedIndirect(processor, memory, indexRegister, 0);
             operations[0x4e] = new OpBitIndexedIndirect(processor, memory, indexRegister, 1);
             operations[0x56] = new OpBitIndexedIndirect(processor, memory, indexRegister, 2);

@@ -4,14 +4,14 @@ import com.socialthingy.qaopm.z80.IO;
 import com.socialthingy.qaopm.z80.Operation;
 import com.socialthingy.qaopm.z80.Processor;
 
-public class OpEdGroup implements Operation {
+public class GroupEd implements Operation {
 
     private final Processor processor;
     private final int[] memory;
     private final IO io;
     private final Operation[] operations = new Operation[0x100];
 
-    public OpEdGroup(final Processor processor, final int[] memory, final IO io) {
+    public GroupEd(final Processor processor, final int[] memory, final IO io) {
         this.processor = processor;
         this.memory = memory;
         this.io = io;

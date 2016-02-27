@@ -298,10 +298,10 @@ public class Processor {
                 operations[0xfe] = new OpCpImmediate(this);
 //                operations[0xff] = new OpRst(this, 0x38);
 
-                operations[0xcb] = new OpCbGroup(this, memory);
-                operations[0xed] = new OpEdGroup(this, memory, io);
-                operations[0xdd] = new OpDdFdGroup(this, memory, IndexRegister.class.cast(registers.get("ix")));
-                operations[0xfd] = new OpDdFdGroup(this, memory, IndexRegister.class.cast(registers.get("iy")));
+                operations[0xcb] = new GroupCb(this, memory);
+                operations[0xed] = new GroupEd(this, memory, io);
+                operations[0xdd] = new GroupDdFd(this, memory, IndexRegister.class.cast(registers.get("ix")));
+                operations[0xfd] = new GroupDdFd(this, memory, IndexRegister.class.cast(registers.get("iy")));
     }
 
     private void prepareRegisters() {
