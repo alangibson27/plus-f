@@ -8,4 +8,8 @@ public class InterruptRequest {
         this.interruptingDevice = interruptingDevice;
         this.mode = mode;
     }
+
+    public InterruptingDevice getDevice() {
+        return interruptingDevice;
+    }
 }

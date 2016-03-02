@@ -5,7 +5,9 @@ import com.socialthingy.qaopm.z80.operations.*;
 
 import com.socialthingy.qaopm.z80.FlagsRegister.Flag;
 
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class Processor {
@@ -14,12 +16,18 @@ public class Processor {
     private final int[] memory;
     private final IO io;
     private final Operation[] operations = new Operation[0x100];
-    private boolean enableIffAfterOp = false;
+    private boolean enableIff = false;
+    private boolean halting = false;
     private boolean iffs[] = new boolean[2];
+    private int interruptMode = 1;
+    private Deque<InterruptRequest> interruptRequests = new LinkedList<>();
     private final ByteRegister rReg = new ByteRegister();
+    private final ByteRegister iReg = new ByteRegister();
     private final WordRegister pcReg = new WordRegister();
     private final WordRegister spReg = new WordRegister();
     private final FlagsRegister fReg = new FlagsRegister();
+    private final OpRst im1ResponseOp;
+    private final OpRst nmiResponseOp;
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -27,6 +35,9 @@ public class Processor {
 
         prepareRegisters();
         prepareOperations();
+
+        this.im1ResponseOp = new OpRst(this, 0x0038);
+        this.nmiResponseOp = new OpRst(this, 0x0066);
     }
 
     private void prepareOperations() {
@@ -156,7 +167,7 @@ public class Processor {
         operations[0x73] = new OpLd16RegIndirectFrom8Reg(memory, registers.get("hl"), registers.get("e"));
         operations[0x74] = new OpLd16RegIndirectFrom8Reg(memory, registers.get("hl"), registers.get("h"));
         operations[0x75] = new OpLd16RegIndirectFrom8Reg(memory, registers.get("hl"), registers.get("l"));
-//                operations[0x76] = new OpHalt(this);
+        operations[0x76] = new OpHalt(this);
         operations[0x77] = new OpLd16RegIndirectFrom8Reg(memory, registers.get("hl"), registers.get("a"));
         operations[0x78] = new OpLd8RegFrom8Reg(registers.get("a"), registers.get("b"));
         operations[0x79] = new OpLd8RegFrom8Reg(registers.get("a"), registers.get("c"));
@@ -286,7 +297,7 @@ public class Processor {
         operations[0xf0] = new OpRetConditional(this, Flag.S, false);
         operations[0xf1] = new OpPop16Reg(this, registers.get("af"));
         operations[0xf2] = new OpJpConditional(this, Flag.S, false);
-//                operations[0xf3] = new OpDi(this);
+        operations[0xf3] = new OpDi(this);
         operations[0xf4] = new OpCallConditional(this, Flag.S, false);
         operations[0xf5] = new OpPush16Reg(this, registers.get("af"));
         operations[0xf6] = new OpOrAImmediate(this);
@@ -294,7 +305,7 @@ public class Processor {
         operations[0xf8] = new OpRetConditional(this, Flag.S, true);
         operations[0xf9] = new OpLdSpHl(this);
         operations[0xfa] = new OpJpConditional(this, Flag.S, true);
-//                operations[0xfb] = new OpEi(this);
+        operations[0xfb] = new OpEi(this);
         operations[0xfc] = new OpCallConditional(this, Flag.S, true);
         operations[0xfe] = new OpCpImmediate(this);
         operations[0xff] = new OpRst(this, 0x38);
@@ -313,7 +324,6 @@ public class Processor {
         final ByteRegister eReg = new ByteRegister();
         final ByteRegister hReg = new ByteRegister();
         final ByteRegister lReg = new ByteRegister();
-        final ByteRegister iReg = new ByteRegister();
 
         final BytePairRegister afReg = new BytePairRegister(aReg, fReg);
         final BytePairRegister bcReg = new BytePairRegister(bReg, cReg);
@@ -364,17 +374,43 @@ public class Processor {
     }
 
     public Operation execute() {
+        final boolean enableIffAfterExecution = enableIff;
         final Operation op = fetch();
         if (op == null) {
             throw new IllegalStateException("Unimplemented operation");
         }
 
         op.execute();
+
+        if (enableIffAfterExecution) {
+            enableIff = false;
+            iffs[0] = true;
+            iffs[1] = true;
+        }
         return op;
     }
 
     private Operation fetch() {
-        return operations[fetchNextPC()];
+        if (iffs[0] && !interruptRequests.isEmpty()) {
+            halting = false;
+            final InterruptRequest request = interruptRequests.removeFirst();
+            request.getDevice().acknowledge();
+
+            if (interruptMode == 1) {
+                return im1ResponseOp;
+            } else {
+                final int jumpBase = Word.from(rReg.get() & 0xfe, iReg.get());
+                final int jumpLow = memory[jumpBase];
+                final int jumpHigh = memory[(jumpBase + 1) & 0xffff];
+                return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
+            }
+        } else {
+            if (halting) {
+                return operations[0x00];
+            } else {
+                return operations[fetchNextPC()];
+            }
+        }
     }
 
     public int fetchNextPC() {
@@ -408,10 +444,24 @@ public class Processor {
     }
 
     public void interrupt(final InterruptRequest request) {
-
+        interruptRequests.addLast(request);
     }
 
     public void nmi() {
+        halting = false;
+        iffs[0] = false;
+        nmiResponseOp.execute();
+    }
 
+    public void enableInterrupts() {
+        enableIff = true;
+    }
+
+    public void setInterruptMode(final int mode) {
+        interruptMode = mode;
+    }
+
+    public void halt() {
+        this.halting = true;
     }
 }

@@ -133,7 +133,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    registerValue("r") shouldBe 0xc0
+    registerValue("r") shouldBe 0xbe
   }
 
   val truthValues = Table("value", true, false)
@@ -148,7 +148,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      registerValue("a") shouldBe 0xbe
+      registerValue("a") shouldBe 0xc0
       flag("s").value shouldBe true
       flag("z").value shouldBe false
       flag("h").value shouldBe false
