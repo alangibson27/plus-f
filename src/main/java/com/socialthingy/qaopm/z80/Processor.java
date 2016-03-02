@@ -28,6 +28,7 @@ public class Processor {
     private final FlagsRegister fReg = new FlagsRegister();
     private final OpRst im1ResponseOp;
     private final OpRst nmiResponseOp;
+    private int lastTime;
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -373,6 +374,10 @@ public class Processor {
         return this.fReg;
     }
 
+    public int lastTime() {
+        return lastTime;
+    }
+
     public Operation execute() {
         final boolean enableIffAfterExecution = enableIff;
         final Operation op = fetch();
@@ -380,7 +385,7 @@ public class Processor {
             throw new IllegalStateException("Unimplemented operation");
         }
 
-        op.execute();
+        this.lastTime = op.execute();
 
         if (enableIffAfterExecution) {
             enableIff = false;

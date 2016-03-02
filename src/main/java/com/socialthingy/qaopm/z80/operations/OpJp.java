@@ -17,6 +17,6 @@ public class OpJp implements Operation {
     @Override
     public int execute() {
         pcReg.set(processor.fetchNextWord());
-        return 18;
+        return 10;
     }
 }

@@ -28,6 +28,6 @@ public class OpExSpIndirectIndexed implements Operation {
 
         memory[spLow] = oldIndex & 0x00ff;
         memory[spHigh] = (oldIndex & 0xff00) >> 8;
-        return 19;
+        return 23;
     }
 }
