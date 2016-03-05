@@ -1,7 +1,8 @@
 package com.socialthingy.qaopm.z80
 
-import org.mockito.Mockito.{when => mockitoWhen}
-import org.mockito.Matchers._
+import org.mockito.Mockito.{when => mockitoWhen, verify}
+import org.mockito.{ Matchers => MockitoMatchers }
+import MockitoMatchers._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, GivenWhenThen, FlatSpec}
 
@@ -21,6 +22,12 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
     }
 
     val processor = new Processor(memory, io)
+
+    def readFromPort(port: Int, accumulator: Int): PortBuilder = new PortBuilder(port, accumulator)
+
+    def verifyPortWrite(port: Int, accumulator: Int, value: Int): Unit = {
+      verify(io).write(port, accumulator, value)
+    }
 
     def nextInstructionIs(opCode: Int*): Unit = {
       opCode foreach(pokeAtIp(_))
@@ -53,6 +60,12 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
     def registerValue(reg: String): Int = processor.register(reg).get()
 
     def signedRegisterValue(reg: String): Int = processor.register(reg).asInstanceOf[ByteRegister].signedGet()
+
+    class PortBuilder(port: Int, accumulator: Int) {
+      def returns(value: Int): Unit = {
+        mockitoWhen(io.read(MockitoMatchers.eq(port), anyInt())).thenReturn(value)
+      }
+    }
   }
 
   def randomByte: Int = Random.nextInt(0x100)

@@ -266,7 +266,7 @@ public class Processor {
         operations[0xd0] = new OpRetConditional(this, Flag.C, false);
         operations[0xd1] = new OpPop16Reg(this, registers.get("de"));
         operations[0xd2] = new OpJpConditional(this, Flag.C, false);
-//                operations[0xd3] = new OpOutA(this, this.io);
+        operations[0xd3] = new OpOutA(this, this.io);
         operations[0xd4] = new OpCallConditional(this, Flag.C, false);
         operations[0xd5] = new OpPush16Reg(this, registers.get("de"));
         operations[0xd6] = new OpSubAImmediate(this, false);
@@ -274,7 +274,7 @@ public class Processor {
         operations[0xd8] = new OpRetConditional(this, Flag.C, true);
         operations[0xd9] = new OpExx(this);
         operations[0xda] = new OpJpConditional(this, Flag.C, true);
-//                operations[0xdb] = new OpInA(this, this.io);
+        operations[0xdb] = new OpInA(this, this.io);
         operations[0xdc] = new OpCallConditional(this, Flag.C, true);
         operations[0xde] = new OpSubAImmediate(this, true);
         operations[0xdf] = new OpRst(this, 0x18);

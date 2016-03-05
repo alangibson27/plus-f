@@ -38,7 +38,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     (List(0xe1), 10),                       // pop hl
     (List(0xdd, 0xe1), 14),                 // pop ix
     (List(0xeb), 4),                        // ex de, hl
-    (List(0x08), 4),                        // ex af, af'
+    (List(0x08), 4),                        // ex af, af"
     (List(0xd9), 4),                        // exx
     (List(0xe3), 19),                       // ex (sp), hl
     (List(0xdd, 0xe3), 23),                 // ex (sp), ix
@@ -175,291 +175,296 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.lastTime() shouldBe cycles
     }
   }
+  
+  "execute on a block operation when bc decrements to zero" should "return the correct number of cycles" in new Machine {
+    // given
+    nextInstructionIs(0xed, 0xb0)
+    registerContainsValue("hl", 0xbeef)
+    registerContainsValue("de", 0xbabe)
+    registerContainsValue("bc", 0x0001)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 16
+  }
+  
+  "execute on a block operation when bc decrements to non-zero" should "return the correct number of cycles" in new Machine {
+    // given
+    nextInstructionIs(0xed, 0xb8)
+    registerContainsValue("hl", 0xbeef)
+    registerContainsValue("de", 0xbabe)
+    registerContainsValue("bc", 0x0010)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 21
+  }
+  
+  "execute on jr c when carry is set" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("c") is true
+    nextInstructionIs(0x38, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 12
+  }
+
+  "execute on jr c when carry is reset" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("c") is false
+    nextInstructionIs(0x38, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 7
+  }
+
+  "execute on jr nc when carry is set" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("c") is true
+    nextInstructionIs(0x30, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 7
+  }
+
+  "execute on jr nc when carry is reset" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("c") is false
+    nextInstructionIs(0x30, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 12
+  }
+
+  "execute on jr z when z is set" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is true
+    nextInstructionIs(0x28, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 12
+  }
+
+  "execute on jr z when z is reset" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is false
+    nextInstructionIs(0x28, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 7
+  }
+
+  "execute on jr nz when z is set" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is true
+    nextInstructionIs(0x20, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 7
+  }
+
+  "execute on jr nz when z is reset" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is false
+    nextInstructionIs(0x20, 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 12
+  }
+
+  "execute on djnz when b decrements to zero" should "return the correct number of cycles" in new Machine {
+    // given
+    nextInstructionIs(0x10, 0xa0)
+    registerContainsValue("b", 1)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 8
+  }
+
+  "execute on djnz when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
+    // given
+    nextInstructionIs(0x10, 0xa0)
+    registerContainsValue("b", 0x10)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 13
+  }
+
+  "execute on call z when z is set" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is true
+    nextInstructionIs(0xcc, 0xef, 0xbe)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 5
+  }
+
+  "execute on call z when z is reset" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is false
+    nextInstructionIs(0xcc, 0xef, 0xbe)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 3
+  }
+
+  "execute on ret z when z is set" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is true
+    nextInstructionIs(0xc8)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 11
+  }
+
+  "execute on ret z when z is reset" should "return the correct number of cycles" in new Machine {
+    // given
+    flag("z") is false
+    nextInstructionIs(0xc8)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 5
+  }
+
+  "execute on inir when b decrements to zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x01)
+    nextInstructionIs(0xed, 0xb2)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 16
+  }
+
+  "execute on inir when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x10)
+    nextInstructionIs(0xed, 0xb2)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 21
+  }
+
+  "execute on indr when b decrements to zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x01)
+    nextInstructionIs(0xed, 0xba)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 16
+  }
+
+  "execute on indr when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x10)
+    nextInstructionIs(0xed, 0xba)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 21
+  }
+
+  "execute on otir when b decrements to zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x01)
+    nextInstructionIs(0xed, 0xb3)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 16
+  }
+
+  "execute on otir when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x10)
+    nextInstructionIs(0xed, 0xb3)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 21
+  }
+
+  "execute on otdr when b decrements to zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x01)
+    nextInstructionIs(0xed, 0xbb)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 16
+  }
+
+  "execute on otdr when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
+    // given
+    registerContainsValue("b", 0x10)
+    nextInstructionIs(0xed, 0xbb)
+
+    // when
+    processor.execute()
+
+    // then
+    processor.lastTime() shouldBe 21
+  }
 }
-
-/*
-    def test_execute_returns_correct_number_of_tstates_for_each_operation_type(self):
-        values = [
-        ]
-
-        for op_codes, cycles in values:
-            yield self.check_execute_returns_correct_number_of_tstates_for_each_operation_type, op_codes, cycles
-
-    def check_execute_returns_correct_number_of_tstates_for_each_operation_type(self, op_codes, cycles):
-        // given
-        self.given_next_instruction_is(op_codes)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, cycles)
-
-    def test_execute_returns_correct_number_of_tstates_for_block_operations_when_bc_decrements_to_zero(self):
-        // given
-        self.given_next_instruction_is(0xed, 0xb0)
-        self.given_register_pair_contains_value('hl', 0xbeef)
-        self.given_register_pair_contains_value('de', 0xbabe)
-        self.given_register_pair_contains_value('bc', 0x0001)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 16)
-
-    def test_execute_returns_correct_number_of_tstates_for_block_operations_when_bc_decrements_to_nonzero(self):
-        // given
-        self.given_next_instruction_is(0xed, 0xb8)
-        self.given_register_pair_contains_value('hl', 0xbeef)
-        self.given_register_pair_contains_value('de', 0xbabe)
-        self.given_register_pair_contains_value('bc', 0x0010)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 21)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_c_when_carry_is_set(self):
-        // given
-        self.given_flag('c').set_to(True)
-        self.given_next_instruction_is(0x38, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 12)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_c_when_carry_is_reset(self):
-        // given
-        self.given_flag('c').set_to(False)
-        self.given_next_instruction_is(0x38, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 7)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_nc_when_carry_is_set(self):
-        // given
-        self.given_flag('c').set_to(True)
-        self.given_next_instruction_is(0x30, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 7)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_nc_when_carry_is_reset(self):
-        // given
-        self.given_flag('c').set_to(False)
-        self.given_next_instruction_is(0x30, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 12)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_z_when_z_is_set(self):
-        // given
-        self.given_flag('z').set_to(True)
-        self.given_next_instruction_is(0x28, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 12)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_z_when_z_is_reset(self):
-        // given
-        self.given_flag('z').set_to(False)
-        self.given_next_instruction_is(0x28, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 7)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_nz_when_z_is_set(self):
-        // given
-        self.given_flag('z').set_to(True)
-        self.given_next_instruction_is(0x20, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 7)
-
-    def test_execute_returns_correct_number_of_tstates_for_jr_nz_when_z_is_reset(self):
-        // given
-        self.given_flag('z').set_to(False)
-        self.given_next_instruction_is(0x20, 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 12)
-
-    def test_execute_returns_correct_number_of_tstates_for_djnz_when_b_is_zero_after_decrement(self):
-        // given
-        self.given_next_instruction_is(0x10, 0xa0)
-        self.given_register_contains_value('b', 1)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 8)
-
-    def test_execute_returns_correct_number_of_tstates_for_djnz_when_b_is_nonzero_after_decrement(self):
-        // given
-        self.given_next_instruction_is(0x10, 0xa0)
-        self.given_register_contains_value('b', 0x10)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 13)
-
-    def test_execute_returns_correct_number_of_tstates_for_call_z_when_z_is_set(self):
-        // given
-        self.given_flag('z').set_to(True)
-        self.given_next_instruction_is(0xcc, 0xef, 0xbe)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 5)
-
-    def test_execute_returns_correct_number_of_tstates_for_call_z_when_z_is_reset(self):
-        // given
-        self.given_flag('z').set_to(False)
-        self.given_next_instruction_is(0xcc, 0xef, 0xbe)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 3)
-
-    def test_execute_returns_correct_number_of_tstates_for_ret_z_when_z_is_set(self):
-        // given
-        self.given_flag('z').set_to(True)
-        self.given_next_instruction_is(0xc8)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 11)
-
-    def test_execute_returns_correct_number_of_tstates_for_ret_z_when_z_is_reset(self):
-        // given
-        self.given_flag('z').set_to(False)
-        self.given_next_instruction_is(0xc8)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 5)
-
-    def test_execute_returns_correct_number_of_tstates_for_inir_when_b_decrements_to_zero(self):
-        // given
-        self.given_register_contains_value('b', 0x01)
-        self.given_next_instruction_is(0xed, 0xb2)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 16)
-
-    def test_execute_returns_correct_number_of_tstates_for_inir_when_b_decrements_to_nonzero(self):
-        // given
-        self.given_register_contains_value('b', 0x10)
-        self.given_next_instruction_is(0xed, 0xb2)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 21)
-
-    def test_execute_returns_correct_number_of_tstates_for_indr_when_b_decrements_to_zero(self):
-        // given
-        self.given_register_contains_value('b', 0x01)
-        self.given_next_instruction_is(0xed, 0xba)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 16)
-
-    def test_execute_returns_correct_number_of_tstates_for_indr_when_b_decrements_to_nonzero(self):
-        // given
-        self.given_register_contains_value('b', 0x10)
-        self.given_next_instruction_is(0xed, 0xba)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 21)
-
-    def test_execute_returns_correct_number_of_tstates_for_otir_when_b_decrements_to_zero(self):
-        // given
-        self.given_register_contains_value('b', 0x01)
-        self.given_next_instruction_is(0xed, 0xb3)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 16)
-
-    def test_execute_returns_correct_number_of_tstates_for_otir_when_b_decrements_to_nonzero(self):
-        // given
-        self.given_register_contains_value('b', 0x10)
-        self.given_next_instruction_is(0xed, 0xb3)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 21)
-
-    def test_execute_returns_correct_number_of_tstates_for_otdr_when_b_decrements_to_zero(self):
-        // given
-        self.given_register_contains_value('b', 0x01)
-        self.given_next_instruction_is(0xed, 0xbb)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 16)
-
-    def test_execute_returns_correct_number_of_tstates_for_otdr_when_b_decrements_to_nonzero(self):
-        // given
-        self.given_register_contains_value('b', 0x10)
-        self.given_next_instruction_is(0xed, 0xbb)
-
-        // when
-        t_states = self.processor.execute()
-
-        // then
-        assert_equals(t_states, 21)
- */
