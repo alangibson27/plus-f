@@ -424,6 +424,10 @@ public class Processor {
         return memory[pcReg.getAndInc()];
     }
 
+    public int getInterruptMode() {
+        return interruptMode;
+    }
+
     public int fetchNextWord() {
         return Word.from(fetchNextPC(), fetchNextPC());
     }

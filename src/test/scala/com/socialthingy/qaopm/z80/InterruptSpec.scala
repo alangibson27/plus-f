@@ -31,14 +31,14 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     def anIm1InterruptIsGenerated: AckReceiver = {
       val ackReceiver = new AckReceiver()
-      val request = new InterruptRequest(ackReceiver, 1)
+      val request = new InterruptRequest(ackReceiver)
       processor.interrupt(request)
       ackReceiver
     }
 
     def anIm2InterruptIsGenerated: AckReceiver = {
       val interruptingDevice = new AckReceiver()
-      val request = new InterruptRequest(interruptingDevice, 2)
+      val request = new InterruptRequest(interruptingDevice)
       processor.interrupt(request)
       interruptingDevice
     }
