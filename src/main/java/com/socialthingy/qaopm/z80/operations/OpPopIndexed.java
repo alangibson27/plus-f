@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.z80.operations;
 
+import com.socialthingy.qaopm.util.Word;
 import com.socialthingy.qaopm.z80.IndexRegister;
 import com.socialthingy.qaopm.z80.Operation;
 import com.socialthingy.qaopm.z80.Processor;
@@ -15,7 +16,7 @@ public class OpPopIndexed implements Operation {
 
     @Override
     public int execute() {
-        indexRegister.set((processor.popByte() << 8) + processor.popByte());
+        indexRegister.set(Word.from(processor.popByte(), processor.popByte()));
         return 14;
     }
 }

@@ -126,8 +126,8 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      registerContainsValue("sp", 0xfff2)
-      registerContainsValue(register, Word.from(lowByte, highByte))
+      registerValue("sp") shouldBe 0xfff2
+      registerValue(register) shouldBe Word.from(lowByte, highByte)
     }
   }
 
@@ -145,9 +145,9 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    registerContainsValue("h", 0xcd)
-    registerContainsValue("l", 0xab)
-    registerContainsValue("sp", 0x0001)
+    registerValue("h") shouldBe 0xcd
+    registerValue("l") shouldBe 0xab
+    registerValue("sp") shouldBe 0x0001
   }
 
   val ldMemoryFromRegOperations = Table(
@@ -203,7 +203,7 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      registerContainsValue(register, 0x2010)
+      registerValue(register) shouldBe 0x2010
     }
   }
 }
