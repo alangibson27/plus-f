@@ -5,6 +5,7 @@ import com.socialthingy.qaopm.z80.operations.*;
 
 import com.socialthingy.qaopm.z80.FlagsRegister.Flag;
 
+import java.io.PrintStream;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -29,6 +30,7 @@ public class Processor {
     private final OpRst im1ResponseOp;
     private final OpRst nmiResponseOp;
     private int lastTime;
+    private Operation lastOp;
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -399,6 +401,7 @@ public class Processor {
     public Operation execute() {
         final boolean enableIffAfterExecution = enableIff;
         final Operation op = fetch();
+        this.lastOp = op;
         if (op == null) {
             throw new IllegalStateException("Unimplemented operation");
         }
@@ -490,5 +493,38 @@ public class Processor {
 
     public void halt() {
         this.halting = true;
+    }
+
+    public void dump(final PrintStream out) {
+        if (lastOp != null) {
+            out.println("Last operation: " + this.lastOp.toString());
+        }
+        out.println(String.format("af: %04x bc: %04x de: %04x hl: %04x",
+                register("af").get(),
+                register("bc").get(),
+                register("de").get(),
+                register("hl").get()));
+        out.println(String.format("af':%04x bc':%04x de':%04x hl':%04x",
+                register("af'").get(),
+                register("bc'").get(),
+                register("de'").get(),
+                register("hl'").get()));
+        out.println(String.format("ix: %04x iy: %04x pc: %04x sp: %04x ir:%02x%02x",
+                register("ix").get(),
+                register("iy").get(),
+                register("pc").get(),
+                register("sp").get(),
+                register("i").get(),
+                register("r").get()));
+        out.println(String.format("iff1: %s  iff2: %s  im: %d",
+                getIff(0) ? "True" : "False",
+                getIff(1) ? "True" : "False",
+                getInterruptMode()));
+        out.println();
+        out.flush();
+    }
+
+    public void setLastOp(final Operation op) {
+        this.lastOp = op;
     }
 }

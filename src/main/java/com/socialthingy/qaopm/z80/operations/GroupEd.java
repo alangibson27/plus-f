@@ -115,6 +115,7 @@ public class GroupEd implements Operation {
     @Override
     public int execute() {
         final Operation operation = operations[processor.fetchNextPC()];
+        processor.setLastOp(operation);
         if (operation == null) {
             throw new IllegalStateException("Unimplemented operation");
         }

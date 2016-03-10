@@ -27,8 +27,8 @@ public class Computer extends Application implements InterruptingDevice {
     private final Display display;
     public static final int T_STATES_PER_REFRESH = 80000;
     private ImageView imageView;
-    private PrintWriter dumpFile;
     private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
+    private int originalRomHash;
 
     public static void main(final String[] args) throws IOException {
         Application.launch(args);
@@ -39,7 +39,6 @@ public class Computer extends Application implements InterruptingDevice {
         ula = new ULA();
         processor = new Processor(memory, ula);
         display = new Display(memory);
-        dumpFile = new PrintWriter(new FileWriter("/var/tmp/java_spectrum.dump"));
 
         spectrumKeys.put(KeyCode.A, 'a');
         spectrumKeys.put(KeyCode.B, 'b');
@@ -96,6 +95,8 @@ public class Computer extends Application implements InterruptingDevice {
             }
         }
 
+        originalRomHash = romHash();
+
         if (getParameters().getRaw().size() > 1) {
             final String snapshotFile = getParameters().getRaw().get(1);
             loadSnapshot(snapshotFile);
@@ -128,6 +129,8 @@ public class Computer extends Application implements InterruptingDevice {
                 } else if (event.getEventType() == KeyEvent.KEY_RELEASED) {
                     ula.keyUp(spectrumKey);
                 }
+            } else if (event.getCode() == KeyCode.ESCAPE && event.getEventType() == KeyEvent.KEY_PRESSED) {
+                processor.dump(System.out);
             }
         }
     }
@@ -152,34 +155,25 @@ public class Computer extends Application implements InterruptingDevice {
                 ex.printStackTrace();
             }
 
+            if ("on".equals(System.getProperty("memoryprotection"))) {
+                if (romHash() != originalRomHash) {
+                    processor.dump(System.out);
+                    throw new IllegalStateException("ROM modification");
+                }
+            }
+
             tStates += processor.lastTime();
         }
     }
 
-    private void dumpState() {
-        dumpFile.println(String.format("af: %04x bc: %04x de: %04x hl: %04x",
-                processor.register("af").get(),
-                processor.register("bc").get(),
-                processor.register("de").get(),
-                processor.register("hl").get()));
-        dumpFile.println(String.format("af':%04x bc':%04x de':%04x hl':%04x",
-                processor.register("af'").get(),
-                processor.register("bc'").get(),
-                processor.register("de'").get(),
-                processor.register("hl'").get()));
-        dumpFile.println(String.format("ix: %04x iy: %04x pc: %04x sp: %04x ir:%02x%02x",
-                processor.register("ix").get(),
-                processor.register("iy").get(),
-                processor.register("pc").get(),
-                processor.register("sp").get(),
-                processor.register("i").get(),
-                processor.register("r").get()));
-        dumpFile.println(String.format("iff1: %s  iff2: %s  im: %d",
-                processor.getIff(0) ? "True" : "False",
-                processor.getIff(1) ? "True" : "False",
-                processor.getInterruptMode()));
-        dumpFile.println();
-        dumpFile.flush();
+    private int romHash() {
+        int result = 1;
+
+        for (int i = 0x0000; i < 0x4000; i++) {
+            result = 31 * result + memory[i];
+        }
+
+        return result;
     }
 
     @Override

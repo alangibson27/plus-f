@@ -384,7 +384,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    registerValue("pc") shouldBe 0x0000
+    registerValue("pc") shouldBe 0x0002
 
     registerValue("hl") shouldBe 0x1001
     registerValue("bc") shouldBe 0x008f
@@ -436,7 +436,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    registerValue("pc") shouldBe 0x0000
+    registerValue("pc") shouldBe 0x0002
 
     registerValue("hl") shouldBe 0x1001
     registerValue("bc") shouldBe 0xffff
@@ -582,7 +582,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    registerValue("pc") shouldBe 0x0000
+    registerValue("pc") shouldBe 0x0002
 
     registerValue("hl") shouldBe 0x0fff
     registerValue("bc") shouldBe 0x008f
@@ -634,7 +634,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    registerValue("pc") shouldBe 0x0000
+    registerValue("pc") shouldBe 0x0002
 
     registerValue("hl") shouldBe 0x0fff
     registerValue("bc") shouldBe 0xffff

@@ -48,7 +48,7 @@ abstract class BlockOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
     }
 
-    protected void blockCompare() {
+    protected int blockCompare() {
         final int hlValue = hlReg.get();
         final int[] result = Bitwise.sub(accumulator.get(), memory[hlValue]);
         hlReg.set(hlValue + increment);
@@ -59,5 +59,7 @@ abstract class BlockOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.H, result[1] == 1);
         flagsRegister.set(FlagsRegister.Flag.P, counter != 0);
         flagsRegister.set(FlagsRegister.Flag.N, true);
+
+        return result[0];
     }
 }

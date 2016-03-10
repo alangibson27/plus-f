@@ -9,7 +9,10 @@ public class OpCpir extends BlockOperation {
 
     @Override
     public int execute() {
-        blockCompare();
-        return adjustPC();
+        if (blockCompare() == 0) {
+            return 16;
+        } else {
+            return adjustPC();
+        }
     }
 }
