@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.z80
 
+import com.socialthingy.qaopm.ProcessorSpec
 import com.socialthingy.qaopm.util.Word
 import org.scalatest.prop.TableDrivenPropertyChecks
 

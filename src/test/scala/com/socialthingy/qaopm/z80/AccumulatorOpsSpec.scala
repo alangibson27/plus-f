@@ -1,5 +1,7 @@
 package com.socialthingy.qaopm.z80
 
+import com.socialthingy.qaopm.ProcessorSpec
+
 class AccumulatorOpsSpec extends ProcessorSpec {
   "cpl" should "complement the accumulator" in new Machine {
     // given

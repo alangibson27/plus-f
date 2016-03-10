@@ -1,5 +1,7 @@
 package com.socialthingy.qaopm.z80
 
+import com.socialthingy.qaopm.ProcessorSpec
+
 class BlockOperationSpec extends ProcessorSpec {
 
   "ldi" should "operate correctly when bc decrements to a non-zero value" in new Machine {

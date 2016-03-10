@@ -1,5 +1,7 @@
 package com.socialthingy.qaopm.z80
 
+import com.socialthingy.qaopm.ProcessorSpec
+
 class NopSpec extends ProcessorSpec {
 
   "nop" should "do nothing" in new Machine {

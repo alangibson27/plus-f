@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.z80
 
+import com.socialthingy.qaopm.ProcessorSpec
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {

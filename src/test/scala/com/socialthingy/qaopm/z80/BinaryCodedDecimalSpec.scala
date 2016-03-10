@@ -1,5 +1,7 @@
 package com.socialthingy.qaopm.z80
 
+import com.socialthingy.qaopm.ProcessorSpec
+
 class BinaryCodedDecimalSpec extends ProcessorSpec {
 
   "daa" should "correct addition with half carry" in new ArithmeticMachine {

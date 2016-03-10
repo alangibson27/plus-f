@@ -1,12 +1,12 @@
-package com.socialthingy.qaopm.z80
-
-import org.mockito.Mockito.{when => mockitoWhen, verify}
-import org.mockito.{ Matchers => MockitoMatchers }
-import MockitoMatchers._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Matchers, GivenWhenThen, FlatSpec}
+package com.socialthingy.qaopm
 
 import com.socialthingy.qaopm.z80.FlagsRegister.Flag
+import com.socialthingy.qaopm.z80.{ByteRegister, IO, Processor}
+import org.mockito.Matchers._
+import org.mockito.Mockito.{verify, when => mockitoWhen}
+import org.mockito.{Matchers => MockitoMatchers}
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
 
 import scala.util.Random
 

@@ -355,10 +355,28 @@ public class Processor {
         registers.put("pc", pcReg);
         registers.put("sp", spReg);
 
-        final WordRegister afPrimeReg = new WordRegister();
-        final WordRegister bcPrimeReg = new WordRegister();
-        final WordRegister dePrimeReg = new WordRegister();
-        final WordRegister hlPrimeReg = new WordRegister();
+        final ByteRegister aPrimeReg = new ByteRegister();
+        final ByteRegister fPrimeReg = new ByteRegister();
+        final ByteRegister bPrimeReg = new ByteRegister();
+        final ByteRegister cPrimeReg = new ByteRegister();
+        final ByteRegister dPrimeReg = new ByteRegister();
+        final ByteRegister ePrimeReg = new ByteRegister();
+        final ByteRegister hPrimeReg = new ByteRegister();
+        final ByteRegister lPrimeReg = new ByteRegister();
+
+        registers.put("a'", aPrimeReg);
+        registers.put("f'", fPrimeReg);
+        registers.put("b'", bPrimeReg);
+        registers.put("c'", cPrimeReg);
+        registers.put("d'", dPrimeReg);
+        registers.put("e'", ePrimeReg);
+        registers.put("h'", hPrimeReg);
+        registers.put("l'", lPrimeReg);
+
+        final BytePairRegister afPrimeReg = new BytePairRegister(aPrimeReg, fPrimeReg);
+        final BytePairRegister bcPrimeReg = new BytePairRegister(bPrimeReg, cPrimeReg);
+        final BytePairRegister dePrimeReg = new BytePairRegister(dPrimeReg, ePrimeReg);
+        final BytePairRegister hlPrimeReg = new BytePairRegister(hPrimeReg, lPrimeReg);
 
         registers.put("af'", afPrimeReg);
         registers.put("bc'", bcPrimeReg);

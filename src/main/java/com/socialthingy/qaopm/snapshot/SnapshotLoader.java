@@ -37,7 +37,8 @@ public class SnapshotLoader {
         processor.register("bc'").set(Word.from(inputStream.read(), inputStream.read()));
         processor.register("de'").set(Word.from(inputStream.read(), inputStream.read()));
         processor.register("hl'").set(Word.from(inputStream.read(), inputStream.read()));
-        processor.register("af'").set(Word.from(inputStream.read(), inputStream.read()));
+        processor.register("a'").set(inputStream.read());
+        processor.register("f'").set(inputStream.read());
 
         processor.register("iy").set(Word.from(inputStream.read(), inputStream.read()));
         processor.register("ix").set(Word.from(inputStream.read(), inputStream.read()));
