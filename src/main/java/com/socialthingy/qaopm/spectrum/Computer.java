@@ -1,5 +1,7 @@
 package com.socialthingy.qaopm.spectrum;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.socialthingy.qaopm.snapshot.SnapshotLoader;
 import com.socialthingy.qaopm.z80.*;
 import javafx.application.Application;
@@ -21,14 +23,19 @@ import java.util.concurrent.TimeUnit;
 
 public class Computer extends Application implements InterruptingDevice {
 
+    private static final int T_STATES_PER_REFRESH = 80000;
+    private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
+    private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
+
     private final Processor processor;
     private final ULA ula;
     private final int[] memory;
     private final Display display;
-    public static final int T_STATES_PER_REFRESH = 80000;
     private ImageView imageView;
     private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
     private int originalRomHash;
+    private final Timer displayRefreshTimer;
+    private final Timer processorExecuteTimer;
 
     public static void main(final String[] args) throws IOException {
         Application.launch(args);
@@ -39,6 +46,9 @@ public class Computer extends Application implements InterruptingDevice {
         ula = new ULA();
         processor = new Processor(memory, ula);
         display = new Display(memory);
+        final MetricRegistry metricRegistry = new MetricRegistry();
+        displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
+        processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
 
         spectrumKeys.put(KeyCode.A, 'a');
         spectrumKeys.put(KeyCode.B, 'b');
@@ -115,7 +125,7 @@ public class Computer extends Application implements InterruptingDevice {
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, keyHandler);
 
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this::singleRefresh, 0, 40, TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(this::singleRefresh, 0, 30, TimeUnit.MILLISECONDS);
     }
 
     private class SpectrumKeyHandler implements EventHandler<KeyEvent> {
@@ -131,8 +141,27 @@ public class Computer extends Application implements InterruptingDevice {
                 }
             } else if (event.getCode() == KeyCode.ESCAPE && event.getEventType() == KeyEvent.KEY_PRESSED) {
                 processor.dump(System.out);
+                dump(System.out);
             }
         }
+    }
+
+    private void dump(final PrintStream out) {
+        out.printf(
+                "Display refresh: count=%d avg=%f max=%d rate=%f\n",
+                displayRefreshTimer.getCount(),
+                displayRefreshTimer.getSnapshot().getMean() / 1000000,
+                displayRefreshTimer.getSnapshot().getMax() / 1000000,
+                displayRefreshTimer.getOneMinuteRate()
+        );
+
+        out.printf(
+                "Processor execute: count=%d avg=%f max=%d rate=%f\n",
+                processorExecuteTimer.getCount(),
+                processorExecuteTimer.getSnapshot().getMean() / 1000000,
+                processorExecuteTimer.getSnapshot().getMax() / 1000000,
+                processorExecuteTimer.getOneMinuteRate()
+        );
     }
 
     private void loadSnapshot(String snapshotFile) throws IOException {
@@ -143,26 +172,38 @@ public class Computer extends Application implements InterruptingDevice {
     }
 
     public void singleRefresh() {
-        Platform.runLater(() -> imageView.setImage(display.refresh()));
+        Platform.runLater(() -> {
+            final Timer.Context timer = displayRefreshTimer.time();
+            try {
+                imageView.setImage(display.refresh());
+            } finally {
+                timer.stop();
+            }
+        });
 
         int tStates = 0;
         processor.interrupt(new InterruptRequest(this));
 
-        while (tStates < T_STATES_PER_REFRESH) {
-            try {
-                processor.execute();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            if ("on".equals(System.getProperty("memoryprotection"))) {
-                if (romHash() != originalRomHash) {
-                    processor.dump(System.out);
-                    throw new IllegalStateException("ROM modification");
+        final Timer.Context timer = processorExecuteTimer.time();
+        try {
+            while (tStates < T_STATES_PER_REFRESH) {
+                try {
+                    processor.execute();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-            }
 
-            tStates += processor.lastTime();
+                if ("on".equals(System.getProperty("memoryprotection"))) {
+                    if (romHash() != originalRomHash) {
+                        processor.dump(System.out);
+                        throw new IllegalStateException("ROM modification");
+                    }
+                }
+
+                tStates += processor.lastTime();
+            }
+        } finally {
+            timer.stop();
         }
     }
 
@@ -179,4 +220,6 @@ public class Computer extends Application implements InterruptingDevice {
     @Override
     public void acknowledge() {
     }
+
+
 }
