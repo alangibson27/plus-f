@@ -10,6 +10,9 @@ public class Display {
     private final SpectrumColour[] colours = new SpectrumColour[0x100];
     private final WritableImage screen = new WritableImage(256, 192);
 
+    private int[][] pixelAddresses = new int[192][];
+    private int[][] colourAddresses = new int[192][];
+
     public Display(final int[] memory) {
         this.memory = memory;
 
@@ -23,6 +26,18 @@ public class Display {
                 }
             }
         }
+
+        for (int y = 0; y < 192; y++) {
+            final int lineAddress = getLineAddress(y);
+            final int colourAddress = 0X5800 + (0X20 * (y / 8));
+            pixelAddresses[y] = new int[32];
+            colourAddresses[y] = new int[32];
+
+            for (int x = 0; x < 32; x++) {
+                pixelAddresses[y][x] = lineAddress + x;
+                colourAddresses[y][x] = colourAddress + x;
+            }
+        }
     }
 
     public WritableImage getScreen() {
@@ -34,25 +49,11 @@ public class Display {
         final PixelWriter pw = image.getPixelWriter();
 
         for (int y = 0; y < 192; y++) {
-            final int hi = y & 0b00111000;
-            final int lo = y & 0b00000111;
-            final int line = (hi >> 3) | (lo << 3);
-
-            final int addressBase;
-            if (y < 0x40) {
-                addressBase = 0x4000;
-            } else if (y < 0x80) {
-                addressBase = 0x4800;
-            } else {
-                addressBase = 0x5000;
-            }
-
             for (int x = 0; x < 32; x++) {
-                final int colourAddress = 0x5800 + (0x20 * (y / 8)) + x;
-                final SpectrumColour colour = colours[memory[colourAddress]];
+                final SpectrumColour colour = colours[memory[colourAddresses[y][x]]];
 
                 for (int bit = 0; bit < 8; bit++) {
-                    final int pixelAddress = addressBase + (line * 32) + x;
+                    final int pixelAddress = pixelAddresses[y][x];
                     final int displayX = (x * 8) + (7 - bit);
                     if ((memory[pixelAddress] & (1 << bit)) > 0) {
                         pw.setColor(displayX, y, colour.getInk());
@@ -64,6 +65,24 @@ public class Display {
         }
         return image;
     }
+
+    private int getLineAddress(final int y) {
+        final int hi = y & 0b00111000;
+        final int lo = y & 0b00000111;
+        final int line = (hi >> 3) | (lo << 3);
+
+        final int addressBase;
+        if (y < 0x40) {
+            addressBase = 0x4000;
+        } else if (y < 0x80) {
+            addressBase = 0x4800;
+        } else {
+            addressBase = 0x5000;
+        }
+
+        return addressBase + (line * 32);
+    }
+
 }
 
 class SpectrumColour {
