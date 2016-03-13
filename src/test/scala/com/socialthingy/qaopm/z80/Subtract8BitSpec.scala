@@ -351,4 +351,71 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("c").value shouldBe false
     }
   }
+
+  val subIndexed8RegOperations = Table(
+    ("opcode", "register"),
+    ((0xdd, 0x94), "ixh"),
+    ((0xdd, 0x95), "ixl"),
+    ((0xfd, 0x94), "iyh"),
+    ((0xfd, 0x95), "iyl")
+  )
+
+  forAll(subIndexed8RegOperations) { (opcode, register) =>
+    s"sub a, $register" should "correctly calculate a positive result with no carries or overflow" in new Machine {
+      // given
+      registerContainsValue("a", binary("00000100"))
+      registerContainsValue(register, binary("00000001"))
+
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("a") shouldBe binary("00000011")
+      registerValue(register) shouldBe binary("00000001")
+
+      flag("s").value shouldBe false
+      flag("z").value shouldBe false
+      flag("h").value shouldBe false
+      flag("p").value shouldBe false
+      flag("n").value shouldBe true
+      flag("c").value shouldBe false
+    }
+  }
+
+  val sbcIndexed8RegOperations = Table(
+    ("opcode", "register"),
+    ((0xdd, 0x9c), "ixh"),
+    ((0xdd, 0x9d), "ixl"),
+    ((0xfd, 0x9c), "iyh"),
+    ((0xfd, 0x9d), "iyl")
+  )
+
+  forAll(sbcIndexed8RegOperations) { (opcode, register) =>
+    forAll(truthValues) { carry: Boolean =>
+      s"sbc a, $register with carry $carry" should "calculate the correct result" in new Machine {
+        // given
+        registerContainsValue("a", binary("00001000"))
+        registerContainsValue(register, binary("00000001"))
+        flag("c") is carry
+
+        nextInstructionIs(opcode._1, opcode._2)
+
+        // when
+        processor.execute()
+
+        // then
+        registerValue("a") shouldBe binary("00000111") - (if (carry) 1 else 0)
+        registerValue(register) shouldBe binary("00000001")
+
+        flag("s").value shouldBe false
+        flag("z").value shouldBe false
+        flag("h").value shouldBe false
+        flag("p").value shouldBe false
+        flag("n").value shouldBe true
+        flag("c").value shouldBe false
+      }
+    }
+  }
 }

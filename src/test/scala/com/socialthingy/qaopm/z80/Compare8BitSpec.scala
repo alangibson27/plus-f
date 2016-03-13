@@ -34,6 +34,38 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     }
   }
 
+  val compareIndexed8RegOperations = Table(
+    ("opcode", "register"),
+    ((0xdd, 0xbc), "ixh"),
+    ((0xdd, 0xbd), "ixl"),
+    ((0xfd, 0xbc), "iyh"),
+    ((0xfd, 0xbd), "iyl")
+  )
+
+  forAll(compareIndexed8RegOperations) { (opcode, register) =>
+    s"cp $register" should "correctly calculate a positive result with no carries or overflow" in new Machine {
+      // given
+      registerContainsValue("a", binary("00000100"))
+      registerContainsValue(register, binary("00000001"))
+
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("a") shouldBe binary("00000100")
+      registerValue(register) shouldBe binary("00000001")
+
+      flag("s").value shouldBe false
+      flag("z").value shouldBe false
+      flag("h").value shouldBe false
+      flag("p").value shouldBe false
+      flag("n").value shouldBe true
+      flag("c").value shouldBe false
+    }
+  }
+
   "comparing a to itself" should "give a zero result" in new Machine {
     // given
     registerContainsValue("a", binary("00000001"))

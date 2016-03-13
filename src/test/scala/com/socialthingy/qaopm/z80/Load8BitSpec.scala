@@ -315,4 +315,110 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       memory(0xffff & (0x1000 + offset.asInstanceOf[Byte])) shouldBe immediateValue
     }
   }
+
+  val indexed8RegImmediateOperations = Table(
+    ("opcode", "dest", "value"),
+    ((0xdd, 0x26), "ixh", 0x10),
+    ((0xfd, 0x26), "iyh", 0x11),
+    ((0xdd, 0x2e), "ixl", 0x22),
+    ((0xfd, 0x2e), "iyl", 0x33)
+  )
+
+  forAll(indexed8RegImmediateOperations) { (opcode, dest, value) =>
+    s"ld $dest, $value" should "transfer immediate value into register correctly" in new Machine {
+      // given
+      nextInstructionIs(opcode._1, opcode._2, value)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("pc") shouldBe 0x0003
+      registerValue(dest) shouldBe value
+    }
+  }
+
+  val indexed8RegRegOperations = Table(
+    ("opcode", "dest", "source"),
+    ((0xdd, 0x60), "ixh", "b"),
+    ((0xdd, 0x61), "ixh", "c"),
+    ((0xdd, 0x62), "ixh", "d"),
+    ((0xdd, 0x63), "ixh", "e"),
+    ((0xdd, 0x64), "ixh", "ixh"),
+    ((0xdd, 0x65), "ixh", "ixl"),
+    ((0xdd, 0x67), "ixh", "a"),
+    ((0xdd, 0x68), "ixl", "b"),
+    ((0xdd, 0x69), "ixl", "c"),
+    ((0xdd, 0x6a), "ixl", "d"),
+    ((0xdd, 0x6b), "ixl", "e"),
+    ((0xdd, 0x6c), "ixl", "ixh"),
+    ((0xdd, 0x6d), "ixl", "ixl"),
+    ((0xdd, 0x6f), "ixl", "a"),
+    ((0xfd, 0x60), "iyh", "b"),
+    ((0xfd, 0x61), "iyh", "c"),
+    ((0xfd, 0x62), "iyh", "d"),
+    ((0xfd, 0x63), "iyh", "e"),
+    ((0xfd, 0x64), "iyh", "iyh"),
+    ((0xfd, 0x65), "iyh", "iyl"),
+    ((0xfd, 0x67), "iyh", "a"),
+    ((0xfd, 0x68), "iyl", "b"),
+    ((0xfd, 0x69), "iyl", "c"),
+    ((0xfd, 0x6a), "iyl", "d"),
+    ((0xfd, 0x6b), "iyl", "e"),
+    ((0xfd, 0x6c), "iyl", "iyh"),
+    ((0xfd, 0x6d), "iyl", "iyl"),
+    ((0xfd, 0x6f), "iyl", "a")
+  )
+
+  forAll(indexed8RegRegOperations) { (opcode, dest, source) =>
+    s"ld $dest, $source immediate" should "transfer value from register to register correctly" in new Machine {
+      // given
+      registerContainsValue(source, 0xff)
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("pc") shouldBe 0x0002
+      registerValue(source) shouldBe 0xff
+      registerValue(dest) shouldBe 0xff
+    }
+  }
+
+  val regIndexed8RegOperations = Table(
+    ("opcode", "dest", "source"),
+    ((0xdd, 0x44), "b", "ixh"),
+    ((0xdd, 0x45), "b", "ixl"),
+    ((0xdd, 0x4c), "c", "ixh"),
+    ((0xdd, 0x4d), "c", "ixl"),
+    ((0xdd, 0x54), "d", "ixh"),
+    ((0xdd, 0x55), "d", "ixl"),
+    ((0xdd, 0x5c), "e", "ixh"),
+    ((0xdd, 0x5d), "e", "ixl"),
+    ((0xfd, 0x44), "b", "iyh"),
+    ((0xfd, 0x45), "b", "iyl"),
+    ((0xfd, 0x4c), "c", "iyh"),
+    ((0xfd, 0x4d), "c", "iyl"),
+    ((0xfd, 0x54), "d", "iyh"),
+    ((0xfd, 0x55), "d", "iyl"),
+    ((0xfd, 0x5c), "e", "iyh"),
+    ((0xfd, 0x5d), "e", "iyl")
+  )
+
+  forAll(regIndexed8RegOperations) { (opcode, dest, source) =>
+    s"ld $dest, $source immediate" should "transfer value from register to register correctly" in new Machine {
+      // given
+      registerContainsValue(source, 0xff)
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("pc") shouldBe 0x0002
+      registerValue(source) shouldBe 0xff
+      registerValue(dest) shouldBe 0xff
+    }
+  }
 }

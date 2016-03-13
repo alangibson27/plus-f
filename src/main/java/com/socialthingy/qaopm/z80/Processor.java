@@ -333,8 +333,13 @@ public class Processor {
         final BytePairRegister deReg = new BytePairRegister(dReg, eReg);
         final BytePairRegister hlReg = new BytePairRegister(hReg, lReg);
 
-        final IndexRegister ixReg = new IndexRegister();
-        final IndexRegister iyReg = new IndexRegister();
+        final ByteRegister ixhReg = new ByteRegister();
+        final ByteRegister ixlReg = new ByteRegister();
+        final IndexRegister ixReg = new IndexRegister(ixhReg, ixlReg);
+
+        final ByteRegister iyhReg = new ByteRegister();
+        final ByteRegister iylReg = new ByteRegister();
+        final IndexRegister iyReg = new IndexRegister(iyhReg, iylReg);
 
         registers.put("a", aReg);
         registers.put("f", fReg);
@@ -352,7 +357,11 @@ public class Processor {
         registers.put("de", deReg);
         registers.put("hl", hlReg);
 
+        registers.put("ixh", ixhReg);
+        registers.put("ixl", ixlReg);
         registers.put("ix", ixReg);
+        registers.put("iyh", iyhReg);
+        registers.put("iyl", iylReg);
         registers.put("iy", iyReg);
         registers.put("pc", pcReg);
         registers.put("sp", spReg);

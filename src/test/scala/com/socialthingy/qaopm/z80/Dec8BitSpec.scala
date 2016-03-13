@@ -89,13 +89,13 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("n") is true
   }
 
-  val indexedDecOperations = Table(
+  val indexedDecIndirectOperations = Table(
     ("opcode", "register"),
     ((0xdd, 0x35), "ix"),
     ((0xfd, 0x35), "iy")
   )
 
-  forAll(indexedDecOperations) { (opcode, register) =>
+  forAll(indexedDecIndirectOperations) { (opcode, register) =>
     s"dec ($register + d)" should "calculate the correct result" in new Machine {
       // given
       registerContainsValue(register, 0xbeef)
@@ -117,4 +117,34 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("n") is true
     }
   }
+
+  val indexedDecImmediateOperations = Table(
+    ("opcode", "register"),
+    ((0xdd, 0x25), "ixh"),
+    ((0xfd, 0x25), "iyh"),
+    ((0xdd, 0x2d), "ixl"),
+    ((0xfd, 0x2d), "iyl")
+  )
+
+  forAll(indexedDecImmediateOperations) { (opcode, register) =>
+    s"dec $register" should "correctly increment the register value" in new Machine {
+      // given
+      registerContainsValue(register, binary("10000001"))
+
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue(register).asInstanceOf[Byte] shouldBe -128
+
+      flag("s") is true
+      flag("z") is false
+      flag("h") is false
+      flag("p") is false
+      flag("n") is true
+    }
+  }
+
 }

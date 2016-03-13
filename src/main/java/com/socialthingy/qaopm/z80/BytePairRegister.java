@@ -38,4 +38,12 @@ public class BytePairRegister implements Register {
     public void setHigh(final int high) {
         this.highReg.set(high);
     }
+
+    public Register highReg() {
+        return this.highReg;
+    }
+
+    public Register lowReg() {
+        return this.lowReg;
+    }
 }

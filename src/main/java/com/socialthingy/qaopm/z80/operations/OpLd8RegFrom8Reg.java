@@ -6,10 +6,10 @@ import com.socialthingy.qaopm.z80.Register;
 
 public class OpLd8RegFrom8Reg implements Operation {
 
-    private ByteRegister dest;
-    private ByteRegister source;
+    private final ByteRegister dest;
+    private final ByteRegister source;
 
-    public OpLd8RegFrom8Reg(Register dest, Register source) {
+    public OpLd8RegFrom8Reg(final Register dest, final Register source) {
         this.dest = (ByteRegister) dest;
         this.source = (ByteRegister) source;
     }

@@ -34,6 +34,38 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     }
   }
 
+  val andIndexed8RegOperations = Table(
+    ("opcode", "register"),
+    ((0xdd, 0xa4), "ixh"),
+    ((0xdd, 0xa5), "ixl"),
+    ((0xfd, 0xa4), "iyh"),
+    ((0xfd, 0xa5), "iyl")
+  )
+
+  forAll(andIndexed8RegOperations) { (opcode, register) =>
+    s"and $register" should "correctly calculate a negative result" in new Machine {
+      // given
+      registerContainsValue("a", binary("10000100"))
+      registerContainsValue(register, binary("10000101"))
+
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("a") shouldBe binary("10000100")
+      registerValue(register) shouldBe binary("10000101")
+
+      flag("s").value shouldBe true
+      flag("z").value shouldBe false
+      flag("h").value shouldBe true
+      flag("p").value shouldBe true
+      flag("n").value shouldBe false
+      flag("c").value shouldBe false
+    }
+  }
+
   "and <reg>" should "calculate a zero result when a and <reg> have no shared bits" in new Machine {
     // given
     registerContainsValue("a", binary("10101010"))
@@ -224,6 +256,38 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     }
   }
 
+  val orIndexed8RegOperations = Table(
+    ("opcode", "register"),
+    ((0xdd, 0xb4), "ixh"),
+    ((0xdd, 0xb5), "ixl"),
+    ((0xfd, 0xb4), "iyh"),
+    ((0xfd, 0xb5), "iyl")
+  )
+
+  forAll(orIndexed8RegOperations) { (opcode, register) =>
+    s"or $register" should "correctly calculate a negative result" in new Machine {
+      // given
+      registerContainsValue("a", binary("10000100"))
+      registerContainsValue(register, binary("10000101"))
+
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("a") shouldBe binary("10000101")
+      registerValue(register) shouldBe binary("10000101")
+
+      flag("s").value shouldBe true
+      flag("z").value shouldBe false
+      flag("h").value shouldBe false
+      flag("p").value shouldBe false
+      flag("n").value shouldBe false
+      flag("c").value shouldBe false
+    }
+  }
+
   "or <reg>" should "give a zero result when <reg> and a are both zero" in new Machine {
     // given
     registerContainsValue("a", 0x00)
@@ -397,6 +461,38 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue(register, binary("00000101"))
 
       nextInstructionIs(opcode)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("a") shouldBe binary("10000001")
+      registerValue(register) shouldBe binary("00000101")
+
+      flag("s").value shouldBe true
+      flag("z").value shouldBe false
+      flag("h").value shouldBe false
+      flag("p").value shouldBe true
+      flag("n").value shouldBe false
+      flag("c").value shouldBe false
+    }
+  }
+
+  val xorIndexed8RegOperations = Table(
+    ("opcode", "register"),
+    ((0xdd, 0xac), "ixh"),
+    ((0xdd, 0xad), "ixl"),
+    ((0xfd, 0xac), "iyh"),
+    ((0xfd, 0xad), "iyl")
+  )
+
+  forAll(xorIndexed8RegOperations) { (opcode, register) =>
+    s"xor $register" should "correctly calculate a negative result" in new Machine {
+      // given
+      registerContainsValue("a", binary("10000100"))
+      registerContainsValue(register, binary("00000101"))
+
+      nextInstructionIs(opcode._1, opcode._2)
 
       // when
       processor.execute()

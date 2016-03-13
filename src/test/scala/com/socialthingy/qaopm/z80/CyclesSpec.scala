@@ -164,7 +164,22 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     (List(0xed, 0xaa), 16),                 // ind
     (List(0xd3, 0xff), 11),                 // out (0xff), a
     (List(0xed, 0x41), 12),                 // out (c), b
-    (List(0xed, 0x71), 12)                 // out (c), 0
+    (List(0xed, 0x71), 12),                 // out (c), 0
+    (List(0xdd, 0x24), 8),                  // inc ixh
+    (List(0xdd, 0x25), 8),                  // dec ixh
+    (List(0xdd, 0x26), 11),                 // ld ixh, n
+    (List(0xfd, 0x2c), 8),                  // inc iyl
+    (List(0xfd, 0x2d), 8),                  // dec iyl
+    (List(0xfd, 0x2e), 11),                 // ld iyl, n
+    (List(0xdd, 0x44), 8),                  // ld b, ixh
+    (List(0xdd, 0x84), 8),                  // add a, ixh
+    (List(0xdd, 0x8c), 8),                  // adc a, ixh
+    (List(0xfd, 0x94), 8),                  // sub iyh
+    (List(0xfd, 0x9c), 8),                  // sbc iyh
+    (List(0xfd, 0xa4), 8),                  // and iyh
+    (List(0xfd, 0xad), 8),                  // xor iyl
+    (List(0xdd, 0xb4), 8),                  // or ixh
+    (List(0xdd, 0xbd), 8)                   // cp ixl
   )
 
   forAll(operations) { (opcode, cycles) =>
