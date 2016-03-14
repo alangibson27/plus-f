@@ -3,157 +3,40 @@ package com.socialthingy.qaopm.spectrum;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.qaopm.snapshot.SnapshotLoader;
-import com.socialthingy.qaopm.z80.*;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
+import com.socialthingy.qaopm.z80.InterruptRequest;
+import com.socialthingy.qaopm.z80.InterruptingDevice;
+import com.socialthingy.qaopm.z80.Processor;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 
-public class Computer extends Application implements InterruptingDevice {
+public class Computer implements InterruptingDevice {
 
-    private static final int T_STATES_PER_REFRESH = 80000;
-    private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
+    private static final double SCREEN_REFRESHES_PER_SECOND = 25.0;
+    private static final double CLOCK_CYCLES_PER_SECOND = 3500000.0;
+    private static final double CLOCK_CYCLES_PER_T_STATE = 2.0;
+
+    private static final int T_STATES_PER_REFRESH =
+            (int) ((1 / SCREEN_REFRESHES_PER_SECOND) / (1 / (CLOCK_CYCLES_PER_SECOND / CLOCK_CYCLES_PER_T_STATE)));
+
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
     private final Processor processor;
     private final ULA ula;
     private final int[] memory;
-    private final Display display;
-    private ImageView imageView;
-    private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
     private int originalRomHash;
-    private final Timer displayRefreshTimer;
     private final Timer processorExecuteTimer;
 
-    public static void main(final String[] args) throws IOException {
-        Application.launch(args);
-    }
-
-    public Computer() throws IOException {
-        memory = new int[0x10000];
+    public Computer(final int[] memory, final MetricRegistry metricRegistry) {
+        this.memory = memory;
         ula = new ULA();
         processor = new Processor(memory, ula);
-        display = new Display(memory);
-        final MetricRegistry metricRegistry = new MetricRegistry();
-        displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
-
-        spectrumKeys.put(KeyCode.A, 'a');
-        spectrumKeys.put(KeyCode.B, 'b');
-        spectrumKeys.put(KeyCode.C, 'c');
-        spectrumKeys.put(KeyCode.D, 'd');
-        spectrumKeys.put(KeyCode.E, 'e');
-        spectrumKeys.put(KeyCode.F, 'f');
-        spectrumKeys.put(KeyCode.G, 'g');
-        spectrumKeys.put(KeyCode.H, 'h');
-        spectrumKeys.put(KeyCode.I, 'i');
-        spectrumKeys.put(KeyCode.J, 'j');
-        spectrumKeys.put(KeyCode.K, 'k');
-        spectrumKeys.put(KeyCode.L, 'l');
-        spectrumKeys.put(KeyCode.M, 'm');
-        spectrumKeys.put(KeyCode.N, 'n');
-        spectrumKeys.put(KeyCode.O, 'o');
-        spectrumKeys.put(KeyCode.P, 'p');
-        spectrumKeys.put(KeyCode.Q, 'q');
-        spectrumKeys.put(KeyCode.R, 'r');
-        spectrumKeys.put(KeyCode.S, 's');
-        spectrumKeys.put(KeyCode.T, 't');
-        spectrumKeys.put(KeyCode.U, 'u');
-        spectrumKeys.put(KeyCode.V, 'v');
-        spectrumKeys.put(KeyCode.W, 'w');
-        spectrumKeys.put(KeyCode.X, 'x');
-        spectrumKeys.put(KeyCode.Y, 'y');
-        spectrumKeys.put(KeyCode.Z, 'z');
-
-        spectrumKeys.put(KeyCode.DIGIT0, '0');
-        spectrumKeys.put(KeyCode.DIGIT1, '1');
-        spectrumKeys.put(KeyCode.DIGIT2, '2');
-        spectrumKeys.put(KeyCode.DIGIT3, '3');
-        spectrumKeys.put(KeyCode.DIGIT4, '4');
-        spectrumKeys.put(KeyCode.DIGIT5, '5');
-        spectrumKeys.put(KeyCode.DIGIT6, '6');
-        spectrumKeys.put(KeyCode.DIGIT7, '7');
-        spectrumKeys.put(KeyCode.DIGIT8, '8');
-        spectrumKeys.put(KeyCode.DIGIT9, '9');
-
-        spectrumKeys.put(KeyCode.SHIFT, '^');
-        spectrumKeys.put(KeyCode.CONTROL, '$');
-        spectrumKeys.put(KeyCode.SPACE, ' ');
-        spectrumKeys.put(KeyCode.ENTER, '_');
     }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        final String romFile = getParameters().getRaw().get(0);
-
-        try (final FileInputStream fis = new FileInputStream(romFile)) {
-            int addr = 0;
-            for (int next = fis.read(); next != -1; next = fis.read()) {
-                memory[addr++] = next;
-            }
-        }
-
-        originalRomHash = romHash();
-
-        if (getParameters().getRaw().size() > 1) {
-            final String snapshotFile = getParameters().getRaw().get(1);
-            loadSnapshot(snapshotFile);
-        }
-
-        Group root = new Group();
-        Scene scene = new Scene(root);
-
-        imageView = new ImageView(display.getScreen());
-        root.getChildren().add(imageView);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-        final SpectrumKeyHandler keyHandler = new SpectrumKeyHandler();
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyHandler);
-        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, keyHandler);
-
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this::singleRefresh, 0, 30, TimeUnit.MILLISECONDS);
-    }
-
-    private class SpectrumKeyHandler implements EventHandler<KeyEvent> {
-
-        @Override
-        public void handle(KeyEvent event) {
-            final Character spectrumKey = spectrumKeys.get(event.getCode());
-            if (spectrumKey != null) {
-                if (event.getEventType() == KeyEvent.KEY_PRESSED) {
-                    ula.keyDown(spectrumKey);
-                } else if (event.getEventType() == KeyEvent.KEY_RELEASED) {
-                    ula.keyUp(spectrumKey);
-                }
-            } else if (event.getCode() == KeyCode.ESCAPE && event.getEventType() == KeyEvent.KEY_PRESSED) {
-                processor.dump(System.out);
-                dump(System.out);
-            }
-        }
-    }
-
-    private void dump(final PrintStream out) {
-        out.printf(
-                "Display refresh: count=%d avg=%f max=%d rate=%f\n",
-                displayRefreshTimer.getCount(),
-                displayRefreshTimer.getSnapshot().getMean() / 1000000,
-                displayRefreshTimer.getSnapshot().getMax() / 1000000,
-                displayRefreshTimer.getOneMinuteRate()
-        );
+    protected void dump(final PrintStream out) {
+        processor.dump(out);
 
         out.printf(
                 "Processor execute: count=%d avg=%f max=%d rate=%f\n",
@@ -164,23 +47,28 @@ public class Computer extends Application implements InterruptingDevice {
         );
     }
 
-    private void loadSnapshot(String snapshotFile) throws IOException {
+    public ULA getUla() {
+        return ula;
+    }
+
+    public void loadRom(final String romFile) throws IOException {
+        try (final FileInputStream fis = new FileInputStream(romFile)) {
+            int addr = 0;
+            for (int next = fis.read(); next != -1; next = fis.read()) {
+                memory[addr++] = next;
+            }
+        }
+        originalRomHash = romHash();
+    }
+
+    public void loadSnapshot(final String snapshotFile) throws IOException {
         try (final FileInputStream fis = new FileInputStream(snapshotFile)) {
             final SnapshotLoader sl = new SnapshotLoader(fis);
             sl.read(processor, memory);
         }
     }
 
-    public void singleRefresh() {
-        Platform.runLater(() -> {
-            final Timer.Context timer = displayRefreshTimer.time();
-            try {
-                imageView.setImage(display.refresh());
-            } finally {
-                timer.stop();
-            }
-        });
-
+    public void singleCycle() {
         int tStates = 0;
         processor.interrupt(new InterruptRequest(this));
 
@@ -220,6 +108,4 @@ public class Computer extends Application implements InterruptingDevice {
     @Override
     public void acknowledge() {
     }
-
-
 }
