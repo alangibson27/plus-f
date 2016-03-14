@@ -130,9 +130,10 @@ public class JavaFXComputer extends Application {
         computer.dump(out);
 
         out.printf(
-                "Display refresh: count=%d avg=%f max=%d rate=%f\n",
+                "Display refresh: count=%d avg=%f p99=%f max=%d rate=%f\n",
                 displayRefreshTimer.getCount(),
                 displayRefreshTimer.getSnapshot().getMean() / 1000000,
+                displayRefreshTimer.getSnapshot().get99thPercentile() / 1000000,
                 displayRefreshTimer.getSnapshot().getMax() / 1000000,
                 displayRefreshTimer.getOneMinuteRate()
         );

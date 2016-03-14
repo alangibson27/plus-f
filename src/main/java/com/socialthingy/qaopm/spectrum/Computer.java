@@ -13,7 +13,7 @@ import java.io.PrintStream;
 
 public class Computer implements InterruptingDevice {
 
-    private static final double SCREEN_REFRESHES_PER_SECOND = 25.0;
+    public static final double SCREEN_REFRESHES_PER_SECOND = 50.0;
     private static final double CLOCK_CYCLES_PER_SECOND = 3500000.0;
     private static final double CLOCK_CYCLES_PER_T_STATE = 2.0;
 
@@ -39,9 +39,10 @@ public class Computer implements InterruptingDevice {
         processor.dump(out);
 
         out.printf(
-                "Processor execute: count=%d avg=%f max=%d rate=%f\n",
+                "Processor execute: count=%d avg=%f p99=%f max=%d rate=%f\n",
                 processorExecuteTimer.getCount(),
                 processorExecuteTimer.getSnapshot().getMean() / 1000000,
+                processorExecuteTimer.getSnapshot().get99thPercentile() / 1000000,
                 processorExecuteTimer.getSnapshot().getMax() / 1000000,
                 processorExecuteTimer.getOneMinuteRate()
         );
