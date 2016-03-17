@@ -34,18 +34,6 @@
             <version>3.1.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.lwjgl.lwjgl</groupId>
-            <artifactId>lwjgl</artifactId>
-            <version>2.9.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slick2d</groupId>
-            <artifactId>slick2d-core</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -99,22 +87,6 @@
                   </goals>
                 </execution>
               </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.teamtter.mavennatives</groupId>
-                <artifactId>nativedependencies-maven-plugin</artifactId>
-                <version>1.0.0</version>
-                <executions>
-                    <execution>
-                        <id>unpacknatives</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <!--suppress MavenModelInspection (this line is for IDEA)-->
-                            <goal>copy</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

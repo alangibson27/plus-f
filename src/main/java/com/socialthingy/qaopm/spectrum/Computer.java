@@ -15,12 +15,11 @@ import java.util.Map;
 
 public class Computer implements InterruptingDevice {
 
-    public static final int SCREEN_REFRESHES_PER_SECOND = 50;
-    public static final int REFRESH_INTERVAL_MILLIS = 1000 / SCREEN_REFRESHES_PER_SECOND;
+    private static final int SCREEN_REFRESHES_PER_SECOND = 50;
+    private static final int REFRESH_INTERVAL_MILLIS = 1000 / SCREEN_REFRESHES_PER_SECOND;
     private static final int CLOCK_CYCLES_PER_SECOND = 3500000;
-    private static final int CLOCK_CYCLES_PER_T_STATE = 2;
 
-    private static final int T_STATES_PER_REFRESH = (CLOCK_CYCLES_PER_SECOND / CLOCK_CYCLES_PER_T_STATE) / SCREEN_REFRESHES_PER_SECOND;
+    private static final int T_STATES_PER_REFRESH = CLOCK_CYCLES_PER_SECOND  / SCREEN_REFRESHES_PER_SECOND;
 
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
     private static final String PROCESSOR_LONG_CYCLE_COUNTER_NAME = "processor.cycles.long";
