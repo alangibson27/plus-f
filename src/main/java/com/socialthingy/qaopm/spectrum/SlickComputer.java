@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.spectrum;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.newdawn.slick.*;
@@ -11,10 +12,14 @@ import java.util.Map;
 
 public class SlickComputer extends BasicGame {
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
+    private static final String LONG_DISPLAY_REFRESH_NAME = "display.refresh.long";
+    private static final String SHORT_DISPLAY_REFRESH_NAME = "display.refresh.short";
     private final Computer computer;
     private final SlickDisplay display;
     private final Map<Integer, Character> spectrumKeys = new HashMap<>();
     private final Timer displayRefreshTimer;
+    private final Counter longRefreshCounter;
+    private final Counter shortRefreshCounter;
 
     public static void main(final String ... args) throws IOException, SlickException {
         final SlickComputer slickComputer = new SlickComputer();
@@ -28,6 +33,8 @@ public class SlickComputer extends BasicGame {
         computer = new Computer(memory, metricRegistry);
         display = new SlickDisplay(memory);
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
+        longRefreshCounter = metricRegistry.counter(LONG_DISPLAY_REFRESH_NAME);
+        shortRefreshCounter = metricRegistry.counter(SHORT_DISPLAY_REFRESH_NAME);
 
         spectrumKeys.put(Input.KEY_A, 'a');
         spectrumKeys.put(Input.KEY_B, 'b');
@@ -102,21 +109,17 @@ public class SlickComputer extends BasicGame {
         try {
             graphics.drawImage(display.refresh(), 0, 0);
         } finally {
-            timer.stop();
+            final long resultInMillis = timer.stop() / 1000000;
+            if (resultInMillis > Computer.REFRESH_INTERVAL_MILLIS) {
+                longRefreshCounter.inc();
+            } else {
+                shortRefreshCounter.inc();
+            }
         }
     }
 
     public void dump(final PrintStream out) {
         computer.dump(out);
-
-        out.printf(
-                "Display refresh: count=%d avg=%f p99=%f max=%d rate=%f\n",
-                displayRefreshTimer.getCount(),
-                displayRefreshTimer.getSnapshot().getMean() / 1000000,
-                displayRefreshTimer.getSnapshot().get99thPercentile() / 1000000,
-                displayRefreshTimer.getSnapshot().getMax() / 1000000,
-                displayRefreshTimer.getOneMinuteRate()
-        );
     }
 
     private class SpectrumKeyListener implements KeyListener {

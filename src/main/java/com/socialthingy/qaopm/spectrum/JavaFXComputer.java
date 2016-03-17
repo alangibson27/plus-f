@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.spectrum;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import javafx.application.Application;
@@ -24,12 +25,16 @@ import java.util.concurrent.TimeUnit;
 public class JavaFXComputer extends Application {
 
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
+    private static final String LONG_DISPLAY_REFRESH_NAME = "display.refresh.long";
+    private static final String SHORT_DISPLAY_REFRESH_NAME = "display.refresh.short";
 
     private final Computer computer;
     private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
     private ImageView imageView;
     private final JavaFXDisplay display;
     private final Timer displayRefreshTimer;
+    private final Counter longRefreshCounter;
+    private final Counter shortRefreshCounter;
 
     public static void main(final String ... args) {
         Application.launch(args);
@@ -42,6 +47,8 @@ public class JavaFXComputer extends Application {
         display = new JavaFXDisplay(memory);
 
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
+        longRefreshCounter = metricRegistry.counter(LONG_DISPLAY_REFRESH_NAME);
+        shortRefreshCounter = metricRegistry.counter(SHORT_DISPLAY_REFRESH_NAME);
 
         spectrumKeys.put(KeyCode.A, 'a');
         spectrumKeys.put(KeyCode.B, 'b');
@@ -119,7 +126,12 @@ public class JavaFXComputer extends Application {
             try {
                 imageView.setImage(display.refresh());
             } finally {
-                timer.stop();
+                final long resultInMillis = timer.stop() / 1000000;
+                if (resultInMillis > Computer.REFRESH_INTERVAL_MILLIS) {
+                    longRefreshCounter.inc();
+                } else {
+                    shortRefreshCounter.inc();
+                }
             }
         });
 
@@ -128,15 +140,6 @@ public class JavaFXComputer extends Application {
 
     public void dump(final PrintStream out) {
         computer.dump(out);
-
-        out.printf(
-                "Display refresh: count=%d avg=%f p99=%f max=%d rate=%f\n",
-                displayRefreshTimer.getCount(),
-                displayRefreshTimer.getSnapshot().getMean() / 1000000,
-                displayRefreshTimer.getSnapshot().get99thPercentile() / 1000000,
-                displayRefreshTimer.getSnapshot().getMax() / 1000000,
-                displayRefreshTimer.getOneMinuteRate()
-        );
     }
 
     private class SpectrumKeyHandler implements EventHandler<KeyEvent> {
