@@ -1,6 +1,6 @@
 package com.socialthingy.qaopm.spectrum;
 
-import javafx.scene.paint.Color;
+import java.awt.Color;
 
 abstract class DisplaySupport<T> {
     protected final int[] memory;
@@ -115,6 +115,6 @@ class SpectrumColour {
     private Color toColour(final boolean bright, final int value) {
         final int brightnessMultiplier = bright ? 0xffffff : 0xaaaaaa;
         final int colour = SPECTRUM_COLOUR_MASKS[value] & brightnessMultiplier;
-        return Color.rgb((colour & 0xff0000) >> 16, (colour & 0x00ff00) >> 8, (colour & 0x0000ff));
+        return new Color((colour & 0xff0000) >> 16, (colour & 0x00ff00) >> 8, (colour & 0x0000ff));
     }
 }

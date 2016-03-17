@@ -2,24 +2,23 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class JavaFXComputer extends Application {
 
@@ -27,7 +26,6 @@ public class JavaFXComputer extends Application {
 
     private final Computer computer;
     private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
-    private ImageView imageView;
     private final JavaFXDisplay display;
     private final Timer displayRefreshTimer;
 
@@ -100,7 +98,7 @@ public class JavaFXComputer extends Application {
         Group root = new Group();
         Scene scene = new Scene(root);
 
-        imageView = new ImageView(display.getScreen());
+        final ImageView imageView = new ImageView(display.getScreen());
         root.getChildren().add(imageView);
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -109,33 +107,22 @@ public class JavaFXComputer extends Application {
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyHandler);
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, keyHandler);
 
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this::singleRefresh, 0, 30, TimeUnit.MILLISECONDS);
-    }
-
-    public void singleRefresh() {
-        Platform.runLater(() -> {
-            final Timer.Context timer = displayRefreshTimer.time();
-            try {
-                imageView.setImage(display.refresh());
-            } finally {
-                timer.stop();
+        new AnimationTimer() {
+            @Override
+            public void handle(final long now) {
+                final Timer.Context timer = displayRefreshTimer.time();
+                try {
+                    display.refresh();
+                    computer.singleCycle();
+                } finally {
+                    timer.stop();
+                }
             }
-        });
-
-        computer.singleCycle();
+        }.start();
     }
 
     public void dump(final PrintStream out) {
         computer.dump(out);
-
-        out.printf(
-                "Display refresh: count=%d avg=%f max=%d rate=%f\n",
-                displayRefreshTimer.getCount(),
-                displayRefreshTimer.getSnapshot().getMean() / 1000000,
-                displayRefreshTimer.getSnapshot().getMax() / 1000000,
-                displayRefreshTimer.getOneMinuteRate()
-        );
     }
 
     private class SpectrumKeyHandler implements EventHandler<KeyEvent> {
@@ -159,6 +146,8 @@ public class JavaFXComputer extends Application {
 class JavaFXDisplay extends DisplaySupport<WritableImage> {
 
     private final WritableImage screen = new WritableImage(256, 192);
+    private final PixelWriter pw = screen.getPixelWriter();
+    private final int[] pixels = new int[256 * 192];
 
     public JavaFXDisplay(final int[] memory) {
         super(memory);
@@ -171,9 +160,12 @@ class JavaFXDisplay extends DisplaySupport<WritableImage> {
 
     @Override
     public WritableImage refresh() {
-        final WritableImage image = new WritableImage(256, 192);
-        final PixelWriter pw = image.getPixelWriter();
-        super.draw(pw::setColor);
-        return image;
+        super.draw(this::setPixel);
+        pw.setPixels(0, 0, 256, 192, PixelFormat.getIntArgbInstance(), pixels, 0, 256);
+        return screen;
+    }
+
+    private void setPixel(final int x, final int y, final Color color) {
+        pixels[x + (y * 256)] = color.getRGB();
     }
 }

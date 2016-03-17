@@ -1,5 +1,6 @@
 package com.socialthingy.qaopm.spectrum;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.qaopm.snapshot.SnapshotLoader;
@@ -10,41 +11,57 @@ import com.socialthingy.qaopm.z80.Processor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Map;
 
 public class Computer implements InterruptingDevice {
 
-    private static final double SCREEN_REFRESHES_PER_SECOND = 25.0;
-    private static final double CLOCK_CYCLES_PER_SECOND = 3500000.0;
-    private static final double CLOCK_CYCLES_PER_T_STATE = 2.0;
+    private static final int SCREEN_REFRESHES_PER_SECOND = 50;
+    private static final int REFRESH_INTERVAL_MILLIS = 1000 / SCREEN_REFRESHES_PER_SECOND;
+    private static final int CLOCK_CYCLES_PER_SECOND = 3500000;
 
-    private static final int T_STATES_PER_REFRESH =
-            (int) ((1 / SCREEN_REFRESHES_PER_SECOND) / (1 / (CLOCK_CYCLES_PER_SECOND / CLOCK_CYCLES_PER_T_STATE)));
+    private static final int T_STATES_PER_REFRESH = CLOCK_CYCLES_PER_SECOND  / SCREEN_REFRESHES_PER_SECOND;
 
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
+    private static final String PROCESSOR_LONG_CYCLE_COUNTER_NAME = "processor.cycles.long";
+    private static final String PROCESSOR_SHORT_CYCLE_COUNTER_NAME = "processor.cycles.short";
 
     private final Processor processor;
     private final ULA ula;
     private final int[] memory;
     private int originalRomHash;
+    private MetricRegistry metricRegistry;
     private final Timer processorExecuteTimer;
+    private final Counter shortCycleCounter;
+    private final Counter longCycleCounter;
 
     public Computer(final int[] memory, final MetricRegistry metricRegistry) {
         this.memory = memory;
         ula = new ULA();
         processor = new Processor(memory, ula);
+        this.metricRegistry = metricRegistry;
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
+        shortCycleCounter = metricRegistry.counter(PROCESSOR_SHORT_CYCLE_COUNTER_NAME);
+        longCycleCounter = metricRegistry.counter(PROCESSOR_LONG_CYCLE_COUNTER_NAME);
     }
 
     protected void dump(final PrintStream out) {
         processor.dump(out);
 
-        out.printf(
-                "Processor execute: count=%d avg=%f max=%d rate=%f\n",
-                processorExecuteTimer.getCount(),
-                processorExecuteTimer.getSnapshot().getMean() / 1000000,
-                processorExecuteTimer.getSnapshot().getMax() / 1000000,
-                processorExecuteTimer.getOneMinuteRate()
-        );
+        for (Map.Entry<String, Timer> timer: metricRegistry.getTimers().entrySet()) {
+            out.printf(
+                    "%s: count=%d avg=%f p99=%f max=%d rate=%f\n",
+                    timer.getKey(),
+                    timer.getValue().getCount(),
+                    timer.getValue().getSnapshot().getMean() / 1000000,
+                    timer.getValue().getSnapshot().get99thPercentile() / 1000000,
+                    timer.getValue().getSnapshot().getMax() / 1000000,
+                    timer.getValue().getOneMinuteRate()
+            );
+        }
+
+        for (Map.Entry<String, Counter> counter: metricRegistry.getCounters().entrySet()) {
+            out.printf("%s: count=%d\n", counter.getKey(), counter.getValue().getCount());
+        }
     }
 
     public ULA getUla() {
@@ -91,7 +108,12 @@ public class Computer implements InterruptingDevice {
                 tStates += processor.lastTime();
             }
         } finally {
-            timer.stop();
+            final long resultMillis = timer.stop() / 1000000;
+            if (resultMillis > REFRESH_INTERVAL_MILLIS) {
+                longCycleCounter.inc();
+            } else {
+                shortCycleCounter.inc();
+            }
         }
     }
 
