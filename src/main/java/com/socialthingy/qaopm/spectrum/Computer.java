@@ -15,15 +15,7 @@ import java.util.Map;
 
 public class Computer implements InterruptingDevice {
 
-    private static final int SCREEN_REFRESHES_PER_SECOND = 50;
-    private static final int REFRESH_INTERVAL_MILLIS = 1000 / SCREEN_REFRESHES_PER_SECOND;
-    private static final int CLOCK_CYCLES_PER_SECOND = 3500000;
-
-    private static final int T_STATES_PER_REFRESH = CLOCK_CYCLES_PER_SECOND  / SCREEN_REFRESHES_PER_SECOND;
-
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
-    private static final String PROCESSOR_LONG_CYCLE_COUNTER_NAME = "processor.cycles.long";
-    private static final String PROCESSOR_SHORT_CYCLE_COUNTER_NAME = "processor.cycles.short";
 
     private final Processor processor;
     private final ULA ula;
@@ -31,17 +23,16 @@ public class Computer implements InterruptingDevice {
     private int originalRomHash;
     private MetricRegistry metricRegistry;
     private final Timer processorExecuteTimer;
-    private final Counter shortCycleCounter;
-    private final Counter longCycleCounter;
+    private int tstatesPerRefresh;
 
-    public Computer(final int[] memory, final MetricRegistry metricRegistry) {
+    public Computer(final int[] memory, final Timings timings, final MetricRegistry metricRegistry) {
         this.memory = memory;
-        ula = new ULA();
-        processor = new Processor(memory, ula);
+        this.ula = new ULA();
+        this.processor = new Processor(memory, ula);
         this.metricRegistry = metricRegistry;
+        this.tstatesPerRefresh = timings.getTstatesPerRefresh();
+
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
-        shortCycleCounter = metricRegistry.counter(PROCESSOR_SHORT_CYCLE_COUNTER_NAME);
-        longCycleCounter = metricRegistry.counter(PROCESSOR_LONG_CYCLE_COUNTER_NAME);
     }
 
     protected void dump(final PrintStream out) {
@@ -86,12 +77,12 @@ public class Computer implements InterruptingDevice {
     }
 
     public void singleCycle() {
-        int tStates = 0;
+        int tstates = 0;
         processor.interrupt(new InterruptRequest(this));
 
         final Timer.Context timer = processorExecuteTimer.time();
         try {
-            while (tStates < T_STATES_PER_REFRESH) {
+            while (tstates < tstatesPerRefresh) {
                 try {
                     processor.execute();
                 } catch (Exception ex) {
@@ -105,15 +96,10 @@ public class Computer implements InterruptingDevice {
                     }
                 }
 
-                tStates += processor.lastTime();
+                tstates += processor.lastTime();
             }
         } finally {
-            final long resultMillis = timer.stop() / 1000000;
-            if (resultMillis > REFRESH_INTERVAL_MILLIS) {
-                longCycleCounter.inc();
-            } else {
-                shortCycleCounter.inc();
-            }
+            timer.stop();
         }
     }
 

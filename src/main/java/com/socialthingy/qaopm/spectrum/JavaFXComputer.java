@@ -5,7 +5,6 @@ import com.codahale.metrics.Timer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
@@ -13,6 +12,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -36,7 +36,7 @@ public class JavaFXComputer extends Application {
     public JavaFXComputer() {
         final MetricRegistry metricRegistry = new MetricRegistry();
         final int[] memory = new int[0x10000];
-        computer = new Computer(memory, metricRegistry);
+        computer = new Computer(memory, new Timings(50, 60, 3500000), metricRegistry);
         display = new JavaFXDisplay(memory);
 
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
@@ -95,13 +95,22 @@ public class JavaFXComputer extends Application {
             computer.loadSnapshot(snapshotFile);
         }
 
-        Group root = new Group();
+        BorderPane root = new BorderPane();
         Scene scene = new Scene(root);
 
         final ImageView imageView = new ImageView(display.getScreen());
-        root.getChildren().add(imageView);
+        imageView.setFitWidth(256 * 2);
+        imageView.setFitHeight(192 * 2);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        root.setCenter(imageView);
+
         primaryStage.setScene(scene);
+        primaryStage.sizeToScene();
         primaryStage.show();
+
+        imageView.fitWidthProperty().bind(primaryStage.widthProperty());
+        imageView.fitHeightProperty().bind(primaryStage.heightProperty());
 
         final SpectrumKeyHandler keyHandler = new SpectrumKeyHandler();
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyHandler);
