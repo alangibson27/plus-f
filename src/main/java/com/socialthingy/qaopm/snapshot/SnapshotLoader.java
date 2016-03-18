@@ -14,45 +14,44 @@ public class SnapshotLoader {
     }
 
     public void read(final Processor processor, final int[] memory) throws IOException {
-        processor.register("a").set(inputStream.read());
-        processor.register("f").set(inputStream.read());
-        processor.register("c").set(inputStream.read());
-        processor.register("b").set(inputStream.read());
-        processor.register("l").set(inputStream.read());
-        processor.register("h").set(inputStream.read());
-        processor.register("pc").set(Word.from(inputStream.read(), inputStream.read()));
-        processor.register("sp").set(Word.from(inputStream.read(), inputStream.read()));
-        processor.register("i").set(inputStream.read());
+        final int aValue = inputStream.read();
+        final int fValue = inputStream.read();
+        final int cValue = inputStream.read();
+        final int bValue = inputStream.read();
+        final int lValue = inputStream.read();
+        final int hValue = inputStream.read();
+        final int pcValue = Word.from(inputStream.read(), inputStream.read());
+        final int spValue = Word.from(inputStream.read(), inputStream.read());
+        final int iValue = inputStream.read();
 
         final int rLowBits = inputStream.read() & 0b01111111;
         final int indicator = inputStream.read();
         final int rHighBit = (indicator & 0b1) << 7;
-        processor.register("r").set(rHighBit | rLowBits);
         final int borderColour = (indicator & 0b1110) >> 1;
         final boolean memoryIsCompressed = (indicator & 0b00100000) != 0;
 
-        processor.register("e").set(inputStream.read());
-        processor.register("d").set(inputStream.read());
+        final int eValue = inputStream.read();
+        final int dValue = inputStream.read();
 
-        processor.register("bc'").set(Word.from(inputStream.read(), inputStream.read()));
-        processor.register("de'").set(Word.from(inputStream.read(), inputStream.read()));
-        processor.register("hl'").set(Word.from(inputStream.read(), inputStream.read()));
-        processor.register("a'").set(inputStream.read());
-        processor.register("f'").set(inputStream.read());
+        final int bcPValue = Word.from(inputStream.read(), inputStream.read());
+        final int dePValue = Word.from(inputStream.read(), inputStream.read());
+        final int hlPValue = Word.from(inputStream.read(), inputStream.read());
+        final int aPValue = inputStream.read();
+        final int fPValue = inputStream.read();
 
-        processor.register("iy").set(Word.from(inputStream.read(), inputStream.read()));
-        processor.register("ix").set(Word.from(inputStream.read(), inputStream.read()));
+        final int iyValue = Word.from(inputStream.read(), inputStream.read());
+        final int ixValue = Word.from(inputStream.read(), inputStream.read());
 
-        processor.setIff(0, inputStream.read() > 0);
-        processor.setIff(1, inputStream.read() > 0);
+        final int iff0 = inputStream.read();
+        final int iff1 = inputStream.read();
 
         final int indicator2 = inputStream.read();
-        processor.setInterruptMode(indicator2 & 0b11);
 
+        final int[] newMemory = new int[0xc000];
         if (memoryIsCompressed) {
-            loadMemoryFromCompressedBinary(0x4000, memory);
+            loadMemoryFromCompressedBinary(0x0000, newMemory);
         } else {
-            loadMemoryFromBinary(0x4000, memory);
+            loadMemoryFromBinary(0x0000, newMemory);
         }
 
         final int[] endMarker = new int[]{
@@ -62,10 +61,39 @@ public class SnapshotLoader {
         if (endMarker[0] != 0x00 || endMarker[1] != 0xed || endMarker[2] != 0xed || endMarker[3] != 0x00) {
             throw new IOException(".z80 file format invalid");
         }
+
+        processor.register("a").set(aValue);
+        processor.register("f").set(fValue);
+        processor.register("c").set(cValue);
+        processor.register("b").set(bValue);
+        processor.register("l").set(lValue);
+        processor.register("h").set(hValue);
+        processor.register("pc").set(pcValue);
+        processor.register("sp").set(spValue);
+        processor.register("i").set(iValue);
+        processor.register("r").set(rHighBit | rLowBits);
+        processor.register("e").set(eValue);
+        processor.register("d").set(dValue);
+
+        processor.register("bc'").set(bcPValue);
+        processor.register("de'").set(dePValue);
+        processor.register("hl'").set(hlPValue);
+        processor.register("a'").set(aPValue);
+        processor.register("f'").set(fPValue);
+
+        processor.register("iy").set(iyValue);
+        processor.register("ix").set(ixValue);
+
+        processor.setIff(0, iff0 > 0);
+        processor.setIff(1, iff1 > 0);
+
+        processor.setInterruptMode(indicator2 & 0b11);
+
+        System.arraycopy(newMemory, 0, memory, 0x4000, 0xc000);
     }
 
     private void loadMemoryFromCompressedBinary(int base, final int[] memory) throws IOException {
-        while (base < 0x10000) {
+        while (base < 0xc000) {
             final int nextByte = inputStream.read();
             if (nextByte == 0xed) {
                 final int nextByte2 = inputStream.read();
