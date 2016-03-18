@@ -5,6 +5,7 @@ import com.codahale.metrics.Timer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
@@ -15,10 +16,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
 
@@ -26,6 +31,7 @@ public class JavaFXComputer extends Application {
 
     private final Computer computer;
     private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
+    private final Map<KeyCode, List<KeyCode>> convenienceKeys = new HashMap<>();
     private final JavaFXDisplay display;
     private final Timer displayRefreshTimer;
 
@@ -41,48 +47,70 @@ public class JavaFXComputer extends Application {
 
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
 
-        spectrumKeys.put(KeyCode.A, 'a');
-        spectrumKeys.put(KeyCode.B, 'b');
-        spectrumKeys.put(KeyCode.C, 'c');
-        spectrumKeys.put(KeyCode.D, 'd');
-        spectrumKeys.put(KeyCode.E, 'e');
-        spectrumKeys.put(KeyCode.F, 'f');
-        spectrumKeys.put(KeyCode.G, 'g');
-        spectrumKeys.put(KeyCode.H, 'h');
-        spectrumKeys.put(KeyCode.I, 'i');
-        spectrumKeys.put(KeyCode.J, 'j');
-        spectrumKeys.put(KeyCode.K, 'k');
-        spectrumKeys.put(KeyCode.L, 'l');
-        spectrumKeys.put(KeyCode.M, 'm');
-        spectrumKeys.put(KeyCode.N, 'n');
-        spectrumKeys.put(KeyCode.O, 'o');
-        spectrumKeys.put(KeyCode.P, 'p');
-        spectrumKeys.put(KeyCode.Q, 'q');
-        spectrumKeys.put(KeyCode.R, 'r');
-        spectrumKeys.put(KeyCode.S, 's');
-        spectrumKeys.put(KeyCode.T, 't');
-        spectrumKeys.put(KeyCode.U, 'u');
-        spectrumKeys.put(KeyCode.V, 'v');
-        spectrumKeys.put(KeyCode.W, 'w');
-        spectrumKeys.put(KeyCode.X, 'x');
-        spectrumKeys.put(KeyCode.Y, 'y');
-        spectrumKeys.put(KeyCode.Z, 'z');
+        spectrumKeys.put(A, 'a');
+        spectrumKeys.put(B, 'b');
+        spectrumKeys.put(C, 'c');
+        spectrumKeys.put(D, 'd');
+        spectrumKeys.put(E, 'e');
+        spectrumKeys.put(F, 'f');
+        spectrumKeys.put(G, 'g');
+        spectrumKeys.put(H, 'h');
+        spectrumKeys.put(I, 'i');
+        spectrumKeys.put(J, 'j');
+        spectrumKeys.put(K, 'k');
+        spectrumKeys.put(L, 'l');
+        spectrumKeys.put(M, 'm');
+        spectrumKeys.put(N, 'n');
+        spectrumKeys.put(O, 'o');
+        spectrumKeys.put(P, 'p');
+        spectrumKeys.put(Q, 'q');
+        spectrumKeys.put(R, 'r');
+        spectrumKeys.put(S, 's');
+        spectrumKeys.put(T, 't');
+        spectrumKeys.put(U, 'u');
+        spectrumKeys.put(V, 'v');
+        spectrumKeys.put(W, 'w');
+        spectrumKeys.put(X, 'x');
+        spectrumKeys.put(Y, 'y');
+        spectrumKeys.put(Z, 'z');
 
-        spectrumKeys.put(KeyCode.DIGIT0, '0');
-        spectrumKeys.put(KeyCode.DIGIT1, '1');
-        spectrumKeys.put(KeyCode.DIGIT2, '2');
-        spectrumKeys.put(KeyCode.DIGIT3, '3');
-        spectrumKeys.put(KeyCode.DIGIT4, '4');
-        spectrumKeys.put(KeyCode.DIGIT5, '5');
-        spectrumKeys.put(KeyCode.DIGIT6, '6');
-        spectrumKeys.put(KeyCode.DIGIT7, '7');
-        spectrumKeys.put(KeyCode.DIGIT8, '8');
-        spectrumKeys.put(KeyCode.DIGIT9, '9');
+        spectrumKeys.put(DIGIT0, '0');
+        spectrumKeys.put(DIGIT1, '1');
+        spectrumKeys.put(DIGIT2, '2');
+        spectrumKeys.put(DIGIT3, '3');
+        spectrumKeys.put(DIGIT4, '4');
+        spectrumKeys.put(DIGIT5, '5');
+        spectrumKeys.put(DIGIT6, '6');
+        spectrumKeys.put(DIGIT7, '7');
+        spectrumKeys.put(DIGIT8, '8');
+        spectrumKeys.put(DIGIT9, '9');
 
-        spectrumKeys.put(KeyCode.SHIFT, '^');
-        spectrumKeys.put(KeyCode.CONTROL, '$');
-        spectrumKeys.put(KeyCode.SPACE, ' ');
-        spectrumKeys.put(KeyCode.ENTER, '_');
+        spectrumKeys.put(SHIFT, '^');
+        spectrumKeys.put(CONTROL, '$');
+        spectrumKeys.put(SPACE, ' ');
+        spectrumKeys.put(ENTER, '_');
+
+        addConvenienceKey(BACK_SPACE, SHIFT, DIGIT0);
+        addConvenienceKey(COMMA, CONTROL, N);
+        addConvenienceKey(PERIOD, CONTROL, M);
+        addConvenienceKey(UP, SHIFT, DIGIT7);
+        addConvenienceKey(DOWN, SHIFT, DIGIT6);
+        addConvenienceKey(LEFT, SHIFT, DIGIT5);
+        addConvenienceKey(RIGHT, SHIFT, DIGIT8);
+        addConvenienceKey(COLON, CONTROL, Z);
+        addConvenienceKey(SLASH, CONTROL, V);
+        addConvenienceKey(MINUS, CONTROL, J);
+        addConvenienceKey(PLUS, CONTROL, K);
+        addConvenienceKey(EQUALS, CONTROL, L);
+        addConvenienceKey(SEMICOLON, CONTROL, O);
+        addConvenienceKey(AT, CONTROL, DIGIT2);
+        addConvenienceKey(POUND, CONTROL, DIGIT3);
+        addConvenienceKey(QUOTE, CONTROL, DIGIT7);
+        addConvenienceKey(UNDERSCORE, CONTROL, DIGIT0);
+    }
+
+    private void addConvenienceKey(final KeyCode convenienceKey, final KeyCode ... spectrumKeys) {
+        convenienceKeys.put(convenienceKey, Arrays.asList(spectrumKeys));
     }
 
     @Override
@@ -137,17 +165,35 @@ public class JavaFXComputer extends Application {
     private class SpectrumKeyHandler implements EventHandler<KeyEvent> {
 
         @Override
-        public void handle(KeyEvent event) {
-            final Character spectrumKey = spectrumKeys.get(event.getCode());
-            if (spectrumKey != null) {
-                if (event.getEventType() == KeyEvent.KEY_PRESSED) {
-                    computer.getUla().keyDown(spectrumKey);
-                } else if (event.getEventType() == KeyEvent.KEY_RELEASED) {
-                    computer.getUla().keyUp(spectrumKey);
-                }
-            } else if (event.getCode() == KeyCode.ESCAPE && event.getEventType() == KeyEvent.KEY_PRESSED) {
+        public void handle(final KeyEvent event) {
+            final KeyCode keyCode = event.getCode();
+            final EventType<KeyEvent> eventType = event.getEventType();
+
+            if (handleSpectrumKey(keyCode, eventType)) {
+                return;
+            }
+
+            if (convenienceKeys.containsKey(keyCode)) {
+                convenienceKeys.get(keyCode)
+                        .forEach(sk -> handleSpectrumKey(sk, eventType));
+            }
+
+            if (keyCode == KeyCode.ESCAPE && eventType == KeyEvent.KEY_PRESSED) {
                 dump(System.out);
             }
+        }
+
+        private boolean handleSpectrumKey(final KeyCode keyCode, final EventType<KeyEvent> eventType) {
+            final Character spectrumKey = spectrumKeys.get(keyCode);
+            if (spectrumKey != null) {
+                if (eventType == KeyEvent.KEY_PRESSED) {
+                    computer.getUla().keyDown(spectrumKey);
+                } else if (eventType == KeyEvent.KEY_RELEASED) {
+                    computer.getUla().keyUp(spectrumKey);
+                }
+            }
+
+            return spectrumKey != null;
         }
     }
 }
