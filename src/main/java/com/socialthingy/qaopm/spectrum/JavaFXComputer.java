@@ -8,10 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
@@ -19,6 +16,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -193,7 +191,12 @@ public class JavaFXComputer extends Application {
                     final Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Loading Error");
                     alert.setHeaderText("Unable to load snapshot");
-                    alert.setContentText("An error occurred while loading the snapshot file.");
+                    alert.setContentText(
+                            String.format("An error occurred while loading the snapshot file:\n%s", ex.getMessage())
+                    );
+                    alert.getDialogPane().getChildren().stream()
+                            .filter(node -> node instanceof Label)
+                            .forEach(node -> ((Label) node).setMinHeight(Region.USE_PREF_SIZE));
                     alert.showAndWait();
                 }
             }
