@@ -4,9 +4,11 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
@@ -14,9 +16,13 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +40,9 @@ public class JavaFXComputer extends Application {
     private final Map<KeyCode, List<KeyCode>> convenienceKeys = new HashMap<>();
     private final JavaFXDisplay display;
     private final Timer displayRefreshTimer;
+    private final ComputerLoop computerLoop;
+
+    private Stage primaryStage;
 
     public static void main(final String ... args) {
         Application.launch(args);
@@ -44,8 +53,8 @@ public class JavaFXComputer extends Application {
         final int[] memory = new int[0x10000];
         computer = new Computer(memory, new Timings(50, 60, 3500000), metricRegistry);
         display = new JavaFXDisplay(memory);
-
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
+        computerLoop = new ComputerLoop();
 
         spectrumKeys.put(A, 'a');
         spectrumKeys.put(B, 'b');
@@ -114,13 +123,14 @@ public class JavaFXComputer extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(final Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
         final String romFile = getParameters().getRaw().get(0);
         computer.loadRom(romFile);
 
         if (getParameters().getRaw().size() > 1) {
             final String snapshotFile = getParameters().getRaw().get(1);
-            computer.loadSnapshot(snapshotFile);
+            computer.loadSnapshot(new File(snapshotFile));
         }
 
         BorderPane root = new BorderPane();
@@ -132,7 +142,9 @@ public class JavaFXComputer extends Application {
         imageView.setPreserveRatio(true);
         imageView.setSmooth(true);
         root.setCenter(imageView);
+        root.setTop(getMenuBar());
 
+        primaryStage.setTitle("QAOPM Spectrum Emulator");
         primaryStage.setScene(scene);
         primaryStage.sizeToScene();
         primaryStage.show();
@@ -144,18 +156,53 @@ public class JavaFXComputer extends Application {
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyHandler);
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, keyHandler);
 
-        new AnimationTimer() {
-            @Override
-            public void handle(final long now) {
-                final Timer.Context timer = displayRefreshTimer.time();
+        computerLoop.start();
+    }
+
+    private MenuBar getMenuBar() {
+        final MenuBar menuBar = new MenuBar();
+
+        final Menu fileMenu = new Menu("File");
+
+        final MenuItem load = new MenuItem("Load");
+        load.setOnAction(this::loadSnapshot);
+
+        final MenuItem quit = new MenuItem("Quit");
+        quit.setOnAction(ae -> System.exit(0));
+
+        fileMenu.getItems().add(load);
+        fileMenu.getItems().add(quit);
+
+        menuBar.getMenus().add(fileMenu);
+        return menuBar;
+    }
+
+    private void loadSnapshot(final ActionEvent ae) {
+        computerLoop.stop();
+        try {
+            final FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Load Snapshot File");
+            final File chosen = fileChooser.showOpenDialog(primaryStage);
+
+            if (chosen != null) {
                 try {
-                    display.refresh();
-                    computer.singleCycle();
-                } finally {
-                    timer.stop();
+                    computer.loadSnapshot(chosen);
+                } catch (IOException ex) {
+                    final Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Loading Error");
+                    alert.setHeaderText("Unable to load snapshot");
+                    alert.setContentText(
+                            String.format("An error occurred while loading the snapshot file:\n%s", ex.getMessage())
+                    );
+                    alert.getDialogPane().getChildren().stream()
+                            .filter(node -> node instanceof Label)
+                            .forEach(node -> ((Label) node).setMinHeight(Region.USE_PREF_SIZE));
+                    alert.showAndWait();
                 }
             }
-        }.start();
+        } finally {
+            computerLoop.start();
+        }
     }
 
     public void dump(final PrintStream out) {
@@ -194,6 +241,19 @@ public class JavaFXComputer extends Application {
             }
 
             return spectrumKey != null;
+        }
+    }
+
+    private class ComputerLoop extends AnimationTimer {
+        @Override
+        public void handle(final long now) {
+            final Timer.Context timer = displayRefreshTimer.time();
+            try {
+                display.refresh();
+                computer.singleCycle();
+            } finally {
+                timer.stop();
+            }
         }
     }
 }

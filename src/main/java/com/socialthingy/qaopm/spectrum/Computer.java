@@ -8,6 +8,7 @@ import com.socialthingy.qaopm.z80.InterruptRequest;
 import com.socialthingy.qaopm.z80.InterruptingDevice;
 import com.socialthingy.qaopm.z80.Processor;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -69,7 +70,7 @@ public class Computer implements InterruptingDevice {
         originalRomHash = romHash();
     }
 
-    public void loadSnapshot(final String snapshotFile) throws IOException {
+    public void loadSnapshot(final File snapshotFile) throws IOException {
         try (final FileInputStream fis = new FileInputStream(snapshotFile)) {
             final SnapshotLoader sl = new SnapshotLoader(fis);
             sl.read(processor, memory);
