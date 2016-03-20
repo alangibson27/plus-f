@@ -24,10 +24,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static javafx.scene.input.KeyCode.*;
 
@@ -41,7 +38,8 @@ public class JavaFXComputer extends Application {
     private final JavaFXDisplay display;
     private final Timer displayRefreshTimer;
     private final ComputerLoop computerLoop;
-
+    private boolean kempstonEnabled = false;
+    private final KempstonJoystick kempstonJoystick = new KempstonJoystick();
     private Stage primaryStage;
 
     public static void main(final String ... args) {
@@ -52,6 +50,7 @@ public class JavaFXComputer extends Application {
         final MetricRegistry metricRegistry = new MetricRegistry();
         final int[] memory = new int[0x10000];
         computer = new Computer(memory, new Timings(50, 60, 3500000), metricRegistry);
+        computer.registerIODevice(0x1f, kempstonJoystick);
         display = new JavaFXDisplay(memory);
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
         computerLoop = new ComputerLoop();
@@ -216,6 +215,10 @@ public class JavaFXComputer extends Application {
             final KeyCode keyCode = event.getCode();
             final EventType<KeyEvent> eventType = event.getEventType();
 
+            if (handleJoystickKey(keyCode, eventType)) {
+                return;
+            }
+
             if (handleSpectrumKey(keyCode, eventType)) {
                 return;
             }
@@ -228,6 +231,51 @@ public class JavaFXComputer extends Application {
             if (keyCode == KeyCode.ESCAPE && eventType == KeyEvent.KEY_PRESSED) {
                 dump(System.out);
             }
+
+            if (keyCode == KeyCode.F1) {
+                kempstonEnabled = !kempstonEnabled;
+                System.out.printf("Joystick enabled " + kempstonEnabled);
+            }
+        }
+
+        private boolean handleJoystickKey(final KeyCode keyCode, final EventType<KeyEvent> eventType) {
+            if (kempstonEnabled) {
+                final Optional<KempstonJoystick.Button> button;
+                switch (keyCode) {
+                    case Q:
+                        button = Optional.of(KempstonJoystick.Button.UP);
+                        break;
+
+                    case A:
+                        button = Optional.of(KempstonJoystick.Button.DOWN);
+                        break;
+
+                    case O:
+                        button = Optional.of(KempstonJoystick.Button.LEFT);
+                        break;
+
+                    case P:
+                        button = Optional.of(KempstonJoystick.Button.RIGHT);
+                        break;
+
+                    case SPACE:
+                        button = Optional.of(KempstonJoystick.Button.FIRE);
+                        break;
+
+                    default:
+                        button = Optional.empty();
+                }
+
+                if (eventType == KeyEvent.KEY_PRESSED) {
+                    button.ifPresent(kempstonJoystick::buttonDown);
+                    return true;
+                } else if (eventType == KeyEvent.KEY_RELEASED) {
+                    button.ifPresent(kempstonJoystick::buttonUp);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private boolean handleSpectrumKey(final KeyCode keyCode, final EventType<KeyEvent> eventType) {
