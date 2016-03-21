@@ -75,6 +75,10 @@ public class ULA implements IO {
         keysDown.remove(Character.toLowerCase(key));
     }
 
+    public void reset() {
+        keysDown.clear();
+    }
+
     private static int binary(final String value) {
         return Integer.valueOf(value, 2);
     }

@@ -18,18 +18,21 @@ public class Computer implements InterruptingDevice {
 
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
-    private final Processor processor;
-    private final ULA ula;
+    private Processor processor;
     private final int[] memory;
     private int originalRomHash;
     private MetricRegistry metricRegistry;
     private final Timer processorExecuteTimer;
     private int tstatesPerRefresh;
 
-    public Computer(final int[] memory, final Timings timings, final MetricRegistry metricRegistry) {
+    public Computer(
+        final Processor processor,
+        final int[] memory,
+        final Timings timings,
+        final MetricRegistry metricRegistry
+    ) {
         this.memory = memory;
-        this.ula = new ULA();
-        this.processor = new Processor(memory, ula);
+        this.processor = processor;
         this.metricRegistry = metricRegistry;
         this.tstatesPerRefresh = timings.getTstatesPerRefresh();
 
@@ -56,8 +59,8 @@ public class Computer implements InterruptingDevice {
         }
     }
 
-    public ULA getUla() {
-        return ula;
+    public Processor getProcessor() {
+        return processor;
     }
 
     public void loadRom(final String romFile) throws IOException {
