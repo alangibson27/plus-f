@@ -49,9 +49,9 @@ abstract class DisplaySupport<T> {
         return addressBase + (line * 32);
     }
 
-    public abstract T refresh(final int[] memory);
+    public abstract T refresh(final int[] memory, final boolean flashActive);
 
-    protected void draw(final int[] memory, final PixelUpdate updateFunction) {
+    protected void draw(final int[] memory, final boolean flashActive, final PixelUpdate updateFunction) {
         for (int y = 0; y < 192; y++) {
             for (int x = 0; x < 32; x++) {
                 final SpectrumColour colour = colours[memory[colourAddresses[y][x]]];
@@ -60,9 +60,17 @@ abstract class DisplaySupport<T> {
                     final int pixelAddress = pixelAddresses[y][x];
                     final int displayX = (x * 8) + (7 - bit);
                     if ((memory[pixelAddress] & (1 << bit)) > 0) {
-                        updateFunction.update(displayX, y, colour.getInk());
+                        updateFunction.update(
+                            displayX,
+                            y,
+                            flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk()
+                        );
                     } else {
-                        updateFunction.update(displayX, y, colour.getPaper());
+                        updateFunction.update(
+                            displayX,
+                            y,
+                            flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper()
+                        );
                     }
                 }
             }

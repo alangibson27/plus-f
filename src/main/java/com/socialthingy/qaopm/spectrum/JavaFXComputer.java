@@ -204,12 +204,20 @@ public class JavaFXComputer extends Application {
     }
 
     private class ComputerLoop extends AnimationTimer {
+        private boolean flashActive = false;
+        private int flashCycleCount = 16;
+
         @Override
         public void handle(final long now) {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
-                display.refresh(memory);
+                display.refresh(memory, flashActive);
                 computer.singleCycle();
+                flashCycleCount--;
+                if (flashCycleCount < 0) {
+                    flashCycleCount = 16;
+                    flashActive = !flashActive;
+                }
             } finally {
                 timer.stop();
             }
@@ -227,8 +235,8 @@ class JavaFXDisplay extends DisplaySupport<WritableImage> {
     }
 
     @Override
-    public WritableImage refresh(final int[] memory) {
-        super.draw(memory, this::setPixel);
+    public WritableImage refresh(final int[] memory, final boolean flashActive) {
+        super.draw(memory, flashActive, this::setPixel);
         pw.setPixels(0, 0, 256, 192, PixelFormat.getIntArgbInstance(), pixels, 0, 256);
         return screen;
     }
