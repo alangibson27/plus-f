@@ -4,7 +4,6 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.qaopm.snapshot.SnapshotLoader;
-import com.socialthingy.qaopm.z80.IO;
 import com.socialthingy.qaopm.z80.InterruptRequest;
 import com.socialthingy.qaopm.z80.InterruptingDevice;
 import com.socialthingy.qaopm.z80.Processor;
@@ -15,34 +14,29 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 
-public class Computer implements InterruptingDevice, IO {
+public class Computer implements InterruptingDevice {
 
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
-    private final Processor processor;
+    private Processor processor;
     private final int[] memory;
     private int originalRomHash;
     private MetricRegistry metricRegistry;
     private final Timer processorExecuteTimer;
     private int tstatesPerRefresh;
-    private IO[] ioDevices = new IO[0x100];
 
-    public Computer(final int[] memory, final Timings timings, final MetricRegistry metricRegistry) {
+    public Computer(
+        final Processor processor,
+        final int[] memory,
+        final Timings timings,
+        final MetricRegistry metricRegistry
+    ) {
         this.memory = memory;
-        this.processor = new Processor(memory, this);
+        this.processor = processor;
         this.metricRegistry = metricRegistry;
         this.tstatesPerRefresh = timings.getTstatesPerRefresh();
 
-        ioDevices[0xfe] = new ULA();
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
-    }
-
-    public void registerIODevice(final int port, final IO ioDevice) {
-        if (ioDevices[port] == null) {
-            ioDevices[port] = ioDevice;
-        } else {
-            throw new IllegalStateException("Device already registered on port");
-        }
     }
 
     protected void dump(final PrintStream out) {
@@ -65,8 +59,8 @@ public class Computer implements InterruptingDevice, IO {
         }
     }
 
-    public ULA getUla() {
-        return (ULA) ioDevices[0xfe];
+    public Processor getProcessor() {
+        return processor;
     }
 
     public void loadRom(final String romFile) throws IOException {
@@ -125,20 +119,5 @@ public class Computer implements InterruptingDevice, IO {
 
     @Override
     public void acknowledge() {
-    }
-
-    @Override
-    public int read(int port, int accumulator) {
-        if (ioDevices[port] != null) {
-            return ioDevices[port].read(port, accumulator);
-        }
-        return 0;
-    }
-
-    @Override
-    public void write(int port, int accumulator, int value) {
-        if (ioDevices[port] != null) {
-            ioDevices[port].write(port, accumulator, value);
-        }
     }
 }

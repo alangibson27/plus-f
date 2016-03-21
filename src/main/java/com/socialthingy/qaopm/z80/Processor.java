@@ -536,4 +536,10 @@ public class Processor {
     public void setLastOp(final Operation op) {
         this.lastOp = op;
     }
+
+    public void reset() {
+        for (Register reg: registers.values()) {
+            reg.set(0);
+        }
+    }
 }

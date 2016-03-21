@@ -3,14 +3,11 @@ package com.socialthingy.qaopm.spectrum;
 import java.awt.Color;
 
 abstract class DisplaySupport<T> {
-    protected final int[] memory;
     protected final SpectrumColour[] colours = new SpectrumColour[0x100];
     protected int[][] pixelAddresses = new int[192][];
     protected int[][] colourAddresses = new int[192][];
 
-    protected DisplaySupport(final int[] memory) {
-        this.memory = memory;
-
+    protected DisplaySupport() {
         for (int flash = 0; flash <= 1; flash++) {
             for (int bright = 0; bright <= 1; bright++) {
                 for (int paper = 0; paper < 8; paper++) {
@@ -52,9 +49,9 @@ abstract class DisplaySupport<T> {
         return addressBase + (line * 32);
     }
 
-    public abstract T refresh();
+    public abstract T refresh(final int[] memory);
 
-    protected void draw(final PixelUpdate updateFunction) {
+    protected void draw(final int[] memory, final PixelUpdate updateFunction) {
         for (int y = 0; y < 192; y++) {
             for (int x = 0; x < 32; x++) {
                 final SpectrumColour colour = colours[memory[colourAddresses[y][x]]];

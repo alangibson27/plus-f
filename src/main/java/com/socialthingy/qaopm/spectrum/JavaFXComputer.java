@@ -2,11 +2,11 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.socialthingy.qaopm.z80.Processor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -14,6 +14,8 @@ import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
@@ -32,14 +34,15 @@ public class JavaFXComputer extends Application {
 
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
 
-    private final Computer computer;
-    private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
-    private final Map<KeyCode, List<KeyCode>> convenienceKeys = new HashMap<>();
-    private final JavaFXDisplay display;
     private final Timer displayRefreshTimer;
     private final ComputerLoop computerLoop;
-    private boolean kempstonEnabled = false;
-    private final KempstonJoystick kempstonJoystick = new KempstonJoystick();
+    private final MetricRegistry metricRegistry;
+    private final JavaFXDisplay display;
+
+    private Computer computer;
+    private SpectrumKeyboard keyboard;
+    private int[] memory;
+
     private Stage primaryStage;
 
     public static void main(final String ... args) {
@@ -47,85 +50,30 @@ public class JavaFXComputer extends Application {
     }
 
     public JavaFXComputer() {
-        final MetricRegistry metricRegistry = new MetricRegistry();
-        final int[] memory = new int[0x10000];
-        computer = new Computer(memory, new Timings(50, 60, 3500000), metricRegistry);
-        computer.registerIODevice(0x1f, kempstonJoystick);
-        display = new JavaFXDisplay(memory);
+        metricRegistry = new MetricRegistry();
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
         computerLoop = new ComputerLoop();
-
-        spectrumKeys.put(A, 'a');
-        spectrumKeys.put(B, 'b');
-        spectrumKeys.put(C, 'c');
-        spectrumKeys.put(D, 'd');
-        spectrumKeys.put(E, 'e');
-        spectrumKeys.put(F, 'f');
-        spectrumKeys.put(G, 'g');
-        spectrumKeys.put(H, 'h');
-        spectrumKeys.put(I, 'i');
-        spectrumKeys.put(J, 'j');
-        spectrumKeys.put(K, 'k');
-        spectrumKeys.put(L, 'l');
-        spectrumKeys.put(M, 'm');
-        spectrumKeys.put(N, 'n');
-        spectrumKeys.put(O, 'o');
-        spectrumKeys.put(P, 'p');
-        spectrumKeys.put(Q, 'q');
-        spectrumKeys.put(R, 'r');
-        spectrumKeys.put(S, 's');
-        spectrumKeys.put(T, 't');
-        spectrumKeys.put(U, 'u');
-        spectrumKeys.put(V, 'v');
-        spectrumKeys.put(W, 'w');
-        spectrumKeys.put(X, 'x');
-        spectrumKeys.put(Y, 'y');
-        spectrumKeys.put(Z, 'z');
-
-        spectrumKeys.put(DIGIT0, '0');
-        spectrumKeys.put(DIGIT1, '1');
-        spectrumKeys.put(DIGIT2, '2');
-        spectrumKeys.put(DIGIT3, '3');
-        spectrumKeys.put(DIGIT4, '4');
-        spectrumKeys.put(DIGIT5, '5');
-        spectrumKeys.put(DIGIT6, '6');
-        spectrumKeys.put(DIGIT7, '7');
-        spectrumKeys.put(DIGIT8, '8');
-        spectrumKeys.put(DIGIT9, '9');
-
-        spectrumKeys.put(SHIFT, '^');
-        spectrumKeys.put(CONTROL, '$');
-        spectrumKeys.put(SPACE, ' ');
-        spectrumKeys.put(ENTER, '_');
-
-        addConvenienceKey(BACK_SPACE, SHIFT, DIGIT0);
-        addConvenienceKey(COMMA, CONTROL, N);
-        addConvenienceKey(PERIOD, CONTROL, M);
-        addConvenienceKey(UP, SHIFT, DIGIT7);
-        addConvenienceKey(DOWN, SHIFT, DIGIT6);
-        addConvenienceKey(LEFT, SHIFT, DIGIT5);
-        addConvenienceKey(RIGHT, SHIFT, DIGIT8);
-        addConvenienceKey(COLON, CONTROL, Z);
-        addConvenienceKey(SLASH, CONTROL, V);
-        addConvenienceKey(MINUS, CONTROL, J);
-        addConvenienceKey(PLUS, CONTROL, K);
-        addConvenienceKey(EQUALS, CONTROL, L);
-        addConvenienceKey(SEMICOLON, CONTROL, O);
-        addConvenienceKey(AT, CONTROL, DIGIT2);
-        addConvenienceKey(POUND, CONTROL, DIGIT3);
-        addConvenienceKey(QUOTE, CONTROL, DIGIT7);
-        addConvenienceKey(UNDERSCORE, CONTROL, DIGIT0);
+        display = new JavaFXDisplay();
     }
 
-    private void addConvenienceKey(final KeyCode convenienceKey, final KeyCode ... spectrumKeys) {
-        convenienceKeys.put(convenienceKey, Arrays.asList(spectrumKeys));
+    private void newComputer() throws IOException {
+        final KempstonJoystick kempstonJoystick = new KempstonJoystick();
+        final ULA ula = new ULA();
+        final IOMultiplexer ioMux = new IOMultiplexer();
+        ioMux.register(0xfe, ula);
+        ioMux.register(0x1f, kempstonJoystick);
+
+        memory = new int[0x10000];
+        computer = new Computer(new Processor(memory, ioMux), memory, new Timings(50, 60, 3500000), metricRegistry);
+        keyboard = new SpectrumKeyboard(ula, kempstonJoystick);
+        final String romFile = getParameters().getRaw().get(0);
+        computer.loadRom(romFile);
     }
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
-        final String romFile = getParameters().getRaw().get(0);
-        computer.loadRom(romFile);
+        newComputer();
 
         if (getParameters().getRaw().size() > 1) {
             final String snapshotFile = getParameters().getRaw().get(1);
@@ -151,10 +99,14 @@ public class JavaFXComputer extends Application {
         imageView.fitWidthProperty().bind(primaryStage.widthProperty());
         imageView.fitHeightProperty().bind(primaryStage.heightProperty());
 
-        final SpectrumKeyHandler keyHandler = new SpectrumKeyHandler();
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyHandler);
-        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, keyHandler);
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                dump(System.out);
+            }
+        });
 
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
+        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
         computerLoop.start();
     }
 
@@ -162,18 +114,61 @@ public class JavaFXComputer extends Application {
         final MenuBar menuBar = new MenuBar();
 
         final Menu fileMenu = new Menu("File");
+        registerMenuItem(fileMenu, "Load ...", Optional.of(L), this::loadSnapshot);
+        registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
 
-        final MenuItem load = new MenuItem("Load");
-        load.setOnAction(this::loadSnapshot);
+        final Menu computerMenu = new Menu("Computer");
+        registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
-        final MenuItem quit = new MenuItem("Quit");
-        quit.setOnAction(ae -> System.exit(0));
-
-        fileMenu.getItems().add(load);
-        fileMenu.getItems().add(quit);
+        final Menu controlsMenu = new Menu("Controls");
+        final CheckMenuItem kempstonJoystickItem = new CheckMenuItem("Kempston Joystick");
+        kempstonJoystickItem.selectedProperty().addListener(
+            (obs, oldValue, newValue) -> keyboard.setKempstonEnabled(true)
+        );
+        kempstonJoystickItem.setAccelerator(
+            new KeyCodeCombination(K, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)
+        );
+        controlsMenu.getItems().add(kempstonJoystickItem);
 
         menuBar.getMenus().add(fileMenu);
+        menuBar.getMenus().add(computerMenu);
+        menuBar.getMenus().add(controlsMenu);
         return menuBar;
+    }
+
+    private void resetComputer(final ActionEvent actionEvent) {
+        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Reset Computer?");
+        alert.setHeaderText("Are you sure you want to reset the computer?");
+        alert.getDialogPane().getChildren().stream()
+                .filter(node -> node instanceof Label)
+                .forEach(node -> ((Label) node).setMinHeight(Region.USE_PREF_SIZE));
+        final Optional<ButtonType> clicked = alert.showAndWait();
+        clicked.ifPresent(bt -> {
+            if (bt == ButtonType.OK) {
+                computerLoop.stop();
+                try {
+                    newComputer();
+                    computerLoop.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void registerMenuItem(
+        final Menu menu,
+        final String name,
+        final Optional<KeyCode> accelerator,
+        final EventHandler<ActionEvent> action
+    ) {
+        final MenuItem item = new MenuItem(name);
+        item.setOnAction(action);
+        accelerator.ifPresent(a ->
+            item.setAccelerator(new KeyCodeCombination(a, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN))
+        );
+        menu.getItems().add(item);
     }
 
     private void loadSnapshot(final ActionEvent ae) {
@@ -208,96 +203,12 @@ public class JavaFXComputer extends Application {
         computer.dump(out);
     }
 
-    private class SpectrumKeyHandler implements EventHandler<KeyEvent> {
-
-        @Override
-        public void handle(final KeyEvent event) {
-            final KeyCode keyCode = event.getCode();
-            final EventType<KeyEvent> eventType = event.getEventType();
-
-            if (handleJoystickKey(keyCode, eventType)) {
-                return;
-            }
-
-            if (handleSpectrumKey(keyCode, eventType)) {
-                return;
-            }
-
-            if (convenienceKeys.containsKey(keyCode)) {
-                convenienceKeys.get(keyCode)
-                        .forEach(sk -> handleSpectrumKey(sk, eventType));
-            }
-
-            if (keyCode == KeyCode.ESCAPE && eventType == KeyEvent.KEY_PRESSED) {
-                dump(System.out);
-            }
-
-            if (keyCode == KeyCode.F1) {
-                kempstonEnabled = !kempstonEnabled;
-                System.out.printf("Joystick enabled " + kempstonEnabled);
-            }
-        }
-
-        private boolean handleJoystickKey(final KeyCode keyCode, final EventType<KeyEvent> eventType) {
-            if (kempstonEnabled) {
-                final Optional<KempstonJoystick.Button> button;
-                switch (keyCode) {
-                    case Q:
-                        button = Optional.of(KempstonJoystick.Button.UP);
-                        break;
-
-                    case A:
-                        button = Optional.of(KempstonJoystick.Button.DOWN);
-                        break;
-
-                    case O:
-                        button = Optional.of(KempstonJoystick.Button.LEFT);
-                        break;
-
-                    case P:
-                        button = Optional.of(KempstonJoystick.Button.RIGHT);
-                        break;
-
-                    case SPACE:
-                        button = Optional.of(KempstonJoystick.Button.FIRE);
-                        break;
-
-                    default:
-                        button = Optional.empty();
-                }
-
-                if (eventType == KeyEvent.KEY_PRESSED) {
-                    button.ifPresent(kempstonJoystick::buttonDown);
-                    return true;
-                } else if (eventType == KeyEvent.KEY_RELEASED) {
-                    button.ifPresent(kempstonJoystick::buttonUp);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private boolean handleSpectrumKey(final KeyCode keyCode, final EventType<KeyEvent> eventType) {
-            final Character spectrumKey = spectrumKeys.get(keyCode);
-            if (spectrumKey != null) {
-                if (eventType == KeyEvent.KEY_PRESSED) {
-                    computer.getUla().keyDown(spectrumKey);
-                } else if (eventType == KeyEvent.KEY_RELEASED) {
-                    computer.getUla().keyUp(spectrumKey);
-                }
-            }
-
-            return spectrumKey != null;
-        }
-    }
-
     private class ComputerLoop extends AnimationTimer {
         @Override
         public void handle(final long now) {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
-                display.refresh();
+                display.refresh(memory);
                 computer.singleCycle();
             } finally {
                 timer.stop();
@@ -307,23 +218,17 @@ public class JavaFXComputer extends Application {
 }
 
 class JavaFXDisplay extends DisplaySupport<WritableImage> {
-
     private final WritableImage screen = new WritableImage(256, 192);
     private final PixelWriter pw = screen.getPixelWriter();
     private final int[] pixels = new int[256 * 192];
-
-    public JavaFXDisplay(final int[] memory) {
-        super(memory);
-
-    }
 
     public WritableImage getScreen() {
         return screen;
     }
 
     @Override
-    public WritableImage refresh() {
-        super.draw(this::setPixel);
+    public WritableImage refresh(final int[] memory) {
+        super.draw(memory, this::setPixel);
         pw.setPixels(0, 0, 256, 192, PixelFormat.getIntArgbInstance(), pixels, 0, 256);
         return screen;
     }
