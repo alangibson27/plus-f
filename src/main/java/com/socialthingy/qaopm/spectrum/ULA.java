@@ -4,6 +4,8 @@ import com.socialthingy.qaopm.z80.IO;
 
 import java.util.*;
 
+import static com.socialthingy.qaopm.spectrum.SpectrumColour.dullColour;
+
 public class ULA implements IO {
 
     private static final int[] KEY_POSITIONS = new int[] {
@@ -67,7 +69,12 @@ public class ULA implements IO {
 
     @Override
     public void write(int port, int accumulator, int value) {
-
+        if (port == 0xfe) {
+            final int borderColour = 0xff000000 | dullColour(value & 0b111);
+            for (int i = 0; i < borderLines.length; i++) {
+                borderLines[i] = borderColour;
+            }
+        }
     }
 
     public void keyDown(final char key) {
