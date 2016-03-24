@@ -2,10 +2,7 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.socialthingy.qaopm.z80.IO;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ULA implements IO {
 
@@ -17,6 +14,7 @@ public class ULA implements IO {
         binary("01111")
     };
 
+    private int[] borderLines = new int[256 + 96];
     private Set<Character> keysDown = new HashSet<>();
     private Map<Character, Integer>[] halfRows = new Map[8];
 
@@ -29,6 +27,11 @@ public class ULA implements IO {
         halfRows[5] = buildHalfRow("poiuy");
         halfRows[6] = buildHalfRow("_lkjh");
         halfRows[7] = buildHalfRow(" $mnb");
+
+        final Random random = new Random();
+        for (int i = 0; i < borderLines.length; i++) {
+            borderLines[i] = 0xff000000 | random.nextInt(0xffffff);
+        }
     }
 
     private Map<Character, Integer> buildHalfRow(final String rowKeys) {
@@ -81,5 +84,9 @@ public class ULA implements IO {
 
     private static int binary(final String value) {
         return Integer.valueOf(value, 2);
+    }
+
+    public int[] getBorderLines() {
+        return borderLines;
     }
 }
