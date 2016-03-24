@@ -126,7 +126,7 @@ public class JavaFXComputer extends Application {
             (obs, oldValue, newValue) -> keyboard.setKempstonEnabled(true)
         );
         kempstonJoystickItem.setAccelerator(
-            new KeyCodeCombination(K, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)
+            new KeyCodeCombination(K, KeyCombination.ALT_DOWN)
         );
         controlsMenu.getItems().add(kempstonJoystickItem);
 
@@ -166,7 +166,7 @@ public class JavaFXComputer extends Application {
         final MenuItem item = new MenuItem(name);
         item.setOnAction(action);
         accelerator.ifPresent(a ->
-            item.setAccelerator(new KeyCodeCombination(a, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN))
+            item.setAccelerator(new KeyCodeCombination(a, KeyCombination.ALT_DOWN))
         );
         menu.getItems().add(item);
     }
