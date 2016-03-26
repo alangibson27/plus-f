@@ -1,9 +1,10 @@
 package com.socialthingy.qaopm.spectrum
 
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{GivenWhenThen, FlatSpec, Matchers}
 
-class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyChecks with Matchers {
+class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyChecks with Matchers with MockitoSugar {
 
   val qwertHalfRow = "11111011".binary
 
@@ -80,7 +81,7 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
   }
 
   trait Spectrum {
-    val ula = new ULA()
+    val ula = new ULA(mock[Computer], ULA.TOP_BORDER_HEIGHT, ULA.BOTTOM_BORDER_HEIGHT)
   }
 
   implicit class BinaryOps(i: String) {

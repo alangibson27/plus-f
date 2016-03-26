@@ -24,6 +24,7 @@ public class Computer implements InterruptingDevice {
     private MetricRegistry metricRegistry;
     private final Timer processorExecuteTimer;
     private int tstatesPerRefresh;
+    private int currentCycleTstates;
 
     public Computer(
         final Processor processor,
@@ -63,6 +64,10 @@ public class Computer implements InterruptingDevice {
         return processor;
     }
 
+    public int getCurrentCycleTstates() {
+        return currentCycleTstates;
+    }
+
     public void loadRom(final String romFile) throws IOException {
         try (final FileInputStream fis = new FileInputStream(romFile)) {
             int addr = 0;
@@ -81,12 +86,12 @@ public class Computer implements InterruptingDevice {
     }
 
     public void singleCycle() {
-        int tstates = 0;
+        currentCycleTstates = 0;
         processor.interrupt(new InterruptRequest(this));
 
         final Timer.Context timer = processorExecuteTimer.time();
         try {
-            while (tstates < tstatesPerRefresh) {
+            while (currentCycleTstates < tstatesPerRefresh) {
                 try {
                     processor.execute();
                 } catch (Exception ex) {
@@ -100,7 +105,7 @@ public class Computer implements InterruptingDevice {
                     }
                 }
 
-                tstates += processor.lastTime();
+                currentCycleTstates += processor.lastTime();
             }
         } finally {
             timer.stop();

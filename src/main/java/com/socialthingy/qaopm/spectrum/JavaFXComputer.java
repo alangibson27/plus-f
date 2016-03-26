@@ -9,16 +9,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -32,13 +28,20 @@ import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
 
+    public static final int SCREEN_WIDTH = 256;
+    public static final int BORDER = 16;
+    public static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
+    public static final int DISPLAY_HEIGHT = ULA.SCREEN_HEIGHT + (BORDER * 2);
+
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
 
     private final Timer displayRefreshTimer;
     private final ComputerLoop computerLoop;
     private final MetricRegistry metricRegistry;
     private final JavaFXDisplay display;
+    private final JavaFXBorder border;
 
+    private ULA ula;
     private Computer computer;
     private SpectrumKeyboard keyboard;
     private int[] memory;
@@ -54,17 +57,18 @@ public class JavaFXComputer extends Application {
         displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
         computerLoop = new ComputerLoop();
         display = new JavaFXDisplay();
+        border = new JavaFXBorder();
     }
 
     private void newComputer() throws IOException {
         final KempstonJoystick kempstonJoystick = new KempstonJoystick();
-        final ULA ula = new ULA();
         final IOMultiplexer ioMux = new IOMultiplexer();
-        ioMux.register(0xfe, ula);
         ioMux.register(0x1f, kempstonJoystick);
 
         memory = new int[0x10000];
         computer = new Computer(new Processor(memory, ioMux), memory, new Timings(50, 60, 3500000), metricRegistry);
+        ula = new ULA(computer, BORDER, BORDER);
+        ioMux.register(0xfe, ula);
         keyboard = new SpectrumKeyboard(ula, kempstonJoystick);
         final String romFile = getParameters().getRaw().get(0);
         computer.loadRom(romFile);
@@ -80,24 +84,26 @@ public class JavaFXComputer extends Application {
             computer.loadSnapshot(new File(snapshotFile));
         }
 
-        BorderPane root = new BorderPane();
-        Scene scene = new Scene(root);
+        final ImageView borderImage = new ImageView(border.getBorder());
+        borderImage.setFitWidth(DISPLAY_WIDTH * 2);
+        borderImage.setFitHeight(DISPLAY_HEIGHT * 2);
 
-        final ImageView imageView = new ImageView(display.getScreen());
-        imageView.setFitWidth(256 * 2);
-        imageView.setFitHeight(192 * 2);
-        imageView.setPreserveRatio(true);
-        imageView.setSmooth(true);
-        root.setCenter(imageView);
+        final ImageView screenImage = new ImageView(display.getScreen());
+        screenImage.setFitHeight(ULA.SCREEN_HEIGHT * 2);
+        screenImage.setFitWidth(SCREEN_WIDTH * 2);
+
+        final StackPane sp = new StackPane(borderImage, screenImage);
+
+        BorderPane root = new BorderPane();
+        root.setBottom(sp);
         root.setTop(getMenuBar());
+
+        Scene scene = new Scene(root);
 
         primaryStage.setTitle("QAOPM Spectrum Emulator");
         primaryStage.setScene(scene);
         primaryStage.sizeToScene();
         primaryStage.show();
-
-        imageView.fitWidthProperty().bind(primaryStage.widthProperty());
-        imageView.fitHeightProperty().bind(primaryStage.heightProperty());
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.ESCAPE) {
@@ -212,6 +218,7 @@ public class JavaFXComputer extends Application {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
                 display.refresh(memory, flashActive);
+                border.refresh(ula);
                 computer.singleCycle();
                 flashCycleCount--;
                 if (flashCycleCount < 0) {
@@ -222,6 +229,20 @@ public class JavaFXComputer extends Application {
                 timer.stop();
             }
         }
+    }
+}
+
+class JavaFXBorder {
+    private final WritableImage border = new WritableImage(1, JavaFXComputer.DISPLAY_HEIGHT);
+    private final PixelWriter pw = border.getPixelWriter();
+
+    public WritableImage getBorder() {
+        return border;
+    }
+
+    public WritableImage refresh(final ULA ula) {
+        pw.setPixels(0, 0, 1, JavaFXComputer.DISPLAY_HEIGHT, PixelFormat.getIntArgbInstance(), ula.getBorderLines(), 0, 1);
+        return border;
     }
 }
 
