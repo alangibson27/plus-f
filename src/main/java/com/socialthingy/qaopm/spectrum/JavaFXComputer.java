@@ -7,9 +7,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.KeyCode;
@@ -30,10 +28,10 @@ import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
 
-    private static final int SCREEN_WIDTH = 256;
-    private static final int SCREEN_HEIGHT = 192;
-    public static final int BORDER_WIDTH = SCREEN_WIDTH + 96;
-    public static final int BORDER_HEIGHT = SCREEN_HEIGHT + 96;
+    public static final int SCREEN_WIDTH = 256;
+    public static final int BORDER = 16;
+    public static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
+    public static final int DISPLAY_HEIGHT = ULA.SCREEN_HEIGHT + (BORDER * 2);
 
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
 
@@ -43,7 +41,7 @@ public class JavaFXComputer extends Application {
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
 
-    private final ULA ula = new ULA();
+    private ULA ula;
     private Computer computer;
     private SpectrumKeyboard keyboard;
     private int[] memory;
@@ -65,11 +63,12 @@ public class JavaFXComputer extends Application {
     private void newComputer() throws IOException {
         final KempstonJoystick kempstonJoystick = new KempstonJoystick();
         final IOMultiplexer ioMux = new IOMultiplexer();
-        ioMux.register(0xfe, ula);
         ioMux.register(0x1f, kempstonJoystick);
 
         memory = new int[0x10000];
         computer = new Computer(new Processor(memory, ioMux), memory, new Timings(50, 60, 3500000), metricRegistry);
+        ula = new ULA(computer, BORDER, BORDER);
+        ioMux.register(0xfe, ula);
         keyboard = new SpectrumKeyboard(ula, kempstonJoystick);
         final String romFile = getParameters().getRaw().get(0);
         computer.loadRom(romFile);
@@ -86,11 +85,11 @@ public class JavaFXComputer extends Application {
         }
 
         final ImageView borderImage = new ImageView(border.getBorder());
-        borderImage.setFitWidth(BORDER_WIDTH * 2);
-        borderImage.setFitHeight(BORDER_HEIGHT * 2);
+        borderImage.setFitWidth(DISPLAY_WIDTH * 2);
+        borderImage.setFitHeight(DISPLAY_HEIGHT * 2);
 
         final ImageView screenImage = new ImageView(display.getScreen());
-        screenImage.setFitHeight(SCREEN_HEIGHT * 2);
+        screenImage.setFitHeight(ULA.SCREEN_HEIGHT * 2);
         screenImage.setFitWidth(SCREEN_WIDTH * 2);
 
         final StackPane sp = new StackPane(borderImage, screenImage);
@@ -234,7 +233,7 @@ public class JavaFXComputer extends Application {
 }
 
 class JavaFXBorder {
-    private final WritableImage border = new WritableImage(1, JavaFXComputer.BORDER_HEIGHT);
+    private final WritableImage border = new WritableImage(1, JavaFXComputer.DISPLAY_HEIGHT);
     private final PixelWriter pw = border.getPixelWriter();
 
     public WritableImage getBorder() {
@@ -242,7 +241,7 @@ class JavaFXBorder {
     }
 
     public WritableImage refresh(final ULA ula) {
-        pw.setPixels(0, 0, 1, JavaFXComputer.BORDER_HEIGHT, PixelFormat.getIntArgbInstance(), ula.getBorderLines(), 0, 1);
+        pw.setPixels(0, 0, 1, JavaFXComputer.DISPLAY_HEIGHT, PixelFormat.getIntArgbInstance(), ula.getBorderLines(), 0, 1);
         return border;
     }
 }

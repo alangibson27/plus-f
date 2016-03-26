@@ -12,6 +12,6 @@ public class Timings {
     }
 
     public int getTstatesPerRefresh() {
-        return ((processorFrequencyHz / screenRefreshFrequencyHz) * interruptFrequencyHz) / screenRefreshFrequencyHz;
+        return 69888;
     }
 }
