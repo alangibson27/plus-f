@@ -5,7 +5,6 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Inspectors, Matchers, FlatSpec}
 
 class BorderSpec extends FlatSpec with Matchers with MockitoSugar with Inspectors {
-  type SpectrumColourId = Int
 
   "border change at 0 t-states" should "set the colour for the entire border" in new TestComputer {
     // given
@@ -77,6 +76,7 @@ class BorderSpec extends FlatSpec with Matchers with MockitoSugar with Inspector
     forAll(borderLines.takeRight(1)) { x => x shouldBe 0xff00aaaa }
   }
 
+  type SpectrumColourId = Int
   trait TestComputer {
     val BLACK: SpectrumColourId = 0
 
