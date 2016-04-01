@@ -12,23 +12,37 @@ import java.net.SocketException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class Guest {
     private final InetAddress hostAddress;
     private final int hostPort;
     private final DatagramSocket datagramSocket;
     private final Set<KeyCode> allowedKeys = new HashSet<>();
+    private final Consumer<HostData> screenUpdater;
 
-    public Guest(final int guestPort, final InetAddress hostAddress, final int hostPort) throws SocketException {
+    public Guest(
+        final int guestPort,
+        final InetAddress hostAddress,
+        final int hostPort,
+        final Consumer<HostData> screenUpdater
+    ) throws SocketException {
         this.hostAddress = hostAddress;
         this.hostPort = hostPort;
+        this.screenUpdater = screenUpdater;
 
         this.datagramSocket = new DatagramSocket(guestPort);
-        Executors.newSingleThreadExecutor().submit(new AllowedKeysReceiver());
+        Executors.newSingleThreadExecutor().submit(new HostDataReceiver());
     }
 
-    Guest(final int guestPort, final InetAddress hostAddress, final int hostPort, final KeyCode[] allowedKeys) throws SocketException {
-        this(guestPort, hostAddress, hostPort);
+    Guest(
+        final int guestPort,
+        final InetAddress hostAddress,
+        final int hostPort,
+        final KeyCode[] allowedKeys,
+        final Consumer<HostData> screenUpdater
+    ) throws SocketException {
+        this(guestPort, hostAddress, hostPort, screenUpdater);
         for (KeyCode keyCode: allowedKeys) {
             this.allowedKeys.add(keyCode);
         }
@@ -50,16 +64,23 @@ public class Guest {
         }
     }
 
-    private class AllowedKeysReceiver implements Runnable {
+    private class HostDataReceiver implements Runnable {
         @Override
         public void run() {
             while (true) {
-                final DatagramPacket data = new DatagramPacket(new byte[1024], 1024);
+                final DatagramPacket data = new DatagramPacket(new byte[16384], 16384);
                 try {
                     datagramSocket.receive(data);
-                    Guest.this.allowedKeys.clear();
-                    Guest.this.allowedKeys.addAll(SerializationUtils.deserialize(data.getData()));
-                } catch (IOException e) {
+                    final HostData hostData = SerializationUtils.deserialize(data.getData());
+                    if (hostData.getScreen() != null) {
+                        screenUpdater.accept(hostData);
+                    }
+
+                    if (hostData.getAllowedKeys() != null) {
+                        Guest.this.allowedKeys.clear();
+                        Guest.this.allowedKeys.addAll(hostData.getAllowedKeys());
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

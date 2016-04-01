@@ -1,6 +1,7 @@
 package com.socialthingy.qaopm.spectrum.remote
 
 import java.net.{DatagramPacket, DatagramSocket, InetAddress}
+import java.util.function.Consumer
 import javafx.scene.input.{KeyCode, KeyEvent}
 
 import org.apache.commons.lang3.SerializationUtils
@@ -16,7 +17,7 @@ import scala.language.postfixOps
 
 class GuestSpec extends FlatSpec with Matchers with MockitoSugar with Eventually with Inspectors with BeforeAndAfter {
 
-  implicit val patience = PatienceConfig(30 seconds)
+  implicit val patience = PatienceConfig(1 second)
 
   before {
     hostStub.receivedKeys.clear()
@@ -86,7 +87,15 @@ class GuestSpec extends FlatSpec with Matchers with MockitoSugar with Eventually
     }
   }
 
-  val guest = new Guest(32765, InetAddress.getLocalHost, 32766, Array[KeyCode](KeyCode.Q, KeyCode.A))
+  val guest = new Guest(
+    32765,
+    InetAddress.getLocalHost,
+    32766,
+    Array[KeyCode](KeyCode.Q, KeyCode.A),
+    new Consumer[HostData] {
+      override def accept(t: HostData): Unit = ()
+    }
+  )
   val hostStub = new HostStub
   Future { hostStub.start() }
 
@@ -121,7 +130,7 @@ class GuestSpec extends FlatSpec with Matchers with MockitoSugar with Eventually
       val packet = new DatagramPacket(Array.ofDim[Byte](1024), 1024, InetAddress.getLocalHost, 32765)
       val serializableKeyCodes = new java.util.ArrayList[KeyCode]
       keyCodes.foreach(serializableKeyCodes.add)
-      packet.setData(SerializationUtils.serialize(serializableKeyCodes))
+      packet.setData(SerializationUtils.serialize(new HostData(serializableKeyCodes, Array.ofDim[Byte](6912), Array.ofDim[Int](192), false)))
       datagramSocket.send(packet)
     }
 

@@ -1,7 +1,8 @@
 package com.socialthingy.qaopm.spectrum.remote
 
 import java.net.{DatagramPacket, DatagramSocket, InetAddress}
-import javafx.scene.input.KeyCode
+import java.util.function.Consumer
+import javafx.scene.input.{KeyEvent, KeyCode}
 
 import org.apache.commons.lang3.SerializationUtils
 import org.scalatest.concurrent.Eventually
@@ -19,37 +20,34 @@ import scala.language.postfixOps
 
 class HostSpec extends FlatSpec with Matchers with Eventually with Inspectors {
 
-  implicit val patience = PatienceConfig(timeout = 30 seconds)
+  implicit val patience = PatienceConfig(timeout = 1 second)
 
-  "host" should "transmit a screen grab to the guest" in {
-    // when
+  "host" should "transmit allowed keys and a screen grab to the guest" in {
+    // given
+    val allowedKeys = new java.util.ArrayList[KeyCode]
+    allowedKeys.add(KeyCode.V)
+    allowedKeys.add(KeyCode.B)
     val memory = newMemory
-    val success = host.send(memory)
+
+    // when
+    val success = host.sendToGuest(allowedKeys, memory, Array.ofDim[Int](192), false)
 
     // then
     success shouldBe true
     eventually {
       guestStub.receivedScreens should contain(memory.slice(0x4000, 0x5b00))
-    }
-  }
-
-  it should "send a set of allowed keys to the guest" in {
-    // given
-    val allowedKeys = new java.util.ArrayList[KeyCode]
-    allowedKeys.add(KeyCode.V)
-    allowedKeys.add(KeyCode.B)
-
-    // when
-    val success = host.sendAllowedKeys(allowedKeys)
-
-    // then
-    success shouldBe true
-    eventually {
       guestStub.receivedAllowedKeys should contain(allowedKeys.asScala.toList)
     }
   }
 
-  val host = new Host(32767, InetAddress.getLocalHost, 32768)
+  val host = new Host(
+    32767,
+    InetAddress.getLocalHost,
+    32768,
+    new Consumer[KeyEvent] {
+      override def accept(t: KeyEvent): Unit = ()
+    }
+  )
   val guestStub = new GuestStub
   Future { guestStub.start() }
 
@@ -62,15 +60,18 @@ class HostSpec extends FlatSpec with Matchers with Eventually with Inspectors {
 
     def start(): Unit = {
       while(true) {
-        val packet = new DatagramPacket(Array.ofDim[Byte](6912), 6912)
+        val packet = new DatagramPacket(Array.ofDim[Byte](16384), 16384)
         datagramSocket.receive(packet)
 
-        if (packet.getLength == 6912) {
-          val screen = packet.getData.map { x => x & 0xff }
+        val hostData = SerializationUtils.deserialize(packet.getData).asInstanceOf[HostData]
+
+        if (hostData.getScreen != null) {
+          val screen = hostData.getScreen.map { x => x & 0xff }
           receivedScreens += screen
-        } else {
-          val allowedKeys: java.util.ArrayList[KeyCode] = SerializationUtils.deserialize(packet.getData)
-          receivedAllowedKeys += allowedKeys.asScala.toList
+        }
+
+        if (hostData.getAllowedKeys != null) {
+          receivedAllowedKeys += hostData.getAllowedKeys.asScala.toList
         }
       }
     }

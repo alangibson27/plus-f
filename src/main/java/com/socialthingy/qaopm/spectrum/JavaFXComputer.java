@@ -2,6 +2,7 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.socialthingy.qaopm.spectrum.remote.Host;
 import com.socialthingy.qaopm.z80.Processor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -18,10 +19,10 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.util.*;
 
 import static javafx.scene.input.KeyCode.*;
@@ -40,11 +41,13 @@ public class JavaFXComputer extends Application {
     private final MetricRegistry metricRegistry;
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
+    private final ArrayList<KeyCode> allowedGuestKeys;
 
     private ULA ula;
     private Computer computer;
     private SpectrumKeyboard keyboard;
     private int[] memory;
+    private Optional<Host> host;
 
     private Stage primaryStage;
 
@@ -58,6 +61,9 @@ public class JavaFXComputer extends Application {
         computerLoop = new ComputerLoop();
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
+        allowedGuestKeys = new ArrayList<>();
+
+        allowedGuestKeys.add(KeyCode.Q);
     }
 
     private void newComputer() throws IOException {
@@ -79,9 +85,42 @@ public class JavaFXComputer extends Application {
         this.primaryStage = primaryStage;
         newComputer();
 
-        if (getParameters().getRaw().size() > 1) {
-            final String snapshotFile = getParameters().getRaw().get(1);
-            computer.loadSnapshot(new File(snapshotFile));
+        final Iterator<String> params = getParameters().getRaw().iterator();
+        params.next();
+        if (params.hasNext()) {
+            computer.loadSnapshot(new File(params.next()));
+        }
+
+        final Optional<Integer> hostPort;
+        if (params.hasNext()) {
+            hostPort = Optional.of(Integer.parseInt(params.next()));
+        } else {
+            hostPort = Optional.empty();
+        }
+
+        final Optional<String> guestAddress;
+        if (params.hasNext()) {
+            guestAddress = Optional.of(params.next());
+        } else {
+            guestAddress = Optional.empty();
+        }
+
+        final Optional<Integer> guestPort;
+        if (params.hasNext()) {
+            guestPort = Optional.of(Integer.parseInt(params.next()));
+        } else {
+            guestPort = Optional.empty();
+        }
+
+        if (hostPort.isPresent() && guestAddress.isPresent() && guestPort.isPresent()) {
+            host = Optional.of(new Host(
+                hostPort.get(),
+                InetAddress.getByName(guestAddress.get()),
+                guestPort.get(),
+                e -> keyboard.handle(e)
+            ));
+        } else {
+            host = Optional.empty();
         }
 
         final ImageView borderImage = new ImageView(border.getBorder());
@@ -111,8 +150,22 @@ public class JavaFXComputer extends Application {
             }
         });
 
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
-        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
+        primaryStage.addEventHandler(
+            KeyEvent.KEY_PRESSED,
+            e -> {
+                if (!allowedGuestKeys.contains(e.getCode())) {
+                    keyboard.handle(e);
+                }
+            }
+        );
+        primaryStage.addEventHandler(
+            KeyEvent.KEY_RELEASED,
+            e -> {
+                if (!allowedGuestKeys.contains(e.getCode())) {
+                    keyboard.handle(e);
+                }
+            }
+        );
         computerLoop.start();
     }
 
@@ -143,24 +196,27 @@ public class JavaFXComputer extends Application {
     }
 
     private void resetComputer(final ActionEvent actionEvent) {
-        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Reset Computer?");
-        alert.setHeaderText("Are you sure you want to reset the computer?");
-        alert.getDialogPane().getChildren().stream()
-                .filter(node -> node instanceof Label)
-                .forEach(node -> ((Label) node).setMinHeight(Region.USE_PREF_SIZE));
-        final Optional<ButtonType> clicked = alert.showAndWait();
-        clicked.ifPresent(bt -> {
-            if (bt == ButtonType.OK) {
-                computerLoop.stop();
-                try {
-                    newComputer();
-                    computerLoop.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        computerLoop.stop();
+        try {
+            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Reset Computer?");
+            alert.setHeaderText("Are you sure you want to reset the computer?");
+            alert.getDialogPane().getChildren().stream()
+                    .filter(node -> node instanceof Label)
+                    .forEach(node -> ((Label) node).setMinHeight(Region.USE_PREF_SIZE));
+            final Optional<ButtonType> clicked = alert.showAndWait();
+            clicked.ifPresent(bt -> {
+                if (bt == ButtonType.OK) {
+                    try {
+                        newComputer();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
+        } finally {
+            computerLoop.start();
+        }
     }
 
     private void registerMenuItem(
@@ -217,8 +273,10 @@ public class JavaFXComputer extends Application {
         public void handle(final long now) {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
+                final int[] borderLines = ula.getBorderLines();
+                host.ifPresent(h -> h.sendToGuest(allowedGuestKeys, memory, borderLines, flashActive));
                 display.refresh(memory, flashActive);
-                border.refresh(ula);
+                border.refresh(borderLines);
                 computer.singleCycle();
                 flashCycleCount--;
                 if (flashCycleCount < 0) {
@@ -232,37 +290,3 @@ public class JavaFXComputer extends Application {
     }
 }
 
-class JavaFXBorder {
-    private final WritableImage border = new WritableImage(1, JavaFXComputer.DISPLAY_HEIGHT);
-    private final PixelWriter pw = border.getPixelWriter();
-
-    public WritableImage getBorder() {
-        return border;
-    }
-
-    public WritableImage refresh(final ULA ula) {
-        pw.setPixels(0, 0, 1, JavaFXComputer.DISPLAY_HEIGHT, PixelFormat.getIntArgbInstance(), ula.getBorderLines(), 0, 1);
-        return border;
-    }
-}
-
-class JavaFXDisplay extends DisplaySupport<WritableImage> {
-    private final WritableImage screen = new WritableImage(256, 192);
-    private final PixelWriter pw = screen.getPixelWriter();
-    private final int[] pixels = new int[256 * 192];
-
-    public WritableImage getScreen() {
-        return screen;
-    }
-
-    @Override
-    public WritableImage refresh(final int[] memory, final boolean flashActive) {
-        super.draw(memory, flashActive, this::setPixel);
-        pw.setPixels(0, 0, 256, 192, PixelFormat.getIntArgbInstance(), pixels, 0, 256);
-        return screen;
-    }
-
-    private void setPixel(final int x, final int y, final Color color) {
-        pixels[x + (y * 256)] = color.getRGB();
-    }
-}
