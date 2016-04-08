@@ -10,20 +10,24 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.InetAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Scanner;
 
 import static javafx.scene.input.KeyCode.*;
 
@@ -91,37 +95,16 @@ public class JavaFXComputer extends Application {
             computer.loadSnapshot(new File(params.next()));
         }
 
-        final Optional<Integer> hostPort;
-        if (params.hasNext()) {
-            hostPort = Optional.of(Integer.parseInt(params.next()));
-        } else {
-            hostPort = Optional.empty();
-        }
+        final int localPort = Integer.parseInt(params.next());
+        host = Optional.of(new Host(e -> keyboard.handle(e), localPort));
 
-        final Optional<String> guestAddress;
-        if (params.hasNext()) {
-            guestAddress = Optional.of(params.next());
-        } else {
-            guestAddress = Optional.empty();
-        }
+        final Scanner input = new Scanner(System.in);
+        System.out.print("Guest IP address: ");
+        final String guestAddress = input.nextLine();
+        System.out.print("Guest port: ");
+        final int guestPort = input.nextInt();
 
-        final Optional<Integer> guestPort;
-        if (params.hasNext()) {
-            guestPort = Optional.of(Integer.parseInt(params.next()));
-        } else {
-            guestPort = Optional.empty();
-        }
-
-        if (hostPort.isPresent() && guestAddress.isPresent() && guestPort.isPresent()) {
-            host = Optional.of(new Host(
-                hostPort.get(),
-                InetAddress.getByName(guestAddress.get()),
-                guestPort.get(),
-                e -> keyboard.handle(e)
-            ));
-        } else {
-            host = Optional.empty();
-        }
+        host.get().connectToGuest(guestAddress, guestPort);
 
         final ImageView borderImage = new ImageView(border.getBorder());
         borderImage.setFitWidth(DISPLAY_WIDTH * 2);

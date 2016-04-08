@@ -1,7 +1,6 @@
 package com.socialthingy.qaopm.spectrum;
 
-import com.socialthingy.qaopm.spectrum.remote.Guest;
-import com.socialthingy.qaopm.spectrum.remote.HostData;
+import com.socialthingy.qaopm.spectrum.remote.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
@@ -10,8 +9,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.net.InetAddress;
 import java.util.Iterator;
+import java.util.Optional;
+import java.util.Scanner;
 
 public class JavaFXGuest extends Application {
 
@@ -35,12 +35,15 @@ public class JavaFXGuest extends Application {
     @Override
     public void start(final Stage primaryStage) throws Exception {
         final Iterator<String> params = getParameters().getRaw().iterator();
-        final Guest guest = new Guest(
-            Integer.parseInt(params.next()),
-            InetAddress.getByName(params.next()),
-            Integer.parseInt(params.next()),
-            this::update
-        );
+        final int localPort = Integer.parseInt(params.next());
+        final Guest guest = new Guest(localPort, this::update);
+
+        final Scanner input = new Scanner(System.in);
+        System.out.print("Host IP address: ");
+        final String hostAddress = input.nextLine();
+        System.out.print("Host port: ");
+        final int hostPort = input.nextInt();
+        guest.connectToHost(hostAddress, hostPort);
 
         final ImageView borderImage = new ImageView(border.getBorder());
         borderImage.setFitWidth(DISPLAY_WIDTH * 2);

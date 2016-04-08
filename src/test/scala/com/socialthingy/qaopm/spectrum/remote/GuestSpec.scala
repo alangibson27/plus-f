@@ -89,8 +89,6 @@ class GuestSpec extends FlatSpec with Matchers with MockitoSugar with Eventually
 
   val guest = new Guest(
     32765,
-    InetAddress.getLocalHost,
-    32766,
     Array[KeyCode](KeyCode.Q, KeyCode.A),
     new Consumer[HostData] {
       override def accept(t: HostData): Unit = ()

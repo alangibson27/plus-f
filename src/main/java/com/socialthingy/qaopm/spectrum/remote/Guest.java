@@ -5,57 +5,74 @@ import javafx.scene.input.KeyEvent;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 public class Guest {
-    private final InetAddress hostAddress;
-    private final int hostPort;
     private final DatagramSocket datagramSocket;
     private final Set<KeyCode> allowedKeys = new HashSet<>();
     private final Consumer<HostData> screenUpdater;
 
+    private Optional<Locator> hostLocator = Optional.empty();
+
     public Guest(
-        final int guestPort,
-        final InetAddress hostAddress,
-        final int hostPort,
+        final int localPort,
         final Consumer<HostData> screenUpdater
     ) throws SocketException {
-        this.hostAddress = hostAddress;
-        this.hostPort = hostPort;
+        final ExternalAddressDiscoverer discoverer = new ExternalAddressDiscoverer(localPort);
+        final Optional<Locator> externalAddressAndPort = discoverer.discoverAddress();
+        externalAddressAndPort.ifPresent(eap ->
+            System.out.printf("Address: %s, port: %d\n", eap.getAddress().toString(), eap.getPort())
+        );
+
         this.screenUpdater = screenUpdater;
 
-        this.datagramSocket = new DatagramSocket(guestPort);
+        this.datagramSocket = new DatagramSocket(localPort);
         Executors.newSingleThreadExecutor().submit(new HostDataReceiver());
+        allowedKeys.add(KeyCode.ESCAPE);
+        sendKeypress(new KeyEvent(
+            KeyEvent.KEY_PRESSED,
+            KeyCode.ESCAPE.getName(),
+            KeyCode.ESCAPE.getName(),
+            KeyCode.ESCAPE,
+            false,
+            false,
+            false,
+            false));
     }
 
     Guest(
         final int guestPort,
-        final InetAddress hostAddress,
-        final int hostPort,
         final KeyCode[] allowedKeys,
         final Consumer<HostData> screenUpdater
     ) throws SocketException {
-        this(guestPort, hostAddress, hostPort, screenUpdater);
+        this(guestPort, screenUpdater);
         for (KeyCode keyCode: allowedKeys) {
             this.allowedKeys.add(keyCode);
         }
     }
 
+    public void connectToHost(final String hostAddress, final int hostPort) throws UnknownHostException {
+        this.hostLocator = Optional.of(new Locator(hostAddress, hostPort));
+    }
+
     public boolean sendKeypress(final KeyEvent keyEvent) {
-        if (!allowedKeys.contains(keyEvent.getCode())) {
+        if (!allowedKeys.contains(keyEvent.getCode()) || !hostLocator.isPresent()) {
             return true;
         }
 
         try {
             final byte[] bytes = SerializationUtils.serialize(keyEvent);
-            final DatagramPacket data = new DatagramPacket(bytes, bytes.length, hostAddress, hostPort);
+            final DatagramPacket data = new DatagramPacket(
+                bytes,
+                bytes.length,
+                hostLocator.get().getAddress(),
+                hostLocator.get().getPort()
+            );
             datagramSocket.send(data);
             return true;
         } catch (IOException ex) {

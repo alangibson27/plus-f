@@ -41,12 +41,9 @@ class HostSpec extends FlatSpec with Matchers with Eventually with Inspectors {
   }
 
   val host = new Host(
-    32767,
-    InetAddress.getLocalHost,
-    32768,
     new Consumer[KeyEvent] {
       override def accept(t: KeyEvent): Unit = ()
-    }
+    }, 0
   )
   val guestStub = new GuestStub
   Future { guestStub.start() }
