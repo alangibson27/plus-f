@@ -2,22 +2,17 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.socialthingy.qaopm.spectrum.remote.Host;
 import com.socialthingy.qaopm.z80.Processor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -27,16 +22,12 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.Scanner;
 
+import static com.socialthingy.qaopm.spectrum.UIBuilder.BORDER;
+import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
-
-    public static final int SCREEN_WIDTH = 256;
-    public static final int BORDER = 16;
-    public static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
-    public static final int DISPLAY_HEIGHT = ULA.SCREEN_HEIGHT + (BORDER * 2);
 
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
 
@@ -51,7 +42,7 @@ public class JavaFXComputer extends Application {
     private Computer computer;
     private SpectrumKeyboard keyboard;
     private int[] memory;
-    private Optional<Host> host;
+//    private Optional<Host> host;
 
     private Stage primaryStage;
 
@@ -95,36 +86,8 @@ public class JavaFXComputer extends Application {
             computer.loadSnapshot(new File(params.next()));
         }
 
-        final int localPort = Integer.parseInt(params.next());
-        host = Optional.of(new Host(e -> keyboard.handle(e), localPort));
-
-        final Scanner input = new Scanner(System.in);
-        System.out.print("Guest IP address: ");
-        final String guestAddress = input.nextLine();
-        System.out.print("Guest port: ");
-        final int guestPort = input.nextInt();
-
-        host.get().connectToGuest(guestAddress, guestPort);
-
-        final ImageView borderImage = new ImageView(border.getBorder());
-        borderImage.setFitWidth(DISPLAY_WIDTH * 2);
-        borderImage.setFitHeight(DISPLAY_HEIGHT * 2);
-
-        final ImageView screenImage = new ImageView(display.getScreen());
-        screenImage.setFitHeight(ULA.SCREEN_HEIGHT * 2);
-        screenImage.setFitWidth(SCREEN_WIDTH * 2);
-
-        final StackPane sp = new StackPane(borderImage, screenImage);
-
-        BorderPane root = new BorderPane();
-        root.setBottom(sp);
-        root.setTop(getMenuBar());
-
-        Scene scene = new Scene(root);
-
+        UIBuilder.buildUI(primaryStage, display, border, getMenuBar());
         primaryStage.setTitle("QAOPM Spectrum Emulator");
-        primaryStage.setScene(scene);
-        primaryStage.sizeToScene();
         primaryStage.show();
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
@@ -202,20 +165,6 @@ public class JavaFXComputer extends Application {
         }
     }
 
-    private void registerMenuItem(
-        final Menu menu,
-        final String name,
-        final Optional<KeyCode> accelerator,
-        final EventHandler<ActionEvent> action
-    ) {
-        final MenuItem item = new MenuItem(name);
-        item.setOnAction(action);
-        accelerator.ifPresent(a ->
-            item.setAccelerator(new KeyCodeCombination(a, KeyCombination.ALT_DOWN))
-        );
-        menu.getItems().add(item);
-    }
-
     private void loadSnapshot(final ActionEvent ae) {
         computerLoop.stop();
         try {
@@ -257,7 +206,7 @@ public class JavaFXComputer extends Application {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
                 final int[] borderLines = ula.getBorderLines();
-                host.ifPresent(h -> h.sendToGuest(allowedGuestKeys, memory, borderLines, flashActive));
+//                host.ifPresent(h -> h.sendToGuest(allowedGuestKeys, memory, borderLines, flashActive));
                 display.refresh(memory, flashActive);
                 border.refresh(borderLines);
                 computer.singleCycle();

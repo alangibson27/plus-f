@@ -1,154 +1,207 @@
 package com.socialthingy.qaopm.spectrum.remote
 
-import java.net.{DatagramPacket, DatagramSocket, InetAddress}
-import java.util.function.Consumer
+import java.net.{DatagramPacket, DatagramSocket}
+import java.util.concurrent.atomic.AtomicLong
+import java.util.function.{Consumer, Supplier}
 import javafx.scene.input.{KeyCode, KeyEvent}
 
-import org.apache.commons.lang3.SerializationUtils
 import org.scalatest.concurrent.Eventually
+import org.scalatest._
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, Inspectors, Matchers, FlatSpec}
+
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.language.{implicitConversions, postfixOps}
 
-import scala.language.postfixOps
+class GuestSpec extends FlatSpec
+  with Matchers with Inspectors with BeforeAndAfter with BeforeAndAfterAll with Eventually with MockitoSugar {
 
-class GuestSpec extends FlatSpec with Matchers with MockitoSugar with Eventually with Inspectors with BeforeAndAfter {
+  implicit override val patienceConfig = PatienceConfig(1 second)
 
-  implicit val patience = PatienceConfig(1 second)
+  val mockHostSocket = new DatagramSocket()
+  val receivedData = new ListBuffer[TimestampedData[KeyEvent]]
+  val mockHost = Future {
+    val packetBytes = Array.ofDim[Byte](16384)
+    val packet = new DatagramPacket(packetBytes, packetBytes.length)
+    while (true) {
+      mockHostSocket.receive(packet)
+      val data: TimestampedData[KeyEvent] = TimestampedData.from(packet)
+      receivedData += data
+    }
+  }
 
   before {
-    hostStub.receivedKeys.clear()
+    receivedData.clear()
   }
 
-  "guest" should "transmit a keypress to the host" in {
-    // when
-    val keypress = keyDown(KeyCode.Q)
-    val sent = guest.sendKeypress(keypress)
-
-    // then
-    sent shouldBe true
-
-    eventually {
-      hostStub.checkKeyReceived(keypress)
-    }
+  override def afterAll(): Unit = {
+    mockHostSocket.close()
   }
 
-  it should "only send keypresses permitted by the host" in {
-    // when
-    val qPress = keyDown(KeyCode.Q)
-    guest.sendKeypress(qPress)
+  "guest" should "successfully send a correctly timestamped data packet to the host" in withStubbedGuest {
+    (guest, updater, timestamper) =>
+      // given
+      val keyEvent = keyDown(KeyCode.Q)
 
-    val aPress = keyDown(KeyCode.A)
-    guest.sendKeypress(aPress)
+      // when
+      guest.sendKeyToHost(keyEvent)
 
-    val oPress = keyDown(KeyCode.O)
-    guest.sendKeypress(oPress)
-
-    // then
-    eventually {
-      hostStub.receivedKeys should have size 2
-      hostStub.checkKeyReceived(qPress)
-      hostStub.checkKeyReceived(aPress)
-    }
-  }
-
-  it should "change the set of allowed keys based on instructions from the host" in {
-    // given
-    val qPress = keyDown(KeyCode.Q)
-    guest.sendKeypress(qPress)
-
-    val aPress = keyDown(KeyCode.A)
-    guest.sendKeypress(aPress)
-
-    val oPress = keyDown(KeyCode.O)
-    guest.sendKeypress(oPress)
-
-    eventually {
-      hostStub.receivedKeys should have size 2
-      hostStub.checkKeyReceived(qPress)
-    }
-
-    // when
-    hostStub.sendAllowedKeys(KeyCode.O)
-
-    guest.sendKeypress(qPress)
-    guest.sendKeypress(aPress)
-    guest.sendKeypress(oPress)
-
-    // then
-    eventually {
-      hostStub.receivedKeys should have size 3
-      hostStub.checkKeyReceived(qPress)
-      hostStub.checkKeyReceived(aPress)
-      hostStub.checkKeyReceived(oPress)
-    }
-  }
-
-  val guest = new Guest(
-    32765,
-    Array[KeyCode](KeyCode.Q, KeyCode.A),
-    new Consumer[HostData] {
-      override def accept(t: HostData): Unit = ()
-    }
-  )
-  val hostStub = new HostStub
-  Future { hostStub.start() }
-
-  def keyDown(keyCode: KeyCode,
-              shiftDown: Boolean = false,
-              ctrlDown: Boolean = false,
-              altDown: Boolean = false,
-              metaDown: Boolean = false): KeyEvent = new KeyEvent(
-    KeyEvent.KEY_PRESSED,
-    keyCode.impl_getCode().asInstanceOf[Char].toString,
-    keyCode.getName,
-    keyCode,
-    shiftDown,
-    ctrlDown,
-    altDown,
-    metaDown
-  )
-
-  class HostStub {
-    val datagramSocket = new DatagramSocket(32766, InetAddress.getLocalHost)
-    val receivedKeys = ListBuffer[KeyEvent]()
-
-    def start(): Unit = {
-      while(true) {
-        val packet = new DatagramPacket(Array.ofDim[Byte](1024), 1024)
-        datagramSocket.receive(packet)
-        receivedKeys += SerializationUtils.deserialize(packet.getData).asInstanceOf[KeyEvent]
+      // then
+      eventually {
+        forExactly(1, receivedData) { x =>
+          x.getTimestamp shouldBe 1L
+          x.getData.toString shouldBe keyEvent.toString
+        }
       }
-    }
+  }
 
-    def sendAllowedKeys(keyCodes: KeyCode*): Unit = {
-      val packet = new DatagramPacket(Array.ofDim[Byte](1024), 1024, InetAddress.getLocalHost, 32765)
-      val serializableKeyCodes = new java.util.ArrayList[KeyCode]
-      keyCodes.foreach(serializableKeyCodes.add)
-      packet.setData(SerializationUtils.serialize(new HostData(serializableKeyCodes, Array.ofDim[Byte](6912), Array.ofDim[Int](192), false)))
-      datagramSocket.send(packet)
-    }
+  it should "successfully receive a correctly timestamped data packet from the host" in withStubbedGuest {
+    (guest, updater, timestamper) =>
 
-    def checkKeyReceived(event: KeyEvent) = forExactly(1, receivedKeys) { rcvd =>
-      rcvd.getEventType shouldBe event.getEventType
-      rcvd.getCode shouldBe event.getCode
-      rcvd.isAltDown shouldBe event.isAltDown
-      rcvd.isControlDown shouldBe event.isControlDown
-      rcvd.isMetaDown shouldBe event.isMetaDown
-      rcvd.isShiftDown shouldBe event.isShiftDown
-    }
+      // given
+      val screen = Array.ofDim[Byte](6912)
+      val borderLines = Array.ofDim[Int](192)
+      val flashActive = false
+      val hostData = new TimestampedData[SpectrumState](1L, new SpectrumState(screen, borderLines, flashActive))
+      val packet = hostData.toPacket
+      packet.setSocketAddress(guest.getLocalAddress)
 
-    def checkKeyNotReceived(event: KeyEvent) = forExactly(1, receivedKeys) { rcvd =>
-      rcvd.getEventType should not be event.getEventType
-      rcvd.getCode should not be event.getCode
-      rcvd.isAltDown should not be event.isAltDown
-      rcvd.isControlDown should not be event.isControlDown
-      rcvd.isMetaDown should not be event.isMetaDown
-      rcvd.isShiftDown should not be event.isShiftDown
-    }
+      // when
+      mockHostSocket.send(packet)
 
+      // then
+      eventually {
+        forExactly(1, updater.receivedFromHost) { state =>
+          state.getScreen shouldBe screen
+          state.getBorderLines shouldBe borderLines
+          state.isFlashActive shouldBe flashActive
+        }
+      }
+  }
+
+  it should "ignore a timestamped data packet that is older than the last received one" in withStubbedGuest {
+    (guest, updater, timestamper) =>
+
+      // given
+      val lastReceivedPacket = new TimestampedData[SpectrumState](100L, mock[SpectrumState])
+      guest.receiveHostData(lastReceivedPacket)
+      updater.receivedFromHost should have size 1
+
+      // when
+      val nextPacket = new TimestampedData[SpectrumState](99L, mock[SpectrumState])
+      guest.receiveHostData(nextPacket)
+
+      // then
+      updater.receivedFromHost should have size 1
+  }
+
+  it should "accept a timestamped data packet that is newer than the last received one" in withStubbedGuest {
+    (guest, updater, timestamper) =>
+
+      // given
+      val lastReceivedPacket = new TimestampedData[SpectrumState](100L, mock[SpectrumState])
+      guest.receiveHostData(lastReceivedPacket)
+      updater.receivedFromHost should have size 1
+
+      // when
+      val nextPacket = new TimestampedData[SpectrumState](101L, mock[SpectrumState])
+      guest.receiveHostData(nextPacket)
+
+      // then
+      updater.receivedFromHost should have size 2
+  }
+
+  it should "correctly record the latency of a packet" in withStubbedGuest {
+    (guest, updater, timestamper) =>
+
+      // given
+      val packet = new TimestampedData[SpectrumState](100L, mock[SpectrumState])
+      timestamper.set(101L)
+      guest.receiveHostData(packet)
+
+      // when
+      val latency = guest.getAverageLatency
+
+      // then
+      latency shouldBe 1.0
+  }
+
+  it should "correctly record the average latency of multiple packets" in withStubbedGuest {
+    (guest, updater, timestamper) =>
+
+      // given
+      timestamper.set(101L)
+      guest.receiveHostData(new TimestampedData[SpectrumState](100L, mock[SpectrumState]))
+
+      timestamper.set(103L)
+      guest.receiveHostData(new TimestampedData[SpectrumState](101L, mock[SpectrumState]))
+
+      // when
+      val latency = guest.getAverageLatency
+
+      // then
+      latency shouldBe 1.5
+  }
+
+  it should "correctly record when a packet arrives out of sequence" in withStubbedGuest {
+    (guest, updater, timestamper) =>
+
+      // given
+      guest.receiveHostData(new TimestampedData[SpectrumState](101L, mock[SpectrumState]))
+      guest.receiveHostData(new TimestampedData[SpectrumState](100L, mock[SpectrumState]))
+
+      // when
+      val outOfOrderCount = guest.getOutOfOrderPacketCount
+
+      // then
+      outOfOrderCount shouldBe 1L
+  }
+
+  it should "correctly record when multiple packets arrive out of sequence" in withStubbedGuest {
+    (guest, updater, timestamper) =>
+
+      // given
+      guest.receiveHostData(new TimestampedData[SpectrumState](109L, mock[SpectrumState]))
+      guest.receiveHostData(new TimestampedData[SpectrumState](110L, mock[SpectrumState]))
+      guest.receiveHostData(new TimestampedData[SpectrumState](100L, mock[SpectrumState]))
+      guest.receiveHostData(new TimestampedData[SpectrumState](101L, mock[SpectrumState]))
+
+      // when
+      val outOfOrderCount = guest.getOutOfOrderPacketCount
+
+      // then
+      outOfOrderCount shouldBe 2L
+  }
+
+  val doNothing: SpectrumState => Unit = (x: SpectrumState) => ()
+
+  implicit def toConsumer[T](fn: T => Unit): Consumer[T] = new Consumer[T] {
+    override def accept(t: T): Unit = fn(t)
+  }
+
+  def supplierOf[T](fn: => T): Supplier[T] = new Supplier[T] {
+    override def get: T = fn
+  }
+
+  def keyDown(keyCode: KeyCode): KeyEvent =
+    new KeyEvent(KeyEvent.KEY_PRESSED, keyCode.getName, keyCode.getName, keyCode, false, false, false, false)
+
+  def withStubbedGuest(testCode: (Guest, StubbedUpdater, AtomicLong) => Any): Unit = {
+    val updater = new StubbedUpdater
+    val timestamper = new AtomicLong(1L)
+    val guest = new Guest(supplierOf(timestamper.get), mockHostSocket.getLocalSocketAddress, updater.storeReceived _)
+
+    try {
+      testCode(guest, updater, timestamper)
+    } finally {
+      guest.disconnectFromHost()
+    }
+  }
+
+  class StubbedUpdater {
+    val receivedFromHost = new ListBuffer[SpectrumState]
+    def storeReceived(state: SpectrumState): Unit = receivedFromHost += state
   }
 }

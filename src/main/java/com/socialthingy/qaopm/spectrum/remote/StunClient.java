@@ -5,26 +5,26 @@ import de.javawi.jstun.attribute.MappedAddress;
 import de.javawi.jstun.attribute.MessageAttribute;
 import de.javawi.jstun.header.MessageHeader;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.util.Optional;
 
-public class ExternalAddressDiscoverer {
-    private static final String STUN_SERVER = "jstun.javawi.de";
-    private static final int STUN_PORT = 3478;
+public class StunClient {
+    private static final String DEFAULT_STUN_SERVER = "jstun.javawi.de";
+    private static final int DEFAULT_STUN_PORT = 3478;
 
+    private final SocketAddress stunServer;
     private final int localPort;
 
-    public ExternalAddressDiscoverer(final int localPort) {
+    public StunClient(final String stunServerAddress, final int stunServerPort, final int localPort) {
         this.localPort = localPort;
+        this.stunServer = new InetSocketAddress(stunServerAddress, stunServerPort);
     }
 
-    public Optional<Locator> discoverAddress() {
-        return discoverAddressFromSource();
+    public StunClient(final int localPort) {
+        this(DEFAULT_STUN_SERVER, DEFAULT_STUN_PORT, localPort);
     }
 
-    private Optional<Locator> discoverAddressFromSource() {
+    public Optional<InetSocketAddress> discoverAddress() {
         try (final DatagramSocket testSocket = new DatagramSocket(localPort)) {
             testSocket.setReuseAddress(true);
             testSocket.setSoTimeout(10000);
@@ -36,7 +36,7 @@ public class ExternalAddressDiscoverer {
             sendMH.addMessageAttribute(changeRequest);
 
             final byte[] data = sendMH.getBytes();
-            final DatagramPacket send = new DatagramPacket(data, data.length, InetAddress.getByName(STUN_SERVER), STUN_PORT);
+            final DatagramPacket send = new DatagramPacket(data, data.length, stunServer);
             testSocket.send(send);
 
             MessageHeader receiveMH = new MessageHeader();
@@ -48,7 +48,7 @@ public class ExternalAddressDiscoverer {
             }
 
             final MappedAddress ma = (MappedAddress) receiveMH.getMessageAttribute(MessageAttribute.MessageAttributeType.MappedAddress);
-            return Optional.of(new Locator(ma.getAddress().toString(), ma.getPort()));
+            return Optional.of(new InetSocketAddress(ma.getAddress().getInetAddress(), ma.getPort()));
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();

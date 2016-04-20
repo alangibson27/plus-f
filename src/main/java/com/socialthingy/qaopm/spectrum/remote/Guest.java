@@ -1,103 +1,100 @@
 package com.socialthingy.qaopm.spectrum.remote;
 
-import javafx.scene.input.KeyCode;
+import com.codahale.metrics.*;
 import javafx.scene.input.KeyEvent;
-import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
-import java.net.*;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Executors;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class Guest {
-    private final DatagramSocket datagramSocket;
-    private final Set<KeyCode> allowedKeys = new HashSet<>();
-    private final Consumer<HostData> screenUpdater;
+    private final AtomicLong lastReceived = new AtomicLong(-1);
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    private Optional<Locator> hostLocator = Optional.empty();
+    private final Supplier<Long> timestamper;
+    private final DatagramSocket socket;
+    private final Consumer<SpectrumState> guestUpdater;
+    private final Timer latencyTimer;
+    private final Counter outOfOrderCounter;
+
+    private boolean active = true;
 
     public Guest(
-        final int localPort,
-        final Consumer<HostData> screenUpdater
-    ) throws SocketException {
-        final ExternalAddressDiscoverer discoverer = new ExternalAddressDiscoverer(localPort);
-        final Optional<Locator> externalAddressAndPort = discoverer.discoverAddress();
-        externalAddressAndPort.ifPresent(eap ->
-            System.out.printf("Address: %s, port: %d\n", eap.getAddress().toString(), eap.getPort())
-        );
+        final Supplier<Long> timestamper,
+        final SocketAddress host,
+        final Consumer<SpectrumState> guestUpdater
+    ) throws SocketException{
+        this.timestamper = timestamper;
+        this.guestUpdater = guestUpdater;
 
-        this.screenUpdater = screenUpdater;
+        this.socket = new DatagramSocket(7001);
+        this.socket.connect(host);
 
-        this.datagramSocket = new DatagramSocket(localPort);
-        Executors.newSingleThreadExecutor().submit(new HostDataReceiver());
-        allowedKeys.add(KeyCode.ESCAPE);
-        sendKeypress(new KeyEvent(
-            KeyEvent.KEY_PRESSED,
-            KeyCode.ESCAPE.getName(),
-            KeyCode.ESCAPE.getName(),
-            KeyCode.ESCAPE,
-            false,
-            false,
-            false,
-            false));
+        final MetricRegistry metricRegistry = new MetricRegistry();
+        this.latencyTimer = metricRegistry.timer("latency");
+        this.outOfOrderCounter = metricRegistry.counter("outOfOrder");
+
+        this.executor.schedule(new HostDataReceiver(), 0, TimeUnit.SECONDS);
     }
 
-    Guest(
-        final int guestPort,
-        final KeyCode[] allowedKeys,
-        final Consumer<HostData> screenUpdater
-    ) throws SocketException {
-        this(guestPort, screenUpdater);
-        for (KeyCode keyCode: allowedKeys) {
-            this.allowedKeys.add(keyCode);
+    public SocketAddress getLocalAddress() {
+        return this.socket.getLocalSocketAddress();
+    }
+
+    public void disconnectFromHost() {
+        active = false;
+        this.socket.close();
+        this.executor.shutdownNow();
+    }
+
+    public void receiveHostData(final TimestampedData<SpectrumState> hostData) {
+        final long sentTimestamp = hostData.getTimestamp();
+        if (sentTimestamp > lastReceived.get()) {
+            final long latency = timestamper.get() - sentTimestamp;
+            lastReceived.set(sentTimestamp);
+            guestUpdater.accept(hostData.getData());
+            latencyTimer.update(latency, MILLISECONDS);
+        } else {
+            outOfOrderCounter.inc();
         }
     }
 
-    public void connectToHost(final String hostAddress, final int hostPort) throws UnknownHostException {
-        this.hostLocator = Optional.of(new Locator(hostAddress, hostPort));
-    }
-
-    public boolean sendKeypress(final KeyEvent keyEvent) {
-        if (!allowedKeys.contains(keyEvent.getCode()) || !hostLocator.isPresent()) {
-            return true;
-        }
-
+    public void sendKeyToHost(final KeyEvent keyEvent) {
+        final TimestampedData<KeyEvent> data = new TimestampedData<>(timestamper.get(), keyEvent);
+        final DatagramPacket packet = data.toPacket();
         try {
-            final byte[] bytes = SerializationUtils.serialize(keyEvent);
-            final DatagramPacket data = new DatagramPacket(
-                bytes,
-                bytes.length,
-                hostLocator.get().getAddress(),
-                hostLocator.get().getPort()
-            );
-            datagramSocket.send(data);
-            return true;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
+            socket.send(packet);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    public double getAverageLatency() {
+        return latencyTimer.getSnapshot().getMean() / 1000000.0;
+    }
+
+    public long getOutOfOrderPacketCount() {
+        return outOfOrderCounter.getCount();
     }
 
     private class HostDataReceiver implements Runnable {
         @Override
         public void run() {
-            while (true) {
-                final DatagramPacket data = new DatagramPacket(new byte[16384], 16384);
+            final DatagramPacket dp = new DatagramPacket(new byte[16384], 16384);
+            while (active) {
                 try {
-                    datagramSocket.receive(data);
-                    final HostData hostData = SerializationUtils.deserialize(data.getData());
-                    if (hostData.getScreen() != null) {
-                        screenUpdater.accept(hostData);
-                    }
-
-                    if (hostData.getAllowedKeys() != null) {
-                        Guest.this.allowedKeys.clear();
-                        Guest.this.allowedKeys.addAll(hostData.getAllowedKeys());
-                    }
-                } catch (Exception e) {
+                    socket.receive(dp);
+                    final TimestampedData<SpectrumState> data = TimestampedData.from(dp);
+                    receiveHostData(data);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
