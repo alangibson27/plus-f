@@ -36,6 +36,7 @@ public class JavaFXComputer extends Application {
     private final MetricRegistry metricRegistry;
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
+    private final Label statusLabel;
     private final ArrayList<KeyCode> allowedGuestKeys;
 
     private ULA ula;
@@ -56,6 +57,7 @@ public class JavaFXComputer extends Application {
         computerLoop = new ComputerLoop();
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
+        statusLabel = new Label("No guest connected");
         allowedGuestKeys = new ArrayList<>();
 
         allowedGuestKeys.add(KeyCode.Q);
@@ -86,7 +88,7 @@ public class JavaFXComputer extends Application {
             computer.loadSnapshot(new File(params.next()));
         }
 
-        UIBuilder.buildUI(primaryStage, display, border, getMenuBar());
+        UIBuilder.buildUI(primaryStage, display, border, statusLabel, getMenuBar());
         primaryStage.setTitle("QAOPM Spectrum Emulator");
         primaryStage.show();
 

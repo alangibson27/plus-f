@@ -1,36 +1,32 @@
 package com.socialthingy.qaopm.spectrum;
 
-import com.socialthingy.qaopm.spectrum.remote.*;
+import com.socialthingy.qaopm.spectrum.remote.Guest;
+import com.socialthingy.qaopm.spectrum.remote.SpectrumState;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.SocketException;
 import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import static com.socialthingy.qaopm.spectrum.UIBuilder.getConnectionDetails;
 import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
-import static javafx.scene.control.Alert.AlertType.INFORMATION;
-import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXGuest extends Application {
 
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
-    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final Label statusLabel;
+    private MenuItem connectItem;
+    private MenuItem disconnectItem;
+    private Optional<Guest> guestRelay = Optional.empty();
 
     public static void main(final String ... args) {
         Application.launch(args);
@@ -39,11 +35,31 @@ public class JavaFXGuest extends Application {
     public JavaFXGuest() {
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
+        statusLabel = new Label("Not connected to computer");
     }
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
-        UIBuilder.buildUI(primaryStage, display, border, getMenuBar());
+        UIBuilder.buildUI(primaryStage, display, border, statusLabel, getMenuBar());
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> {
+                    if (!guestRelay.isPresent()) {
+                        statusLabel.setText("Not connected to computer");
+                    }
+                    guestRelay.ifPresent(g -> {
+                        final String text = String.format(
+                            "Connected - average delay: %f ms, out-of-sequence: %d",
+                            g.getAverageLatency(),
+                            g.getOutOfOrderPacketCount()
+                        );
+                        statusLabel.setText(text);
+                    });
+                });
+            }
+        }, 0L, 5000L);
 
         primaryStage.setTitle("QAOPM Spectrum Emulator - GUEST");
         primaryStage.show();
@@ -56,39 +72,51 @@ public class JavaFXGuest extends Application {
 
         final Menu fileMenu = new Menu("File");
         registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
-        registerMenuItem(fileMenu, "Get contact info ...", Optional.of(I), this::getContactInfo);
+
+        final Menu networkMenu = new Menu("Network");
+        registerMenuItem(networkMenu, "Get contact info ...", Optional.of(I), ContactInfoFinder::getContactInfo);
+        connectItem = registerMenuItem(networkMenu, "Connect to computer ...", Optional.of(C), this::connectToComputer);
+        disconnectItem = registerMenuItem(networkMenu, "Disconnect from computer", Optional.of(D), this::disconnectFromComputer);
+        disconnectItem.setDisable(true);
 
         menuBar.getMenus().add(fileMenu);
+        menuBar.getMenus().add(networkMenu);
         return menuBar;
     }
 
-    private void getContactInfo(final ActionEvent ae) {
-        final Alert alert = new Alert(INFORMATION);
-        alert.getButtonTypes().setAll(ButtonType.CANCEL);
-        alert.setHeaderText("Getting contact info ... please wait");
-        alert.setTitle("Getting Contact Info");
-        alert.setGraphic(new ProgressIndicator(-1.0));
-        alert.show();
+    private void connectToComputer(final ActionEvent ae) {
+        final Optional<Pair<String, Integer>> result = getConnectionDetails();
 
-        executor.execute(() -> {
-            final StunClient sc = new StunClient(7001);
-            final Optional<InetSocketAddress> address = sc.discoverAddress();
-            Platform.runLater(() -> {
-                alert.hide();
+        if (result.isPresent()) {
+            try {
+                guestRelay = Optional.of(
+                    new Guest(
+                        System::currentTimeMillis,
+                        new InetSocketAddress(result.get().getKey(), result.get().getValue()),
+                        this::update
+                    )
+                );
 
-                final Alert completedAlert = new Alert(address.isPresent() ? INFORMATION : WARNING);
-                address.ifPresent(addr -> {
-                    completedAlert.setHeaderText("Contact info found");
-                    completedAlert.setContentText(String.format("Host: %s\nPort: %d", addr.getHostName(), addr.getPort()));
-                });
+                connectItem.setDisable(true);
+                disconnectItem.setDisable(false);
+            } catch (SocketException e) {
+                final Alert errorDialog = new Alert(
+                    Alert.AlertType.ERROR,
+                    "Unable to connect to computer.",
+                    ButtonType.OK
+                );
 
-                if (!address.isPresent()) {
-                    completedAlert.setHeaderText("Contact info not available");
-                    completedAlert.setContentText("It was not possible to find your contact info.\nNetwork play will not be possible.");
-                }
+                errorDialog.showAndWait();
+            }
+        }
+    }
 
-                completedAlert.show();
-            });
+    private void disconnectFromComputer(final ActionEvent ae) {
+        guestRelay.ifPresent(r -> {
+            r.disconnectFromHost();
+            guestRelay = Optional.empty();
+            connectItem.setDisable(true);
+            disconnectItem.setDisable(false);
         });
     }
 
