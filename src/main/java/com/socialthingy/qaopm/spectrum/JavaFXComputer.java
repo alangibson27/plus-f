@@ -2,11 +2,11 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.socialthingy.qaopm.spectrum.remote.Host;
 import com.socialthingy.qaopm.z80.Processor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -43,7 +43,9 @@ public class JavaFXComputer extends Application {
     private Computer computer;
     private SpectrumKeyboard keyboard;
     private int[] memory;
-//    private Optional<Host> host;
+    private MenuItem connectItem;
+    private MenuItem disconnectItem;
+    private Optional<Host> hostRelay = Optional.empty();
 
     private Stage primaryStage;
 
@@ -124,6 +126,12 @@ public class JavaFXComputer extends Application {
         registerMenuItem(fileMenu, "Load ...", Optional.of(L), this::loadSnapshot);
         registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
 
+        final Menu networkMenu = new Menu("Network");
+        registerMenuItem(networkMenu, "Get contact info ...", Optional.of(I), ContactInfoFinder::getContactInfo);
+        connectItem = registerMenuItem(networkMenu, "Connect to guest ...", Optional.of(C), this::connectToGuest);
+        disconnectItem = registerMenuItem(networkMenu, "Disconnect from guest", Optional.of(D), this::disconnectFromGuest);
+        disconnectItem.setDisable(true);
+
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
@@ -139,8 +147,15 @@ public class JavaFXComputer extends Application {
 
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(computerMenu);
+        menuBar.getMenus().add(networkMenu);
         menuBar.getMenus().add(controlsMenu);
         return menuBar;
+    }
+
+    private void connectToGuest(final ActionEvent ae) {
+    }
+
+    private void disconnectFromGuest(final ActionEvent ae) {
     }
 
     private void resetComputer(final ActionEvent actionEvent) {
