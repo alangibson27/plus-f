@@ -2,7 +2,6 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.socialthingy.qaopm.spectrum.remote.StunClient;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressIndicator;
@@ -19,7 +18,7 @@ public class ContactInfoFinder {
 
     private static final Executor executor = Executors.newSingleThreadExecutor();
 
-    public static void getContactInfo(final ActionEvent ae) {
+    public static void getContactInfo(final int localPort) {
         final Alert progressDialog = new Alert(INFORMATION);
         progressDialog.getButtonTypes().setAll(ButtonType.CANCEL);
         progressDialog.setHeaderText("Getting contact info ... please wait");
@@ -28,7 +27,7 @@ public class ContactInfoFinder {
         progressDialog.show();
 
         executor.execute(() -> {
-            final StunClient sc = new StunClient(7001);
+            final StunClient sc = new StunClient(localPort);
             final Optional<InetSocketAddress> address = sc.discoverAddress();
             Platform.runLater(() -> displayResults(progressDialog, address));
         });

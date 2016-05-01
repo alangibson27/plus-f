@@ -2,34 +2,40 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.socialthingy.qaopm.spectrum.remote.Host;
+import com.socialthingy.qaopm.spectrum.remote.GuestState;
+import com.socialthingy.qaopm.spectrum.remote.NetworkPeer;
+import com.socialthingy.qaopm.spectrum.remote.SpectrumState;
 import com.socialthingy.qaopm.z80.Processor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.TimerTask;
 
 import static com.socialthingy.qaopm.spectrum.UIBuilder.BORDER;
+import static com.socialthingy.qaopm.spectrum.UIBuilder.getConnectionDetails;
 import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
 
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
+    private static final int LOCAL_PORT = 7000;
 
     private final Timer displayRefreshTimer;
     private final ComputerLoop computerLoop;
@@ -37,7 +43,6 @@ public class JavaFXComputer extends Application {
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
     private final Label statusLabel;
-    private final ArrayList<KeyCode> allowedGuestKeys;
 
     private ULA ula;
     private Computer computer;
@@ -45,7 +50,7 @@ public class JavaFXComputer extends Application {
     private int[] memory;
     private MenuItem connectItem;
     private MenuItem disconnectItem;
-    private Optional<Host> hostRelay = Optional.empty();
+    private Optional<NetworkPeer<GuestState>> hostRelay = Optional.empty();
 
     private Stage primaryStage;
 
@@ -60,15 +65,11 @@ public class JavaFXComputer extends Application {
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
         statusLabel = new Label("No guest connected");
-        allowedGuestKeys = new ArrayList<>();
-
-        allowedGuestKeys.add(KeyCode.Q);
     }
 
     private void newComputer() throws IOException {
         final KempstonJoystick kempstonJoystick = new KempstonJoystick();
         final IOMultiplexer ioMux = new IOMultiplexer();
-        ioMux.register(0x1f, kempstonJoystick);
 
         memory = new int[0x10000];
         computer = new Computer(new Processor(memory, ioMux), memory, new Timings(50, 60, 3500000), metricRegistry);
@@ -100,23 +101,32 @@ public class JavaFXComputer extends Application {
             }
         });
 
-        primaryStage.addEventHandler(
-            KeyEvent.KEY_PRESSED,
-            e -> {
-                if (!allowedGuestKeys.contains(e.getCode())) {
-                    keyboard.handle(e);
-                }
-            }
-        );
-        primaryStage.addEventHandler(
-            KeyEvent.KEY_RELEASED,
-            e -> {
-                if (!allowedGuestKeys.contains(e.getCode())) {
-                    keyboard.handle(e);
-                }
-            }
-        );
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
+        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
         computerLoop.start();
+
+        new java.util.Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> {
+                    if (!hostRelay.isPresent()) {
+                        statusLabel.setText("Not connected to guest");
+                    }
+                    hostRelay.ifPresent(h -> {
+                        if (h.awaitingCommunication()) {
+                            statusLabel.setText("Awaiting communication from guest");
+                        } else {
+                            final String text = String.format(
+                                    "Connected - average delay: %f ms, out-of-sequence: %d",
+                                    h.getAverageLatency(),
+                                    h.getOutOfOrderPacketCount()
+                            );
+                            statusLabel.setText(text);
+                        }
+                    });
+                });
+            }
+        }, 0L, 5000L);
     }
 
     private MenuBar getMenuBar() {
@@ -127,7 +137,7 @@ public class JavaFXComputer extends Application {
         registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
 
         final Menu networkMenu = new Menu("Network");
-        registerMenuItem(networkMenu, "Get contact info ...", Optional.of(I), ContactInfoFinder::getContactInfo);
+        registerMenuItem(networkMenu, "Get contact info ...", Optional.of(I), ae -> ContactInfoFinder.getContactInfo(LOCAL_PORT));
         connectItem = registerMenuItem(networkMenu, "Connect to guest ...", Optional.of(C), this::connectToGuest);
         disconnectItem = registerMenuItem(networkMenu, "Disconnect from guest", Optional.of(D), this::disconnectFromGuest);
         disconnectItem.setDisable(true);
@@ -135,27 +145,67 @@ public class JavaFXComputer extends Application {
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
-        final Menu controlsMenu = new Menu("Controls");
-        final CheckMenuItem kempstonJoystickItem = new CheckMenuItem("Kempston Joystick");
-        kempstonJoystickItem.selectedProperty().addListener(
-            (obs, oldValue, newValue) -> keyboard.setKempstonEnabled(true)
-        );
-        kempstonJoystickItem.setAccelerator(
-            new KeyCodeCombination(K, KeyCombination.ALT_DOWN)
-        );
-        controlsMenu.getItems().add(kempstonJoystickItem);
+//        final Menu controlsMenu = new Menu("Controls");
+//        final CheckMenuItem kempstonJoystickItem = new CheckMenuItem("Kempston Joystick");
+//        kempstonJoystickItem.selectedProperty().addListener(
+//            (obs, oldValue, newValue) -> keyboard.setKempstonEnabled(true)
+//        );
+//        kempstonJoystickItem.setAccelerator(
+//            new KeyCodeCombination(K, KeyCombination.ALT_DOWN)
+//        );
+//        controlsMenu.getItems().add(kempstonJoystickItem);
 
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(computerMenu);
         menuBar.getMenus().add(networkMenu);
-        menuBar.getMenus().add(controlsMenu);
+//        menuBar.getMenus().add(controlsMenu);
         return menuBar;
     }
 
     private void connectToGuest(final ActionEvent ae) {
+        computerLoop.stop();
+        try {
+            final Optional<Pair<String, Integer>> result = getConnectionDetails("guest");
+
+            if (result.isPresent()) {
+                try {
+                    hostRelay = Optional.of(
+                            new NetworkPeer<>(
+                                    this::receiveGuestInput,
+                                    System::currentTimeMillis,
+                                    LOCAL_PORT,
+                                    new InetSocketAddress(result.get().getKey(), result.get().getValue())
+                            )
+                    );
+
+                    connectItem.setDisable(true);
+                    disconnectItem.setDisable(false);
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                    final Alert errorDialog = new Alert(
+                            Alert.AlertType.ERROR,
+                            "Unable to connect to guest.",
+                            ButtonType.OK
+                    );
+
+                    errorDialog.showAndWait();
+                }
+            }
+        } finally {
+            computerLoop.start();
+        }
+    }
+
+    private void receiveGuestInput(final GuestState guestState) {
     }
 
     private void disconnectFromGuest(final ActionEvent ae) {
+        hostRelay.ifPresent(r -> {
+            r.disconnect();
+            hostRelay = Optional.empty();
+            connectItem.setDisable(false);
+            disconnectItem.setDisable(true);
+        });
     }
 
     private void resetComputer(final ActionEvent actionEvent) {
@@ -210,20 +260,24 @@ public class JavaFXComputer extends Application {
         }
     }
 
-    public void dump(final PrintStream out) {
+    private void dump(final PrintStream out) {
         computer.dump(out);
     }
 
     private class ComputerLoop extends AnimationTimer {
         private boolean flashActive = false;
-        private int flashCycleCount = 16;
+        private int flashCycleCount = 0x10;
+        private final int[] screenBytes = new int[0x1b00];
 
         @Override
         public void handle(final long now) {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
                 final int[] borderLines = ula.getBorderLines();
-//                host.ifPresent(h -> h.sendToGuest(allowedGuestKeys, memory, borderLines, flashActive));
+                hostRelay.ifPresent(h -> {
+                    System.arraycopy(memory, 0x4000, screenBytes, 0, 0x1b00);
+                    h.sendDataToPartner(new SpectrumState(screenBytes, borderLines, flashActive));
+                });
                 display.refresh(memory, flashActive);
                 border.refresh(borderLines);
                 computer.singleCycle();

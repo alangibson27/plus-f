@@ -68,10 +68,10 @@ public class UIBuilder {
         return item;
     }
 
-    public static Optional<Pair<String, Integer>> getConnectionDetails() {
+    public static Optional<Pair<String, Integer>> getConnectionDetails(final String what) {
         final Dialog<Pair<String, Integer>> dialog = new Dialog<>();
-        dialog.setTitle("Connect to Computer");
-        dialog.setHeaderText("Enter the host and port of the computer");
+        dialog.setTitle(String.format("Connect to %s", what));
+        dialog.setHeaderText(String.format("Enter the host and port of the %s", what));
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         final GridPane grid = new GridPane();
@@ -81,7 +81,7 @@ public class UIBuilder {
         final TextField host = new TextField();
         host.setPromptText("Hostname");
         final TextField port = new TextField();
-        host.setPromptText("Port");
+        port.setPromptText("Port");
 
         grid.add(new Label("Hostname:"), 0, 0);
         grid.add(host, 1, 0);

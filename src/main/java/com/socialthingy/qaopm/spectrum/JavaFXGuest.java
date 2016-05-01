@@ -1,11 +1,13 @@
 package com.socialthingy.qaopm.spectrum;
 
-import com.socialthingy.qaopm.spectrum.remote.Guest;
+import com.socialthingy.qaopm.spectrum.remote.GuestState;
+import com.socialthingy.qaopm.spectrum.remote.NetworkPeer;
 import com.socialthingy.qaopm.spectrum.remote.SpectrumState;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -20,13 +22,15 @@ import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXGuest extends Application {
+    private static final int LOCAL_PORT = 7001;
 
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
     private final Label statusLabel;
     private MenuItem connectItem;
     private MenuItem disconnectItem;
-    private Optional<Guest> guestRelay = Optional.empty();
+    private Optional<NetworkPeer<SpectrumState>> guestRelay = Optional.empty();
+    private final int[] memory = new int[0x10000];
 
     public static void main(final String ... args) {
         Application.launch(args);
@@ -50,12 +54,16 @@ public class JavaFXGuest extends Application {
                         statusLabel.setText("Not connected to computer");
                     }
                     guestRelay.ifPresent(g -> {
-                        final String text = String.format(
-                            "Connected - average delay: %f ms, out-of-sequence: %d",
-                            g.getAverageLatency(),
-                            g.getOutOfOrderPacketCount()
-                        );
-                        statusLabel.setText(text);
+                        if (g.awaitingCommunication()) {
+                            statusLabel.setText("Awaiting communication from computer");
+                        } else {
+                            final String text = String.format(
+                                    "Connected - average delay: %f ms, out-of-sequence: %d",
+                                    g.getAverageLatency(),
+                                    g.getOutOfOrderPacketCount()
+                            );
+                            statusLabel.setText(text);
+                        }
                     });
                 });
             }
@@ -63,8 +71,14 @@ public class JavaFXGuest extends Application {
 
         primaryStage.setTitle("QAOPM Spectrum Emulator - GUEST");
         primaryStage.show();
-//        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, guest::sendKeypress);
-//        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, guest::sendKeypress);
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, this::keyPressed);
+        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
+    }
+
+    private void keyPressed(final KeyEvent ke) {
+    }
+
+    private void keyReleased(final KeyEvent ke) {
     }
 
     private MenuBar getMenuBar() {
@@ -74,7 +88,7 @@ public class JavaFXGuest extends Application {
         registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
 
         final Menu networkMenu = new Menu("Network");
-        registerMenuItem(networkMenu, "Get contact info ...", Optional.of(I), ContactInfoFinder::getContactInfo);
+        registerMenuItem(networkMenu, "Get contact info ...", Optional.of(I), ae -> ContactInfoFinder.getContactInfo(LOCAL_PORT));
         connectItem = registerMenuItem(networkMenu, "Connect to computer ...", Optional.of(C), this::connectToComputer);
         disconnectItem = registerMenuItem(networkMenu, "Disconnect from computer", Optional.of(D), this::disconnectFromComputer);
         disconnectItem.setDisable(true);
@@ -85,17 +99,20 @@ public class JavaFXGuest extends Application {
     }
 
     private void connectToComputer(final ActionEvent ae) {
-        final Optional<Pair<String, Integer>> result = getConnectionDetails();
+        final Optional<Pair<String, Integer>> result = getConnectionDetails("computer");
 
         if (result.isPresent()) {
             try {
                 guestRelay = Optional.of(
-                    new Guest(
+                    new NetworkPeer<>(
+                        this::update,
                         System::currentTimeMillis,
-                        new InetSocketAddress(result.get().getKey(), result.get().getValue()),
-                        this::update
+                        LOCAL_PORT,
+                        new InetSocketAddress(result.get().getKey(), result.get().getValue())
                     )
                 );
+
+                guestRelay.get().sendDataToPartner(new GuestState(-1, -1, -1));
 
                 connectItem.setDisable(true);
                 disconnectItem.setDisable(false);
@@ -113,20 +130,19 @@ public class JavaFXGuest extends Application {
 
     private void disconnectFromComputer(final ActionEvent ae) {
         guestRelay.ifPresent(r -> {
-            r.disconnectFromHost();
+            r.disconnect();
             guestRelay = Optional.empty();
-            connectItem.setDisable(true);
-            disconnectItem.setDisable(false);
+            connectItem.setDisable(false);
+            disconnectItem.setDisable(true);
         });
     }
 
     private void update(final SpectrumState hostData) {
-        final int[] memory = new int[0x10000];
-        for (int i = 0; i < hostData.getScreen().length; i++) {
-            memory[16384 + i] = (int) hostData.getScreen()[i] & 0xff;
-        }
-        border.refresh(hostData.getBorderLines());
-        display.refresh(memory, hostData.isFlashActive());
+        System.arraycopy(hostData.getScreen(), 0x0000, memory, 0x4000, 0x1b00);
+        Platform.runLater(() -> {
+            border.refresh(hostData.getBorderLines());
+            display.refresh(memory, hostData.isFlashActive());
+        });
     }
 }
 

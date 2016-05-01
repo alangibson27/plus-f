@@ -1,11 +1,9 @@
 package com.socialthingy.qaopm.spectrum;
 
-import com.socialthingy.qaopm.z80.IO;
-
 import java.util.HashSet;
 import java.util.Set;
 
-public class KempstonJoystick implements IO {
+public class KempstonJoystick {
     public enum Button {
         FIRE(0b00010000),
         UP(0b00001000),
@@ -30,12 +28,12 @@ public class KempstonJoystick implements IO {
         buttonsActive.remove(button);
     }
 
-    @Override
+//    @Override
     public int read(int port, int accumulator) {
         return buttonsActive.stream().mapToInt(b -> b.mask).reduce(0, (a, b) -> a + b);
     }
 
-    @Override
+//    @Override
     public void write(int port, int accumulator, int value) {
 
     }

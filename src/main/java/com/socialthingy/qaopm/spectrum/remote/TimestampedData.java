@@ -34,6 +34,9 @@ public class TimestampedData<T extends Serializable> implements Serializable {
     public DatagramPacket toPacket() {
         final byte[] data = SerializationUtils.serialize(this);
         final DatagramPacket packet = new DatagramPacket(data, data.length);
+        if (data.length > 0x10000) {
+            System.out.println("TOO BIG " + data.length);
+        }
         return packet;
     }
 }
