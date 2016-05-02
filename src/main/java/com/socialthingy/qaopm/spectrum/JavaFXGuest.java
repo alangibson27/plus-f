@@ -1,5 +1,9 @@
 package com.socialthingy.qaopm.spectrum;
 
+import com.socialthingy.qaopm.spectrum.dialog.ContactInfoFinder;
+import com.socialthingy.qaopm.spectrum.display.JavaFXBorder;
+import com.socialthingy.qaopm.spectrum.display.JavaFXDisplay;
+import com.socialthingy.qaopm.spectrum.input.KempstonJoystick;
 import com.socialthingy.qaopm.spectrum.remote.GuestState;
 import com.socialthingy.qaopm.spectrum.remote.NetworkPeer;
 import com.socialthingy.qaopm.spectrum.remote.SpectrumState;
@@ -17,8 +21,9 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.socialthingy.qaopm.spectrum.UIBuilder.getConnectionDetails;
 import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
+import static com.socialthingy.qaopm.spectrum.dialog.ConnectionDetailsDialog.getConnectionDetails;
+import static com.socialthingy.qaopm.spectrum.remote.GuestState.ABSENT;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXGuest extends Application {
@@ -31,6 +36,7 @@ public class JavaFXGuest extends Application {
     private MenuItem disconnectItem;
     private Optional<NetworkPeer<SpectrumState>> guestRelay = Optional.empty();
     private final int[] memory = new int[0x10000];
+    private final KempstonJoystick kempstonJoystick = new KempstonJoystick();
 
     public static void main(final String ... args) {
         Application.launch(args);
@@ -71,14 +77,15 @@ public class JavaFXGuest extends Application {
 
         primaryStage.setTitle("QAOPM Spectrum Emulator - GUEST");
         primaryStage.show();
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, this::keyPressed);
-        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeypress);
+        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, this::handleKeypress);
     }
 
-    private void keyPressed(final KeyEvent ke) {
-    }
-
-    private void keyReleased(final KeyEvent ke) {
+    private void handleKeypress(final KeyEvent ke) {
+        kempstonJoystick.handle(ke);
+        guestRelay.ifPresent(g ->
+            g.sendDataToPartner(new GuestState(0x1f, ABSENT, kempstonJoystick.getPortValue()))
+        );
     }
 
     private MenuBar getMenuBar() {
@@ -112,10 +119,11 @@ public class JavaFXGuest extends Application {
                     )
                 );
 
-                guestRelay.get().sendDataToPartner(new GuestState(-1, -1, -1));
-
-                connectItem.setDisable(true);
-                disconnectItem.setDisable(false);
+                guestRelay.ifPresent(g -> {
+                    g.sendDataToPartner(new GuestState(ABSENT, ABSENT, ABSENT));
+                    connectItem.setDisable(true);
+                    disconnectItem.setDisable(false);
+                });
             } catch (SocketException e) {
                 final Alert errorDialog = new Alert(
                     Alert.AlertType.ERROR,

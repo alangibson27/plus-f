@@ -1,8 +1,8 @@
-package com.socialthingy.qaopm.spectrum
+package com.socialthingy.qaopm.spectrum.display
 
 import java.awt.Color
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 class DisplaySupportSpec extends FlatSpec with Matchers {
 
@@ -48,7 +48,7 @@ class DisplaySupportSpec extends FlatSpec with Matchers {
     pixels(1) shouldBe Color.BLACK
   }
 
-  trait TestDisplay extends DisplaySupport[Unit] with PixelUpdate {
+  trait TestDisplay extends DisplaySupport[Unit] with DisplayPixelUpdate {
     val memory = Array.ofDim[Int](0x10000)
     val pixels = Array.ofDim[Color](256 * 192)
 

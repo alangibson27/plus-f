@@ -1,6 +1,4 @@
-package com.socialthingy.qaopm.spectrum;
-
-import java.awt.Color;
+package com.socialthingy.qaopm.spectrum.display;
 
 abstract class DisplaySupport<T> {
     protected final SpectrumColour[] colours = new SpectrumColour[0x100];
@@ -51,7 +49,7 @@ abstract class DisplaySupport<T> {
 
     public abstract T refresh(final int[] memory, final boolean flashActive);
 
-    protected void draw(final int[] memory, final boolean flashActive, final PixelUpdate updateFunction) {
+    protected void draw(final int[] memory, final boolean flashActive, final DisplayPixelUpdate updateFunction) {
         for (int y = 0; y < 192; y++) {
             for (int x = 0; x < 32; x++) {
                 final SpectrumColour colour = colours[memory[colourAddresses[y][x]]];
@@ -77,9 +75,5 @@ abstract class DisplaySupport<T> {
         }
     }
 
-}
-
-interface PixelUpdate {
-    void update(int x, int y, Color colour);
 }
 

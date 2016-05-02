@@ -1,11 +1,8 @@
-package com.socialthingy.qaopm.spectrum;
+package com.socialthingy.qaopm.spectrum.display;
 
-import java.awt.*;
+import java.awt.Color;
 
-/**
- * Created by alan on 24/03/16.
- */
-class SpectrumColour {
+public class SpectrumColour {
     private static final int[] SPECTRUM_COLOUR_MASKS = new int[] {
             0x000000,
             0x0000ff,

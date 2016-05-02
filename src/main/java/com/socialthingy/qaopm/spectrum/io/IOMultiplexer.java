@@ -1,4 +1,4 @@
-package com.socialthingy.qaopm.spectrum;
+package com.socialthingy.qaopm.spectrum.io;
 
 import com.socialthingy.qaopm.z80.IO;
 

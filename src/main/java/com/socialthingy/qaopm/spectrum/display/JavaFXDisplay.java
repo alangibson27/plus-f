@@ -1,12 +1,12 @@
-package com.socialthingy.qaopm.spectrum;
+package com.socialthingy.qaopm.spectrum.display;
 
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
-import java.awt.*;
+import java.awt.Color;
 
-class JavaFXDisplay extends DisplaySupport<WritableImage> {
+public class JavaFXDisplay extends DisplaySupport<WritableImage> {
     private final WritableImage screen = new WritableImage(256, 192);
     private final PixelWriter pw = screen.getPixelWriter();
     private final int[] pixels = new int[256 * 192];

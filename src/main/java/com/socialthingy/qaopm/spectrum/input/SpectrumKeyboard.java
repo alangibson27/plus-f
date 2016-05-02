@@ -1,5 +1,6 @@
-package com.socialthingy.qaopm.spectrum;
+package com.socialthingy.qaopm.spectrum.input;
 
+import com.socialthingy.qaopm.spectrum.io.ULA;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.KeyCode;
@@ -12,13 +13,10 @@ import static javafx.scene.input.KeyCode.*;
 public class SpectrumKeyboard implements EventHandler<KeyEvent> {
     private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
     private final Map<KeyCode, List<KeyCode>> convenienceKeys = new HashMap<>();
-    private final KempstonJoystick kempstonJoystick;
     private final ULA ula;
-    private boolean kempstonEnabled = false;
 
-    public SpectrumKeyboard(final ULA ula, final KempstonJoystick kempstonJoystick) {
+    public SpectrumKeyboard(final ULA ula) {
         this.ula = ula;
-        this.kempstonJoystick = kempstonJoystick;
 
         spectrumKeys.put(A, 'a');
         spectrumKeys.put(B, 'b');
@@ -87,10 +85,6 @@ public class SpectrumKeyboard implements EventHandler<KeyEvent> {
         final KeyCode keyCode = event.getCode();
         final EventType<KeyEvent> eventType = event.getEventType();
 
-        if (handleJoystickKey(keyCode, eventType)) {
-            return;
-        }
-
         if (handleSpectrumKey(keyCode, eventType)) {
             return;
         }
@@ -99,46 +93,6 @@ public class SpectrumKeyboard implements EventHandler<KeyEvent> {
             convenienceKeys.get(keyCode)
                     .forEach(sk -> handleSpectrumKey(sk, eventType));
         }
-    }
-
-    private boolean handleJoystickKey(final KeyCode keyCode, final EventType<KeyEvent> eventType) {
-        if (kempstonEnabled) {
-            final Optional<KempstonJoystick.Button> button;
-            switch (keyCode) {
-                case Q:
-                    button = Optional.of(KempstonJoystick.Button.UP);
-                    break;
-
-                case A:
-                    button = Optional.of(KempstonJoystick.Button.DOWN);
-                    break;
-
-                case O:
-                    button = Optional.of(KempstonJoystick.Button.LEFT);
-                    break;
-
-                case P:
-                    button = Optional.of(KempstonJoystick.Button.RIGHT);
-                    break;
-
-                case SPACE:
-                    button = Optional.of(KempstonJoystick.Button.FIRE);
-                    break;
-
-                default:
-                    button = Optional.empty();
-            }
-
-            if (eventType == KeyEvent.KEY_PRESSED) {
-                button.ifPresent(kempstonJoystick::buttonDown);
-                return true;
-            } else if (eventType == KeyEvent.KEY_RELEASED) {
-                button.ifPresent(kempstonJoystick::buttonUp);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private boolean handleSpectrumKey(final KeyCode keyCode, final EventType<KeyEvent> eventType) {
@@ -156,9 +110,5 @@ public class SpectrumKeyboard implements EventHandler<KeyEvent> {
 
     private void addConvenienceKey(final KeyCode convenienceKey, final KeyCode ... spectrumKeys) {
         convenienceKeys.put(convenienceKey, Arrays.asList(spectrumKeys));
-    }
-
-    public void setKempstonEnabled(final boolean enabled) {
-        this.kempstonEnabled = enabled;
     }
 }

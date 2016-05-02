@@ -1,4 +1,4 @@
-package com.socialthingy.qaopm.spectrum;
+package com.socialthingy.qaopm.spectrum.display;
 
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
@@ -6,7 +6,7 @@ import javafx.scene.image.WritableImage;
 
 import static com.socialthingy.qaopm.spectrum.UIBuilder.DISPLAY_HEIGHT;
 
-class JavaFXBorder {
+public class JavaFXBorder {
     private final WritableImage border = new WritableImage(1, DISPLAY_HEIGHT);
     private final PixelWriter pw = border.getPixelWriter();
 

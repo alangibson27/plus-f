@@ -1,4 +1,4 @@
-package com.socialthingy.qaopm.spectrum;
+package com.socialthingy.qaopm.spectrum.dialog;
 
 import com.socialthingy.qaopm.spectrum.remote.StunClient;
 import javafx.application.Platform;

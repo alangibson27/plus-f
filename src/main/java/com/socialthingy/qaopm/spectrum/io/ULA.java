@@ -1,10 +1,11 @@
-package com.socialthingy.qaopm.spectrum;
+package com.socialthingy.qaopm.spectrum.io;
 
+import com.socialthingy.qaopm.spectrum.Computer;
 import com.socialthingy.qaopm.z80.IO;
 
 import java.util.*;
 
-import static com.socialthingy.qaopm.spectrum.SpectrumColour.dullColour;
+import static com.socialthingy.qaopm.spectrum.display.SpectrumColour.dullColour;
 
 public class ULA implements IO {
 

@@ -1,8 +1,9 @@
-package com.socialthingy.qaopm.spectrum
+package com.socialthingy.qaopm.spectrum.io
 
+import com.socialthingy.qaopm.spectrum.Computer
 import org.mockito.Mockito
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Inspectors, Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
 class BorderSpec extends FlatSpec with Matchers with MockitoSugar with Inspectors {
 

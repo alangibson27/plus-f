@@ -1,8 +1,10 @@
-package com.socialthingy.qaopm.spectrum
+package com.socialthingy.qaopm.spectrum.input
 
+import com.socialthingy.qaopm.spectrum.Computer
+import com.socialthingy.qaopm.spectrum.io.ULA
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
-import org.scalatest.{GivenWhenThen, FlatSpec, Matchers}
+import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
 
 class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyChecks with Matchers with MockitoSugar {
 

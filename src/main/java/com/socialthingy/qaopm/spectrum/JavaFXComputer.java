@@ -2,6 +2,13 @@ package com.socialthingy.qaopm.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.socialthingy.qaopm.spectrum.dialog.ContactInfoFinder;
+import com.socialthingy.qaopm.spectrum.display.JavaFXBorder;
+import com.socialthingy.qaopm.spectrum.display.JavaFXDisplay;
+import com.socialthingy.qaopm.spectrum.io.IOMultiplexer;
+import com.socialthingy.qaopm.spectrum.io.SinglePortIO;
+import com.socialthingy.qaopm.spectrum.input.SpectrumKeyboard;
+import com.socialthingy.qaopm.spectrum.io.ULA;
 import com.socialthingy.qaopm.spectrum.remote.GuestState;
 import com.socialthingy.qaopm.spectrum.remote.NetworkPeer;
 import com.socialthingy.qaopm.spectrum.remote.SpectrumState;
@@ -28,8 +35,8 @@ import java.util.Optional;
 import java.util.TimerTask;
 
 import static com.socialthingy.qaopm.spectrum.UIBuilder.BORDER;
-import static com.socialthingy.qaopm.spectrum.UIBuilder.getConnectionDetails;
 import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
+import static com.socialthingy.qaopm.spectrum.dialog.ConnectionDetailsDialog.getConnectionDetails;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
@@ -51,8 +58,10 @@ public class JavaFXComputer extends Application {
     private MenuItem connectItem;
     private MenuItem disconnectItem;
     private Optional<NetworkPeer<GuestState>> hostRelay = Optional.empty();
+    private SinglePortIO guestKempstonJoystick;
 
     private Stage primaryStage;
+    private IOMultiplexer ioMux;
 
     public static void main(final String ... args) {
         Application.launch(args);
@@ -68,14 +77,16 @@ public class JavaFXComputer extends Application {
     }
 
     private void newComputer() throws IOException {
-        final KempstonJoystick kempstonJoystick = new KempstonJoystick();
-        final IOMultiplexer ioMux = new IOMultiplexer();
-
+        ioMux = new IOMultiplexer();
         memory = new int[0x10000];
         computer = new Computer(new Processor(memory, ioMux), memory, new Timings(50, 60, 3500000), metricRegistry);
         ula = new ULA(computer, BORDER, BORDER);
+        guestKempstonJoystick = new SinglePortIO(0x1f);
+        keyboard = new SpectrumKeyboard(ula);
+
         ioMux.register(0xfe, ula);
-        keyboard = new SpectrumKeyboard(ula, kempstonJoystick);
+        ioMux.register(0x1f, guestKempstonJoystick);
+
         final String romFile = getParameters().getRaw().get(0);
         computer.loadRom(romFile);
     }
@@ -145,20 +156,9 @@ public class JavaFXComputer extends Application {
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
-//        final Menu controlsMenu = new Menu("Controls");
-//        final CheckMenuItem kempstonJoystickItem = new CheckMenuItem("Kempston Joystick");
-//        kempstonJoystickItem.selectedProperty().addListener(
-//            (obs, oldValue, newValue) -> keyboard.setKempstonEnabled(true)
-//        );
-//        kempstonJoystickItem.setAccelerator(
-//            new KeyCodeCombination(K, KeyCombination.ALT_DOWN)
-//        );
-//        controlsMenu.getItems().add(kempstonJoystickItem);
-
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(computerMenu);
         menuBar.getMenus().add(networkMenu);
-//        menuBar.getMenus().add(controlsMenu);
         return menuBar;
     }
 
@@ -178,8 +178,10 @@ public class JavaFXComputer extends Application {
                             )
                     );
 
-                    connectItem.setDisable(true);
-                    disconnectItem.setDisable(false);
+                    hostRelay.ifPresent(h -> {
+                        connectItem.setDisable(true);
+                        disconnectItem.setDisable(false);
+                    });
                 } catch (SocketException e) {
                     e.printStackTrace();
                     final Alert errorDialog = new Alert(
@@ -197,6 +199,9 @@ public class JavaFXComputer extends Application {
     }
 
     private void receiveGuestInput(final GuestState guestState) {
+        if (guestState.getPort() == 0x1f) {
+            guestKempstonJoystick.setValue(guestState.getValue());
+        }
     }
 
     private void disconnectFromGuest(final ActionEvent ae) {

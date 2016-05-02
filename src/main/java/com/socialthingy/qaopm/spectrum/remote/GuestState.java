@@ -3,6 +3,8 @@ package com.socialthingy.qaopm.spectrum.remote;
 import java.io.Serializable;
 
 public class GuestState implements Serializable {
+    public static final int ABSENT = -1;
+
     private int port;
     private int accumulator;
     private int value;
