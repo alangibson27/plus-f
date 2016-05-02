@@ -17,6 +17,8 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>run.sh</include>
+                <include>qaopm-guest.exe</include>
+                <include>qaopm-guest.ini</include>
             </includes>
         </fileSet>
     </fileSets>

@@ -17,6 +17,8 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>run.sh</include>
+                <include>qaopm-computer.exe</include>
+                <include>qaopm-computer.ini</include>
             </includes>
         </fileSet>
     </fileSets>
