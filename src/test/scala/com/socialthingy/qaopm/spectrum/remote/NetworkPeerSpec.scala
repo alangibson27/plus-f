@@ -104,38 +104,6 @@ class NetworkPeerSpec extends FlatSpec
       updater.receivedFromPartner should have size 2
   }
 
-  it should "correctly record the latency of a packet" in withStubbedPeer {
-    (guest, updater, timestamper) =>
-
-      // given
-      val packet = new TimestampedData(100L, TestData("delayed packet"))
-      timestamper.set(101L)
-      guest.receivePartnerData(packet)
-
-      // when
-      val latency = guest.getAverageLatency
-
-      // then
-      latency shouldBe 1.0
-  }
-
-  it should "correctly record the average latency of multiple packets" in withStubbedPeer {
-    (guest, updater, timestamper) =>
-
-      // given
-      timestamper.set(101L)
-      guest.receivePartnerData(new TimestampedData(100L, TestData("packet 1")))
-
-      timestamper.set(103L)
-      guest.receivePartnerData(new TimestampedData(101L, TestData("packet 2")))
-
-      // when
-      val latency = guest.getAverageLatency
-
-      // then
-      latency shouldBe 1.5
-  }
-
   it should "correctly record when a packet arrives out of sequence" in withStubbedPeer {
     (guest, updater, timestamper) =>
 
@@ -167,6 +135,7 @@ class NetworkPeerSpec extends FlatSpec
   }
 
   val doNothing: SpectrumState => Unit = (x: SpectrumState) => ()
+  var nextPort = 7100
 
   def withStubbedPeer(testCode: (NetworkPeer[TestData], StubbedUpdater, AtomicLong) => Any): Unit = {
     val updater = new StubbedUpdater
@@ -177,7 +146,12 @@ class NetworkPeerSpec extends FlatSpec
     val timestamper = new Supplier[java.lang.Long] {
       override def get(): java.lang.Long = timestampValue.get()
     }
-    val peer = new NetworkPeer[TestData](consumer, timestamper, 7001, mockHostSocket.getLocalSocketAddress)
+    val port = {
+      val p = nextPort
+      nextPort += 1
+      p
+    }
+    val peer = new NetworkPeer[TestData](consumer, timestamper, port, mockHostSocket.getLocalSocketAddress)
 
     try {
       testCode(peer, updater, timestampValue)

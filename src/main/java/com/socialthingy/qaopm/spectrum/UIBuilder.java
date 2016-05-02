@@ -3,6 +3,8 @@ package com.socialthingy.qaopm.spectrum;
 import com.socialthingy.qaopm.spectrum.display.JavaFXBorder;
 import com.socialthingy.qaopm.spectrum.display.JavaFXDisplay;
 import com.socialthingy.qaopm.spectrum.io.ULA;
+import com.socialthingy.qaopm.spectrum.remote.NetworkPeer;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -18,7 +20,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.Serializable;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.function.Supplier;
 
 public class UIBuilder {
     public static final int BORDER = 16;
@@ -68,4 +74,35 @@ public class UIBuilder {
         return item;
     }
 
+    public static <T extends Serializable> Timer installStatusLabelUpdater(
+        final Label label,
+        final Supplier<Optional<NetworkPeer<T>>> currentNetworkPeer
+    ) {
+        final Timer statusBarTimer = new Timer();
+        statusBarTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> {
+                    final Optional<NetworkPeer<T>> networkPeer = currentNetworkPeer.get();
+                    if (!networkPeer.isPresent()) {
+                        label.setText("Not connected");
+                    }
+                    networkPeer.ifPresent(g -> {
+                        if (g.awaitingCommunication()) {
+                            label.setText("Awaiting communication");
+                        } else {
+                            final String text = String.format(
+                                    "Connected - average delay: %.2f ms, out-of-sequence: %d",
+                                    g.getAverageLatency(),
+                                    g.getOutOfOrderPacketCount()
+                            );
+                            label.setText(text);
+                        }
+                    });
+                });
+            }
+        }, 0L, 5000L);
+
+        return statusBarTimer;
+    }
 }

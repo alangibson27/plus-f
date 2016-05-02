@@ -9,6 +9,7 @@ import java.net.DatagramPacket;
 
 public class TimestampedData<T extends Serializable> implements Serializable {
     private final long timestamp;
+    private final long systemTime;
     private final T data;
 
     public static <T extends Serializable> TimestampedData<T> from(final DatagramPacket data) throws IOException {
@@ -21,10 +22,15 @@ public class TimestampedData<T extends Serializable> implements Serializable {
     public TimestampedData(final Long timestamp, final T data) {
         this.timestamp = timestamp;
         this.data = data;
+        this.systemTime = System.currentTimeMillis();
     }
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public long getSystemTime() {
+        return systemTime;
     }
 
     public T getData() {

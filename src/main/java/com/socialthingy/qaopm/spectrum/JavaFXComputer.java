@@ -33,9 +33,9 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
-import static com.socialthingy.qaopm.spectrum.UIBuilder.BORDER;
-import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
+import static com.socialthingy.qaopm.spectrum.UIBuilder.*;
 import static com.socialthingy.qaopm.spectrum.dialog.ConnectionDetailsDialog.getConnectionDetails;
 import static javafx.scene.input.KeyCode.*;
 
@@ -59,6 +59,7 @@ public class JavaFXComputer extends Application {
     private MenuItem disconnectItem;
     private Optional<NetworkPeer<GuestState>> hostRelay = Optional.empty();
     private SinglePortIO guestKempstonJoystick;
+    private final AtomicLong timestamper = new AtomicLong(0);
 
     private Stage primaryStage;
     private IOMultiplexer ioMux;
@@ -102,31 +103,9 @@ public class JavaFXComputer extends Application {
             computer.loadSnapshot(new File(params.next()));
         }
 
-        final java.util.Timer statusBarTimer = new java.util.Timer();
-        statusBarTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Platform.runLater(() -> {
-                    if (!hostRelay.isPresent()) {
-                        statusLabel.setText("Not connected to guest");
-                    }
-                    hostRelay.ifPresent(h -> {
-                        if (h.awaitingCommunication()) {
-                            statusLabel.setText("Awaiting communication from guest");
-                        } else {
-                            final String text = String.format(
-                                    "Connected - average delay: %f ms, out-of-sequence: %d",
-                                    h.getAverageLatency(),
-                                    h.getOutOfOrderPacketCount()
-                            );
-                            statusLabel.setText(text);
-                        }
-                    });
-                });
-            }
-        }, 0L, 5000L);
+        buildUI(primaryStage, display, border, statusLabel, getMenuBar());
 
-        UIBuilder.buildUI(primaryStage, display, border, statusLabel, getMenuBar());
+        final java.util.Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> hostRelay);
         primaryStage.setOnCloseRequest(we -> {
             statusBarTimer.cancel();
             hostRelay.ifPresent(h -> h.disconnect());
@@ -177,7 +156,7 @@ public class JavaFXComputer extends Application {
                     hostRelay = Optional.of(
                             new NetworkPeer<>(
                                     this::receiveGuestInput,
-                                    System::currentTimeMillis,
+                                    timestamper::getAndIncrement,
                                     LOCAL_PORT,
                                     new InetSocketAddress(result.get().getKey(), result.get().getValue())
                             )

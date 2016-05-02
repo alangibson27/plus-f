@@ -21,10 +21,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class NetworkPeer<R extends Serializable> {
     private final Consumer<R> updater;
-    protected final Supplier<Long> timestamper;
-    protected final DatagramSocket socket;
+    private final Supplier<Long> timestamper;
+    private final DatagramSocket socket;
     private final AtomicLong lastReceived = new AtomicLong(-1);
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService receiveExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService sendExecutor = Executors.newSingleThreadScheduledExecutor();
     private final Timer latencyTimer;
     private final Counter outOfOrderCounter;
     private boolean active = true;
@@ -44,7 +45,7 @@ public class NetworkPeer<R extends Serializable> {
         final MetricRegistry metricRegistry = new MetricRegistry();
         this.latencyTimer = metricRegistry.timer("latency");
         this.outOfOrderCounter = metricRegistry.counter("outOfOrder");
-        this.executor.schedule(new PartnerDataReceiver(), 0, TimeUnit.SECONDS);
+        this.receiveExecutor.schedule(new PartnerDataReceiver(), 0, TimeUnit.SECONDS);
     }
 
     public boolean awaitingCommunication() {
@@ -52,20 +53,22 @@ public class NetworkPeer<R extends Serializable> {
     }
 
     public void sendDataToPartner(final Serializable data) {
-        final TimestampedData<Serializable> tsData = new TimestampedData<>(timestamper.get(), data);
-        final DatagramPacket packet = tsData.toPacket();
-        try {
-            packet.setSocketAddress(partner);
-            socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        sendExecutor.execute(() -> {
+            final TimestampedData<Serializable> tsData = new TimestampedData<>(timestamper.get(), data);
+            final DatagramPacket packet = tsData.toPacket();
+            try {
+                packet.setSocketAddress(partner);
+                socket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void receivePartnerData(final TimestampedData<R> hostData) {
         final long sentTimestamp = hostData.getTimestamp();
         if (sentTimestamp > lastReceived.get()) {
-            final long latency = timestamper.get() - sentTimestamp;
+            final long latency = System.currentTimeMillis() - hostData.getSystemTime();
             lastReceived.set(sentTimestamp);
             updater.accept(hostData.getData());
             latencyTimer.update(latency, MILLISECONDS);
@@ -81,7 +84,8 @@ public class NetworkPeer<R extends Serializable> {
     public void disconnect() {
         active = false;
         this.socket.close();
-        this.executor.shutdownNow();
+        this.receiveExecutor.shutdownNow();
+        this.sendExecutor.shutdownNow();
     }
 
     public double getAverageLatency() {
@@ -92,7 +96,7 @@ public class NetworkPeer<R extends Serializable> {
         return outOfOrderCounter.getCount();
     }
 
-    protected class PartnerDataReceiver implements Runnable {
+    private class PartnerDataReceiver implements Runnable {
         @Override
         public void run() {
             final DatagramPacket dp = new DatagramPacket(new byte[0x10000], 0x10000);

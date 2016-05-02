@@ -7,6 +7,7 @@ import com.socialthingy.qaopm.spectrum.input.KempstonJoystick;
 import com.socialthingy.qaopm.spectrum.remote.GuestState;
 import com.socialthingy.qaopm.spectrum.remote.NetworkPeer;
 import com.socialthingy.qaopm.spectrum.remote.SpectrumState;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -20,7 +21,10 @@ import java.net.SocketException;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
+import static com.socialthingy.qaopm.spectrum.UIBuilder.buildUI;
+import static com.socialthingy.qaopm.spectrum.UIBuilder.installStatusLabelUpdater;
 import static com.socialthingy.qaopm.spectrum.UIBuilder.registerMenuItem;
 import static com.socialthingy.qaopm.spectrum.dialog.ConnectionDetailsDialog.getConnectionDetails;
 import static com.socialthingy.qaopm.spectrum.remote.GuestState.ABSENT;
@@ -37,6 +41,8 @@ public class JavaFXGuest extends Application {
     private Optional<NetworkPeer<SpectrumState>> guestRelay = Optional.empty();
     private final int[] memory = new int[0x10000];
     private final KempstonJoystick kempstonJoystick = new KempstonJoystick();
+    private SpectrumState lastHostData;
+    private final AtomicLong timestamper = new AtomicLong(0);
 
     public static void main(final String ... args) {
         Application.launch(args);
@@ -50,32 +56,9 @@ public class JavaFXGuest extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
-        UIBuilder.buildUI(primaryStage, display, border, statusLabel, getMenuBar());
+        buildUI(primaryStage, display, border, statusLabel, getMenuBar());
 
-        final Timer statusBarTimer = new Timer();
-        statusBarTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Platform.runLater(() -> {
-                    if (!guestRelay.isPresent()) {
-                        statusLabel.setText("Not connected to computer");
-                    }
-                    guestRelay.ifPresent(g -> {
-                        if (g.awaitingCommunication()) {
-                            statusLabel.setText("Awaiting communication from computer");
-                        } else {
-                            final String text = String.format(
-                                    "Connected - average delay: %f ms, out-of-sequence: %d",
-                                    g.getAverageLatency(),
-                                    g.getOutOfOrderPacketCount()
-                            );
-                            statusLabel.setText(text);
-                        }
-                    });
-                });
-            }
-        }, 0L, 5000L);
-
+        final Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> guestRelay);
         primaryStage.setOnCloseRequest(we -> {
             statusBarTimer.cancel();
             guestRelay.ifPresent(g -> g.disconnect());
@@ -84,6 +67,20 @@ public class JavaFXGuest extends Application {
         primaryStage.show();
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeypress);
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, this::handleKeypress);
+
+        final AnimationTimer screenUpdater = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (lastHostData != null) {
+                    System.arraycopy(lastHostData.getScreen(), 0x0000, memory, 0x4000, 0x1b00);
+                    Platform.runLater(() -> {
+                        border.refresh(lastHostData.getBorderLines());
+                        display.refresh(memory, lastHostData.isFlashActive());
+                    });
+                }
+            }
+        };
+        screenUpdater.start();
     }
 
     private void handleKeypress(final KeyEvent ke) {
@@ -118,7 +115,7 @@ public class JavaFXGuest extends Application {
                 guestRelay = Optional.of(
                     new NetworkPeer<>(
                         this::update,
-                        System::currentTimeMillis,
+                        timestamper::getAndIncrement,
                         LOCAL_PORT,
                         new InetSocketAddress(result.get().getKey(), result.get().getValue())
                     )
@@ -151,11 +148,7 @@ public class JavaFXGuest extends Application {
     }
 
     private void update(final SpectrumState hostData) {
-        System.arraycopy(hostData.getScreen(), 0x0000, memory, 0x4000, 0x1b00);
-        Platform.runLater(() -> {
-            border.refresh(hostData.getBorderLines());
-            display.refresh(memory, hostData.isFlashActive());
-        });
+        this.lastHostData = hostData;
     }
 }
 
