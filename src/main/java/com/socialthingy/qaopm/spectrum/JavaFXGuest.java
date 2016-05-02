@@ -52,7 +52,8 @@ public class JavaFXGuest extends Application {
     public void start(final Stage primaryStage) throws Exception {
         UIBuilder.buildUI(primaryStage, display, border, statusLabel, getMenuBar());
 
-        new Timer().schedule(new TimerTask() {
+        final Timer statusBarTimer = new Timer();
+        statusBarTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(() -> {
@@ -75,6 +76,10 @@ public class JavaFXGuest extends Application {
             }
         }, 0L, 5000L);
 
+        primaryStage.setOnCloseRequest(we -> {
+            statusBarTimer.cancel();
+            guestRelay.ifPresent(g -> g.disconnect());
+        });
         primaryStage.setTitle("QAOPM Spectrum Emulator - GUEST");
         primaryStage.show();
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeypress);

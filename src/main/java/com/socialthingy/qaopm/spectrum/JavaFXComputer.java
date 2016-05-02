@@ -102,21 +102,8 @@ public class JavaFXComputer extends Application {
             computer.loadSnapshot(new File(params.next()));
         }
 
-        UIBuilder.buildUI(primaryStage, display, border, statusLabel, getMenuBar());
-        primaryStage.setTitle("QAOPM Spectrum Emulator");
-        primaryStage.show();
-
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.ESCAPE) {
-                dump(System.out);
-            }
-        });
-
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
-        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
-        computerLoop.start();
-
-        new java.util.Timer().schedule(new TimerTask() {
+        final java.util.Timer statusBarTimer = new java.util.Timer();
+        statusBarTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(() -> {
@@ -138,6 +125,24 @@ public class JavaFXComputer extends Application {
                 });
             }
         }, 0L, 5000L);
+
+        UIBuilder.buildUI(primaryStage, display, border, statusLabel, getMenuBar());
+        primaryStage.setOnCloseRequest(we -> {
+            statusBarTimer.cancel();
+            hostRelay.ifPresent(h -> h.disconnect());
+        });
+        primaryStage.setTitle("QAOPM Spectrum Emulator");
+        primaryStage.show();
+
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                dump(System.out);
+            }
+        });
+
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
+        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
+        computerLoop.start();
     }
 
     private MenuBar getMenuBar() {
