@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-java -jar qaopm-guest.jar
+java -jar plus-f-guest.jar

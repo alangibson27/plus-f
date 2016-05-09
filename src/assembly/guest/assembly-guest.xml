@@ -9,7 +9,7 @@
             <directory>target</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>qaopm-guest.jar</include>
+                <include>plus-f-guest.jar</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -17,8 +17,8 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>run.sh</include>
-                <include>qaopm-guest.exe</include>
-                <include>qaopm-guest.ini</include>
+                <include>plus-f-guest.exe</include>
+                <include>plus-f-guest.ini</include>
             </includes>
         </fileSet>
     </fileSets>

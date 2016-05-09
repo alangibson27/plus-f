@@ -9,7 +9,7 @@
             <directory>target</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>qaopm-computer.jar</include>
+                <include>plus-f-computer.jar</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -17,8 +17,8 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>run.sh</include>
-                <include>qaopm-computer.exe</include>
-                <include>qaopm-computer.ini</include>
+                <include>plus-f-computer.exe</include>
+                <include>plus-f-computer.ini</include>
             </includes>
         </fileSet>
     </fileSets>
