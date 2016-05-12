@@ -46,12 +46,12 @@ public class JavaFXComputer extends Application {
     private static final int LOCAL_PORT = 7000;
 
     private final Timer displayRefreshTimer;
-    private final ComputerLoop computerLoop;
     private final MetricRegistry metricRegistry;
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
     private final Label statusLabel;
 
+    private ComputerLoop computerLoop;
     private ULA ula;
     private Computer computer;
     private SpectrumKeyboard keyboard;
@@ -143,15 +143,26 @@ public class JavaFXComputer extends Application {
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
+        final CheckMenuItem fastMode = new CheckMenuItem("Fast mode");
+        fastMode.setSelected(false);
+        fastMode.setOnAction(this::toggleFastMode);
+        computerMenu.getItems().add(fastMode);
+
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(computerMenu);
         menuBar.getMenus().add(networkMenu);
         return menuBar;
     }
 
+    private void toggleFastMode(final ActionEvent ae) {
+        computerLoop.stop();
+        final boolean fastMode = ((CheckMenuItem) ae.getSource()).isSelected();
+        computerLoop = new ComputerLoop(fastMode ? 75.0 : 50.0);
+        computerLoop.play();
+    }
+
     private void connectToGuest(final ActionEvent ae) {
-        computerLoop.pause();
-        try {
+        withComputerPaused(() -> {
             final Optional<Pair<String, Integer>> result = getConnectionDetails("guest");
 
             if (result.isPresent()) {
@@ -180,9 +191,7 @@ public class JavaFXComputer extends Application {
                     errorDialog.showAndWait();
                 }
             }
-        } finally {
-            computerLoop.play();
-        }
+        });
     }
 
     private void receiveGuestInput(final GuestState guestState) {
@@ -201,8 +210,7 @@ public class JavaFXComputer extends Application {
     }
 
     private void resetComputer(final ActionEvent actionEvent) {
-        computerLoop.pause();
-        try {
+        withComputerPaused(() -> {
             final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Reset Computer?");
             alert.setHeaderText("Are you sure you want to reset the computer?");
@@ -219,14 +227,11 @@ public class JavaFXComputer extends Application {
                     }
                 }
             });
-        } finally {
-            computerLoop.play();
-        }
+        });
     }
 
     private void loadSnapshot(final ActionEvent ae) {
-        computerLoop.pause();
-        try {
+        withComputerPaused(() -> {
             final FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Load Snapshot File");
             final File chosen = fileChooser.showOpenDialog(primaryStage);
@@ -247,6 +252,13 @@ public class JavaFXComputer extends Application {
                     alert.showAndWait();
                 }
             }
+        });
+    }
+
+    private void withComputerPaused(final Runnable r) {
+        computerLoop.pause();
+        try {
+            r.run();
         } finally {
             computerLoop.play();
         }
@@ -262,7 +274,11 @@ public class JavaFXComputer extends Application {
         private final int[] screenBytes = new int[0x1b00];
 
         public ComputerLoop() {
-            super(50.0);
+            this(50.0);
+        }
+
+        public ComputerLoop(final double frameRate) {
+            super(frameRate);
             setCycleCount(Transition.INDEFINITE);
             setCycleDuration(Duration.millis(1000.0));
         }
