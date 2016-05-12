@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -39,6 +40,8 @@ public class UIBuilder {
         final Label statusLabel,
         final MenuBar menuBar
     ) {
+        primaryStage.getIcons().add(new Image(UIBuilder.class.getResourceAsStream("/plus-f.png")));
+
         final ImageView borderImage = new ImageView(border.getBorder());
         borderImage.setFitWidth(DISPLAY_WIDTH * 2);
         borderImage.setFitHeight(DISPLAY_HEIGHT * 2);
