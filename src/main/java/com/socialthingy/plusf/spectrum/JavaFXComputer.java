@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.dialog.ContactInfoFinder;
 import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
@@ -13,7 +14,7 @@ import com.socialthingy.plusf.spectrum.remote.GuestState;
 import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
 import com.socialthingy.plusf.spectrum.remote.SpectrumState;
 import com.socialthingy.plusf.z80.Processor;
-import javafx.animation.AnimationTimer;
+import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -22,6 +23,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.Pair;
 
 import java.io.File;
@@ -31,6 +33,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.socialthingy.plusf.spectrum.UIBuilder.*;
@@ -68,7 +71,8 @@ public class JavaFXComputer extends Application {
 
     public JavaFXComputer() {
         metricRegistry = new MetricRegistry();
-        displayRefreshTimer = metricRegistry.timer(DISPLAY_REFRESH_TIMER_NAME);
+        displayRefreshTimer = new Timer(new SlidingTimeWindowReservoir(1, TimeUnit.SECONDS));
+        metricRegistry.register(DISPLAY_REFRESH_TIMER_NAME, displayRefreshTimer);
         computerLoop = new ComputerLoop();
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
@@ -119,7 +123,8 @@ public class JavaFXComputer extends Application {
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
-        computerLoop.start();
+
+        computerLoop.play();
     }
 
     private MenuBar getMenuBar() {
@@ -145,7 +150,7 @@ public class JavaFXComputer extends Application {
     }
 
     private void connectToGuest(final ActionEvent ae) {
-        computerLoop.stop();
+        computerLoop.pause();
         try {
             final Optional<Pair<String, Integer>> result = getConnectionDetails("guest");
 
@@ -176,7 +181,7 @@ public class JavaFXComputer extends Application {
                 }
             }
         } finally {
-            computerLoop.start();
+            computerLoop.play();
         }
     }
 
@@ -196,7 +201,7 @@ public class JavaFXComputer extends Application {
     }
 
     private void resetComputer(final ActionEvent actionEvent) {
-        computerLoop.stop();
+        computerLoop.pause();
         try {
             final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Reset Computer?");
@@ -215,12 +220,12 @@ public class JavaFXComputer extends Application {
                 }
             });
         } finally {
-            computerLoop.start();
+            computerLoop.play();
         }
     }
 
     private void loadSnapshot(final ActionEvent ae) {
-        computerLoop.stop();
+        computerLoop.pause();
         try {
             final FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Load Snapshot File");
@@ -243,7 +248,7 @@ public class JavaFXComputer extends Application {
                 }
             }
         } finally {
-            computerLoop.start();
+            computerLoop.play();
         }
     }
 
@@ -251,13 +256,19 @@ public class JavaFXComputer extends Application {
         computer.dump(out);
     }
 
-    private class ComputerLoop extends AnimationTimer {
+    private class ComputerLoop extends Transition {
         private boolean flashActive = false;
         private int flashCycleCount = 0x10;
         private final int[] screenBytes = new int[0x1b00];
 
+        public ComputerLoop() {
+            super(50.0);
+            setCycleCount(Transition.INDEFINITE);
+            setCycleDuration(Duration.millis(1000.0));
+        }
+
         @Override
-        public void handle(final long now) {
+        protected void interpolate(double frac) {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
                 final int[] borderLines = ula.getBorderLines();
