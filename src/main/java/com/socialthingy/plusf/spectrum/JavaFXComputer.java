@@ -112,7 +112,7 @@ public class JavaFXComputer extends Application {
             statusBarTimer.cancel();
             hostRelay.ifPresent(h -> h.disconnect());
         });
-        primaryStage.setTitle("QAOPM Spectrum Emulator");
+        primaryStage.setTitle("+F Spectrum Emulator");
         primaryStage.show();
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
