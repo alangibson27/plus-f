@@ -62,7 +62,7 @@ public class JavaFXGuest extends Application {
             statusBarTimer.cancel();
             guestRelay.ifPresent(g -> g.disconnect());
         });
-        primaryStage.setTitle("QAOPM Spectrum Emulator - GUEST");
+        primaryStage.setTitle("+F Spectrum Guest");
         primaryStage.show();
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeypress);
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, this::handleKeypress);
