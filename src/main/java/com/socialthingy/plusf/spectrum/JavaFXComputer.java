@@ -58,7 +58,7 @@ public class JavaFXComputer extends Application {
     private int[] memory;
     private MenuItem connectItem;
     private MenuItem disconnectItem;
-    private Optional<NetworkPeer<GuestState>> hostRelay = Optional.empty();
+    private Optional<NetworkPeer<GuestState, SpectrumState>> hostRelay = Optional.empty();
     private SinglePortIO guestKempstonJoystick;
     private final AtomicLong timestamper = new AtomicLong(0);
 
@@ -170,6 +170,8 @@ public class JavaFXComputer extends Application {
                     hostRelay = Optional.of(
                             new NetworkPeer<>(
                                     this::receiveGuestInput,
+                                    SpectrumState::serialise,
+                                    GuestState::deserialise,
                                     timestamper::getAndIncrement,
                                     LOCAL_PORT,
                                     new InetSocketAddress(result.get().getKey(), result.get().getValue())
@@ -272,6 +274,7 @@ public class JavaFXComputer extends Application {
         private boolean flashActive = false;
         private int flashCycleCount = 0x10;
         private final int[] screenBytes = new int[0x1b00];
+        private boolean updateDisplay = true;
 
         public ComputerLoop() {
             this(50.0);
@@ -287,13 +290,15 @@ public class JavaFXComputer extends Application {
         protected void interpolate(double frac) {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
-                final int[] borderLines = ula.getBorderLines();
-                hostRelay.ifPresent(h -> {
-                    System.arraycopy(memory, 0x4000, screenBytes, 0, 0x1b00);
-                    h.sendDataToPartner(new SpectrumState(screenBytes, borderLines, flashActive));
-                });
-                display.refresh(memory, flashActive);
-                border.refresh(borderLines);
+                if (updateDisplay) {
+                    final int[] borderLines = ula.getBorderLines();
+                    hostRelay.ifPresent(h -> {
+                        h.sendDataToPartner(new SpectrumState(memory, borderLines, flashActive));
+                    });
+                    display.refresh(memory, flashActive);
+                    border.refresh(borderLines);
+                }
+                updateDisplay = !updateDisplay;
                 computer.singleCycle();
                 flashCycleCount--;
                 if (flashCycleCount < 0) {
