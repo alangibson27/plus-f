@@ -37,7 +37,7 @@ public class JavaFXGuest extends Application {
     private final Label statusLabel;
     private MenuItem connectItem;
     private MenuItem disconnectItem;
-    private Optional<NetworkPeer<SpectrumState>> guestRelay = Optional.empty();
+    private Optional<NetworkPeer<SpectrumState, GuestState>> guestRelay = Optional.empty();
     private final int[] memory = new int[0x10000];
     private final KempstonJoystick kempstonJoystick = new KempstonJoystick();
     private SpectrumState lastHostData;
@@ -71,7 +71,7 @@ public class JavaFXGuest extends Application {
             @Override
             public void handle(long now) {
                 if (lastHostData != null) {
-                    System.arraycopy(lastHostData.getScreen(), 0x0000, memory, 0x4000, 0x1b00);
+                    System.arraycopy(lastHostData.getMemory(), 0x4000, memory, 0x4000, 0x1b00);
                     Platform.runLater(() -> {
                         border.refresh(lastHostData.getBorderLines());
                         display.refresh(memory, lastHostData.isFlashActive());
@@ -114,6 +114,8 @@ public class JavaFXGuest extends Application {
                 guestRelay = Optional.of(
                     new NetworkPeer<>(
                         this::update,
+                        GuestState::serialise,
+                        SpectrumState::deserialise,
                         timestamper::getAndIncrement,
                         LOCAL_PORT,
                         new InetSocketAddress(result.get().getKey(), result.get().getValue())

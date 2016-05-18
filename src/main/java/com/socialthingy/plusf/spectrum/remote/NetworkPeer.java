@@ -3,9 +3,9 @@ package com.socialthingy.plusf.spectrum.remote;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
@@ -15,12 +15,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class NetworkPeer<R extends Serializable> {
+public class NetworkPeer<R, S> {
     private final Consumer<R> updater;
+    private final Consumer<Pair<S, OutputStream>> serialiser;
+    private final Function<InputStream, R> deserialiser;
     private final Supplier<Long> timestamper;
     private final DatagramSocket socket;
     private final AtomicLong lastReceived = new AtomicLong(-1);
@@ -33,6 +36,8 @@ public class NetworkPeer<R extends Serializable> {
 
     public NetworkPeer(
         final Consumer<R> updater,
+        final Consumer<Pair<S, OutputStream>> serialiser,
+        final Function<InputStream, R> deserialiser,
         final Supplier<Long> timestamper,
         final Integer localPort,
         final SocketAddress partner
@@ -41,6 +46,8 @@ public class NetworkPeer<R extends Serializable> {
         this.timestamper = timestamper;
         this.socket = new DatagramSocket(localPort);
         this.partner = partner;
+        this.serialiser = serialiser;
+        this.deserialiser = deserialiser;
 
         final MetricRegistry metricRegistry = new MetricRegistry();
         this.latencyTimer = metricRegistry.timer("latency");
@@ -52,11 +59,11 @@ public class NetworkPeer<R extends Serializable> {
         return lastReceived.get() < 0;
     }
 
-    public void sendDataToPartner(final Serializable data) {
+    public void sendDataToPartner(final S data) {
         sendExecutor.execute(() -> {
-            final TimestampedData<Serializable> tsData = new TimestampedData<>(timestamper.get(), data);
-            final DatagramPacket packet = tsData.toPacket();
+            final TimestampedData<S> tsData = new TimestampedData<>(timestamper.get(), data);
             try {
+                final DatagramPacket packet = tsData.toPacket(serialiser);
                 packet.setSocketAddress(partner);
                 socket.send(packet);
             } catch (IOException e) {
@@ -103,7 +110,7 @@ public class NetworkPeer<R extends Serializable> {
             while (active) {
                 try {
                     socket.receive(dp);
-                    final TimestampedData<R> data = TimestampedData.from(dp);
+                    final TimestampedData<R> data = TimestampedData.from(dp, deserialiser);
                     receivePartnerData(data);
                 } catch (IOException e) {
                     e.printStackTrace();

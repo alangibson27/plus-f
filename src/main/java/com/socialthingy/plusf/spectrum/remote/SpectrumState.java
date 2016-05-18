@@ -1,20 +1,29 @@
 package com.socialthingy.plusf.spectrum.remote;
 
-import java.io.Serializable;
+import com.google.common.primitives.Ints;
+import com.socialthingy.plusf.spectrum.UIBuilder;
+import com.socialthingy.plusf.spectrum.io.ULA;
+import org.apache.commons.lang3.tuple.Pair;
 
-public class SpectrumState implements Serializable {
-    private int[] screen;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class SpectrumState {
+    public static final int BORDER_LINE_COUNT = ULA.SCREEN_HEIGHT + (2 * UIBuilder.BORDER);
+
+    private int[] memory;
     private int[] borderLines;
     private boolean flashActive;
 
-    public SpectrumState(final int[] screen, final int[] borderLines, final boolean flashActive) {
-        this.screen = screen;
+    public SpectrumState(final int[] memory, final int[] borderLines, final boolean flashActive) {
+        this.memory = memory;
         this.borderLines = borderLines;
         this.flashActive = flashActive;
     }
 
-    public int[] getScreen() {
-        return screen;
+    public int[] getMemory() {
+        return memory;
     }
 
     public int[] getBorderLines() {
@@ -23,5 +32,48 @@ public class SpectrumState implements Serializable {
 
     public boolean isFlashActive() {
         return flashActive;
+    }
+
+    public static SpectrumState deserialise(final InputStream in) {
+        try {
+            final int[] memory = new int[0x10000];
+            for (int i = 0x4000; i < 0x5b00; i++) {
+                memory[i] = in.read();
+            }
+
+            final int[] borderLines = new int[BORDER_LINE_COUNT];
+            for (int i = 0; i < BORDER_LINE_COUNT; i++) {
+                borderLines[i] = Ints.fromBytes(
+                    (byte) in.read(), (byte) in.read(), (byte) in.read(), (byte) in.read()
+                );
+            }
+
+            return new SpectrumState(memory, borderLines, in.read() != 0);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    public static void serialise(final Pair<SpectrumState, OutputStream> stateAndStream) {
+        final SpectrumState state = stateAndStream.getKey();
+        final OutputStream out = stateAndStream.getValue();
+
+        try {
+            final int[] memory = state.getMemory();
+            for (int i = 0x4000; i < 0x5b00; i++) {
+                out.write(memory[i]);
+            }
+
+            final int[] borderLines = state.getBorderLines();
+            for (int i = 0; i < BORDER_LINE_COUNT; i++) {
+                out.write(Ints.toByteArray(borderLines[i]));
+            }
+
+            out.write(state.isFlashActive() ? 1 : 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+        }
     }
 }

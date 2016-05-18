@@ -1,9 +1,11 @@
 package com.socialthingy.plusf.spectrum.remote
 
+import java.io.{InputStream, OutputStream}
 import java.net.{DatagramPacket, DatagramSocket}
 import java.util.concurrent.atomic.AtomicLong
 import java.util.function.{Consumer, Supplier}
 
+import org.apache.commons.lang3.tuple.Pair
 import org.scalatest.concurrent.Eventually
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
@@ -13,6 +15,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.{implicitConversions, postfixOps}
+import org.apache.commons.lang3.tuple.{Pair => JPair}
+import java.util.function.{Function => JFunction}
 
 class NetworkPeerSpec extends FlatSpec
   with Matchers with Inspectors with BeforeAndAfter with BeforeAndAfterAll with Eventually with MockitoSugar {
@@ -26,7 +30,7 @@ class NetworkPeerSpec extends FlatSpec
     val packet = new DatagramPacket(packetBytes, packetBytes.length)
     while (true) {
       mockHostSocket.receive(packet)
-      val data: TimestampedData[TestData] = TimestampedData.from(packet)
+      val data: TimestampedData[TestData] = TimestampedData.from(packet, TestData.deserialiser)
       receivedData += data
     }
   }
@@ -47,7 +51,7 @@ class NetworkPeerSpec extends FlatSpec
       // then
       eventually {
         forExactly(1, receivedData) { x =>
-          x.getTimestamp shouldBe 1L
+          x.getTimestamp shouldBe Long.box(1)
           x.getData shouldBe TestData("sent to partner")
         }
       }
@@ -57,8 +61,8 @@ class NetworkPeerSpec extends FlatSpec
     (guest, updater, timestamper) =>
 
       // given
-      val hostData = new TimestampedData[TestData](1L, TestData("sent by partner"))
-      val packet = hostData.toPacket
+      val hostData = new TimestampedData[TestData](Long.box(1), TestData("sent by partner"))
+      val packet = hostData.toPacket(TestData.serialiser)
       packet.setSocketAddress(guest.getLocalAddress)
 
       // when
@@ -137,7 +141,7 @@ class NetworkPeerSpec extends FlatSpec
   val doNothing: SpectrumState => Unit = (x: SpectrumState) => ()
   var nextPort = 7100
 
-  def withStubbedPeer(testCode: (NetworkPeer[TestData], StubbedUpdater, AtomicLong) => Any): Unit = {
+  def withStubbedPeer(testCode: (NetworkPeer[TestData, TestData], StubbedUpdater, AtomicLong) => Any): Unit = {
     val updater = new StubbedUpdater
     val consumer = new Consumer[TestData] {
       override def accept(t: TestData): Unit = updater.storeReceived(t)
@@ -151,7 +155,9 @@ class NetworkPeerSpec extends FlatSpec
       nextPort += 1
       p
     }
-    val peer = new NetworkPeer[TestData](consumer, timestamper, port, mockHostSocket.getLocalSocketAddress)
+    val peer = new NetworkPeer[TestData, TestData](
+      consumer, TestData.serialiser, TestData.deserialiser, timestamper, port, mockHostSocket.getLocalSocketAddress
+    )
 
     try {
       testCode(peer, updater, timestampValue)
@@ -165,6 +171,22 @@ class NetworkPeerSpec extends FlatSpec
     val storeReceived: TestData => Unit = td => receivedFromPartner += td
   }
 
+}
+
+object TestData {
+  val serialiser = new Consumer[JPair[TestData, OutputStream]] {
+    override def accept(t: Pair[TestData, OutputStream]): Unit = {
+      t.getValue.write(t.getKey.text.getBytes)
+    }
+  }
+
+  val deserialiser = new JFunction[InputStream, TestData] {
+    override def apply(t: InputStream): TestData = {
+      val buf = Array.ofDim[Byte](256)
+      val len = t.read(buf)
+      TestData(new String(buf, 0, len))
+    }
+  }
 }
 
 case class TestData(text: String)

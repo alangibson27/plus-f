@@ -77,16 +77,16 @@ public class UIBuilder {
         return item;
     }
 
-    public static <T extends Serializable> Timer installStatusLabelUpdater(
+    public static <R, S> Timer installStatusLabelUpdater(
         final Label label,
-        final Supplier<Optional<NetworkPeer<T>>> currentNetworkPeer
+        final Supplier<Optional<NetworkPeer<R, S>>> currentNetworkPeer
     ) {
         final Timer statusBarTimer = new Timer();
         statusBarTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(() -> {
-                    final Optional<NetworkPeer<T>> networkPeer = currentNetworkPeer.get();
+                    final Optional<NetworkPeer<R, S>> networkPeer = currentNetworkPeer.get();
                     if (!networkPeer.isPresent()) {
                         label.setText("Not connected");
                     }
