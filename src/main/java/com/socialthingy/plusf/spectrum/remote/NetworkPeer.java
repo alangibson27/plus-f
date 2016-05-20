@@ -61,7 +61,7 @@ public class NetworkPeer<R, S> {
 
     public void sendDataToPartner(final S data) {
         sendExecutor.execute(() -> {
-            final TimestampedData<S> tsData = new TimestampedData<>(timestamper.get(), data);
+            final CompressedTimestampedData<S> tsData = new CompressedTimestampedData<>(timestamper.get(), data);
             try {
                 final DatagramPacket packet = tsData.toPacket(serialiser);
                 packet.setSocketAddress(partner);
@@ -72,7 +72,7 @@ public class NetworkPeer<R, S> {
         });
     }
 
-    public void receivePartnerData(final TimestampedData<R> hostData) {
+    public void receivePartnerData(final CompressedTimestampedData<R> hostData) {
         final long sentTimestamp = hostData.getTimestamp();
         if (sentTimestamp > lastReceived.get()) {
             final long latency = System.currentTimeMillis() - hostData.getSystemTime();
@@ -110,7 +110,7 @@ public class NetworkPeer<R, S> {
             while (active) {
                 try {
                     socket.receive(dp);
-                    final TimestampedData<R> data = TimestampedData.from(dp, deserialiser);
+                    final CompressedTimestampedData<R> data = CompressedTimestampedData.from(dp, deserialiser);
                     receivePartnerData(data);
                 } catch (IOException e) {
                     e.printStackTrace();

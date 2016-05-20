@@ -24,13 +24,13 @@ class NetworkPeerSpec extends FlatSpec
   implicit override val patienceConfig = PatienceConfig(1 second)
 
   val mockHostSocket = new DatagramSocket()
-  val receivedData = new ListBuffer[TimestampedData[TestData]]
+  val receivedData = new ListBuffer[CompressedTimestampedData[TestData]]
   val mockHost = Future {
     val packetBytes = Array.ofDim[Byte](16384)
     val packet = new DatagramPacket(packetBytes, packetBytes.length)
     while (true) {
       mockHostSocket.receive(packet)
-      val data: TimestampedData[TestData] = TimestampedData.from(packet, TestData.deserialiser)
+      val data: CompressedTimestampedData[TestData] = CompressedTimestampedData.from(packet, TestData.deserialiser)
       receivedData += data
     }
   }
@@ -61,7 +61,7 @@ class NetworkPeerSpec extends FlatSpec
     (guest, updater, timestamper) =>
 
       // given
-      val hostData = new TimestampedData[TestData](Long.box(1), TestData("sent by partner"))
+      val hostData = new CompressedTimestampedData[TestData](Long.box(1), TestData("sent by partner"))
       val packet = hostData.toPacket(TestData.serialiser)
       packet.setSocketAddress(guest.getLocalAddress)
 
@@ -80,12 +80,12 @@ class NetworkPeerSpec extends FlatSpec
     (guest, updater, timestamper) =>
 
       // given
-      val lastReceivedPacket = new TimestampedData(100L, TestData("latest packet"))
+      val lastReceivedPacket = new CompressedTimestampedData(100L, TestData("latest packet"))
       guest.receivePartnerData(lastReceivedPacket)
       updater.receivedFromPartner should have size 1
 
       // when
-      val nextPacket = new TimestampedData(99L, TestData("old packet"))
+      val nextPacket = new CompressedTimestampedData(99L, TestData("old packet"))
       guest.receivePartnerData(nextPacket)
 
       // then
@@ -96,12 +96,12 @@ class NetworkPeerSpec extends FlatSpec
     (guest, updater, timestamper) =>
 
       // given
-      val lastReceivedPacket = new TimestampedData(100L, TestData("previous packet"))
+      val lastReceivedPacket = new CompressedTimestampedData(100L, TestData("previous packet"))
       guest.receivePartnerData(lastReceivedPacket)
       updater.receivedFromPartner should have size 1
 
       // when
-      val nextPacket = new TimestampedData(101L, TestData("most recent packet"))
+      val nextPacket = new CompressedTimestampedData(101L, TestData("most recent packet"))
       guest.receivePartnerData(nextPacket)
 
       // then
@@ -112,8 +112,8 @@ class NetworkPeerSpec extends FlatSpec
     (guest, updater, timestamper) =>
 
       // given
-      guest.receivePartnerData(new TimestampedData(101L, TestData("packet 2")))
-      guest.receivePartnerData(new TimestampedData(100L, TestData("packet 1")))
+      guest.receivePartnerData(new CompressedTimestampedData(101L, TestData("packet 2")))
+      guest.receivePartnerData(new CompressedTimestampedData(100L, TestData("packet 1")))
 
       // when
       val outOfOrderCount = guest.getOutOfOrderPacketCount
@@ -126,10 +126,10 @@ class NetworkPeerSpec extends FlatSpec
     (guest, updater, timestamper) =>
 
       // given
-      guest.receivePartnerData(new TimestampedData(109L, TestData("packet 3")))
-      guest.receivePartnerData(new TimestampedData(110L, TestData("packet 4")))
-      guest.receivePartnerData(new TimestampedData(100L, TestData("packet 1")))
-      guest.receivePartnerData(new TimestampedData(101L, TestData("packet 2")))
+      guest.receivePartnerData(new CompressedTimestampedData(109L, TestData("packet 3")))
+      guest.receivePartnerData(new CompressedTimestampedData(110L, TestData("packet 4")))
+      guest.receivePartnerData(new CompressedTimestampedData(100L, TestData("packet 1")))
+      guest.receivePartnerData(new CompressedTimestampedData(101L, TestData("packet 2")))
 
       // when
       val outOfOrderCount = guest.getOutOfOrderPacketCount
