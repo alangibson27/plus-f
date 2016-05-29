@@ -1,21 +1,251 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>My New Hugo Site</title>
-    <link>http://replace-this-with-your-hugo-site.com/</link>
-    <description>Recent content on My New Hugo Site</description>
+    <title>Plus-F</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en-gb</language>
     <lastBuildDate>Tue, 24 May 2016 22:31:58 +0100</lastBuildDate>
-    <atom:link href="http://replace-this-with-your-hugo-site.com/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>download</title>
-      <link>http://replace-this-with-your-hugo-site.com/download/</link>
+      <title>About</title>
+      <link>http://localhost:1313/about/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/download/</guid>
-      <description>&lt;p&gt;Hello!&lt;/p&gt;
+      <guid>http://localhost:1313/about/</guid>
+      <description>&lt;p&gt;Do you remember Match Day II?&lt;/p&gt;
+
+&lt;p&gt;Long before FIFA, Pro Evolution Soccer or any of the others, Match Day II managed to succinctly capture the essence of
+football in just 48k. No fouls, free kicks, substitutions, sendings-off or penalties - just pass, tackle, volley, head
+and save. You can easily imagine how a well-worked goal in Match Day II must look much like a football purist&amp;rsquo;s idea of
+perfection.&lt;/p&gt;
+
+&lt;p&gt;Of course, none of this was in the minds of me or my friends when we were growing up playing this Match Day II. All we
+had was this compellingly playable game, and a conviction that we must be the best people in the world at playing it.
+Time passes, people move on and circumstances change, but from time to time I couldn&amp;rsquo;t help but wonder if my friends
+and I were to play Match Day II against each other once more.&lt;/p&gt;
+
+&lt;p&gt;The only surprise is that it took me so long to come up with the idea of Plus-F as a way of answering that question.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Connect</title>
+      <link>http://localhost:1313/connect/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://localhost:1313/connect/</guid>
+      <description>
+
+&lt;p&gt;Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
+The player running the Emulator has full control of the keyboard, and sends a copy of the screen to the Guest at
+a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
+sent back to the Emulator.&lt;/p&gt;
+
+&lt;h3 id=&#34;who-should-run-the-emulator:94545177397886f3162838504e334017&#34;&gt;Who should run the Emulator?&lt;/h3&gt;
+
+&lt;p&gt;Generally, because the Emulator has to send much more data to the Guest than the Guest does back to the Emulator, the
+player with the better network upload speeds should run the Emulator. If both players are connected to the same
+router, it probably doesn&amp;rsquo;t matter which is which, but over the Internet this does become significant.&lt;/p&gt;
+
+&lt;h3 id=&#34;firewalls-and-network-connectivity:94545177397886f3162838504e334017&#34;&gt;Firewalls and network connectivity&lt;/h3&gt;
+
+&lt;p&gt;In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
+the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
+provider&amp;rsquo;s security settings, you may need to change some firewall rules so that the Emulator and Guest can reach
+each other.&lt;/p&gt;
+
+&lt;p&gt;Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
+that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&amp;rsquo;re already familiar with
+enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.&lt;/p&gt;
+
+&lt;h3 id=&#34;making-a-connection:94545177397886f3162838504e334017&#34;&gt;Making a connection&lt;/h3&gt;
+
+&lt;p&gt;First, the two players need to tell each other how the Emulator and Computer can reach one another. Each player should
+invoke the &lt;em&gt;Get connection details&lt;/em&gt; item from the &lt;em&gt;Network&lt;/em&gt; menu, and send the host and port details displayed to the
+other player.&lt;/p&gt;
+
+&lt;p&gt;The other player then invokes the &lt;em&gt;Connect to guest/emulator&lt;/em&gt; item from the same menu to make the connection.
+Eventually, the Emulator&amp;rsquo;s display should be sent to the Guest, and status messages below the display on both the
+Emulator and the Guest will indicate the status and quality of the connection.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Download</title>
+      <link>http://localhost:1313/download/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://localhost:1313/download/</guid>
+      <description>
+
+&lt;h2 id=&#34;download-java-first:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download Java first&lt;/h2&gt;
+
+&lt;p&gt;Plus-F requires a recent version of Java 8 in order to run. You can download this for free from
+&lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;download-the-emulator:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download the Emulator&lt;/h2&gt;
+
+&lt;p&gt;You need this if you want to play single-player games or two-player games across a network.&lt;/p&gt;
+
+&lt;p&gt;The Emulator package contains an image of the 48k ZX Spectrum ROM, which is required in order for the Emulator to
+operate. This ROM remains copyright of Amstrad, and Amstrad have kindly given their permission for the
+redistribution of their copyrighted material but retain that copyright.
+(Full details &lt;a href=&#34;https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ&#34;&gt;here&lt;/a&gt;.)&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/plus-f-emulator.zip&#34;&gt;Click here to download the latest version of the Emulator&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Once the download completes, unzip it somewhere on your computer.&lt;/p&gt;
+
+&lt;h2 id=&#34;download-the-guest:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download the Guest&lt;/h2&gt;
+
+&lt;p&gt;You also need this if you want to play two-player games across a network.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/plus-f-guest.zip&#34;&gt;Click here to download the latest version of the Guest&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Once the download completes, unzip it somewhere on your computer, but not the same place you unzipped the Emulator.&lt;/p&gt;
+
+&lt;h2 id=&#34;licensing:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Licensing&lt;/h2&gt;
+
+&lt;p&gt;Both the Emulator and the Guest are distributed under an MIT license:&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;MIT License&lt;/p&gt;
+
+&lt;p&gt;Copyright &amp;copy; 2016 Alan Gibson&lt;/p&gt;
+
+&lt;p&gt;Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &amp;ldquo;Software&amp;rdquo;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:&lt;/p&gt;
+
+&lt;p&gt;The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.&lt;/p&gt;
+
+&lt;p&gt;THE SOFTWARE IS PROVIDED &amp;ldquo;AS IS&amp;rdquo;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Games</title>
+      <link>http://localhost:1313/games/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://localhost:1313/games/</guid>
+      <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
+Z80, TAP and TZX. At present, Plus-F can only load and run Spectrum programs distributed as Z80 files. Further, it
+can only run 48k programs.&lt;/p&gt;
+
+&lt;p&gt;Don&amp;rsquo;t forget that the classic Spectrum games we can play today on emulators remain the result of the skills and
+dedication of the programmers who developed them. While many have granted free distribution rights for their games,
+others have not, and it is their right to do so. As such, please be considerate when downloading emulator files,
+and refer to the information &lt;a href=&#34;http://www.worldofspectrum.org/permits&#34;&gt;here&lt;/a&gt;,
+&lt;a href=&#34;http://www.worldofspectrum.org/permits/publishers.html&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;http://www.worldofspectrum.org/permits/individuals.html&#34;&gt;here&lt;/a&gt;
+for full details on which publishers and developers have granted free distribution rights.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The Emulator</title>
+      <link>http://localhost:1313/emulator/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://localhost:1313/emulator/</guid>
+      <description>
+
+&lt;p&gt;The Plus-F Emulator is a program that emulates a ZX Spectrum, with the following features and limitations:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Emulates a 48k Spectrum, and not a 128k variant (e.g. 128, +2 or +3)&lt;/li&gt;
+&lt;li&gt;Supports loading of Z80 snapshot files&lt;/li&gt;
+&lt;li&gt;No sound support&lt;/li&gt;
+&lt;li&gt;Emulation timing is not 100% accurate with respect to a &amp;ldquo;real&amp;rdquo; Spectrum&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;how-to-use-it:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;How to use it&lt;/h2&gt;
+
+&lt;p&gt;The Emulator is controlled by the options in the menu bar at the top of the screen.&lt;/p&gt;
+
+&lt;h3 id=&#34;file-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;File menu&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Load: Load a Z80 snapshot file&lt;/li&gt;
+&lt;li&gt;Quit: Quit the Emulator&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;computer-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Computer menu&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Reset: Reset the Emulator (just like pulling the plug out and putting it back in again)&lt;/li&gt;
+&lt;li&gt;Fast mode: Run the Emulator faster than a real Spectrum&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;network-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Network menu&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get contact info: Display the contact information you need to give to the Guest for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Connect to guest: Enter the contact information of a Guest for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Disconnect from guest: Disconnect from a Guest to stop a two-player gaming session.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>The Guest</title>
+      <link>http://localhost:1313/guest/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://localhost:1313/guest/</guid>
+      <description>
+
+&lt;p&gt;The Plus-F Guest is a program that receives screen updates from a Plus-F Emulator across a network, and sends back
+keypresses translated to Kempston joystick movements. This means that a user of the guest can participate in a
+two-player game, provided the game has Kempston joystick support (most have).&lt;/p&gt;
+
+&lt;h2 id=&#34;keyboard-controls:d7fc600d3e074e81e78248f47945b74b&#34;&gt;Keyboard Controls&lt;/h2&gt;
+
+&lt;p&gt;At present, controls are not redefinable and are fixed to the conventional ones below:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Q: Up&lt;/li&gt;
+&lt;li&gt;A: Down&lt;/li&gt;
+&lt;li&gt;O: Left&lt;/li&gt;
+&lt;li&gt;P: Right&lt;/li&gt;
+&lt;li&gt;M: Fire&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;menu-items:d7fc600d3e074e81e78248f47945b74b&#34;&gt;Menu items&lt;/h2&gt;
+
+&lt;p&gt;The Guest can also be controlled by the options in the menu bar at the top of the screen.&lt;/p&gt;
+
+&lt;h3 id=&#34;file-menu:d7fc600d3e074e81e78248f47945b74b&#34;&gt;File menu&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Quit: Quit the Guest&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;network-menu:d7fc600d3e074e81e78248f47945b74b&#34;&gt;Network menu&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Get contact info: Display the contact information you need to give to the Emulator for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Connect to emulator: Enter the contact information of an Emulator for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Disconnect from emulator: Disconnect from an Emulator to stop a two-player gaming session.&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     

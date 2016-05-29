@@ -1,0 +1,145 @@
+body {
+    font-family: monospace;
+}
+
+a {
+    text-decoration: underline;
+    color: black;
+}
+
+h1 {
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    background: black;
+    width: 100%;
+}
+
+.header .content {
+    display: flex;
+    width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content {
+    width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.logo-background {
+    display: flex;
+    background: black;
+    width: 100px;
+    height: 100px;
+    border: 2px solid white;
+    border-radius: 20px;
+    margin: 10px
+}
+
+.header h1 {
+    align-self: center;
+    color: white;
+    font-size: 50px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.header span{
+    align-self: center;
+    color: white;
+}
+
+.logo {
+    display: flex;
+    background: black;
+    width: 100px;
+    height: 100px;
+    border: 2px solid white;
+    border-radius: 20px;
+    margin: 10px
+}
+
+.logo-text {
+    font-size: 80px;
+    font-family: sans-serif;
+    background: -webkit-linear-gradient(
+        315deg,
+        cyan,
+        cyan 40%,
+        green 40%,
+        green 50%,
+        yellow 50%,
+        yellow 60%,
+        red 60%,
+        red 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background: -moz-linear-gradient(
+        315deg,
+        cyan,
+        cyan 40%,
+        green 40%,
+        green 50%,
+        yellow 50%,
+        yellow 60%,
+        red 60%,
+        red 100%
+    );
+    -moz-background-clip: text;
+    -moz-text-fill-color: transparent;
+    align-self: center;
+}
+
+.nav {
+    border-bottom: 2px solid black;
+    text-align: center;
+}
+
+.nav ul {
+    display: inline-table;
+    margin: 6px;
+}
+
+.nav ul li {
+    display: inline;
+    margin: 10px;
+    padding: 4px;
+    font-size: 1em;
+}
+
+.nav a {
+    padding: 4px;
+    text-decoration: none;
+}
+
+.nav a:hover {
+    background: black;
+    color: white;
+}
+
+.box-container {
+    display: flex;
+    justify-content: center;
+}
+
+.box-container a {
+    text-decoration: none;
+    display: flex;
+}
+
+.box {
+    text-align: center;
+    margin: 10px;
+    padding: 10px;
+    width: 150px;
+    flex-grow: 1;
+    border: 1px solid black;
+    border-radius: 10px;
+    font-size: 2em;
+    color: white;
+}

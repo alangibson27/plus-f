@@ -128,9 +128,9 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>computer</id>
+                        <id>emulator</id>
                         <configuration>
-                            <finalName>plus-f-computer</finalName>
+                            <finalName>plus-f-emulator</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.socialthingy.plusf.spectrum.JavaFXComputer</mainClass>
@@ -150,9 +150,9 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>computer</id>
+                        <id>emulator</id>
                         <configuration>
-                            <descriptor>src/assembly/computer/assembly-computer.xml</descriptor>
+                            <descriptor>src/assembly/emulator/assembly-emulator.xml</descriptor>
                             <finalName>plus-f</finalName>
                         </configuration>
                         <phase>package</phase>

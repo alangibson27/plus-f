@@ -1,0 +1,83 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1">
+    <title>Plus-F</title>
+    <link rel="stylesheet" href="/css/plusf.css">
+</head>
+<body>
+<div class="header">
+    <div class="content">
+        <div class="logo-background">
+            <b class="logo-text">+F</b>
+        </div>
+        <h1 class="title">Plus-F</h1>
+        <span>ZX Spectrum Emulator with Network Play Capability</span>
+    </div>
+</div>
+<nav class="nav">
+    <ul>
+        <li><a href="/">HOME</a></li>
+        <li><a href="/download">DOWNLOAD</a></li>
+        <li><a href="/instructions">INSTRUCTIONS</a></li>
+        <li><a href="/about">ABOUT</a></li>
+    </ul>
+</nav>
+<div class="content">
+
+
+<h1>Instructions</h1>
+
+
+
+<h2 id="about-spectrum-games:22b1984e9055744bcb6b52260dfdfb71">About Spectrum Games</h2>
+
+<p>Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
+Z80, TAP and TZX. At present, Plus-F can only load and run Spectrum programs distributed as Z80 files. Further, it
+can only run 48k programs.</p>
+
+<p>Don&rsquo;t forget that the classic Spectrum games we can play today on emulators remain the result of the skills and
+dedication of the programmers who developed them. While many have granted free distribution rights for their games,
+others have not, and it is their right to do so. As such, please be considerate when downloading emulator files,
+and refer to the details <a href="http://www.worldofspectrum.org/permits">here</a>,
+<a href="http://www.worldofspectrum.org/permits/publishers.html">here</a> and <a href="http://www.worldofspectrum.org/permits/individuals.html">here</a>
+for full details on which publishers and developers have granted free distribution rights.</p>
+
+<h2 id="single-player:22b1984e9055744bcb6b52260dfdfb71">Single Player</h2>
+
+<p>In order to play single-player games in Plus-F, download and unzip the Plus-F Emulator package somewhere on your
+computer. Open the &ldquo;Plus-F&rdquo; folder, and launch either &ldquo;plus-f-emulator.exe&rdquo; (Windows) or &ldquo;run.sh&rdquo; (Linux/Mac).</p>
+
+<h2 id="two-player:22b1984e9055744bcb6b52260dfdfb71">Two Player</h2>
+
+<p>Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
+The player running the Emulator has full control of the keyboard, and sends a copy of the screen to the Guest at
+a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
+sent back to the Emulator.</p>
+
+<h3 id="who-should-run-the-emulator:22b1984e9055744bcb6b52260dfdfb71">Who should run the Emulator?</h3>
+
+<p>Generally, because the Emulator has to send much more data to the Guest than the Guest does back to the Emulator, the
+player with the better network upload speeds should run the Emulator. If both players are connected to the same
+router, it probably doesn&rsquo;t matter which is which, but over the Internet this does become significant.</p>
+
+<h3 id="firewalls-and-network-connectivity:22b1984e9055744bcb6b52260dfdfb71">Firewalls and network connectivity</h3>
+
+<p>In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
+the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
+provider&rsquo;s security settings, you may need to change some firewall rules so that the Emulator and Guest can reach
+each other.</p>
+
+<p>Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
+that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&rsquo;re already familiar with
+enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.</p>
+
+<h3 id="making-a-connection:22b1984e9055744bcb6b52260dfdfb71">Making a connection</h3>
+
+<p>First, the two players need to tell each other how the Emulator and Computer can reach one another. Each player should
+invoke the <em>Blah</em> item from the <em>Network</em> menu, and send the host and port details displayed to the other player.</p>
+
+
+</div>
+<script data-no-instant>document.write('<script src="/livereload.js?mindelay=10"></' + 'script>')</script></body>
+</html>
