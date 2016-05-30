@@ -2,43 +2,43 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://localhost:1313/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/</loc>
     <lastmod>2016-05-30T11:47:26+01:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://localhost:1313/release-notes/0.5/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</loc>
     <lastmod>2016-05-30T11:47:26+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://localhost:1313/about/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/about/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://localhost:1313/connect/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/connect/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://localhost:1313/download/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/download/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://localhost:1313/games/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/games/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://localhost:1313/emulator/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/emulator/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://localhost:1313/guest/</loc>
+    <loc>http://replace-this-with-your-hugo-site.com/guest/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   

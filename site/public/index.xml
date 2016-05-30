@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Plus-F</title>
-    <link>http://localhost:1313/</link>
+    <link>http://replace-this-with-your-hugo-site.com/</link>
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <lastBuildDate>Mon, 30 May 2016 11:47:26 +0100</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://replace-this-with-your-hugo-site.com/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Version 0.5</title>
-      <link>http://localhost:1313/release-notes/0.5/</link>
+      <link>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</link>
       <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
       
-      <guid>http://localhost:1313/release-notes/0.5/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Initial public release&lt;/li&gt;
 &lt;li&gt;Emulation is still rather buggy:
@@ -29,10 +29,10 @@
     
     <item>
       <title>About</title>
-      <link>http://localhost:1313/about/</link>
+      <link>http://replace-this-with-your-hugo-site.com/about/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/about/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/about/</guid>
       <description>&lt;p&gt;Do you remember Match Day II?&lt;/p&gt;
 
 &lt;p&gt;Long before FIFA, Pro Evolution Soccer or any of the others, Match Day II managed to succinctly capture the essence of
@@ -51,10 +51,10 @@ and I were to play Match Day II against each other once more.&lt;/p&gt;
     
     <item>
       <title>Connect</title>
-      <link>http://localhost:1313/connect/</link>
+      <link>http://replace-this-with-your-hugo-site.com/connect/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/connect/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/connect/</guid>
       <description>
 
 &lt;p&gt;Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
@@ -93,10 +93,10 @@ Emulator and the Guest will indicate the status and quality of the connection.&l
     
     <item>
       <title>Download</title>
-      <link>http://localhost:1313/download/</link>
+      <link>http://replace-this-with-your-hugo-site.com/download/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/download/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/download/</guid>
       <description>
 
 &lt;h2 id=&#34;download-java-first:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download Java first&lt;/h2&gt;
@@ -104,34 +104,23 @@ Emulator and the Guest will indicate the status and quality of the connection.&l
 &lt;p&gt;Plus-F requires a recent version of Java 8 in order to run. You can download this for free from
 &lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2 id=&#34;download-the-emulator:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download the Emulator&lt;/h2&gt;
+&lt;h2 id=&#34;download-plus-f:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download Plus-F&lt;/h2&gt;
 
-&lt;p&gt;You need this if you want to play single-player games or two-player games across a network.&lt;/p&gt;
+&lt;p&gt;The Emulator and the Guest are bundled together as a single package. Once the download completes, unzip it
+somewhere on your computer.&lt;/p&gt;
 
-&lt;p&gt;The Emulator package contains an image of the 48k ZX Spectrum ROM, which is required in order for the Emulator to
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/plus-f.zip&#34;&gt;Click here to download the latest version of Plus-F&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The package contains an image of the 48k ZX Spectrum ROM, which is required in order for the Emulator to
 operate. This ROM remains copyright of Amstrad, and Amstrad have kindly given their permission for the
 redistribution of their copyrighted material but retain that copyright.
 (Full details &lt;a href=&#34;https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ&#34;&gt;here&lt;/a&gt;.)&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/plus-f-emulator.zip&#34;&gt;Click here to download the latest version of the Emulator&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Once the download completes, unzip it somewhere on your computer.&lt;/p&gt;
-
-&lt;h2 id=&#34;download-the-guest:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download the Guest&lt;/h2&gt;
-
-&lt;p&gt;You also need this if you want to play two-player games across a network.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/plus-f-guest.zip&#34;&gt;Click here to download the latest version of the Guest&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Once the download completes, unzip it somewhere on your computer, but not the same place you unzipped the Emulator.&lt;/p&gt;
-
 &lt;h2 id=&#34;release-notes:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Release Notes&lt;/h2&gt;
 
-&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://localhost:1313/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://replace-this-with-your-hugo-site.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;licensing:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Licensing&lt;/h2&gt;
 
@@ -165,10 +154,10 @@ SOFTWARE.&lt;/p&gt;
     
     <item>
       <title>Games</title>
-      <link>http://localhost:1313/games/</link>
+      <link>http://replace-this-with-your-hugo-site.com/games/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/games/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/games/</guid>
       <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
 Z80, TAP and TZX. At present, Plus-F can only load and run Spectrum programs distributed as Z80 files. Further, it
 can only run 48k programs.&lt;/p&gt;
@@ -184,10 +173,10 @@ for full details on which publishers and developers have granted free distributi
     
     <item>
       <title>The Emulator</title>
-      <link>http://localhost:1313/emulator/</link>
+      <link>http://replace-this-with-your-hugo-site.com/emulator/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/emulator/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/emulator/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Emulator is a program that emulates a ZX Spectrum, with the following features and limitations:&lt;/p&gt;
@@ -229,10 +218,10 @@ for full details on which publishers and developers have granted free distributi
     
     <item>
       <title>The Guest</title>
-      <link>http://localhost:1313/guest/</link>
+      <link>http://replace-this-with-your-hugo-site.com/guest/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/guest/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/guest/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Guest is a program that receives screen updates from a Plus-F Emulator across a network, and sends back
