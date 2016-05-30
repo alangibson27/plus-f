@@ -17,7 +17,8 @@
       <guid>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Initial public release&lt;/li&gt;
-&lt;li&gt;Emulation is still rather buggy:
+&lt;li&gt;Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack
+or tape loading errors!)
 
 &lt;ul&gt;
 &lt;li&gt;Reset doesn&amp;rsquo;t always work properly&lt;/li&gt;

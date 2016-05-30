@@ -17,7 +17,8 @@
       <guid>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Initial public release&lt;/li&gt;
-&lt;li&gt;Emulation is still rather buggy:
+&lt;li&gt;Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack
+or tape loading errors!)
 
 &lt;ul&gt;
 &lt;li&gt;Reset doesn&amp;rsquo;t always work properly&lt;/li&gt;
@@ -187,6 +188,10 @@ for full details on which publishers and developers have granted free distributi
 &lt;li&gt;No sound support&lt;/li&gt;
 &lt;li&gt;Emulation timing is not 100% accurate with respect to a &amp;ldquo;real&amp;rdquo; Spectrum&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h2 id=&#34;so-where-is-the-symbol-shift-key:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;So where is the symbol shift key?&lt;/h2&gt;
+
+&lt;p&gt;The CTRL key is used in place of the Spectrum&amp;rsquo;s symbol shift key.&lt;/p&gt;
 
 &lt;h2 id=&#34;how-to-use-it:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;How to use it&lt;/h2&gt;
 
