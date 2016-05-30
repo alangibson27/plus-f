@@ -1,5 +1,5 @@
 body {
-    font-family: monospace;
+    font-family: "Signika", sans-serif;
 }
 
 a {
@@ -19,13 +19,14 @@ h1 {
 
 .header .content {
     display: flex;
-    width: 900px;
+    flex-wrap: wrap;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .content {
-    width: 900px;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -51,6 +52,7 @@ h1 {
 .header span{
     align-self: center;
     color: white;
+    margin: 2px;
 }
 
 .logo {
@@ -97,19 +99,23 @@ h1 {
 
 .nav {
     border-bottom: 2px solid black;
-    text-align: center;
+    display: flex;
+    justify-content: center;
 }
 
 .nav ul {
-    display: inline-table;
+    padding: 0px;
+    list-style-type: none;
     margin: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .nav ul li {
     display: inline;
-    margin: 10px;
     padding: 4px;
     font-size: 1em;
+    margin-left: 0px;
 }
 
 .nav a {
@@ -125,6 +131,7 @@ h1 {
 .box-container {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .box-container a {
@@ -137,7 +144,6 @@ h1 {
     margin: 10px;
     padding: 10px;
     width: 150px;
-    flex-grow: 1;
     border: 1px solid black;
     border-radius: 10px;
     font-size: 2em;
