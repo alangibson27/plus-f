@@ -26,13 +26,12 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -41,6 +40,8 @@ import static com.socialthingy.plusf.spectrum.dialog.ConnectionDetailsDialog.get
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
+
+    private static final String PREF_LAST_SNAPSHOT_DIRECTORY = "last-snapshot-directory";
 
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
     private static final int LOCAL_PORT = 7000;
@@ -62,6 +63,9 @@ public class JavaFXComputer extends Application {
     private SinglePortIO guestKempstonJoystick;
     private final AtomicLong timestamper = new AtomicLong(0);
 
+    private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
+    private final Properties userPrefs = new Properties();
+
     private Stage primaryStage;
     private IOMultiplexer ioMux;
 
@@ -77,6 +81,16 @@ public class JavaFXComputer extends Application {
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
         statusLabel = new Label("No guest connected");
+
+        if (prefsFile.exists()) {
+            try (final FileReader fr = new FileReader(prefsFile)) {
+                userPrefs.load(fr);
+            } catch (IOException ex) {
+                System.out.println(
+                        String.format("Unable to read preferences file %s. Saved preferences will not be used.", prefsFile.getAbsolutePath())
+                );
+            }
+        }
     }
 
     private void newComputer() throws IOException {
@@ -233,16 +247,31 @@ public class JavaFXComputer extends Application {
         });
     }
 
+    private void savePrefs() {
+        try (final FileWriter fw = new FileWriter(prefsFile)) {
+            userPrefs.store(fw, "Plus-F user preferences");
+        } catch (IOException ex) {
+            System.out.println(
+                String.format("Unable to read preferences file %s. User preferences will not be saved.", prefsFile.getAbsolutePath())
+            );
+        }
+    }
+
     private void loadSnapshot(final ActionEvent ae) {
         withComputerPaused(() -> {
             final FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Load Snapshot File");
+            if (userPrefs.containsKey(PREF_LAST_SNAPSHOT_DIRECTORY)) {
+                fileChooser.setInitialDirectory(new File(userPrefs.getProperty(PREF_LAST_SNAPSHOT_DIRECTORY)));
+            }
             final File chosen = fileChooser.showOpenDialog(primaryStage);
 
             if (chosen != null) {
                 try {
                     final int borderColour = computer.loadSnapshot(chosen);
                     ula.setBorder(borderColour);
+                    userPrefs.setProperty(PREF_LAST_SNAPSHOT_DIRECTORY, chosen.getParent());
+                    savePrefs();
                 } catch (IOException ex) {
                     final Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Loading Error");
