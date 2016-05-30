@@ -17,6 +17,7 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>run.sh</include>
+                <include>48.rom</include>
                 <include>plus-f-emulator.exe</include>
                 <include>plus-f-emulator.ini</include>
             </includes>

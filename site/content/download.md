@@ -30,6 +30,10 @@ You also need this if you want to play two-player games across a network.
 
 Once the download completes, unzip it somewhere on your computer, but not the same place you unzipped the Emulator.
 
+## Release Notes
+
+You can read the release notes for the Emulator and Guest [here](/release-notes).
+
 ## Licensing
 
 Both the Emulator and the Guest are distributed under an MIT license:

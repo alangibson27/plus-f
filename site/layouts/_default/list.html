@@ -1,0 +1,9 @@
+{{ partial "header.html" . }}
+
+{{ range .Data.Pages.ByDate }}
+<h1>{{ .Title }} ({{ .Date.Format "2-Jan-2006" }})</h1>
+<div>{{ .Content }}</div>
+
+{{ end }}
+
+{{ partial "footer.html" . }}

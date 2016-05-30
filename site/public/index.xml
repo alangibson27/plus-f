@@ -2,19 +2,37 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Plus-F</title>
-    <link>http://replace-this-with-your-hugo-site.com/</link>
+    <link>http://localhost:1313/</link>
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Tue, 24 May 2016 22:31:58 +0100</lastBuildDate>
-    <atom:link href="http://replace-this-with-your-hugo-site.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 30 May 2016 11:47:26 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Version 0.5</title>
+      <link>http://localhost:1313/release-notes/0.5/</link>
+      <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
+      
+      <guid>http://localhost:1313/release-notes/0.5/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Initial public release&lt;/li&gt;
+&lt;li&gt;Emulation is still rather buggy:
+
+&lt;ul&gt;
+&lt;li&gt;Reset doesn&amp;rsquo;t always work properly&lt;/li&gt;
+&lt;li&gt;Some snapshots fail to load if the Emulator has been running for some time&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>About</title>
-      <link>http://replace-this-with-your-hugo-site.com/about/</link>
+      <link>http://localhost:1313/about/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/about/</guid>
+      <guid>http://localhost:1313/about/</guid>
       <description>&lt;p&gt;Do you remember Match Day II?&lt;/p&gt;
 
 &lt;p&gt;Long before FIFA, Pro Evolution Soccer or any of the others, Match Day II managed to succinctly capture the essence of
@@ -33,10 +51,10 @@ and I were to play Match Day II against each other once more.&lt;/p&gt;
     
     <item>
       <title>Connect</title>
-      <link>http://replace-this-with-your-hugo-site.com/connect/</link>
+      <link>http://localhost:1313/connect/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/connect/</guid>
+      <guid>http://localhost:1313/connect/</guid>
       <description>
 
 &lt;p&gt;Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
@@ -75,10 +93,10 @@ Emulator and the Guest will indicate the status and quality of the connection.&l
     
     <item>
       <title>Download</title>
-      <link>http://replace-this-with-your-hugo-site.com/download/</link>
+      <link>http://localhost:1313/download/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/download/</guid>
+      <guid>http://localhost:1313/download/</guid>
       <description>
 
 &lt;h2 id=&#34;download-java-first:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download Java first&lt;/h2&gt;
@@ -110,6 +128,10 @@ redistribution of their copyrighted material but retain that copyright.
 &lt;/ul&gt;
 
 &lt;p&gt;Once the download completes, unzip it somewhere on your computer, but not the same place you unzipped the Emulator.&lt;/p&gt;
+
+&lt;h2 id=&#34;release-notes:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Release Notes&lt;/h2&gt;
+
+&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://localhost:1313/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;licensing:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Licensing&lt;/h2&gt;
 
@@ -143,10 +165,10 @@ SOFTWARE.&lt;/p&gt;
     
     <item>
       <title>Games</title>
-      <link>http://replace-this-with-your-hugo-site.com/games/</link>
+      <link>http://localhost:1313/games/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/games/</guid>
+      <guid>http://localhost:1313/games/</guid>
       <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
 Z80, TAP and TZX. At present, Plus-F can only load and run Spectrum programs distributed as Z80 files. Further, it
 can only run 48k programs.&lt;/p&gt;
@@ -162,10 +184,10 @@ for full details on which publishers and developers have granted free distributi
     
     <item>
       <title>The Emulator</title>
-      <link>http://replace-this-with-your-hugo-site.com/emulator/</link>
+      <link>http://localhost:1313/emulator/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/emulator/</guid>
+      <guid>http://localhost:1313/emulator/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Emulator is a program that emulates a ZX Spectrum, with the following features and limitations:&lt;/p&gt;
@@ -207,10 +229,10 @@ for full details on which publishers and developers have granted free distributi
     
     <item>
       <title>The Guest</title>
-      <link>http://replace-this-with-your-hugo-site.com/guest/</link>
+      <link>http://localhost:1313/guest/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/guest/</guid>
+      <guid>http://localhost:1313/guest/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Guest is a program that receives screen updates from a Plus-F Emulator across a network, and sends back
