@@ -12,9 +12,11 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
     val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80"))
 
     // when
-    loader.read(processor, memory)
+    val borderColour = loader.read(processor, memory)
 
     // then
+    borderColour shouldBe 7
+
     registerValue("a") shouldBe 0xc9
     registerValue("f") shouldBe 0x82
     registerValue("c") shouldBe 0xd0
@@ -56,9 +58,11 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
     val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80-v3"))
 
     // when
-    loader.read(processor, memory)
+    val borderColour = loader.read(processor, memory)
 
     // then
+    borderColour shouldBe 7
+
     registerValue("a") shouldBe 0xdd
     registerValue("f") shouldBe 0x82
     registerValue("c") shouldBe 0xd0
@@ -89,6 +93,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
 
     processor.getIff(0) shouldBe false
     processor.getIff(1) shouldBe false
+
   }
 
   it should "reject a snapshot for a non-48k machine" in new Machine {

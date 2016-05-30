@@ -40,8 +40,8 @@ public class SnapshotLoader {
         }
     }
 
-    public void read(final Processor processor, final int[] memory) throws IOException {
-        final boolean memoryIsCompressed = extractCommonHeaders();
+    public int read(final Processor processor, final int[] memory) throws IOException {
+        final SnapshotInfo snapshotInfo = extractCommonHeaders();
         if (pcValue == 0x0000) {
             final int headerLength = Word.from(inputStream.read(), inputStream.read());
             pcValue = Word.from(inputStream.read(), inputStream.read());
@@ -90,10 +90,12 @@ public class SnapshotLoader {
                 blockStart = inputStream.read();
             }
         } else {
-            extractV1Memory(memoryIsCompressed);
+            extractV1Memory(snapshotInfo.memoryIsCompressed);
         }
 
         commitChanges(processor, memory);
+
+        return snapshotInfo.borderColour;
     }
 
     private void extractV1Memory(final boolean memoryIsCompressed) throws IOException {
@@ -117,7 +119,7 @@ public class SnapshotLoader {
         System.arraycopy(wholeMemory, 0x0000, memoryPages[8], 0x0000, 0x4000);
     }
 
-    private boolean extractCommonHeaders() throws IOException {
+    private SnapshotInfo extractCommonHeaders() throws IOException {
         aValue = inputStream.read();
         fValue = inputStream.read();
         cValue = inputStream.read();
@@ -152,7 +154,7 @@ public class SnapshotLoader {
 
         final int indicator2 = inputStream.read();
         interruptMode = indicator2 & 0b11;
-        return memoryIsCompressed;
+        return new SnapshotInfo(memoryIsCompressed, borderColour);
     }
 
     private void commitChanges(final Processor processor, final int[] memory) {
@@ -221,5 +223,15 @@ public class SnapshotLoader {
 
     private void skipBytes(final int bytes) throws IOException {
         inputStream.skip(bytes);
+    }
+
+    private class SnapshotInfo {
+        private boolean memoryIsCompressed;
+        private int borderColour;
+
+        public SnapshotInfo(boolean memoryIsCompressed, int borderColour) {
+            this.memoryIsCompressed = memoryIsCompressed;
+            this.borderColour = borderColour;
+        }
     }
 }

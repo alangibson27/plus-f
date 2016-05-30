@@ -97,6 +97,10 @@ public class ULA implements IO {
         keysDown.clear();
     }
 
+    public void setBorder(final int spectrumColour) {
+        this.initialBorderColour = 0xff000000 | dullColour(spectrumColour);
+    }
+
     private static int binary(final String value) {
         return Integer.valueOf(value, 2);
     }

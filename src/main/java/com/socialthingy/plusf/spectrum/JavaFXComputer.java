@@ -102,7 +102,8 @@ public class JavaFXComputer extends Application {
         final Iterator<String> params = getParameters().getRaw().iterator();
         params.next();
         if (params.hasNext()) {
-            computer.loadSnapshot(new File(params.next()));
+            final int borderColour = computer.loadSnapshot(new File(params.next()));
+            ula.setBorder(borderColour);
         }
 
         buildUI(primaryStage, display, border, statusLabel, getMenuBar());
@@ -240,7 +241,8 @@ public class JavaFXComputer extends Application {
 
             if (chosen != null) {
                 try {
-                    computer.loadSnapshot(chosen);
+                    final int borderColour = computer.loadSnapshot(chosen);
+                    ula.setBorder(borderColour);
                 } catch (IOException ex) {
                     final Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Loading Error");

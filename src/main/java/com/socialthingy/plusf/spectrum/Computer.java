@@ -78,10 +78,10 @@ public class Computer implements InterruptingDevice {
         originalRomHash = romHash();
     }
 
-    public void loadSnapshot(final File snapshotFile) throws IOException {
+    public int loadSnapshot(final File snapshotFile) throws IOException {
         try (final FileInputStream fis = new FileInputStream(snapshotFile)) {
             final SnapshotLoader sl = new SnapshotLoader(fis);
-            sl.read(processor, memory);
+            return sl.read(processor, memory);
         }
     }
 
