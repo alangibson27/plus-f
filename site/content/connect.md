@@ -9,6 +9,18 @@ The player running the Emulator has full control of the keyboard, and sends a co
 a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
 sent back to the Emulator.
 
+### Is it really possible?
+
+Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
+responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
+the Guest's copy of the display to jump or jerk a little.
+
+* Emulator running on Windows 10, connected to the internet wirelessly via a non-fibre connection
+* Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot
+     
+If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
+should be acceptable.     
+
 ### Who should run the Emulator?
 
 Generally, because the Emulator has to send much more data to the Guest than the Guest does back to the Emulator, the

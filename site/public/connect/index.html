@@ -2,6 +2,8 @@
 <head lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1">
+    <meta name="description" content="ZX Spectrum Emulator with Network Play Capability">
+    <meta property="og:image" content="http://plus-f.socialthingy.com/plus-f.png">
     <title>Plus-F</title>
     <link rel="stylesheet" href="/css/plusf.css">
     <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet" type="text/css">
@@ -36,6 +38,20 @@
 The player running the Emulator has full control of the keyboard, and sends a copy of the screen to the Guest at
 a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
 sent back to the Emulator.</p>
+
+<h3 id="is-it-really-possible:94545177397886f3162838504e334017">Is it really possible?</h3>
+
+<p>Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
+responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
+the Guest&rsquo;s copy of the display to jump or jerk a little.</p>
+
+<ul>
+<li>Emulator running on Windows 10, connected to the internet wirelessly via a non-fibre connection</li>
+<li>Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot</li>
+</ul>
+
+<p>If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
+should be acceptable.</p>
 
 <h3 id="who-should-run-the-emulator:94545177397886f3162838504e334017">Who should run the Emulator?</h3>
 
