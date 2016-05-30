@@ -12,6 +12,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -62,6 +63,13 @@ public class JavaFXGuest extends Application {
             statusBarTimer.cancel();
             guestRelay.ifPresent(g -> g.disconnect());
         });
+
+        primaryStage.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ALT) {
+                e.consume();
+            }
+        });
+
         primaryStage.setTitle("+F Spectrum Guest");
         primaryStage.show();
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, this::handleKeypress);

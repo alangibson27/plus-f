@@ -6,9 +6,9 @@ import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.dialog.ContactInfoFinder;
 import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
 import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
+import com.socialthingy.plusf.spectrum.input.SpectrumKeyboard;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
-import com.socialthingy.plusf.spectrum.input.SpectrumKeyboard;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.GuestState;
 import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
@@ -120,6 +120,20 @@ public class JavaFXComputer extends Application {
             ula.setBorder(borderColour);
         }
 
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                dump(System.out);
+            }
+        });
+
+        primaryStage.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == KeyCode.ALT) {
+                e.consume();
+            }
+        });
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
+        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
+
         buildUI(primaryStage, display, border, statusLabel, getMenuBar());
 
         final java.util.Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> hostRelay);
@@ -130,20 +144,12 @@ public class JavaFXComputer extends Application {
         primaryStage.setTitle("+F Spectrum Emulator");
         primaryStage.show();
 
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.ESCAPE) {
-                dump(System.out);
-            }
-        });
-
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
-        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
-
         computerLoop.play();
     }
 
     private MenuBar getMenuBar() {
         final MenuBar menuBar = new MenuBar();
+        menuBar.setUseSystemMenuBar(true);
 
         final Menu fileMenu = new Menu("File");
         registerMenuItem(fileMenu, "Load ...", Optional.of(L), this::loadSnapshot);
