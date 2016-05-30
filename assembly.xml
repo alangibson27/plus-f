@@ -1,6 +1,5 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
-    <id>guest</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -9,16 +8,20 @@
             <directory>target</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>plus-f-guest.jar</include>
+                <include>plus-f.jar</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>src/assembly/guest</directory>
+            <directory>src/assembly</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>run.sh</include>
-                <include>plus-f-guest.exe</include>
-                <include>plus-f-guest.ini</include>
+                <include>48.rom</include>
+                <include>emulator.sh</include>
+                <include>emulator.exe</include>
+                <include>emulator.ini</include>
+                <include>guest.sh</include>
+                <include>guest.exe</include>
+                <include>guest.ini</include>
             </includes>
         </fileSet>
     </fileSets>

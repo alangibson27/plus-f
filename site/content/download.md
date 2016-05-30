@@ -9,26 +9,17 @@ title = "Download"
 Plus-F requires a recent version of Java 8 in order to run. You can download this for free from
 [www.java.com](http://www.java.com).
 
-## Download the Emulator
+## Download Plus-F
 
-You need this if you want to play single-player games or two-player games across a network.
+The Emulator and the Guest are bundled together as a single package. Once the download completes, unzip it
+somewhere on your computer.
 
-The Emulator package contains an image of the 48k ZX Spectrum ROM, which is required in order for the Emulator to
+* [Click here to download the latest version of Plus-F] (http://download.socialthingy.com/plus-f.zip)
+
+The package contains an image of the 48k ZX Spectrum ROM, which is required in order for the Emulator to
 operate. This ROM remains copyright of Amstrad, and Amstrad have kindly given their permission for the 
 redistribution of their copyrighted material but retain that copyright.
 (Full details [here](https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ).)
-
-* [Click here to download the latest version of the Emulator] (http://download.socialthingy.com/plus-f-emulator.zip)
-
-Once the download completes, unzip it somewhere on your computer.
-
-## Download the Guest
-
-You also need this if you want to play two-player games across a network.
-
-* [Click here to download the latest version of the Guest] (http://download.socialthingy.com/plus-f-guest.zip)
-
-Once the download completes, unzip it somewhere on your computer, but not the same place you unzipped the Emulator.
 
 ## Release Notes
 
