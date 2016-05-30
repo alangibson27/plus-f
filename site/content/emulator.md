@@ -11,6 +11,10 @@ The Plus-F Emulator is a program that emulates a ZX Spectrum, with the following
 * No sound support
 * Emulation timing is not 100% accurate with respect to a "real" Spectrum 
 
+## So where is the symbol shift key?
+
+The CTRL key is used in place of the Spectrum's symbol shift key.  
+
 ## How to use it
 
 The Emulator is controlled by the options in the menu bar at the top of the screen.
