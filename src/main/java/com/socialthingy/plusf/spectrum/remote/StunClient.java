@@ -13,22 +13,19 @@ public class StunClient {
     private static final int DEFAULT_STUN_PORT = 3478;
 
     private final SocketAddress stunServer;
-    private final int localPort;
+    private final DatagramSocket testSocket;
 
-    public StunClient(final String stunServerAddress, final int stunServerPort, final int localPort) {
-        this.localPort = localPort;
+    public StunClient(final String stunServerAddress, final int stunServerPort, final DatagramSocket testSocket) {
+        this.testSocket = testSocket;
         this.stunServer = new InetSocketAddress(stunServerAddress, stunServerPort);
     }
 
-    public StunClient(final int localPort) {
-        this(DEFAULT_STUN_SERVER, DEFAULT_STUN_PORT, localPort);
+    public StunClient(final DatagramSocket testSocket) {
+        this(DEFAULT_STUN_SERVER, DEFAULT_STUN_PORT, testSocket);
     }
 
     public Optional<InetSocketAddress> discoverAddress() {
-        try (final DatagramSocket testSocket = new DatagramSocket(localPort)) {
-            testSocket.setReuseAddress(true);
-            testSocket.setSoTimeout(10000);
-
+        try {
             final MessageHeader sendMH = new MessageHeader(MessageHeader.MessageHeaderType.BindingRequest);
             sendMH.generateTransactionID();
 

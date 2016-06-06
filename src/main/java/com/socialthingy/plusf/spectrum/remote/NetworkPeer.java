@@ -35,16 +35,16 @@ public class NetworkPeer<R, S> {
     private final SocketAddress partner;
 
     public NetworkPeer(
-        final Consumer<R> updater,
-        final Consumer<Pair<S, OutputStream>> serialiser,
-        final Function<InputStream, R> deserialiser,
-        final Supplier<Long> timestamper,
-        final Integer localPort,
-        final SocketAddress partner
+            final Consumer<R> updater,
+            final Consumer<Pair<S, OutputStream>> serialiser,
+            final Function<InputStream, R> deserialiser,
+            final Supplier<Long> timestamper,
+            final DatagramSocket socket,
+            final SocketAddress partner
     ) throws SocketException {
         this.updater = updater;
         this.timestamper = timestamper;
-        this.socket = new DatagramSocket(localPort);
+        this.socket = socket;
         this.partner = partner;
         this.serialiser = serialiser;
         this.deserialiser = deserialiser;
@@ -53,6 +53,17 @@ public class NetworkPeer<R, S> {
         this.latencyTimer = metricRegistry.timer("latency");
         this.outOfOrderCounter = metricRegistry.counter("outOfOrder");
         this.receiveExecutor.schedule(new PartnerDataReceiver(), 0, TimeUnit.SECONDS);
+    }
+
+    public NetworkPeer(
+        final Consumer<R> updater,
+        final Consumer<Pair<S, OutputStream>> serialiser,
+        final Function<InputStream, R> deserialiser,
+        final Supplier<Long> timestamper,
+        final Integer localPort,
+        final SocketAddress partner
+    ) throws SocketException {
+        this(updater, serialiser, deserialiser, timestamper, new DatagramSocket(localPort), partner);
     }
 
     public boolean awaitingCommunication() {
@@ -90,7 +101,6 @@ public class NetworkPeer<R, S> {
 
     public void disconnect() {
         active = false;
-        this.socket.close();
         this.receiveExecutor.shutdownNow();
         this.sendExecutor.shutdownNow();
     }

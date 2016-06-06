@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressIndicator;
 
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -18,7 +19,7 @@ public class ContactInfoFinder {
 
     private static final Executor executor = Executors.newSingleThreadExecutor();
 
-    public static void getContactInfo(final int localPort) {
+    public static void getContactInfo(final DatagramSocket socket) {
         final Alert progressDialog = new Alert(INFORMATION);
         progressDialog.getButtonTypes().setAll(ButtonType.CANCEL);
         progressDialog.setHeaderText("Getting contact info ... please wait");
@@ -27,7 +28,7 @@ public class ContactInfoFinder {
         progressDialog.show();
 
         executor.execute(() -> {
-            final StunClient sc = new StunClient(localPort);
+            final StunClient sc = new StunClient(socket);
             final Optional<InetSocketAddress> address = sc.discoverAddress();
             Platform.runLater(() -> displayResults(progressDialog, address));
         });
