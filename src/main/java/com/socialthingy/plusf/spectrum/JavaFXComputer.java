@@ -4,7 +4,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
-import com.socialthingy.plusf.spectrum.dialog.ContactInfoFinder;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
 import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
@@ -25,11 +24,9 @@ import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.util.Pair;
 
 import java.io.*;
 import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Iterator;
@@ -40,7 +37,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.socialthingy.plusf.spectrum.UIBuilder.*;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
-import static com.socialthingy.plusf.spectrum.dialog.ConnectionDetailsDialog.getConnectionDetails;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXComputer extends Application {
@@ -62,7 +58,6 @@ public class JavaFXComputer extends Application {
     private SpectrumKeyboard keyboard;
     private int[] memory;
     private MenuItem easyConnectItem;
-    private MenuItem connectItem;
     private MenuItem disconnectItem;
     private Optional<NetworkPeer<GuestState, SpectrumState>> hostRelay = Optional.empty();
     private DatagramSocket socket;
@@ -162,22 +157,9 @@ public class JavaFXComputer extends Application {
         registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
 
         final Menu networkMenu = new Menu("Network");
-        registerMenuItem(networkMenu, "Get contact info ...", Optional.of(I), ae -> {
-            try {
-                ContactInfoFinder.getContactInfo(getSocket());
-            } catch (SocketException e) {
-                ErrorDialog.show(
-                        "Connection Error",
-                        "It was not possible to find your contact information.\nPlease try again later.",
-                        Optional.of(e)
-                );
-            }
-        });
         easyConnectItem = registerMenuItem(networkMenu, "Easy connect", Optional.of(E), this::easyConnectToGuest);
-        connectItem = registerMenuItem(networkMenu, "Connect to guest ...", Optional.of(C), this::connectToGuest);
         disconnectItem = registerMenuItem(networkMenu, "Disconnect from guest", Optional.of(D), this::disconnectFromGuest);
         disconnectItem.setDisable(true);
-
 
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
@@ -216,6 +198,9 @@ public class JavaFXComputer extends Application {
 
     private Optional<NetworkPeer<GuestState, SpectrumState>> relayTo(final SocketAddress sa) {
         try {
+            easyConnectItem.setDisable(true);
+            disconnectItem.setDisable(false);
+
             return Optional.of(
                     new NetworkPeer<>(
                             this::receiveGuestInput,
@@ -247,42 +232,6 @@ public class JavaFXComputer extends Application {
         return this.socket;
     }
 
-    private void connectToGuest(final ActionEvent ae) {
-        withComputerPaused(() -> {
-            final Optional<Pair<String, Integer>> result = getConnectionDetails("guest");
-
-            if (result.isPresent()) {
-                try {
-                    hostRelay = Optional.of(
-                            new NetworkPeer<>(
-                                    this::receiveGuestInput,
-                                    SpectrumState::serialise,
-                                    GuestState::deserialise,
-                                    timestamper::getAndIncrement,
-                                    LOCAL_PORT,
-                                    new InetSocketAddress(result.get().getKey(), result.get().getValue())
-                            )
-                    );
-
-                    hostRelay.ifPresent(h -> {
-                        easyConnectItem.setDisable(true);
-                        connectItem.setDisable(true);
-                        disconnectItem.setDisable(false);
-                    });
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                    final Alert errorDialog = new Alert(
-                            Alert.AlertType.ERROR,
-                            "Unable to connect to guest.",
-                            ButtonType.OK
-                    );
-
-                    errorDialog.showAndWait();
-                }
-            }
-        });
-    }
-
     private void receiveGuestInput(final GuestState guestState) {
         if (guestState.getPort() == 0x1f) {
             guestKempstonJoystick.setValue(guestState.getValue());
@@ -294,7 +243,6 @@ public class JavaFXComputer extends Application {
             r.disconnect();
             hostRelay = Optional.empty();
             easyConnectItem.setDisable(false);
-            connectItem.setDisable(false);
             disconnectItem.setDisable(true);
         });
     }
