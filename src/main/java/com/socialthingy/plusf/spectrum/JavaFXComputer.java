@@ -148,6 +148,15 @@ public class JavaFXComputer extends Application {
         computerLoop.play();
     }
 
+    @Override
+    public void stop() {
+        System.out.println("Closing");
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
+        CancelableProgressDialog.shutdown();
+    }
+
     private MenuBar getMenuBar() {
         final MenuBar menuBar = new MenuBar();
         menuBar.setUseSystemMenuBar(true);

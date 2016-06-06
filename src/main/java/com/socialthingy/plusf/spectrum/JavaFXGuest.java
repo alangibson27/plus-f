@@ -91,6 +91,15 @@ public class JavaFXGuest extends Application {
         screenUpdater.start();
     }
 
+    @Override
+    public void stop() {
+        System.out.println("Closing");
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
+        CancelableProgressDialog.shutdown();
+    }
+
     private void handleKeypress(final KeyEvent ke) {
         kempstonJoystick.handle(ke);
         guestRelay.ifPresent(g ->

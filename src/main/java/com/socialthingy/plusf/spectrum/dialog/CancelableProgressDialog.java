@@ -16,6 +16,10 @@ public class CancelableProgressDialog {
 
     private static final ScheduledExecutorService taskExecutor = Executors.newSingleThreadScheduledExecutor();
 
+    public static void shutdown() {
+        taskExecutor.shutdownNow();
+    }
+
     public static <T> void show(
         final Task<T> task,
         final String initialMessage,
