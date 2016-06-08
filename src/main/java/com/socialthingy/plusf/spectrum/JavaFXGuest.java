@@ -77,6 +77,8 @@ public class JavaFXGuest extends Application {
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, this::handleKeypress);
 
         final AnimationTimer screenUpdater = new AnimationTimer() {
+            int count = 0;
+
             @Override
             public void handle(long now) {
                 if (lastHostData != null) {
@@ -86,6 +88,14 @@ public class JavaFXGuest extends Application {
                         display.refresh(memory, lastHostData.isFlashActive());
                     });
                 }
+
+                if (count % 5 == 0) {
+                    guestRelay.ifPresent(g ->
+                            g.sendDataToPartner(new GuestState(0x1f, ABSENT, kempstonJoystick.getPortValue()))
+                    );
+                }
+
+                count++;
             }
         };
         screenUpdater.start();

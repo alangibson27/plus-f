@@ -2,7 +2,9 @@ package com.socialthingy.plusf.spectrum.remote;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SlidingWindowReservoir;
 import com.codahale.metrics.Timer;
+import javafx.scene.paint.Color;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
@@ -27,6 +29,7 @@ public class NetworkPeer<R, S> {
     private final Supplier<Long> timestamper;
     private final DatagramSocket socket;
     private final AtomicLong lastReceived = new AtomicLong(-1);
+    private final AtomicLong lastReceivedTime = new AtomicLong(-1);
     private final ScheduledExecutorService receiveExecutor = Executors.newSingleThreadScheduledExecutor();
     private final ScheduledExecutorService sendExecutor = Executors.newSingleThreadScheduledExecutor();
     private final Timer latencyTimer;
@@ -50,7 +53,7 @@ public class NetworkPeer<R, S> {
         this.deserialiser = deserialiser;
 
         final MetricRegistry metricRegistry = new MetricRegistry();
-        this.latencyTimer = metricRegistry.timer("latency");
+        this.latencyTimer = new Timer(new SlidingWindowReservoir(2500));
         this.outOfOrderCounter = metricRegistry.counter("outOfOrder");
         this.receiveExecutor.schedule(new PartnerDataReceiver(), 0, TimeUnit.SECONDS);
     }
@@ -88,6 +91,7 @@ public class NetworkPeer<R, S> {
         if (sentTimestamp > lastReceived.get()) {
             final long latency = System.currentTimeMillis() - hostData.getSystemTime();
             lastReceived.set(sentTimestamp);
+            lastReceivedTime.set(System.currentTimeMillis());
             updater.accept(hostData.getData());
             latencyTimer.update(latency, MILLISECONDS);
         } else {
@@ -111,6 +115,16 @@ public class NetworkPeer<R, S> {
 
     public long getOutOfOrderPacketCount() {
         return outOfOrderCounter.getCount();
+    }
+
+    public Color getConnectionHealth() {
+        if (getAverageLatency() > 40.0) {
+            return Color.ORANGE;
+        } else if (System.currentTimeMillis() - lastReceivedTime.get() > 500) {
+            return Color.RED;
+        } else {
+            return Color.GREEN;
+        }
     }
 
     private class PartnerDataReceiver implements Runnable {

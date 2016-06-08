@@ -19,6 +19,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.Serializable;
@@ -89,22 +90,25 @@ public class UIBuilder {
                     final Optional<NetworkPeer<R, S>> networkPeer = currentNetworkPeer.get();
                     if (!networkPeer.isPresent()) {
                         label.setText("Not connected");
+                        label.setTextFill(Color.BLACK);
                     }
                     networkPeer.ifPresent(g -> {
                         if (g.awaitingCommunication()) {
                             label.setText("Awaiting communication");
+                            label.setTextFill(Color.BLACK);
                         } else {
                             final String text = String.format(
-                                    "Connected - average delay: %.2f ms, out-of-sequence: %d",
+                                    "Network delay: %.2f ms, out-of-sequence: %d",
                                     g.getAverageLatency(),
                                     g.getOutOfOrderPacketCount()
                             );
                             label.setText(text);
+                            label.setTextFill(g.getConnectionHealth());
                         }
                     });
                 });
             }
-        }, 0L, 5000L);
+        }, 0L, 2500L);
 
         return statusBarTimer;
     }
