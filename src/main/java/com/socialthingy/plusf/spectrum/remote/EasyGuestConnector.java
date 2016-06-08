@@ -2,6 +2,7 @@ package com.socialthingy.plusf.spectrum.remote;
 
 import javafx.concurrent.Task;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -22,14 +23,22 @@ public class EasyGuestConnector extends Task<SocketAddress> {
     }
 
     @Override
-    protected SocketAddress call() throws Exception {
+    protected SocketAddress call() throws ConnectionException {
         updateMessage("Joining emulator ...");
         final byte[] joinData = ("JOIN" + sessionId).getBytes();
         final DatagramPacket joinPacket = new DatagramPacket(joinData, joinData.length, CONNECTOR_ADDR);
-        socket.send(joinPacket);
+        try {
+            socket.send(joinPacket);
+        } catch (IOException e) {
+            throw new ConnectionException("Unable to establish a connection. Please check your network connection.", e);
+        }
 
         final DatagramPacket joinAckPacket = new DatagramPacket(new byte[1024], 1024);
-        socket.receive(joinAckPacket);
+        try {
+            socket.receive(joinAckPacket);
+        } catch (IOException e) {
+            throw new ConnectionException("Unable to establish a connection. Please check your network connection.", e);
+        }
         final String joinAckData = new String(joinAckPacket.getData(), joinAckPacket.getOffset(), joinAckPacket.getLength());
 
         if (joinAckData.matches("[\\S]+:\\d+")) {
@@ -37,9 +46,9 @@ public class EasyGuestConnector extends Task<SocketAddress> {
             updateMessage(String.format("Connection to emulator at %s established", joinAckData));
             return new InetSocketAddress(parts[0], Integer.parseInt(parts[1]));
         } else if (joinAckData.equals("KO" + sessionId)) {
-            throw new IllegalStateException("Connection rejected. Please check the codename is correct.");
+            throw new ConnectionException("Connection rejected. Please check the codename is correct.");
         } else {
-            throw new IllegalStateException("Connection data invalid. Please try again later.");
+            throw new ConnectionException("Connection data invalid. Please try again later.");
         }
     }
 }

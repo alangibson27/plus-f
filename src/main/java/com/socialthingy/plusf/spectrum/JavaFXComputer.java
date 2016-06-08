@@ -236,6 +236,7 @@ public class JavaFXComputer extends Application {
     private DatagramSocket getSocket() throws SocketException {
         if (this.socket == null) {
             socket = new DatagramSocket(LOCAL_PORT);
+            socket.setSoTimeout(30000);
         }
 
         return this.socket;

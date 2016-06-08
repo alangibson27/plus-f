@@ -43,7 +43,7 @@ public class CancelableProgressDialog {
             progressDialog.hide();
             ErrorDialog.show(
                     "Connection Error",
-                    e.getSource().getException().getMessage(),
+                    "A connection could not be established. Please check your network connection and try again later.",
                     Optional.of(e.getSource().getException())
             );
         });
