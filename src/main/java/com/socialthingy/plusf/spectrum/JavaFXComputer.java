@@ -166,7 +166,7 @@ public class JavaFXComputer extends Application {
         registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
 
         final Menu networkMenu = new Menu("Network");
-        easyConnectItem = registerMenuItem(networkMenu, "Easy connect", Optional.of(E), this::easyConnectToGuest);
+        easyConnectItem = registerMenuItem(networkMenu, "Connect to guest", Optional.of(C), this::easyConnectToGuest);
         disconnectItem = registerMenuItem(networkMenu, "Disconnect from guest", Optional.of(D), this::disconnectFromGuest);
         disconnectItem.setDisable(true);
 
