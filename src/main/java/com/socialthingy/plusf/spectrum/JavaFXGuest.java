@@ -31,17 +31,17 @@ import static com.socialthingy.plusf.spectrum.remote.GuestState.ABSENT;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXGuest extends Application {
-    private static final int LOCAL_PORT = 7001;
+    private static final int LOCAL_PORT = Settings.GUEST_PORT;
 
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
     private final Label statusLabel;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
-    private Optional<NetworkPeer<SpectrumState, GuestState>> guestRelay = Optional.empty();
+    private Optional<NetworkPeer<EmulatorState, GuestState>> guestRelay = Optional.empty();
     private final int[] memory = new int[0x10000];
     private final KempstonJoystick kempstonJoystick = new KempstonJoystick();
-    private SpectrumState lastHostData;
+    private EmulatorState lastHostData;
     private final AtomicLong timestamper = new AtomicLong(0);
     private DatagramSocket socket;
 
@@ -62,7 +62,7 @@ public class JavaFXGuest extends Application {
         final Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> guestRelay);
         primaryStage.setOnCloseRequest(we -> {
             statusBarTimer.cancel();
-            guestRelay.ifPresent(g -> g.disconnect());
+            guestRelay.ifPresent(NetworkPeer::disconnect);
         });
 
         primaryStage.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -146,7 +146,7 @@ public class JavaFXGuest extends Application {
         final Optional<String> codename = getCodename("emulator");
         codename.ifPresent(cn -> {
             try {
-                final Task<SocketAddress> computerAddress = new EasyGuestConnector(getSocket(), cn);
+                final Task<SocketAddress> computerAddress = new GuestConnectionSetup(getSocket(), cn);
                 CancelableProgressDialog.show(
                     computerAddress,
                     "Connecting to emulator ... please wait",
@@ -163,7 +163,7 @@ public class JavaFXGuest extends Application {
         });
     }
 
-    private Optional<NetworkPeer<SpectrumState, GuestState>> relayTo(SocketAddress sa) {
+    private Optional<NetworkPeer<EmulatorState, GuestState>> relayTo(SocketAddress sa) {
         try {
             easyConnectItem.setDisable(true);
             disconnectItem.setDisable(false);
@@ -172,7 +172,7 @@ public class JavaFXGuest extends Application {
                     new NetworkPeer<>(
                             this::update,
                             GuestState::serialise,
-                            SpectrumState::deserialise,
+                            EmulatorState::deserialise,
                             timestamper::getAndIncrement,
                             getSocket(),
                             sa
@@ -193,7 +193,7 @@ public class JavaFXGuest extends Application {
         });
     }
 
-    private void update(final SpectrumState hostData) {
+    private void update(final EmulatorState hostData) {
         this.lastHostData = hostData;
     }
 }

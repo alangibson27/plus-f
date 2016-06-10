@@ -10,18 +10,18 @@ import scala.util.Random
 
 class CompressedTimestampedDataSpec extends FlatSpec with Matchers {
 
-  val serialiser: Consumer[JPair[SpectrumState, OutputStream]] = new Consumer[JPair[SpectrumState, OutputStream]] {
-    override def accept(t: JPair[SpectrumState, OutputStream]): Unit = SpectrumState.serialise(t)
+  val serialiser: Consumer[JPair[EmulatorState, OutputStream]] = new Consumer[JPair[EmulatorState, OutputStream]] {
+    override def accept(t: JPair[EmulatorState, OutputStream]): Unit = EmulatorState.serialise(t)
   }
 
-  val deserialiser: JFunction[InputStream, SpectrumState] = new JFunction[InputStream, SpectrumState] {
-    override def apply(t: InputStream): SpectrumState = SpectrumState.deserialise(t)
+  val deserialiser: JFunction[InputStream, EmulatorState] = new JFunction[InputStream, EmulatorState] {
+    override def apply(t: InputStream): EmulatorState = EmulatorState.deserialise(t)
   }
 
   "compressed timestamped data" should "serialise and deserialise correctly" in {
     val screen = Array.fill[Int](0x10000)(Random.nextInt(255))
-    val borderLines = Array.fill[Int](SpectrumState.BORDER_LINE_COUNT)(Random.nextInt(255))
-    val input = new CompressedTimestampedData[SpectrumState](1L, new SpectrumState(screen, borderLines, true))
+    val borderLines = Array.fill[Int](EmulatorState.BORDER_LINE_COUNT)(Random.nextInt(255))
+    val input = new CompressedTimestampedData[EmulatorState](1L, new EmulatorState(screen, borderLines, true))
 
     val packet = input.toPacket(serialiser)
 

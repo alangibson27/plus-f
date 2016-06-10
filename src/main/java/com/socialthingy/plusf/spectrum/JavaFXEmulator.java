@@ -39,12 +39,10 @@ import static com.socialthingy.plusf.spectrum.UIBuilder.*;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
 import static javafx.scene.input.KeyCode.*;
 
-public class JavaFXComputer extends Application {
-
+public class JavaFXEmulator extends Application {
     private static final String PREF_LAST_SNAPSHOT_DIRECTORY = "last-snapshot-directory";
-
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
-    private static final int LOCAL_PORT = 7000;
+    private static final int LOCAL_PORT = Settings.COMPUTER_PORT;
 
     private final Timer displayRefreshTimer;
     private final MetricRegistry metricRegistry;
@@ -59,7 +57,7 @@ public class JavaFXComputer extends Application {
     private int[] memory;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
-    private Optional<NetworkPeer<GuestState, SpectrumState>> hostRelay = Optional.empty();
+    private Optional<NetworkPeer<GuestState, EmulatorState>> hostRelay = Optional.empty();
     private DatagramSocket socket;
     private SinglePortIO guestKempstonJoystick;
     private final AtomicLong timestamper = new AtomicLong(0);
@@ -74,7 +72,7 @@ public class JavaFXComputer extends Application {
         Application.launch(args);
     }
 
-    public JavaFXComputer() {
+    public JavaFXEmulator() {
         metricRegistry = new MetricRegistry();
         displayRefreshTimer = new Timer(new SlidingTimeWindowReservoir(1, TimeUnit.SECONDS));
         metricRegistry.register(DISPLAY_REFRESH_TIMER_NAME, displayRefreshTimer);
@@ -188,7 +186,7 @@ public class JavaFXComputer extends Application {
         final Optional<String> codename = getCodename("guest");
         codename.ifPresent(cn -> {
             try {
-                final Task<SocketAddress> computerAddress = new EasySpectrumConnector(getSocket(), cn);
+                final Task<SocketAddress> computerAddress = new EmulatorConnectionSetup(getSocket(), cn);
                 CancelableProgressDialog.show(
                         computerAddress,
                         "Connecting to guest ... please wait",
@@ -205,7 +203,7 @@ public class JavaFXComputer extends Application {
         });
     }
 
-    private Optional<NetworkPeer<GuestState, SpectrumState>> relayTo(final SocketAddress sa) {
+    private Optional<NetworkPeer<GuestState, EmulatorState>> relayTo(final SocketAddress sa) {
         try {
             easyConnectItem.setDisable(true);
             disconnectItem.setDisable(false);
@@ -213,7 +211,7 @@ public class JavaFXComputer extends Application {
             return Optional.of(
                     new NetworkPeer<>(
                             this::receiveGuestInput,
-                            SpectrumState::serialise,
+                            EmulatorState::serialise,
                             GuestState::deserialise,
                             timestamper::getAndIncrement,
                             getSocket(),
@@ -355,7 +353,7 @@ public class JavaFXComputer extends Application {
                 if (updateDisplay) {
                     final int[] borderLines = ula.getBorderLines();
                     hostRelay.ifPresent(h -> {
-                        h.sendDataToPartner(new SpectrumState(memory, borderLines, flashActive));
+                        h.sendDataToPartner(new EmulatorState(memory, borderLines, flashActive));
                     });
                     display.refresh(memory, flashActive);
                     border.refresh(borderLines);

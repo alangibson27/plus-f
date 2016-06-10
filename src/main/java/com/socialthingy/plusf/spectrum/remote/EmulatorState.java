@@ -9,14 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class SpectrumState {
+public class EmulatorState {
     public static final int BORDER_LINE_COUNT = ULA.SCREEN_HEIGHT + (2 * UIBuilder.BORDER);
 
     private int[] memory;
     private int[] borderLines;
     private boolean flashActive;
 
-    public SpectrumState(final int[] memory, final int[] borderLines, final boolean flashActive) {
+    public EmulatorState(final int[] memory, final int[] borderLines, final boolean flashActive) {
         this.memory = memory;
         this.borderLines = borderLines;
         this.flashActive = flashActive;
@@ -34,7 +34,7 @@ public class SpectrumState {
         return flashActive;
     }
 
-    public static SpectrumState deserialise(final InputStream in) {
+    public static EmulatorState deserialise(final InputStream in) {
         try {
             final int[] memory = new int[0x10000];
             for (int i = 0x4000; i < 0x5b00; i++) {
@@ -48,15 +48,15 @@ public class SpectrumState {
                 );
             }
 
-            return new SpectrumState(memory, borderLines, in.read() != 0);
+            return new EmulatorState(memory, borderLines, in.read() != 0);
         } catch (IOException ex) {
             ex.printStackTrace();
             throw new IllegalStateException(ex);
         }
     }
 
-    public static void serialise(final Pair<SpectrumState, OutputStream> stateAndStream) {
-        final SpectrumState state = stateAndStream.getKey();
+    public static void serialise(final Pair<EmulatorState, OutputStream> stateAndStream) {
+        final EmulatorState state = stateAndStream.getKey();
         final OutputStream out = stateAndStream.getValue();
 
         try {

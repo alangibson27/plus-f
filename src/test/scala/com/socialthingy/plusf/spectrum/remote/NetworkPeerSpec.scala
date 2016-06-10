@@ -138,7 +138,7 @@ class NetworkPeerSpec extends FlatSpec
       outOfOrderCount shouldBe 2L
   }
 
-  val doNothing: SpectrumState => Unit = (x: SpectrumState) => ()
+  val doNothing: EmulatorState => Unit = (x: EmulatorState) => ()
   var nextPort = 7100
 
   def withStubbedPeer(testCode: (NetworkPeer[TestData, TestData], StubbedUpdater, AtomicLong) => Any): Unit = {
