@@ -98,9 +98,10 @@ public class UIBuilder {
                             label.setTextFill(Color.BLACK);
                         } else {
                             final String text = String.format(
-                                    "Network delay: %.2f ms, out-of-sequence: %d",
+                                    "Network delay: %.2f ms, out-of-sequence: %d, average size: %.2f K",
                                     g.getAverageLatency(),
-                                    g.getOutOfOrderPacketCount()
+                                    g.getOutOfOrderPacketCount(),
+                                    g.getAveragePacketSize()
                             );
                             label.setText(text);
                             label.setTextFill(g.getConnectionHealth());

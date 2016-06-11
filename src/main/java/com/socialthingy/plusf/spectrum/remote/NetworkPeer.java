@@ -1,9 +1,6 @@
 package com.socialthingy.plusf.spectrum.remote;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SlidingWindowReservoir;
-import com.codahale.metrics.Timer;
+import com.codahale.metrics.*;
 import javafx.scene.paint.Color;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -34,6 +31,7 @@ public class NetworkPeer<R, S> {
     private final ScheduledExecutorService sendExecutor = Executors.newSingleThreadScheduledExecutor();
     private final Timer latencyTimer;
     private final Counter outOfOrderCounter;
+    private final Histogram bytesReceivedHistogram;
     private boolean active = true;
     private final SocketAddress partner;
 
@@ -55,6 +53,7 @@ public class NetworkPeer<R, S> {
         final MetricRegistry metricRegistry = new MetricRegistry();
         this.latencyTimer = new Timer(new SlidingWindowReservoir(2500));
         this.outOfOrderCounter = metricRegistry.counter("outOfOrder");
+        this.bytesReceivedHistogram = new Histogram(new SlidingWindowReservoir(2500));
         this.receiveExecutor.schedule(new PartnerDataReceiver(), 0, TimeUnit.SECONDS);
     }
 
@@ -94,6 +93,7 @@ public class NetworkPeer<R, S> {
             lastReceivedTime.set(System.currentTimeMillis());
             updater.accept(hostData.getData());
             latencyTimer.update(latency, MILLISECONDS);
+            bytesReceivedHistogram.update(hostData.getSize());
         } else {
             outOfOrderCounter.inc();
         }
@@ -115,6 +115,10 @@ public class NetworkPeer<R, S> {
 
     public long getOutOfOrderPacketCount() {
         return outOfOrderCounter.getCount();
+    }
+
+    public double getAveragePacketSize() {
+        return bytesReceivedHistogram.getSnapshot().getMean() / 1024.0;
     }
 
     public Color getConnectionHealth() {

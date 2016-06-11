@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.zip.DeflaterInputStream;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -15,6 +14,7 @@ public class CompressedTimestampedData<T> {
     private final long timestamp;
     private final long systemTime;
     private final T data;
+    private final int size;
 
     public static <T> CompressedTimestampedData<T> from(
         final DatagramPacket data,
@@ -25,7 +25,8 @@ public class CompressedTimestampedData<T> {
             return new CompressedTimestampedData<>(
                 getLong(iis),
                 getLong(iis),
-                deserialiser.apply(iis)
+                deserialiser.apply(iis),
+                data.getLength()
             );
         }
     }
@@ -41,12 +42,14 @@ public class CompressedTimestampedData<T> {
         this.timestamp = timestamp;
         this.data = data;
         this.systemTime = System.currentTimeMillis();
+        this.size = 0;
     }
 
-    private CompressedTimestampedData(final Long timestamp, final Long systemTime, final T data) {
+    private CompressedTimestampedData(final Long timestamp, final Long systemTime, final T data, final int size) {
         this.timestamp = timestamp;
         this.systemTime = systemTime;
         this.data = data;
+        this.size = size;
     }
 
     public long getTimestamp() {
@@ -55,6 +58,10 @@ public class CompressedTimestampedData<T> {
 
     public long getSystemTime() {
         return systemTime;
+    }
+
+    public long getSize() {
+        return size;
     }
 
     public T getData() {
