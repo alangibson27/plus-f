@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
@@ -18,7 +19,7 @@ public class OpLdHlIndirectImmediate implements Operation {
 
     @Override
     public int execute() {
-        memory[destReference.get()] = processor.fetchNextPC();
+        Memory.set(memory, destReference.get(), processor.fetchNextPC());
         return 10;
     }
 }

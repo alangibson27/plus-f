@@ -467,7 +467,7 @@ public class Processor {
     }
 
     public void pushByte(final int value) {
-        memory[spReg.decAndGet()] = value;
+        Memory.set(memory, spReg.decAndGet(), value);
     }
 
     public int popByte() {

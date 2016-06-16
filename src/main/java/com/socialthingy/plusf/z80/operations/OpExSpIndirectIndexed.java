@@ -1,10 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Word;
-import com.socialthingy.plusf.z80.IndexRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpExSpIndirectIndexed implements Operation {
 
@@ -26,8 +23,8 @@ public class OpExSpIndirectIndexed implements Operation {
         final int spHigh = 0xffff & (spLow + 1);
         indexRegister.set(Word.from(memory[spLow], memory[spHigh]));
 
-        memory[spLow] = oldIndex & 0x00ff;
-        memory[spHigh] = (oldIndex & 0xff00) >> 8;
+        Memory.set(memory, spLow, oldIndex & 0x00ff);
+        Memory.set(memory, spHigh, (oldIndex & 0xff00) >> 8);
         return 23;
     }
 }

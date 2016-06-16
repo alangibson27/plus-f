@@ -27,7 +27,7 @@ abstract class BlockInOperation implements Operation {
         final int bVal = bReg.get();
         final int value = io.read(cReg.get(), bVal);
         final int hlValue = hlReg.get();
-        memory[hlValue] = value;
+        Memory.set(memory, hlValue, value);
         bReg.set((bVal - 1) & 0xff);
         hlReg.set((hlValue + hlDirection) & 0xffff);
     }

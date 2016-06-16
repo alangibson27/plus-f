@@ -1,9 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.IndexRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpLdIndexedIndirect8Reg implements Operation {
 
@@ -21,7 +18,7 @@ public class OpLdIndexedIndirect8Reg implements Operation {
 
     @Override
     public int execute() {
-        memory[indexRegister.withOffset(processor.fetchNextPC())] = source.get();
+        Memory.set(memory, indexRegister.withOffset(processor.fetchNextPC()), source.get());
         return 19;
     }
 }

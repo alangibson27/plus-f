@@ -12,6 +12,7 @@ import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.*;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.tzx.TzxPlayer;
 import com.socialthingy.plusf.tzx.TzxReader;
 import com.socialthingy.plusf.z80.Processor;
@@ -114,6 +115,7 @@ public class JavaFXEmulator extends Application {
     public void start(final Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         newComputer();
+        Memory.enableRomProtection();
 
         final Iterator<String> params = getParameters().getRaw().iterator();
         params.next();

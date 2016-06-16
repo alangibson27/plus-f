@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
@@ -28,8 +29,8 @@ public class OpExSpIndirectHl implements Operation {
         lReg.set(memory[spLow]);
         hReg.set(memory[spHigh]);
 
-        memory[spLow] = oldL;
-        memory[spHigh] = oldH;
+        Memory.set(memory, spLow, oldL);
+        Memory.set(memory, spHigh, oldH);
         return 19;
     }
 }

@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.IndexRegister;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpResIndexedIndirect extends BitModificationOperation {
@@ -20,7 +21,7 @@ public class OpResIndexedIndirect extends BitModificationOperation {
     public int execute() {
         final int offset = processor.fetchRelative(-2);
         final int address = indexRegister.withOffset(offset);
-        memory[address] = reset(memory[address]);
+        Memory.set(memory, address, reset(memory[address]));
         return 23;
     }
 }
