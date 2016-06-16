@@ -447,4 +447,27 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerValue("a") shouldBe 3
     registerValue("b") shouldBe 1
   }
+
+  "only one interrupt request" should "be accepted from a given interrupting device" in new InterruptingMachine {
+    // given
+    maskableInterruptsAreEnabled
+    maskableInterruptModeIs(1)
+
+    val device = new InterruptingDevice {
+      override def acknowledge(): Unit = ()
+    }
+
+    val firstRequest = new InterruptRequest(device)
+    processor.interrupt(firstRequest)
+
+    val secondRequest = new InterruptRequest(device)
+    processor.interrupt(secondRequest)
+
+    // when
+    processor.execute()
+    processor.execute()
+
+    // then
+    registerValue("pc") shouldBe 0x0039
+  }
 }
