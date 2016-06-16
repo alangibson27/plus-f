@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.IndexRegister;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpDecIndexedIndirect extends DecOperation {
@@ -20,7 +21,7 @@ public class OpDecIndexedIndirect extends DecOperation {
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchNextPC());
         final int result = decrement(memory[address]);
-        memory[address] = result;
+        Memory.set(memory, address, result);
         return 23;
     }
 }

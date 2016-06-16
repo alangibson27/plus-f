@@ -1,10 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 abstract class BlockOperation implements Operation {
 
@@ -38,7 +35,7 @@ abstract class BlockOperation implements Operation {
     }
 
     protected void blockTransfer() {
-        memory[deReg.get()] = memory[hlReg.get()];
+        Memory.set(memory, deReg.get(), memory[hlReg.get()]);
         deReg.set(deReg.get() + increment);
         hlReg.set(hlReg.get() + increment);
         final int counter = bcReg.set(bcReg.get() - 1);

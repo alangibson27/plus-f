@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.snapshot;
 
 import com.socialthingy.plusf.util.Word;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 import java.io.IOException;

@@ -6,6 +6,7 @@ import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.snapshot.SnapshotLoader;
 import com.socialthingy.plusf.z80.InterruptRequest;
 import com.socialthingy.plusf.z80.InterruptingDevice;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 import java.io.File;

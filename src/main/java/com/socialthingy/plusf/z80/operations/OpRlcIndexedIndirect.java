@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.IndexRegister;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpRlcIndexedIndirect extends RotateOperation {
@@ -21,7 +22,7 @@ public class OpRlcIndexedIndirect extends RotateOperation {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
         final int result = rlcValue(memory[address]);
         setSignZeroAndParity(result);
-        memory[address] = result;
+        Memory.set(memory, address, result);
         return 23;
     }
 }

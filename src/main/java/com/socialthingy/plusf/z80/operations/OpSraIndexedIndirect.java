@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.IndexRegister;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpSraIndexedIndirect extends SraOperation {
@@ -18,7 +19,7 @@ public class OpSraIndexedIndirect extends SraOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        memory[address] = shift(memory[address]);
+        Memory.set(memory, address, shift(memory[address]));
         return 23;
     }
 }

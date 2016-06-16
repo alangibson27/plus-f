@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.BytePairRegister;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 
@@ -18,8 +19,8 @@ public class OpLdAddressHl implements Operation {
     @Override
     public int execute() {
         final int address = processor.fetchNextWord();
-        memory[address] = hlReg.getLow();
-        memory[(address + 1) & 0xffff] = hlReg.getHigh();
+        Memory.set(memory, address, hlReg.getLow());
+        Memory.set(memory, (address + 1) & 0xffff, hlReg.getHigh());
         return 16;
     }
 }
