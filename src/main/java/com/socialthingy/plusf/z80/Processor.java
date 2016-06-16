@@ -483,7 +483,9 @@ public class Processor {
     }
 
     public void interrupt(final InterruptRequest request) {
-        interruptRequests.addLast(request);
+        if (!interruptRequests.contains(request)) {
+            interruptRequests.addLast(request);
+        }
     }
 
     public void nmi() {
