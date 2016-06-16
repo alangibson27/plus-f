@@ -169,14 +169,6 @@ public class JavaFXEmulator extends Application {
                 case F9:
                     final boolean enabled = computer.toggleMemoryProtectionEnabled();
                     System.out.println("Memory protection " + (enabled ? "enabled" : "disabled"));
-
-                case F11:
-                    if (computer.isRomCorrupt()) {
-                        System.out.println("ROM corrupt!");
-                        dump(System.out);
-                    } else {
-                        System.out.println("ROM OK");
-                    }
             }
         });
 
@@ -299,7 +291,7 @@ public class JavaFXEmulator extends Application {
     private void toggleFastMode(final ActionEvent ae) {
         computerLoop.stop();
         final boolean fastMode = ((CheckMenuItem) ae.getSource()).isSelected();
-        computerLoop = new ComputerLoop(fastMode ? 75.0 : 50.0);
+        computerLoop = new ComputerLoop(fastMode ? 100.0 : 50.0);
         computerLoop.play();
     }
 
