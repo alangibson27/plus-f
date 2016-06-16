@@ -12,6 +12,8 @@ import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.*;
+import com.socialthingy.plusf.tzx.TzxPlayer;
+import com.socialthingy.plusf.tzx.TzxReader;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.animation.Transition;
 import javafx.application.Application;
@@ -29,11 +31,10 @@ import java.io.*;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static com.socialthingy.plusf.spectrum.UIBuilder.*;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
@@ -60,6 +61,7 @@ public class JavaFXEmulator extends Application {
     private Optional<NetworkPeer<GuestState, EmulatorState>> hostRelay = Optional.empty();
     private DatagramSocket socket;
     private SinglePortIO guestKempstonJoystick;
+    private TzxPlayer tzxPlayer;
     private final AtomicLong timestamper = new AtomicLong(0);
 
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
@@ -69,6 +71,7 @@ public class JavaFXEmulator extends Application {
     private IOMultiplexer ioMux;
 
     public static void main(final String ... args) {
+        com.guigarage.flatterfx.FlatterFX.style();
         Application.launch(args);
     }
 
@@ -120,8 +123,58 @@ public class JavaFXEmulator extends Application {
         }
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.ESCAPE) {
-                dump(System.out);
+            switch (e.getCode()) {
+                case ESCAPE:
+                    dump(System.out);
+                    break;
+
+                case F12:
+                    try {
+                        computer.setUla(ula);
+                        tzxPlayer = new TzxPlayer(new TzxReader(new FileInputStream("/home/alan/spectrum/games/Manic Miner.tzx")).readTzx());
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                    break;
+
+                case F1:
+                    computer.setTape(tzxPlayer.playBlock(0));
+                    break;
+
+                case F2:
+                    computer.setTape(tzxPlayer.playBlock(1));
+                    break;
+
+                case F3:
+                    computer.setTape(tzxPlayer.playBlock(2));
+                    break;
+
+                case F4:
+                    computer.setTape(tzxPlayer.playBlock(3));
+                    break;
+
+                case F5:
+                    computer.setTape(tzxPlayer.playBlock(4));
+                    break;
+                case F6:
+                    computer.setTape(tzxPlayer.playBlock(5));
+                    break;
+
+                case F7:
+                    computer.setTape(tzxPlayer.playBlock(6));
+                    break;
+
+                case F9:
+                    final boolean enabled = computer.toggleMemoryProtectionEnabled();
+                    System.out.println("Memory protection " + (enabled ? "enabled" : "disabled"));
+
+                case F11:
+                    if (computer.isRomCorrupt()) {
+                        System.out.println("ROM corrupt!");
+                        dump(System.out);
+                    } else {
+                        System.out.println("ROM OK");
+                    }
             }
         });
 
@@ -142,6 +195,23 @@ public class JavaFXEmulator extends Application {
         });
         primaryStage.setTitle("+F Spectrum Emulator");
         primaryStage.show();
+
+        new Thread(() -> {
+            final Scanner scanner = new Scanner(System.in);
+            while (true) {
+                final String line = scanner.nextLine();
+                if (line.startsWith("break ")) {
+                    final String[] breakpoints = line.split(" ");
+                    computer.setBreakPoints(
+                        Arrays.asList(breakpoints)
+                                .stream()
+                                .skip(1)
+                                .map(a -> Integer.parseInt(a, 16))
+                                .collect(Collectors.toList())
+                    );
+                }
+            }
+        }).start();
 
         computerLoop.play();
     }

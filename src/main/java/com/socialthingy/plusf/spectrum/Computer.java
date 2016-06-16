@@ -4,6 +4,8 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.snapshot.SnapshotLoader;
+import com.socialthingy.plusf.spectrum.io.ULA;
+import com.socialthingy.plusf.tzx.TzxBlock;
 import com.socialthingy.plusf.z80.InterruptRequest;
 import com.socialthingy.plusf.z80.InterruptingDevice;
 import com.socialthingy.plusf.z80.Processor;
@@ -12,7 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Map;
+import java.util.*;
 
 public class Computer implements InterruptingDevice {
 
@@ -25,6 +27,9 @@ public class Computer implements InterruptingDevice {
     private final Timer processorExecuteTimer;
     private int tstatesPerRefresh;
     private int currentCycleTstates;
+    private Iterator<TzxBlock.Bit> tape;
+    private ULA ula;
+    private boolean memoryProtectionEnabled;
 
     public Computer(
         final Processor processor,
@@ -38,6 +43,20 @@ public class Computer implements InterruptingDevice {
         this.tstatesPerRefresh = timings.getTstatesPerRefresh();
 
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
+    }
+
+    public void setTape(final Iterator<TzxBlock.Bit> tape) {
+        this.tape = tape;
+        ula.earIn(tape.next().getState());
+    }
+
+    public void setUla(final ULA ula) {
+        this.ula = ula;
+    }
+
+    public boolean toggleMemoryProtectionEnabled() {
+        memoryProtectionEnabled = !memoryProtectionEnabled;
+        return memoryProtectionEnabled;
     }
 
     protected void dump(final PrintStream out) {
@@ -85,6 +104,12 @@ public class Computer implements InterruptingDevice {
         }
     }
 
+    private List<Integer> breakPoints = Arrays.asList(Integer.parseInt("11ef", 16));
+
+    public void setBreakPoints(final List<Integer> breakPoints) {
+        this.breakPoints = breakPoints;
+    }
+
     public void singleCycle() {
         currentCycleTstates = 0;
         processor.interrupt(new InterruptRequest(this));
@@ -92,13 +117,17 @@ public class Computer implements InterruptingDevice {
         final Timer.Context timer = processorExecuteTimer.time();
         try {
             while (currentCycleTstates < tstatesPerRefresh) {
+                if (breakPoints.contains(processor.register("pc").get())) {
+                    dump(System.out);
+                }
+
                 try {
                     processor.execute();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
 
-                if ("on".equals(System.getProperty("memoryprotection"))) {
+                if (memoryProtectionEnabled) {
                     if (romHash() != originalRomHash) {
                         processor.dump(System.out);
                         throw new IllegalStateException("ROM modification");
@@ -106,10 +135,21 @@ public class Computer implements InterruptingDevice {
                 }
 
                 currentCycleTstates += processor.lastTime();
+                if (tape != null) {
+                    for (int i = processor.lastTime(); i > 0; i--) {
+                        if (tape.hasNext()) {
+                            ula.earIn(tape.next().getState());
+                        }
+                    }
+                }
             }
         } finally {
             timer.stop();
         }
+    }
+
+    public boolean isRomCorrupt() {
+        return romHash() != originalRomHash;
     }
 
     private int romHash() {

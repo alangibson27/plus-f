@@ -29,6 +29,7 @@ public class ULA implements IO {
     private final int fullDisplayStart;
     private final int fullDisplayEnd;
 
+    private int earBit;
     private int initialBorderColour;
 
     public ULA(final Computer computer, final int displayedTopBorder, final int displayedBottomBorder) {
@@ -59,7 +60,7 @@ public class ULA implements IO {
     public int read(int port, int accumulator) {
         if (port == 0xfe) {
             if (keysDown.isEmpty()) {
-                return binary("10111111");
+                return binary("10111111") | earBit;
             } else {
                 int bits = binary("11111");
                 for (int i = 0; i < 8; i++) {
@@ -72,7 +73,7 @@ public class ULA implements IO {
                     }
                 }
 
-                return binary("10100000") | bits;
+                return binary("10100000") | earBit | bits;
             }
         }
         return 0;
@@ -83,6 +84,10 @@ public class ULA implements IO {
         if (port == 0xfe) {
             borderChanges.add(new int[] {computer.getCurrentCycleTstates(), value & 0b111});
         }
+    }
+
+    public void earIn(final boolean high) {
+        this.earBit = high ? 1 << 6 : 0;
     }
 
     public void keyDown(final char key) {
