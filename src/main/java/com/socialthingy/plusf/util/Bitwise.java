@@ -1,6 +1,10 @@
 package com.socialthingy.plusf.util;
 
 public class Bitwise {
+    public static int binary(final String value) {
+        return Integer.valueOf(value, 2);
+    }
+
     public static int[] add(final int v1, final int v2) {
         final int v1Low = v1 & 0x0f;
         final int v2Low = v2 & 0x0f;

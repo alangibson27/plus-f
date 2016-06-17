@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.spectrum.io
 
-import com.socialthingy.plusf.spectrum.Computer
-import org.mockito.Mockito
-import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
-class BorderSpec extends FlatSpec with Matchers with MockitoSugar with Inspectors {
+class BorderSpec extends FlatSpec with Matchers with Inspectors {
 
   "border change at 0 t-states" should "set the colour for the entire border" in new TestComputer {
     // given
@@ -80,12 +77,11 @@ class BorderSpec extends FlatSpec with Matchers with MockitoSugar with Inspector
   type SpectrumColourId = Int
   trait TestComputer {
     val BLACK: SpectrumColourId = 0
-
-    val computer = mock[Computer]
-    val ula = new ULA(computer, ULA.TOP_BORDER_HEIGHT, ULA.BOTTOM_BORDER_HEIGHT)
+    val ula = new ULA(ULA.TOP_BORDER_HEIGHT, ULA.BOTTOM_BORDER_HEIGHT)
 
     def atClockCycle(clockCycle: Int)(state: => Unit) = {
-      Mockito.when(computer.getCurrentCycleTstates).thenReturn(clockCycle)
+      ula.newCycle()
+      ula.advanceCycle(clockCycle)
       state
     }
 

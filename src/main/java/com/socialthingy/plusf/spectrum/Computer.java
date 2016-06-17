@@ -4,31 +4,36 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.snapshot.SnapshotLoader;
-import com.socialthingy.plusf.z80.InterruptRequest;
-import com.socialthingy.plusf.z80.InterruptingDevice;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
+import com.socialthingy.plusf.spectrum.io.ULA;
+import com.socialthingy.plusf.tzx.TzxBlock;
+import com.socialthingy.plusf.z80.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class Computer implements InterruptingDevice {
 
+    private static final Logger logger = Logger.getLogger(Computer.class.getName());
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
-    private Processor processor;
     private final int[] memory;
-    private int originalRomHash;
-    private MetricRegistry metricRegistry;
     private final Timer processorExecuteTimer;
-    private int tstatesPerRefresh;
+    private final Processor processor;
+    private final MetricRegistry metricRegistry;
+    private final int tstatesPerRefresh;
+    private final Queue<InstructionRecord> recentInstructions = new LinkedList<>();
+    private final ULA ula;
+
     private int currentCycleTstates;
+    private boolean memoryProtectionEnabled;
 
     public Computer(
         final Processor processor,
+        final ULA ula,
         final int[] memory,
         final Timings timings,
         final MetricRegistry metricRegistry
@@ -37,8 +42,14 @@ public class Computer implements InterruptingDevice {
         this.processor = processor;
         this.metricRegistry = metricRegistry;
         this.tstatesPerRefresh = timings.getTstatesPerRefresh();
+        this.ula = ula;
 
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
+    }
+
+    public boolean toggleMemoryProtectionEnabled() {
+        memoryProtectionEnabled = !memoryProtectionEnabled;
+        return memoryProtectionEnabled;
     }
 
     protected void dump(final PrintStream out) {
@@ -65,10 +76,6 @@ public class Computer implements InterruptingDevice {
         return processor;
     }
 
-    public int getCurrentCycleTstates() {
-        return currentCycleTstates;
-    }
-
     public void loadRom(final String romFile) throws IOException {
         try (final FileInputStream fis = new FileInputStream(romFile)) {
             int addr = 0;
@@ -76,7 +83,6 @@ public class Computer implements InterruptingDevice {
                 memory[addr++] = next;
             }
         }
-        originalRomHash = romHash();
     }
 
     public int loadSnapshot(final File snapshotFile) throws IOException {
@@ -86,44 +92,56 @@ public class Computer implements InterruptingDevice {
         }
     }
 
+    private List<Integer> breakPoints = Arrays.asList(Integer.parseInt("11ef", 16));
+
+    public void setBreakPoints(final List<Integer> breakPoints) {
+        this.breakPoints = breakPoints;
+    }
+
     public void singleCycle() {
         currentCycleTstates = 0;
         processor.interrupt(new InterruptRequest(this));
 
         final Timer.Context timer = processorExecuteTimer.time();
+        recentInstructions.clear();
+        ula.newCycle();
         try {
             while (currentCycleTstates < tstatesPerRefresh) {
-                try {
-                    processor.execute();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                if (breakPoints.contains(processor.register("pc").get())) {
+                    dump(System.out);
                 }
 
-                if ("on".equals(System.getProperty("memoryprotection"))) {
-                    if (romHash() != originalRomHash) {
-                        processor.dump(System.out);
-                        throw new IllegalStateException("ROM modification");
-                    }
+                try {
+                    final int addr = processor.register("pc").get();
+                    final Operation executed = processor.execute();
+                    recentInstructions.add(new InstructionRecord(addr, executed));
+                } catch (Exception ex) {
+                    logger.warning(String.format("Processor error encountered: %s\n", ex.getMessage()));
+                    logger.fine("Recent operations:");
+                    recentInstructions.forEach(ir ->
+                        logger.fine(String.format("%04x - %s\n", ir.addr, ir.op.getClass().getName()))
+                    );
                 }
 
                 currentCycleTstates += processor.lastTime();
+                ula.advanceCycle(processor.lastTime());
             }
         } finally {
             timer.stop();
         }
     }
 
-    private int romHash() {
-        int result = 1;
-
-        for (int i = 0x0000; i < 0x4000; i++) {
-            result = 31 * result + memory[i];
-        }
-
-        return result;
-    }
-
     @Override
     public void acknowledge() {
+    }
+
+    private class InstructionRecord {
+        private final int addr;
+        private final Operation op;
+
+        private InstructionRecord(final int addr, final Operation op) {
+            this.addr = addr;
+            this.op = op;
+        }
     }
 }
