@@ -1,12 +1,55 @@
 package com.socialthingy.plusf.tzx;
 
 import com.socialthingy.plusf.RepeatingList;
+import com.socialthingy.plusf.util.Try;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 
 import static com.socialthingy.plusf.util.Bitwise.binary;
 
-public class StandardBlock implements TzxBlock {
+public class VariableSpeedBlock extends TzxBlock {
+
+    public static Try<VariableSpeedBlock> readStandardSpeedBlock(final InputStream tzxFile) {
+        try {
+            final Duration pauseLength = Duration.ofMillis(nextWord(tzxFile));
+            final int dataLength = nextWord(tzxFile);
+            final int[] data = new int[dataLength];
+            for (int i = 0; i < dataLength; i++) {
+                data[i] = nextByte(tzxFile);
+            }
+
+            return Try.success(new VariableSpeedBlock(pauseLength, data));
+        } catch (IOException ex) {
+            return Try.failure(ex);
+        }
+    }
+
+    public static Try<VariableSpeedBlock> readTurboSpeedBlock(final InputStream tzxFile) {
+        try {
+            final int pilotPulseLength = nextWord(tzxFile);
+            final int sync1PulseLength = nextWord(tzxFile);
+            final int sync2PulseLength = nextWord(tzxFile);
+            final int zeroPulseLength = nextWord(tzxFile);
+            final int onePulseLength = nextWord(tzxFile);
+            final int pilotToneLength = nextWord(tzxFile);
+            final int finalByteBitsUsed = nextByte(tzxFile);
+            final Duration pauseLength = Duration.ofMillis(nextWord(tzxFile));
+            final int dataLength = nextWord(tzxFile);
+
+            final int[] data = new int[dataLength];
+            for (int i = 0; i < dataLength; i++) {
+                data[i] = nextByte(tzxFile);
+            }
+
+            return Try.success(
+                new VariableSpeedBlock(pauseLength, data, pilotPulseLength, sync1PulseLength, sync2PulseLength, zeroPulseLength, onePulseLength, pilotToneLength, finalByteBitsUsed)
+            );
+        } catch (IOException ex) {
+            return Try.failure(ex);
+        }
+    }
 
     private static final int[] finalByteMask = new int[] {
         binary("10000000"),
@@ -28,8 +71,9 @@ public class StandardBlock implements TzxBlock {
     private final int onePulseLength;
     private final int pilotToneLength;
     private final int finalByteBitsUsed;
+    private String description;
 
-    public StandardBlock(
+    private VariableSpeedBlock(
         final Duration pauseLength,
         final int[] data,
         final int pilotPulseLength,
@@ -49,10 +93,12 @@ public class StandardBlock implements TzxBlock {
         this.onePulseLength = onePulseLength;
         this.pilotToneLength = pilotToneLength;
         this.finalByteBitsUsed = finalByteBitsUsed;
+        this.description = "turbo";
     }
 
-    public StandardBlock(final Duration pauseLength, final int[] data) {
+    private VariableSpeedBlock(final Duration pauseLength, final int[] data) {
         this(pauseLength, data, 2168, 667, 735, 855, 1710, data[0] < 128 ? 8063 : 3223, 8);
+        this.description = "standard";
     }
 
     public Duration getPauseLength() {
@@ -64,7 +110,7 @@ public class StandardBlock implements TzxBlock {
     }
 
     @Override
-    public void write(final RepeatingList<Bit> tape) {
+    public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
         // pilot tone
         boolean state = true;
         for (int i = 0; i < pilotToneLength; i++) {
@@ -102,5 +148,11 @@ public class StandardBlock implements TzxBlock {
 
         // pause
         tape.add(new Bit(false, "pause"), 3500000 * (int) pauseLength.getSeconds());
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s speed block", description);
     }
 }

@@ -133,10 +133,15 @@ public class JavaFXEmulator extends Application {
                 case F12:
                     try {
                         computer.setUla(ula);
-                        tzxPlayer = new TzxPlayer(new TzxReader(new FileInputStream("/home/alan/spectrum/games/Manic Miner.tzx")).readTzx());
+//                        tzxPlayer = new TzxPlayer(new TzxReader(new FileInputStream("/home/alan/spectrum/games/Manic Miner.tzx")).readTzx());
+                        tzxPlayer = new TzxPlayer(new TzxReader(new FileInputStream("/home/alan/spectrum/games/Match Day II.tzx")).readTzx());
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
+                    break;
+
+                case F11:
+                    computer.setTape(tzxPlayer.playTape());
                     break;
 
                 case F1:

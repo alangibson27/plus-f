@@ -125,11 +125,11 @@ public class Computer implements InterruptingDevice {
                     recentInstructions.add(new InstructionRecord(addr, executed));
                 } catch (Exception ex) {
                     System.out.printf("Processor error encountered: %s\n", ex.getMessage());
-                    System.out.println("Recent operations");
-                    recentInstructions.forEach(ir ->
-                        System.out.printf("%04x - %s\n", ir.addr, ir.op.getClass().getName())
-                    );
-                    System.out.println();
+//                    System.out.println("Recent operations");
+//                    recentInstructions.forEach(ir ->
+//                        System.out.printf("%04x - %s\n", ir.addr, ir.op.getClass().getName())
+//                    );
+//                    System.out.println();
                 }
 
                 currentCycleTstates += processor.lastTime();
