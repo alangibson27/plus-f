@@ -17,6 +17,10 @@ public class TzxPlayer {
             tzx.getBlocks().get(idx).write(tape);
         }
 
+        if (idx == tzx.getBlocks().size() - 1) {
+            tape.add(new TzxBlock.Bit(false, "end"), 3500);
+        }
+
         return tape.iterator();
     }
 
@@ -26,6 +30,7 @@ public class TzxPlayer {
             block.write(tape);
         }
 
+        tape.add(new TzxBlock.Bit(false, "end"), 3500);
         return tape.iterator();
     }
 }

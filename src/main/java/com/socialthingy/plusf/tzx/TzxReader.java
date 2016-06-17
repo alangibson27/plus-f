@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -35,9 +34,13 @@ public class TzxReader {
             blockId++;
             switch (blockType) {
                 case 0x10:
-                    logger.info(String.format("Block %d: Standard block", blockId));
+                    logger.info(String.format("Block %d: Standard speed block", blockId));
                     blocks.add(readStandardSpeedBlock());
                     break;
+
+                case 0x11:
+                    logger.info(String.format("Block %d: Turbo speed block", blockId));
+                    blocks.add(readTurboSpeedBlock());
 
                 default:
                     logger.info(String.format("Block %d: Unsupported block (type %d)", blockId, blockType));
@@ -58,7 +61,26 @@ public class TzxReader {
             data[i] = nextByte();
         }
 
-        return new StandardSpeedBlock(pauseLength, data);
+        return new StandardBlock(pauseLength, data);
+    }
+
+    private TzxBlock readTurboSpeedBlock() throws IOException {
+        final int pilotPulseLength = nextWord();
+        final int sync1PulseLength = nextWord();
+        final int sync2PulseLength = nextWord();
+        final int zeroPulseLength = nextWord();
+        final int onePulseLength = nextWord();
+        final int pilotToneLength = nextWord();
+        final int finalByteBitsUsed = nextByte();
+        final Duration pauseLength = Duration.ofMillis(nextWord());
+        final int dataLength = nextWord();
+
+        final int[] data = new int[dataLength];
+        for (int i = 0; i < dataLength; i++) {
+            data[i] = nextByte();
+        }
+
+        return new StandardBlock(pauseLength, data, pilotPulseLength, sync1PulseLength, sync2PulseLength, zeroPulseLength, onePulseLength, pilotToneLength, finalByteBitsUsed);
     }
 
     private String readText() throws IOException {
