@@ -2,8 +2,7 @@ package com.socialthingy.plusf.tzx;
 
 import com.socialthingy.plusf.util.Try;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +17,14 @@ public class TzxReader {
     private Map<Integer, Function<InputStream, Try<? extends TzxBlock>>> blockMappers = new HashMap<>();
 
     private final InputStream tzxFile;
+
+    public static boolean recognises(byte[] start) {
+        return "ZXTape!".equals(new String(start, 0, 7));
+    }
+
+    public TzxReader(final File tzxFile) throws FileNotFoundException {
+        this(new FileInputStream(tzxFile));
+    }
 
     public TzxReader(final InputStream tzxFile) {
         this.tzxFile = tzxFile;
@@ -80,7 +87,7 @@ public class TzxReader {
         byte[] bytes = new byte[8];
         byte nb = (byte) tzxFile.read();
         int idx = 0;
-        while (nb != 0x1a) {
+        while (nb != 0x1a && nb != -1) {
             bytes[idx++] = nb;
             nb = (byte) tzxFile.read();
 

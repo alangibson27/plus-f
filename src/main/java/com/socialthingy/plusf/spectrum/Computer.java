@@ -13,24 +13,27 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Computer implements InterruptingDevice {
 
+    private static final Logger logger = Logger.getLogger(Computer.class.getName());
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
-    private Processor processor;
     private final int[] memory;
-    private MetricRegistry metricRegistry;
     private final Timer processorExecuteTimer;
-    private int tstatesPerRefresh;
+    private final Processor processor;
+    private final MetricRegistry metricRegistry;
+    private final int tstatesPerRefresh;
+    private final Queue<InstructionRecord> recentInstructions = new LinkedList<>();
+    private final ULA ula;
+
     private int currentCycleTstates;
-    private Iterator<TzxBlock.Bit> tape;
-    private ULA ula;
     private boolean memoryProtectionEnabled;
-    private Queue<InstructionRecord> recentInstructions = new LinkedList<>();
 
     public Computer(
         final Processor processor,
+        final ULA ula,
         final int[] memory,
         final Timings timings,
         final MetricRegistry metricRegistry
@@ -39,17 +42,9 @@ public class Computer implements InterruptingDevice {
         this.processor = processor;
         this.metricRegistry = metricRegistry;
         this.tstatesPerRefresh = timings.getTstatesPerRefresh();
+        this.ula = ula;
 
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
-    }
-
-    public void setTape(final Iterator<TzxBlock.Bit> tape) {
-        this.tape = tape;
-        ula.earIn(tape.next().getState());
-    }
-
-    public void setUla(final ULA ula) {
-        this.ula = ula;
     }
 
     public boolean toggleMemoryProtectionEnabled() {
@@ -81,10 +76,6 @@ public class Computer implements InterruptingDevice {
         return processor;
     }
 
-    public int getCurrentCycleTstates() {
-        return currentCycleTstates;
-    }
-
     public void loadRom(final String romFile) throws IOException {
         try (final FileInputStream fis = new FileInputStream(romFile)) {
             int addr = 0;
@@ -113,6 +104,7 @@ public class Computer implements InterruptingDevice {
 
         final Timer.Context timer = processorExecuteTimer.time();
         recentInstructions.clear();
+        ula.newCycle();
         try {
             while (currentCycleTstates < tstatesPerRefresh) {
                 if (breakPoints.contains(processor.register("pc").get())) {
@@ -124,36 +116,19 @@ public class Computer implements InterruptingDevice {
                     final Operation executed = processor.execute();
                     recentInstructions.add(new InstructionRecord(addr, executed));
                 } catch (Exception ex) {
-                    System.out.printf("Processor error encountered: %s\n", ex.getMessage());
-//                    System.out.println("Recent operations");
-//                    recentInstructions.forEach(ir ->
-//                        System.out.printf("%04x - %s\n", ir.addr, ir.op.getClass().getName())
-//                    );
-//                    System.out.println();
+                    logger.warning(String.format("Processor error encountered: %s\n", ex.getMessage()));
+                    logger.fine("Recent operations:");
+                    recentInstructions.forEach(ir ->
+                        logger.fine(String.format("%04x - %s\n", ir.addr, ir.op.getClass().getName()))
+                    );
                 }
 
                 currentCycleTstates += processor.lastTime();
-                if (tape != null) {
-                    for (int i = processor.lastTime(); i > 0; i--) {
-                        if (tape.hasNext()) {
-                            ula.earIn(tape.next().getState());
-                        }
-                    }
-                }
+                ula.advanceCycle(processor.lastTime());
             }
         } finally {
             timer.stop();
         }
-    }
-
-    private int romHash() {
-        int result = 1;
-
-        for (int i = 0x0000; i < 0x4000; i++) {
-            result = 31 * result + memory[i];
-        }
-
-        return result;
     }
 
     @Override

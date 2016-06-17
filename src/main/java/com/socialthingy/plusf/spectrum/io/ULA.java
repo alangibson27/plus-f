@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.spectrum.Computer;
+import com.socialthingy.plusf.tzx.TzxBlock;
 import com.socialthingy.plusf.z80.IO;
 
 import java.util.*;
@@ -25,15 +26,15 @@ public class ULA implements IO {
     private final int[] borderLines;
     private final Set<Character> keysDown = new HashSet<>();
     private final Map<Character, Integer>[] halfRows = new Map[8];
-    private final Computer computer;
     private final int fullDisplayStart;
     private final int fullDisplayEnd;
 
     private int earBit;
     private int initialBorderColour;
+    private int currentCycleTstates;
+    private Optional<Iterator<TzxBlock.Bit>> tape = Optional.empty();
 
-    public ULA(final Computer computer, final int displayedTopBorder, final int displayedBottomBorder) {
-        this.computer = computer;
+    public ULA(final int displayedTopBorder, final int displayedBottomBorder) {
         borderLines = new int[displayedTopBorder + SCREEN_HEIGHT + displayedBottomBorder];
         fullDisplayStart = TOP_BORDER_HEIGHT - displayedTopBorder;
         fullDisplayEnd = TOP_BORDER_HEIGHT + SCREEN_HEIGHT + displayedBottomBorder;
@@ -54,6 +55,10 @@ public class ULA implements IO {
             keyBits.put(rowKeys.charAt(i), KEY_POSITIONS[i]);
         }
         return keyBits;
+    }
+
+    public void setTape(final Iterator<TzxBlock.Bit> tape) {
+        this.tape = Optional.of(tape);
     }
 
     @Override
@@ -82,8 +87,23 @@ public class ULA implements IO {
     @Override
     public void write(int port, int accumulator, int value) {
         if (port == 0xfe) {
-            borderChanges.add(new int[] {computer.getCurrentCycleTstates(), value & 0b111});
+            borderChanges.add(new int[] {currentCycleTstates, value & 0b111});
         }
+    }
+
+    public void newCycle() {
+        currentCycleTstates = 0;
+    }
+
+    public void advanceCycle(final int tstates) {
+        currentCycleTstates += tstates;
+        tape.ifPresent(t -> {
+            for (int i = 0; i < tstates; i++) {
+                if (t.hasNext()) {
+                    earIn(t.next().getState());
+                }
+            }
+        });
     }
 
     public void earIn(final boolean high) {

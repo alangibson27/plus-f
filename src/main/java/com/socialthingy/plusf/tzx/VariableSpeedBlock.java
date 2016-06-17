@@ -147,7 +147,7 @@ public class VariableSpeedBlock extends TzxBlock {
         }
 
         // pause
-        tape.add(new Bit(false, "pause"), 3500000 * (int) pauseLength.getSeconds());
+        tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
         return false;
     }
 

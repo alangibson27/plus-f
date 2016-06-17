@@ -3,6 +3,7 @@ package com.socialthingy.plusf.spectrum;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.codahale.metrics.Timer;
+import com.socialthingy.plusf.snapshot.SnapshotLoader;
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
@@ -12,9 +13,8 @@ import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.*;
+import com.socialthingy.plusf.tzx.*;
 import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.tzx.TzxPlayer;
-import com.socialthingy.plusf.tzx.TzxReader;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.animation.Transition;
 import javafx.application.Application;
@@ -22,6 +22,8 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
@@ -51,6 +53,9 @@ public class JavaFXEmulator extends Application {
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
     private final Label statusLabel;
+    private final AtomicLong timestamper = new AtomicLong(0);
+    private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
+    private final Properties userPrefs = new Properties();
 
     private ComputerLoop computerLoop;
     private ULA ula;
@@ -59,14 +64,14 @@ public class JavaFXEmulator extends Application {
     private int[] memory;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
+    private MenuItem playTapeItem;
+    private MenuItem stopTapeItem;
+    private MenuItem resumeTapeItem;
     private Optional<NetworkPeer<GuestState, EmulatorState>> hostRelay = Optional.empty();
     private DatagramSocket socket;
     private SinglePortIO guestKempstonJoystick;
-    private TzxPlayer tzxPlayer;
-    private final AtomicLong timestamper = new AtomicLong(0);
-
-    private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
-    private final Properties userPrefs = new Properties();
+    private Optional<TzxPlayer> tzxPlayer = Optional.empty();
+    private Optional<PlayableTzx> tape = Optional.empty();
 
     private Stage primaryStage;
     private IOMultiplexer ioMux;
@@ -99,8 +104,14 @@ public class JavaFXEmulator extends Application {
     private void newComputer() throws IOException {
         ioMux = new IOMultiplexer();
         memory = new int[0x10000];
-        computer = new Computer(new Processor(memory, ioMux), memory, new Timings(50, 60, 3500000), metricRegistry);
-        ula = new ULA(computer, BORDER, BORDER);
+        ula = new ULA(BORDER, BORDER);
+        computer = new Computer(
+            new Processor(memory, ioMux),
+            ula,
+            memory,
+            new Timings(50, 60, 3500000),
+            metricRegistry
+        );
         guestKempstonJoystick = new SinglePortIO(0x1f);
         keyboard = new SpectrumKeyboard(ula);
 
@@ -128,47 +139,6 @@ public class JavaFXEmulator extends Application {
             switch (e.getCode()) {
                 case ESCAPE:
                     dump(System.out);
-                    break;
-
-                case F12:
-                    try {
-                        computer.setUla(ula);
-//                        tzxPlayer = new TzxPlayer(new TzxReader(new FileInputStream("/home/alan/spectrum/games/Manic Miner.tzx")).readTzx());
-                        tzxPlayer = new TzxPlayer(new TzxReader(new FileInputStream("/home/alan/spectrum/games/Match Day II.tzx")).readTzx());
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                    break;
-
-                case F11:
-                    computer.setTape(tzxPlayer.playTape());
-                    break;
-
-                case F1:
-                    computer.setTape(tzxPlayer.playBlock(0));
-                    break;
-
-                case F2:
-                    computer.setTape(tzxPlayer.playBlock(1));
-                    break;
-
-                case F3:
-                    computer.setTape(tzxPlayer.playBlock(2));
-                    break;
-
-                case F4:
-                    computer.setTape(tzxPlayer.playBlock(3));
-                    break;
-
-                case F5:
-                    computer.setTape(tzxPlayer.playBlock(4));
-                    break;
-                case F6:
-                    computer.setTape(tzxPlayer.playBlock(5));
-                    break;
-
-                case F7:
-                    computer.setTape(tzxPlayer.playBlock(6));
                     break;
 
                 case F9:
@@ -229,7 +199,7 @@ public class JavaFXEmulator extends Application {
         menuBar.setUseSystemMenuBar(true);
 
         final Menu fileMenu = new Menu("File");
-        registerMenuItem(fileMenu, "Load ...", Optional.of(L), this::loadSnapshot);
+        registerMenuItem(fileMenu, "Load ...", Optional.of(L), this::load);
         registerMenuItem(fileMenu, "Quit", Optional.of(Q), ae -> System.exit(0));
 
         final Menu networkMenu = new Menu("Network");
@@ -243,12 +213,50 @@ public class JavaFXEmulator extends Application {
         final CheckMenuItem fastMode = new CheckMenuItem("Fast mode");
         fastMode.setSelected(false);
         fastMode.setOnAction(this::toggleFastMode);
+        fastMode.setAccelerator(new KeyCodeCombination(F, KeyCombination.ALT_DOWN));
         computerMenu.getItems().add(fastMode);
+
+        final Menu tapeMenu = new Menu("Tape");
+        playTapeItem = registerMenuItem(tapeMenu, "Play from Start", Optional.of(P), this::playTape);
+        playTapeItem.setDisable(true);
+
+        stopTapeItem = registerMenuItem(tapeMenu, "Stop/Pause", Optional.of(S), this::stopTape);
+        stopTapeItem.setDisable(true);
+
+        resumeTapeItem = registerMenuItem(tapeMenu, "Resume", Optional.of(U), this::resumeTape);
+        resumeTapeItem.setDisable(true);
 
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(computerMenu);
+        menuBar.getMenus().add(tapeMenu);
         menuBar.getMenus().add(networkMenu);
         return menuBar;
+    }
+
+    private void playTape(final ActionEvent ae) {
+        tape = tzxPlayer.map(TzxPlayer::getPlayableTzx);
+        tape.ifPresent(t -> {
+            t.play();
+            ula.setTape(t);
+            stopTapeItem.setDisable(false);
+            resumeTapeItem.setDisable(true);
+        });
+    }
+
+    private void stopTape(final ActionEvent ae) {
+        tape.ifPresent(t -> {
+            t.stop();
+            stopTapeItem.setDisable(true);
+            resumeTapeItem.setDisable(false);
+        });
+    }
+
+    private void resumeTape(final ActionEvent ae) {
+        tape.ifPresent(t -> {
+            t.play();
+            stopTapeItem.setDisable(false);
+            resumeTapeItem.setDisable(true);
+        });
     }
 
     private void easyConnectToGuest(final ActionEvent ae) {
@@ -355,7 +363,7 @@ public class JavaFXEmulator extends Application {
         }
     }
 
-    private void loadSnapshot(final ActionEvent ae) {
+    private void load(final ActionEvent ae) {
         withComputerPaused(() -> {
             final FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Load Snapshot File");
@@ -366,16 +374,16 @@ public class JavaFXEmulator extends Application {
 
             if (chosen != null) {
                 try {
-                    final int borderColour = computer.loadSnapshot(chosen);
-                    ula.setBorder(borderColour);
+                    final Optional<Integer> borderColour = detectAndLoad(chosen);
+                    borderColour.ifPresent(bc -> ula.setBorder(bc));
                     userPrefs.setProperty(PREF_LAST_SNAPSHOT_DIRECTORY, chosen.getParent());
                     savePrefs();
-                } catch (IOException ex) {
+                } catch (IOException | TzxException ex) {
                     final Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Loading Error");
-                    alert.setHeaderText("Unable to load snapshot");
+                    alert.setHeaderText("Unable to load file");
                     alert.setContentText(
-                            String.format("An error occurred while loading the snapshot file:\n%s", ex.getMessage())
+                            String.format("An error occurred while loading the file file:\n%s", ex.getMessage())
                     );
                     alert.getDialogPane().getChildren().stream()
                             .filter(node -> node instanceof Label)
@@ -384,6 +392,22 @@ public class JavaFXEmulator extends Application {
                 }
             }
         });
+    }
+
+    private Optional<Integer> detectAndLoad(final File chosen) throws IOException, TzxException {
+        final byte[] buf = new byte[256];
+        try (final InputStream is = new FileInputStream(chosen)) {
+            is.read(buf);
+        }
+
+        if (TzxReader.recognises(buf)) {
+            final Tzx tzx = new TzxReader(chosen).readTzx();
+            tzxPlayer = Optional.of(new TzxPlayer(tzx));
+            playTapeItem.setDisable(false);
+            return Optional.empty();
+        } else {
+            return Optional.of(computer.loadSnapshot(chosen));
+        }
     }
 
     private void withComputerPaused(final Runnable r) {

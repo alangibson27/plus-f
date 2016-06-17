@@ -57,14 +57,15 @@ public class TzxPlayer {
         throw new TzxException("Unterminated loop");
     }
 
-    public Iterator<TzxBlock.Bit> playTape() {
+    public PlayableTzx getPlayableTzx() {
         final RepeatingList<TzxBlock.Bit> tape = new RepeatingList<>();
         boolean state = true;
         for (TzxBlock block: expandedBlocks) {
             state = block.write(tape, state);
         }
+        tape.add(new TzxBlock.Bit(false, "end"), 3500);
 
-        return tape.iterator();
+        return new PlayableTzx(tape.iterator());
     }
 
     public Iterator<TzxBlock.Bit> playBlock(final int idx) {

@@ -4,8 +4,7 @@ import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class SnapshotLoader {
     private InputStream inputStream;

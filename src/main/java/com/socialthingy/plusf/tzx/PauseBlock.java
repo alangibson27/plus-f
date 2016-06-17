@@ -32,7 +32,7 @@ public class PauseBlock extends TzxBlock {
 
     @Override
     public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        tape.add(new Bit(false, "pause"), 3500000 * (int) pauseLength.getSeconds());
+        tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
         return false;
     }
 
