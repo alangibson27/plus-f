@@ -3,7 +3,6 @@ package com.socialthingy.plusf.spectrum;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.codahale.metrics.Timer;
-import com.socialthingy.plusf.snapshot.SnapshotLoader;
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
