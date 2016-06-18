@@ -19,7 +19,7 @@ public class OpDecIndexedIndirect extends DecOperation {
 
     @Override
     public int execute() {
-        final int address = indexRegister.withOffset(processor.fetchNextPC());
+        final int address = indexRegister.withOffset(processor.fetchNextByte());
         final int result = decrement(memory[address]);
         Memory.set(memory, address, result);
         return 23;

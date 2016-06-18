@@ -16,7 +16,7 @@ public class OpLd8RegImmediate implements Operation {
 
     @Override
     public int execute() {
-        dest.set(processor.fetchNextPC());
+        dest.set(processor.fetchNextByte());
         return 7;
     }
 

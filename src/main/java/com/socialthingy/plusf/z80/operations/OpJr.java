@@ -16,7 +16,7 @@ public class OpJr implements Operation {
 
     @Override
     public int execute() {
-        final byte offset = (byte) processor.fetchNextPC();
+        final byte offset = (byte) processor.fetchNextByte();
         pcReg.set(pcReg.get() + offset);
         return 12;
     }

@@ -21,7 +21,7 @@ public class OpLd8RegIndexedIndirect implements Operation {
 
     @Override
     public int execute() {
-        dest.set(memory[indexRegister.withOffset(processor.fetchNextPC())]);
+        dest.set(memory[indexRegister.withOffset(processor.fetchNextByte())]);
         return 19;
     }
 

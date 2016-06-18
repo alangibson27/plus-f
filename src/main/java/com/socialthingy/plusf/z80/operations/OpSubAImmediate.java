@@ -10,7 +10,7 @@ public class OpSubAImmediate extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(processor.fetchNextPC()));
+        accumulator.set(sub(processor.fetchNextByte()));
         return 7;
     }
 

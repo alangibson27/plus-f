@@ -19,7 +19,7 @@ public class OpLdHlIndirectImmediate implements Operation {
 
     @Override
     public int execute() {
-        Memory.set(memory, destReference.get(), processor.fetchNextPC());
+        Memory.set(memory, destReference.get(), processor.fetchNextByte());
         return 10;
     }
 

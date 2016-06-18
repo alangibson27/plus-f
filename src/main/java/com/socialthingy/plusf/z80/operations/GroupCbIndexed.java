@@ -58,8 +58,8 @@ public class GroupCbIndexed implements Operation {
 
     @Override
     public int execute() {
-        processor.fetchNextPC();
-        final Operation operation = operations[processor.fetchNextPC()];
+        processor.fetchNextByte();
+        final Operation operation = operations[processor.fetchNextByte()];
         if (operation == null) {
             throw new IllegalStateException("Unimplemented operation");
         }

@@ -16,7 +16,7 @@ public class OpLd16RegImmediate implements Operation {
 
     @Override
     public int execute() {
-        final int value = Word.from(processor.fetchNextPC(), processor.fetchNextPC());
+        final int value = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
         destReg.set(value);
         return 10;
     }

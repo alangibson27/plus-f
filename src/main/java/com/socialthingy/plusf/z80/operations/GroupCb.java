@@ -292,7 +292,7 @@ public class GroupCb implements Operation {
 
     @Override
     public int execute() {
-        final Operation operation = operations[processor.fetchNextPC()];
+        final Operation operation = operations[processor.fetchNextByte()];
         if (operation == null) {
             throw new IllegalStateException("Unimplemented operation");
         }

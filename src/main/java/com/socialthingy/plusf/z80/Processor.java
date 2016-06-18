@@ -427,8 +427,6 @@ public class Processor {
             return op;
         } catch (Exception ex) {
             throw new ExecutionException(op, ex);
-        } finally {
-            clearInterrupts();
         }
     }
 
@@ -450,14 +448,18 @@ public class Processor {
             if (halting) {
                 return operations[0x00];
             } else {
-                return operations[fetchNextPC()];
+                return operations[fetchNextOpcode()];
             }
         }
     }
 
-    public int fetchNextPC() {
+    public int fetchNextOpcode() {
         final int rValue = rReg.get();
         rReg.set((rValue & 0b10000000) | ((rValue + 1) & 0b01111111));
+        return memory[pcReg.getAndInc()];
+    }
+
+    public int fetchNextByte() {
         return memory[pcReg.getAndInc()];
     }
 
@@ -466,7 +468,7 @@ public class Processor {
     }
 
     public int fetchNextWord() {
-        return Word.from(fetchNextPC(), fetchNextPC());
+        return Word.from(fetchNextByte(), fetchNextByte());
     }
 
     public int fetchRelative(final int offset) {
@@ -493,10 +495,6 @@ public class Processor {
         if (!interruptRequests.contains(request)) {
             interruptRequests.addLast(request);
         }
-    }
-
-    public void clearInterrupts() {
-        interruptRequests.clear();
     }
 
     public void nmi() {
