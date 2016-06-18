@@ -22,4 +22,9 @@ public class OpIncHlIndirect extends IncOperation {
         Memory.set(memory, address, result);
         return 11;
     }
+
+    @Override
+    public String toString() {
+        return "inc (hl)";
+    }
 }

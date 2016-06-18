@@ -13,4 +13,9 @@ public class OpSubAImmediate extends ArithmeticOperation {
         accumulator.set(sub(processor.fetchNextPC()));
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "sub n";
+    }
 }

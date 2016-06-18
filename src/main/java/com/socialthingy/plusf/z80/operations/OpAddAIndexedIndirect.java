@@ -20,4 +20,9 @@ public class OpAddAIndexedIndirect extends ArithmeticOperation {
         add(memory[indexRegister.withOffset(processor.fetchNextPC())]);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return "add (" + indexRegister.name() + ")";
+    }
 }

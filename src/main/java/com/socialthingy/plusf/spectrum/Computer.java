@@ -7,12 +7,14 @@ import com.socialthingy.plusf.snapshot.SnapshotLoader;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.tzx.TzxBlock;
 import com.socialthingy.plusf.z80.*;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Computer implements InterruptingDevice {
@@ -25,7 +27,7 @@ public class Computer implements InterruptingDevice {
     private final Processor processor;
     private final MetricRegistry metricRegistry;
     private final int tstatesPerRefresh;
-    private final Queue<InstructionRecord> recentInstructions = new LinkedList<>();
+    private final Queue<InstructionRecord> recentInstructions = new CircularFifoQueue<>(10000);
     private final ULA ula;
 
     private int currentCycleTstates;
@@ -92,7 +94,7 @@ public class Computer implements InterruptingDevice {
         }
     }
 
-    private List<Integer> breakPoints = Arrays.asList(Integer.parseInt("11ef", 16));
+    private List<Integer> breakPoints = Collections.emptyList();
 
     public void setBreakPoints(final List<Integer> breakPoints) {
         this.breakPoints = breakPoints;
@@ -103,24 +105,47 @@ public class Computer implements InterruptingDevice {
         processor.interrupt(new InterruptRequest(this));
 
         final Timer.Context timer = processorExecuteTimer.time();
-        recentInstructions.clear();
+        recentInstructions.add(new InstructionRecord(
+            processor.register("pc").get(),
+            new Operation() {
+                @Override
+                public int execute() {
+                    return 0;
+                }
+
+                @Override
+                public String toString() {
+                    return "NEW CYCLE";
+                }
+            }
+        ));
+
         ula.newCycle();
         try {
             while (currentCycleTstates < tstatesPerRefresh) {
                 if (breakPoints.contains(processor.register("pc").get())) {
                     dump(System.out);
+                    int x = 0;
+                    if (x != 0) {
+                        recentInstructions.forEach(ir ->
+                                logger.fine(String.format("%04x - %s\n", ir.addr, ir.op.toString()))
+                        );
+                    }
                 }
 
                 try {
                     final int addr = processor.register("pc").get();
                     final Operation executed = processor.execute();
                     recentInstructions.add(new InstructionRecord(addr, executed));
-                } catch (Exception ex) {
-                    logger.warning(String.format("Processor error encountered: %s\n", ex.getMessage()));
+                } catch (ExecutionException ex) {
+                    logger.warning(String.format("Processor error encountered: %s\n", ex.getCause().getMessage()));
                     logger.fine("Recent operations:");
+                    recentInstructions.add(new InstructionRecord(-1, ex.getOperation()));
                     recentInstructions.forEach(ir ->
-                        logger.fine(String.format("%04x - %s\n", ir.addr, ir.op.getClass().getName()))
+                        logger.fine(String.format("%04x - %s\n", ir.addr, ir.op.toString()))
                     );
+                } catch (Exception ex) {
+                    logger.log(Level.WARNING, "Unrecoverable error encountered", ex);
                 }
 
                 currentCycleTstates += processor.lastTime();

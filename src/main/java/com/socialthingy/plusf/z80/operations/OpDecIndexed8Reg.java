@@ -17,4 +17,9 @@ public class OpDecIndexed8Reg extends DecOperation {
         register.set(decrement(register.get()));
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "dec " + register.name();
+    }
 }

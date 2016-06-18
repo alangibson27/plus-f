@@ -22,4 +22,9 @@ public class OpBitIndexedIndirect extends BitOperation {
         checkBit(memory[indexRegister.withOffset(offset)]);
         return 20;
     }
+
+    @Override
+    public String toString() {
+        return "bit (" + indexRegister.name() + ")";
+    }
 }

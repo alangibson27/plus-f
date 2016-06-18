@@ -16,4 +16,8 @@ public class OpInc16Reg implements Operation {
         register.set(register.get() + 1);
         return 6;
     }
+
+    public String toString() {
+        return "inc " + register.name();
+    }
 }

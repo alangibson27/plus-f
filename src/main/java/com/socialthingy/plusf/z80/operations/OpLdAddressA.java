@@ -24,4 +24,9 @@ public class OpLdAddressA implements Operation {
         Memory.set(memory, destination, aReg.get());
         return 13;
     }
+
+    @Override
+    public String toString() {
+        return "ld (nn), a";
+    }
 }

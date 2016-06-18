@@ -18,4 +18,9 @@ public class OpLdIA implements Operation {
         iReg.set(aReg.get());
         return 9;
     }
+
+    @Override
+    public String toString() {
+        return "ld i, a";
+    }
 }

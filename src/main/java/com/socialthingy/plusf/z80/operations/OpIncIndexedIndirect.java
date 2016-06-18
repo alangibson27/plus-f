@@ -24,4 +24,9 @@ public class OpIncIndexedIndirect extends IncOperation {
         Memory.set(memory, address, result);
         return 23;
     }
+
+    @Override
+    public String toString() {
+        return "inc (" + indexRegister.name() + ")";
+    }
 }

@@ -18,4 +18,9 @@ public class OpAndAHlIndirect extends AndOperation {
         and(memory[hlReg.get()]);
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "and (hl)";
+    }
 }

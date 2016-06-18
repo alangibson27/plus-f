@@ -2,6 +2,11 @@ package com.socialthingy.plusf.z80;
 
 public class WordRegister implements Register {
     private int value;
+    private final String name;
+
+    WordRegister(final String name) {
+        this.name = name;
+    }
 
     @Override
     public int set(int value) {
@@ -11,6 +16,11 @@ public class WordRegister implements Register {
     @Override
     public int get() {
         return this.value;
+    }
+
+    @Override
+    public String name() {
+        return this.name;
     }
 
     public int getAndInc() {

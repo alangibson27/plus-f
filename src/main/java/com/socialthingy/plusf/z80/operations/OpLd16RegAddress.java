@@ -22,4 +22,9 @@ public class OpLd16RegAddress implements Operation {
         dest.set(Word.from(memory[source], memory[(source + 1) & 0xffff]));
         return 20;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld %s, (nn)", dest.name());
+    }
 }

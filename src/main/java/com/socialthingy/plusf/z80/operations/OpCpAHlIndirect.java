@@ -19,5 +19,10 @@ public class OpCpAHlIndirect extends ArithmeticOperation {
         sub(memory[hlReg.get()]);
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "cp (hl)";
+    }
 }
 

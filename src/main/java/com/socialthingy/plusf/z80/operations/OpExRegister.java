@@ -20,4 +20,9 @@ public class OpExRegister implements Operation {
         reg1.set(temp);
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "ex " + reg1.name() + ", " + reg2;
+    }
 }

@@ -22,4 +22,9 @@ public class OpLdHlAddress implements Operation {
         hlReg.setHigh(memory[(source + 1) & 0xffff]);
         return 16;
     }
+
+    @Override
+    public String toString() {
+        return "ld hl, (nn)";
+    }
 }

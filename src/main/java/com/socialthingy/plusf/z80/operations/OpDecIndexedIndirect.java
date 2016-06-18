@@ -24,4 +24,9 @@ public class OpDecIndexedIndirect extends DecOperation {
         Memory.set(memory, address, result);
         return 23;
     }
+
+    @Override
+    public String toString() {
+        return "dec (" + indexRegister.name() + ")";
+    }
 }

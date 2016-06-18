@@ -24,4 +24,9 @@ public class OpLd8RegIndexedIndirect implements Operation {
         dest.set(memory[indexRegister.withOffset(processor.fetchNextPC())]);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld %s, (%s + n)", dest.name(), indexRegister.name());
+    }
 }

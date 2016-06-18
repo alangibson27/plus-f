@@ -22,4 +22,9 @@ public class OpLdHlIndirectImmediate implements Operation {
         Memory.set(memory, destReference.get(), processor.fetchNextPC());
         return 10;
     }
+
+    @Override
+    public String toString() {
+        return "ld (hl), n";
+    }
 }

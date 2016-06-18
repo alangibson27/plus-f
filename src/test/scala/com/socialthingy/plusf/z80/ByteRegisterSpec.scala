@@ -5,7 +5,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ByteRegisterSpec extends FlatSpec with Matchers with TableDrivenPropertyChecks {
 
-  val reg = new ByteRegister
+  val reg = new ByteRegister("r")
 
   "byte register" should "set and return supplied value" in {
     val rtn = reg.set(0x12)

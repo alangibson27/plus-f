@@ -13,4 +13,9 @@ public class OpAddAImmediate extends ArithmeticOperation {
         super.add(processor.fetchNextPC());
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "add a, n";
+    }
 }

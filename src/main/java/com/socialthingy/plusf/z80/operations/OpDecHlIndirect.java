@@ -22,4 +22,9 @@ public class OpDecHlIndirect extends DecOperation {
         Memory.set(memory, address, result);
         return 11;
     }
+
+    @Override
+    public String toString() {
+        return "dec (hl)";
+    }
 }

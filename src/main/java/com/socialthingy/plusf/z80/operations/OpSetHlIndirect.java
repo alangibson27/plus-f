@@ -21,4 +21,9 @@ public class OpSetHlIndirect extends BitModificationOperation {
         Memory.set(memory, address, set(memory[address]));
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "set (hl)";
+    }
 }

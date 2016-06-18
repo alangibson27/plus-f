@@ -20,4 +20,9 @@ public class OpAndIndexedIndirect extends AndOperation {
         and(memory[indexRegister.withOffset(processor.fetchNextPC())]);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return "and (" + indexRegister.name() + ")";
+    }
 }

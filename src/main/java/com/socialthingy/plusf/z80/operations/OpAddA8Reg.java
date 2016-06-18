@@ -17,4 +17,9 @@ public class OpAddA8Reg extends ArithmeticOperation {
         add(register.get());
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "add " + register.name();
+    }
 }

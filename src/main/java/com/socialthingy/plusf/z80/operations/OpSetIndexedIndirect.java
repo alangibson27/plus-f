@@ -24,4 +24,9 @@ public class OpSetIndexedIndirect extends BitModificationOperation {
         Memory.set(memory, address, set(memory[address]));
         return 23;
     }
+
+    @Override
+    public String toString() {
+        return "set (" + indexRegister.name() + ")";
+    }
 }

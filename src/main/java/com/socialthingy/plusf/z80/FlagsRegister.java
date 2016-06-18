@@ -19,6 +19,10 @@ public class FlagsRegister extends ByteRegister {
 
     private int value;
 
+    FlagsRegister() {
+        super("f");
+    }
+
     @Override
     public int set(int value) {
         return this.value = value;

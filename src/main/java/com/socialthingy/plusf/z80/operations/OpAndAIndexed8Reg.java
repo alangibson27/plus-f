@@ -17,4 +17,9 @@ public class OpAndAIndexed8Reg extends AndOperation {
         and(register.get());
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "and " + register.name();
+    }
 }

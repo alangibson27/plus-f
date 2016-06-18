@@ -33,4 +33,9 @@ public class OpAdcHl16Reg implements Operation {
         hlReg.set(result[0]);
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "adc hl, " + sourceReg.name();
+    }
 }

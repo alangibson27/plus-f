@@ -18,4 +18,9 @@ public class OpLdIndexed8RegFrom8Reg implements Operation {
         dest.set(source.get());
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld %s, %s", dest.name(), source.name());
+    }
 }

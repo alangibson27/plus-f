@@ -49,8 +49,8 @@ class BytePairRegisterSpec extends FlatSpec with Matchers {
   }
 
   trait Registers {
-    val low = new ByteRegister
-    val high = new ByteRegister
+    val low = new ByteRegister("l")
+    val high = new ByteRegister("h")
     val reg = new BytePairRegister(high, low)
   }
 }

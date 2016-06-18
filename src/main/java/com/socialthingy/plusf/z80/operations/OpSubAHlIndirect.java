@@ -20,4 +20,9 @@ public class OpSubAHlIndirect extends ArithmeticOperation {
         accumulator.set(sub(memory[hlReg.get()]));
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "sub (hl)";
+    }
 }

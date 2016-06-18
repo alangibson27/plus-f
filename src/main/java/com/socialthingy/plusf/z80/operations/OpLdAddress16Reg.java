@@ -24,4 +24,9 @@ public class OpLdAddress16Reg implements Operation {
         Memory.set(memory, (address + 1) & 0xffff, (value & 0xff00) >> 8);
         return 20;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld (nn), %s", register.name());
+    }
 }

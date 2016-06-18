@@ -20,4 +20,9 @@ public class OpCpIndexedIndirect extends ArithmeticOperation {
         sub(memory[indexRegister.withOffset(processor.fetchNextPC())]);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return "cp (" + indexRegister.name() + ")";
+    }
 }

@@ -26,4 +26,9 @@ public class OpAddIndexedReg implements Operation {
         flagsRegister.set(FlagsRegister.Flag.C, result[2] == 1);
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "add " + indexRegister.name() + ", " + sourceReg.name();
+    }
 }

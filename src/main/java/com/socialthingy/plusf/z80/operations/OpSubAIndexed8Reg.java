@@ -17,4 +17,9 @@ public class OpSubAIndexed8Reg extends ArithmeticOperation {
         accumulator.set(sub(register.get()));
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "sub " + register.name();
+    }
 }

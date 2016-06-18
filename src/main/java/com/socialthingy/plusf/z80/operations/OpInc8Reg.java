@@ -17,4 +17,9 @@ public class OpInc8Reg extends IncOperation {
         register.set(increment(register.get()));
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "inc " + register.name();
+    }
 }

@@ -21,4 +21,9 @@ public class OpLdIndexedIndirectImmediate implements Operation {
         Memory.set(memory, indexRegister.withOffset(offset), value);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld (%s), n", indexRegister.name());
+    }
 }

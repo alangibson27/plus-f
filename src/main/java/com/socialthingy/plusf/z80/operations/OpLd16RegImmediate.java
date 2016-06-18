@@ -20,4 +20,9 @@ public class OpLd16RegImmediate implements Operation {
         destReg.set(value);
         return 10;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld %s, nn", destReg.name());
+    }
 }

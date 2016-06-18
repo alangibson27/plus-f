@@ -29,4 +29,9 @@ public class OpLdAR implements Operation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         return 9;
     }
+
+    @Override
+    public String toString() {
+        return "ld a, r";
+    }
 }

@@ -20,4 +20,9 @@ public class OpAddAHlIndirect extends ArithmeticOperation {
         add(memory[hlReg.get()]);
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "add (hl)";
+    }
 }

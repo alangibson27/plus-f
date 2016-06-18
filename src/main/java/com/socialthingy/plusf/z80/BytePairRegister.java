@@ -4,10 +4,12 @@ public class BytePairRegister implements Register {
 
     private final ByteRegister lowReg;
     private final ByteRegister highReg;
+    private final String name;
 
     BytePairRegister(final ByteRegister highReg, final ByteRegister lowReg) {
         this.highReg = highReg;
         this.lowReg = lowReg;
+        this.name = highReg.name() + lowReg.name();
     }
 
     @Override
@@ -21,6 +23,11 @@ public class BytePairRegister implements Register {
     @Override
     public int get() {
         return (this.highReg.get() << 8) | this.lowReg.get();
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     public int getLow() {

@@ -17,4 +17,9 @@ public class OpCpA8Reg extends ArithmeticOperation {
         sub(register.get());
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "cp " + register.name();
+    }
 }

@@ -16,4 +16,9 @@ public class OpResReg extends BitModificationOperation {
         register.set(reset(register.get()));
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "res " + register.name();
+    }
 }

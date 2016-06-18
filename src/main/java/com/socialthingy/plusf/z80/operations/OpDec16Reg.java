@@ -16,4 +16,9 @@ public class OpDec16Reg implements Operation {
         register.set(register.get() - 1);
         return 6;
     }
+
+    @Override
+    public String toString() {
+        return "dec " + register.name();
+    }
 }

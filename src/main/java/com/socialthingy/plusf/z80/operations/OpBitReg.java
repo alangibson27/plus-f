@@ -17,4 +17,9 @@ public class OpBitReg extends BitOperation {
         checkBit(register.get());
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "bit " + register.name();
+    }
 }

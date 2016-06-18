@@ -19,4 +19,9 @@ public class OpLdIndexed8RegImmediate implements Operation {
         dest.set(processor.fetchNextPC());
         return 11;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld %s, n", dest.name());
+    }
 }

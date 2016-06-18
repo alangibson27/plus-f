@@ -18,4 +18,9 @@ public class OpLdRA implements Operation {
         rReg.set(aReg.get());
         return 9;
     }
+
+    @Override
+    public String toString() {
+        return "ld r, a";
+    }
 }

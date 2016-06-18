@@ -22,10 +22,10 @@ public class Processor {
     private boolean iffs[] = new boolean[2];
     private int interruptMode = 1;
     private Deque<InterruptRequest> interruptRequests = new LinkedList<>();
-    private final ByteRegister rReg = new ByteRegister();
-    private final ByteRegister iReg = new ByteRegister();
-    private final WordRegister pcReg = new WordRegister();
-    private final WordRegister spReg = new WordRegister();
+    private final ByteRegister rReg = new ByteRegister("r");
+    private final ByteRegister iReg = new ByteRegister("i");
+    private final WordRegister pcReg = new WordRegister("pc");
+    private final WordRegister spReg = new WordRegister("sp");
     private final FlagsRegister fReg = new FlagsRegister();
     private final OpRst im1ResponseOp;
     private final OpRst nmiResponseOp;
@@ -320,25 +320,25 @@ public class Processor {
     }
 
     private void prepareRegisters() {
-        final ByteRegister aReg = new ByteRegister();
-        final ByteRegister bReg = new ByteRegister();
-        final ByteRegister cReg = new ByteRegister();
-        final ByteRegister dReg = new ByteRegister();
-        final ByteRegister eReg = new ByteRegister();
-        final ByteRegister hReg = new ByteRegister();
-        final ByteRegister lReg = new ByteRegister();
+        final ByteRegister aReg = new ByteRegister("a");
+        final ByteRegister bReg = new ByteRegister("b");
+        final ByteRegister cReg = new ByteRegister("c");
+        final ByteRegister dReg = new ByteRegister("d");
+        final ByteRegister eReg = new ByteRegister("e");
+        final ByteRegister hReg = new ByteRegister("h");
+        final ByteRegister lReg = new ByteRegister("l");
 
         final BytePairRegister afReg = new BytePairRegister(aReg, fReg);
         final BytePairRegister bcReg = new BytePairRegister(bReg, cReg);
         final BytePairRegister deReg = new BytePairRegister(dReg, eReg);
         final BytePairRegister hlReg = new BytePairRegister(hReg, lReg);
 
-        final ByteRegister ixhReg = new ByteRegister();
-        final ByteRegister ixlReg = new ByteRegister();
+        final ByteRegister ixhReg = new ByteRegister("ixh");
+        final ByteRegister ixlReg = new ByteRegister("ixl");
         final IndexRegister ixReg = new IndexRegister(ixhReg, ixlReg);
 
-        final ByteRegister iyhReg = new ByteRegister();
-        final ByteRegister iylReg = new ByteRegister();
+        final ByteRegister iyhReg = new ByteRegister("iyh");
+        final ByteRegister iylReg = new ByteRegister("iyl");
         final IndexRegister iyReg = new IndexRegister(iyhReg, iylReg);
 
         registers.put("a", aReg);
@@ -366,14 +366,14 @@ public class Processor {
         registers.put("pc", pcReg);
         registers.put("sp", spReg);
 
-        final ByteRegister aPrimeReg = new ByteRegister();
-        final ByteRegister fPrimeReg = new ByteRegister();
-        final ByteRegister bPrimeReg = new ByteRegister();
-        final ByteRegister cPrimeReg = new ByteRegister();
-        final ByteRegister dPrimeReg = new ByteRegister();
-        final ByteRegister ePrimeReg = new ByteRegister();
-        final ByteRegister hPrimeReg = new ByteRegister();
-        final ByteRegister lPrimeReg = new ByteRegister();
+        final ByteRegister aPrimeReg = new ByteRegister("a'");
+        final ByteRegister fPrimeReg = new ByteRegister("f'");
+        final ByteRegister bPrimeReg = new ByteRegister("b'");
+        final ByteRegister cPrimeReg = new ByteRegister("c'");
+        final ByteRegister dPrimeReg = new ByteRegister("d'");
+        final ByteRegister ePrimeReg = new ByteRegister("e'");
+        final ByteRegister hPrimeReg = new ByteRegister("h'");
+        final ByteRegister lPrimeReg = new ByteRegister("l'");
 
         registers.put("a'", aPrimeReg);
         registers.put("f'", fPrimeReg);
@@ -407,7 +407,7 @@ public class Processor {
         return lastTime;
     }
 
-    public Operation execute() {
+    public Operation execute() throws ExecutionException {
         final boolean enableIffAfterExecution = enableIff;
         final Operation op = fetch();
         this.lastOp = op;
@@ -415,14 +415,21 @@ public class Processor {
             throw new IllegalStateException("Unimplemented operation");
         }
 
-        this.lastTime = op.execute();
+        try {
+            this.lastTime = op.execute();
 
-        if (enableIffAfterExecution) {
-            enableIff = false;
-            iffs[0] = true;
-            iffs[1] = true;
+            if (enableIffAfterExecution) {
+                enableIff = false;
+                iffs[0] = true;
+                iffs[1] = true;
+            }
+
+            return op;
+        } catch (Exception ex) {
+            throw new ExecutionException(op, ex);
+        } finally {
+            clearInterrupts();
         }
-        return op;
     }
 
     private Operation fetch() {
@@ -486,6 +493,10 @@ public class Processor {
         if (!interruptRequests.contains(request)) {
             interruptRequests.addLast(request);
         }
+    }
+
+    public void clearInterrupts() {
+        interruptRequests.clear();
     }
 
     public void nmi() {

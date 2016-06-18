@@ -16,4 +16,9 @@ public class OpAndAImmediate extends AndOperation {
         and(processor.fetchNextPC());
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "and n";
+    }
 }

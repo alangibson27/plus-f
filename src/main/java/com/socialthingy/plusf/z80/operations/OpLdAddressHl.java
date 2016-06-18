@@ -23,4 +23,10 @@ public class OpLdAddressHl implements Operation {
         Memory.set(memory, (address + 1) & 0xffff, hlReg.getHigh());
         return 16;
     }
+
+    @Override
+    public String toString() {
+        return "ld (nn), hl";
+    }
+
 }

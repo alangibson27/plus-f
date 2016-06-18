@@ -20,4 +20,9 @@ public class OpLd8RegFrom16RegIndirect implements Operation {
         dest.set(memory[sourceReference.get()]);
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld %s, (%s)", dest.name(), sourceReference.name());
+    }
 }

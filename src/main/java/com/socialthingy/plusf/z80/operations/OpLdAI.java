@@ -18,4 +18,9 @@ public class OpLdAI implements Operation {
         aReg.set(iReg.get());
         return 9;
     }
+
+    @Override
+    public String toString() {
+        return "ld a, i";
+    }
 }

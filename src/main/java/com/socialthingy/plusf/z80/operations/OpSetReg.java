@@ -16,4 +16,9 @@ public class OpSetReg extends BitModificationOperation {
         register.set(set(register.get()));
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "set " + register.name();
+    }
 }

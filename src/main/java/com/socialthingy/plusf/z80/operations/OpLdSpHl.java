@@ -18,4 +18,9 @@ public class OpLdSpHl implements Operation {
         spReg.set(hlReg.get());
         return 6;
     }
+
+    @Override
+    public String toString() {
+        return "ld sp, hl";
+    }
 }

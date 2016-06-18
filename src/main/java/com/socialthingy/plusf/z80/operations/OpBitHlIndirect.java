@@ -19,4 +19,9 @@ public class OpBitHlIndirect extends BitOperation {
         checkBit(memory[hlReg.get()]);
         return 12;
     }
+
+    @Override
+    public String toString() {
+        return "bit (hl)";
+    }
 }

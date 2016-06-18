@@ -21,4 +21,9 @@ public class OpLdIndexedImmediate implements Operation {
         indexRegister.set(value);
         return 14;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ld %s, nn", indexRegister.name());
+    }
 }

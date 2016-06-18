@@ -21,4 +21,9 @@ public class OpResHlIndirect extends BitModificationOperation {
         Memory.set(memory, address, reset(memory[address]));
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "res (hl)";
+    }
 }

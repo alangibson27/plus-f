@@ -17,4 +17,9 @@ public class OpCpAIndexed8Reg extends ArithmeticOperation {
         sub(register.get());
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "cp " + register.name();
+    }
 }
