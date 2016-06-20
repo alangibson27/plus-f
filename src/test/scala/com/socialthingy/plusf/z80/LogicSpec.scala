@@ -264,6 +264,28 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("n").value shouldBe false
       flag("c").value shouldBe false
     }
+
+    it should "correctly calculate a result with overflow" in new Machine {
+      // given
+      registerContainsValue("a", binary("00000100"))
+      registerContainsValue(register, binary("10000101"))
+
+      nextInstructionIs(opcode._1, opcode._2)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("a") shouldBe binary("10000101")
+      registerValue(register) shouldBe binary("10000101")
+
+      flag("s").value shouldBe true
+      flag("z").value shouldBe false
+      flag("h").value shouldBe false
+      flag("p").value shouldBe true
+      flag("n").value shouldBe false
+      flag("c").value shouldBe false
+    }
   }
 
   "or <reg>" should "give a zero result when <reg> and a are both zero" in new Machine {
@@ -282,50 +304,6 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     flag("s").value shouldBe false
     flag("z").value shouldBe true
-    flag("h").value shouldBe false
-    flag("p").value shouldBe true
-    flag("n").value shouldBe false
-    flag("c").value shouldBe false
-  }
-
-  "or <reg>" should "correctly calculate a result with even parity" in new Machine {
-    // given
-    registerContainsValue("a", binary("00111000"))
-    registerContainsValue("b", binary("00101100"))
-
-    nextInstructionIs(0xb0)
-
-    // when
-    processor.execute()
-
-    // then
-    registerValue("a") shouldBe binary("00111100")
-    registerValue("b") shouldBe binary("00101100")
-
-    flag("s").value shouldBe false
-    flag("z").value shouldBe false
-    flag("h").value shouldBe false
-    flag("p").value shouldBe true
-    flag("n").value shouldBe false
-    flag("c").value shouldBe false
-  }
-
-  "or <reg>" should "correctly calculate a result with odd parity" in new Machine {
-    // given
-    registerContainsValue("a", binary("11111110"))
-    registerContainsValue("b", binary("00111000"))
-
-    nextInstructionIs(0xb0)
-
-    // when
-    processor.execute()
-
-    // then
-    registerValue("a") shouldBe binary("11111110")
-    registerValue("b") shouldBe binary("00111000")
-
-    flag("s").value shouldBe true
-    flag("z").value shouldBe false
     flag("h").value shouldBe false
     flag("p").value shouldBe false
     flag("n").value shouldBe false
@@ -347,7 +325,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("s").value shouldBe true
     flag("z").value shouldBe false
     flag("h").value shouldBe false
-    flag("p").value shouldBe true
+    flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
   }
@@ -367,7 +345,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("s").value shouldBe true
     flag("z").value shouldBe false
     flag("h").value shouldBe false
-    flag("p").value shouldBe true
+    flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
   }
@@ -390,7 +368,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("s").value shouldBe true
     flag("z").value shouldBe false
     flag("h").value shouldBe false
-    flag("p").value shouldBe true
+    flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
   }
@@ -421,7 +399,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("s").value shouldBe true
       flag("z").value shouldBe false
       flag("h").value shouldBe false
-      flag("p").value shouldBe true
+      flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
     }
