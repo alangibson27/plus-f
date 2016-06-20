@@ -13,7 +13,7 @@ public class OpXorAImmediate extends XorOperation {
 
     @Override
     public int execute() {
-        xor(processor.fetchNextPC());
+        xor(processor.fetchNextByte());
         return 7;
     }
 }

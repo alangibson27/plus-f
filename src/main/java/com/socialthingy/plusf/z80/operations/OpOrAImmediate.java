@@ -13,7 +13,7 @@ public class OpOrAImmediate extends OrOperation {
 
     @Override
     public int execute() {
-        or(processor.fetchNextPC());
+        or(processor.fetchNextByte());
         return 7;
     }
 }

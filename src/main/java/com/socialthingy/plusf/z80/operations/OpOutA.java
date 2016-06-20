@@ -18,7 +18,7 @@ public class OpOutA implements Operation {
 
     @Override
     public int execute() {
-        io.write(processor.fetchNextPC(), accumulator.get(), accumulator.get());
+        io.write(processor.fetchNextByte(), accumulator.get(), accumulator.get());
         return 11;
     }
 }

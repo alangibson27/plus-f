@@ -17,7 +17,7 @@ public class OpAddAIndexedIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        add(memory[indexRegister.withOffset(processor.fetchNextPC())]);
+        add(memory[indexRegister.withOffset(processor.fetchNextByte())]);
         return 19;
     }
 

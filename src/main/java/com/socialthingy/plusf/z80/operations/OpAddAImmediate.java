@@ -10,7 +10,7 @@ public class OpAddAImmediate extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        super.add(processor.fetchNextPC());
+        super.add(processor.fetchNextByte());
         return 7;
     }
 

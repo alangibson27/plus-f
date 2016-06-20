@@ -17,7 +17,7 @@ public class OpLdIndexedImmediate implements Operation {
 
     @Override
     public int execute() {
-        final int value = Word.from(processor.fetchNextPC(), processor.fetchNextPC());
+        final int value = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
         indexRegister.set(value);
         return 14;
     }

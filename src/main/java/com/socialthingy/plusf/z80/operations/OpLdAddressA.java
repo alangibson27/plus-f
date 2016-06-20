@@ -20,7 +20,7 @@ public class OpLdAddressA implements Operation {
 
     @Override
     public int execute() {
-        final int destination = Word.from(processor.fetchNextPC(), processor.fetchNextPC());
+        final int destination = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
         Memory.set(memory, destination, aReg.get());
         return 13;
     }

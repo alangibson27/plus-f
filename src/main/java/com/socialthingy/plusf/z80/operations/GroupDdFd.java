@@ -123,7 +123,7 @@ public class GroupDdFd implements Operation {
 
     @Override
     public int execute() {
-        final Operation operation = operations[processor.fetchNextPC()];
+        final Operation operation = operations[processor.fetchNextOpcode()];
         if (operation == null) {
             throw new IllegalStateException("Unimplemented operation");
         }

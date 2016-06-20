@@ -13,7 +13,7 @@ public class OpAndAImmediate extends AndOperation {
 
     @Override
     public int execute() {
-        and(processor.fetchNextPC());
+        and(processor.fetchNextByte());
         return 7;
     }
 

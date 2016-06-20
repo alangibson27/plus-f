@@ -17,7 +17,7 @@ public class OpOrIndexedIndirect extends OrOperation {
 
     @Override
     public int execute() {
-        or(memory[indexRegister.withOffset(processor.fetchNextPC())]);
+        or(memory[indexRegister.withOffset(processor.fetchNextByte())]);
         return 19;
     }
 }

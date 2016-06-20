@@ -9,7 +9,7 @@ public class OpCpImmediate extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        sub(processor.fetchNextPC());
+        sub(processor.fetchNextByte());
         return 7;
     }
 

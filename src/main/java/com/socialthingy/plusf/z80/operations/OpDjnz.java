@@ -18,7 +18,7 @@ public class OpDjnz implements Operation {
 
     @Override
     public int execute() {
-        final byte offset = (byte) processor.fetchNextPC();
+        final byte offset = (byte) processor.fetchNextByte();
         final int bValue = bReg.set(bReg.get() - 1);
         if (bValue > 0) {
             pcReg.set(pcReg.get() + offset);

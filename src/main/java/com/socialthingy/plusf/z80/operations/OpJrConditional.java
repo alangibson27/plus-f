@@ -24,7 +24,7 @@ public class OpJrConditional implements Operation {
 
     @Override
     public int execute() {
-        final byte offset = (byte) processor.fetchNextPC();
+        final byte offset = (byte) processor.fetchNextByte();
         if (flagsRegister.get(flag) == whenSet) {
             pcReg.set(pcReg.get() + offset);
             return 12;

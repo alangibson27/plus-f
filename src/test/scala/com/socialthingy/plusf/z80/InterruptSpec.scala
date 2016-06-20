@@ -100,6 +100,68 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     }
   }
 
+  it should "increment once when an operation with no operands is executed" in new Machine {
+    // given
+    registerContainsValue("r", binary("00000000"))
+    nextInstructionIs(0x00)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("r") shouldBe binary("00000001")
+  }
+
+  it should "increment once when an operation with a single operand is executed" in new Machine {
+    // given
+    registerContainsValue("r", binary("00000000"))
+    nextInstructionIs(0x3e, 0x01)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("a") shouldBe 0x01
+    registerValue("r") shouldBe binary("00000001")
+  }
+
+  it should "increment twice when a double-byte operation is executed" in new Machine {
+    // given
+    registerContainsValue("r", binary("00000000"))
+    nextInstructionIs(0xed, 0xb0)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("r") shouldBe binary("00000010")
+  }
+
+  it should "increment twice when an index register operation is executed" in new Machine {
+    // given
+    registerContainsValue("r", binary("00000000"))
+    nextInstructionIs(0xdd, 0x21, 0xff, 0xff)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("ix") shouldBe 0xffff
+    registerValue("r") shouldBe binary("00000010")
+  }
+
+  it should "increment twice when a triple-byte operation is executed" in new Machine {
+    // given
+    registerContainsValue("r", binary("00000000"))
+    nextInstructionIs(0xdd, 0xcb, 0x01, 0x06)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("r") shouldBe binary("00000010")
+  }
+
   "ld i, a" should "transfer the accumulator to the i register" in new Machine {
     // given
     registerContainsValue("a", 0xbe)

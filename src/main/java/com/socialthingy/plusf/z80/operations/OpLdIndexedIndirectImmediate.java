@@ -16,8 +16,8 @@ public class OpLdIndexedIndirectImmediate implements Operation {
 
     @Override
     public int execute() {
-        final int offset = processor.fetchNextPC();
-        final int value = processor.fetchNextPC();
+        final int offset = processor.fetchNextByte();
+        final int value = processor.fetchNextByte();
         Memory.set(memory, indexRegister.withOffset(offset), value);
         return 19;
     }

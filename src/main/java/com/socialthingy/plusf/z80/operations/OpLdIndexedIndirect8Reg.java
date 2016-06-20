@@ -18,7 +18,7 @@ public class OpLdIndexedIndirect8Reg implements Operation {
 
     @Override
     public int execute() {
-        Memory.set(memory, indexRegister.withOffset(processor.fetchNextPC()), source.get());
+        Memory.set(memory, indexRegister.withOffset(processor.fetchNextByte()), source.get());
         return 19;
     }
 

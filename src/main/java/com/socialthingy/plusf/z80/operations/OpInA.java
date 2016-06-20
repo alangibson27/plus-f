@@ -18,7 +18,7 @@ public class OpInA implements Operation {
 
     @Override
     public int execute() {
-        accumulator.set(io.read(processor.fetchNextPC(), accumulator.get()));
+        accumulator.set(io.read(processor.fetchNextByte(), accumulator.get()));
         return 11;
     }
 }
