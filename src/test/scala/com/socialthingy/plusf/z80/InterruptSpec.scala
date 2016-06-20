@@ -185,6 +185,64 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // then
     registerValue("a") shouldBe 0xff
     registerValue("pc") shouldBe 0x0002
+    flag("h").value shouldBe false
+    flag("n").value shouldBe false
+  }
+
+  it should "set the parity flag if interrupts are enabled" in new Machine {
+    // given
+    interruptsAreEnabled()
+    registerContainsValue("i", 0xff)
+    nextInstructionIs(0xed, 0x57)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("a") shouldBe 0xff
+    flag("p").value shouldBe true
+  }
+
+  it should "reset the parity flag if interrupts are disabled" in new Machine {
+    // given
+    interruptsAreDisabled()
+    registerContainsValue("i", 0xff)
+    nextInstructionIs(0xed, 0x57)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("a") shouldBe 0xff
+    flag("p").value shouldBe false
+  }
+
+  it should "set the sign flag if the i register is negative" in new Machine {
+    // given
+    registerContainsValue("i", 0xff)
+    nextInstructionIs(0xed, 0x57)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("a") shouldBe 0xff
+    flag("s").value shouldBe true
+    flag("z").value shouldBe false
+  }
+
+  it should "set the zero flag if the i register is zero" in new Machine {
+    // given
+    registerContainsValue("i", 0x00)
+    nextInstructionIs(0xed, 0x57)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("a") shouldBe 0x00
+    flag("s").value shouldBe false
+    flag("z").value shouldBe true
   }
 
   "ld r, a" should "transfer the accumulator to the r register" in new Machine {
