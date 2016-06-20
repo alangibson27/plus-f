@@ -5,7 +5,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.snapshot.SnapshotLoader;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.tzx.TzxBlock;
 import com.socialthingy.plusf.z80.*;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
@@ -14,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +28,7 @@ public class Computer implements InterruptingDevice {
     private final Processor processor;
     private final MetricRegistry metricRegistry;
     private final int tstatesPerRefresh;
-    private final Queue<InstructionRecord> recentInstructions = new CircularFifoQueue<>(10000);
+    private final Queue<InstructionRecord> recentInstructions = new CircularFifoQueue<>(1000);
     private final ULA ula;
 
     private int currentCycleTstates;
@@ -94,7 +95,7 @@ public class Computer implements InterruptingDevice {
         }
     }
 
-    private List<Integer> breakPoints = Collections.emptyList();
+    private List<Integer> breakPoints = new ArrayList<>();
 
     public void setBreakPoints(final List<Integer> breakPoints) {
         this.breakPoints = breakPoints;

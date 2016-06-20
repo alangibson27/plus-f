@@ -425,6 +425,15 @@ public class Processor {
             }
 
             return op;
+        } catch (RomProtectionException ex) {
+            final int pc = pcReg.get();
+            if ((pc == 0x33e1 || pc == 0x33ea || pc == 0x33f4) && this.register("de").get() <= 0x0004) {
+                // Operations "ld (de), a" at 0x33e0, "ldir" at 0x33e8 and "ld (de), a" at 0x33f3
+                // are expected to write to ROM locations 0-4. Ignore.
+                return op;
+            } else {
+                throw new ExecutionException(op, ex);
+            }
         } catch (Exception ex) {
             throw new ExecutionException(op, ex);
         }

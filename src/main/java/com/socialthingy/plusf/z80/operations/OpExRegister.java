@@ -23,6 +23,6 @@ public class OpExRegister implements Operation {
 
     @Override
     public String toString() {
-        return "ex " + reg1.name() + ", " + reg2;
+        return "ex " + reg1.name() + ", " + reg2.name();
     }
 }
