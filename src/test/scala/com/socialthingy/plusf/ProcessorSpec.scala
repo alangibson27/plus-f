@@ -23,6 +23,16 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
 
     val processor = new Processor(memory, io)
 
+    def interruptsAreEnabled(): Unit = {
+      processor.setIff(0, true)
+      processor.setIff(1, true)
+    }
+
+    def interruptsAreDisabled(): Unit = {
+      processor.setIff(0, false)
+      processor.setIff(1, false)
+    }
+
     def readFromPort(port: Int, accumulator: Int): PortBuilder = new PortBuilder(port, accumulator)
 
     def verifyPortWrite(port: Int, accumulator: Int, value: Int): Unit = {
