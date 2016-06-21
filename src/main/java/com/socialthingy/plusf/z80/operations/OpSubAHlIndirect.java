@@ -23,6 +23,6 @@ public class OpSubAHlIndirect extends ArithmeticOperation {
 
     @Override
     public String toString() {
-        return "sub (hl)";
+        return useCarryFlag ? "sbc a, (hl)" : "sub (hl)";
     }
 }

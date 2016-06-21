@@ -16,6 +16,6 @@ public class OpAddAImmediate extends ArithmeticOperation {
 
     @Override
     public String toString() {
-        return "add a, n";
+        return useCarryFlag ? "adc a, n" : "add a, n";
     }
 }

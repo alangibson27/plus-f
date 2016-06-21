@@ -18,4 +18,9 @@ public class OpXorAHlIndirect extends XorOperation {
         xor(memory[hlReg.get()]);
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "xor (hl)";
+    }
 }

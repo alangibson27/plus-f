@@ -27,4 +27,9 @@ public class OpDjnz implements Operation {
             return 8;
         }
     }
+
+    @Override
+    public String toString() {
+        return "djnz n";
+    }
 }

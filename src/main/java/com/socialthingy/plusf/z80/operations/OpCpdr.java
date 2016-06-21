@@ -15,4 +15,9 @@ public class OpCpdr extends BlockOperation {
             return adjustPC();
         }
     }
+
+    @Override
+    public String toString() {
+        return "cpdr";
+    }
 }

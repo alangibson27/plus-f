@@ -20,4 +20,9 @@ public class OpJr implements Operation {
         pcReg.set(pcReg.get() + offset);
         return 12;
     }
+
+    @Override
+    public String toString() {
+        return "jr n";
+    }
 }

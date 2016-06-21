@@ -16,6 +16,6 @@ public class OpSubAImmediate extends ArithmeticOperation {
 
     @Override
     public String toString() {
-        return "sub n";
+        return useCarryFlag ? "sbc a, n" : "sub n";
     }
 }

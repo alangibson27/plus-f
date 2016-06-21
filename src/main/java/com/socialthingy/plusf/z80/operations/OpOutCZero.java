@@ -21,4 +21,9 @@ public class OpOutCZero implements Operation {
         io.write(cReg.get(), bReg.get(), 0);
         return 12;
     }
+
+    @Override
+    public String toString() {
+        return "out (c), 0";
+    }
 }

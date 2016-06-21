@@ -30,4 +30,9 @@ public class OpIn8RegC implements Operation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         return 12;
     }
+
+    @Override
+    public String toString() {
+        return "in " + destRegister.name() + ", (c)";
+    }
 }

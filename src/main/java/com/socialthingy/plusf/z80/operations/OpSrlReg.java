@@ -16,4 +16,9 @@ public class OpSrlReg extends SrlOperation {
         register.set(shift(register.get()));
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "srl " + register.name();
+    }
 }

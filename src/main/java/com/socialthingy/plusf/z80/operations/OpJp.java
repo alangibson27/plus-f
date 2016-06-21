@@ -19,4 +19,9 @@ public class OpJp implements Operation {
         pcReg.set(processor.fetchNextWord());
         return 10;
     }
+
+    @Override
+    public String toString() {
+        return "jp nn";
+    }
 }

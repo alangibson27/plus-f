@@ -16,4 +16,9 @@ public class OpOtdr extends BlockOutOperation {
         flagsRegister.set(FlagsRegister.Flag.N, true);
         return adjustPC();
     }
+
+    @Override
+    public String toString() {
+        return "otdr";
+    }
 }

@@ -16,4 +16,9 @@ public class OpInd extends BlockInOperation {
         flagsRegister.set(FlagsRegister.Flag.N, true);
         return 16;
     }
+
+    @Override
+    public String toString() {
+        return "ind";
+    }
 }

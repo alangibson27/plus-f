@@ -15,4 +15,9 @@ public class OpHalt implements Operation {
         processor.halt();
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "halt";
+    }
 }

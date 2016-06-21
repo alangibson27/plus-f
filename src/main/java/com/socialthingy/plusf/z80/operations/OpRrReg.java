@@ -18,4 +18,9 @@ public class OpRrReg extends RotateOperation {
         register.set(result);
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "rr " + register.name();
+    }
 }

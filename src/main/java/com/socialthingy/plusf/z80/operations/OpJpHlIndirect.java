@@ -19,4 +19,9 @@ public class OpJpHlIndirect implements Operation {
         pcReg.set(hlReg.get());
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "jp (hl)";
+    }
 }

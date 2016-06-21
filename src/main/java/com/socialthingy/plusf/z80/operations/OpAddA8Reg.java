@@ -6,10 +6,13 @@ import com.socialthingy.plusf.z80.Register;
 public class OpAddA8Reg extends ArithmeticOperation {
 
     private final Register register;
+    private final String toString;
 
     public OpAddA8Reg(final Processor processor, final Register register, final boolean useCarryFlag) {
         super(processor, useCarryFlag);
         this.register = register;
+
+        this.toString = (useCarryFlag ? "adc a, " : "add a, ") + register.name();
     }
 
     @Override
@@ -20,6 +23,6 @@ public class OpAddA8Reg extends ArithmeticOperation {
 
     @Override
     public String toString() {
-        return "add " + register.name();
+        return toString;
     }
 }

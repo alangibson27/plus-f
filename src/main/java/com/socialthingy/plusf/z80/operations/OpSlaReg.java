@@ -16,4 +16,9 @@ public class OpSlaReg extends SlaOperation {
         register.set(shift(register.get()));
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "sla " + register.name();
+    }
 }

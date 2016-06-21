@@ -18,4 +18,9 @@ public class OpOrAHlIndirect extends OrOperation {
         or(memory[hlReg.get()]);
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "or (hl)";
+    }
 }

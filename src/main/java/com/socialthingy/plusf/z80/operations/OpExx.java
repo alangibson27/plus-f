@@ -35,4 +35,9 @@ public class OpExx implements Operation {
         reg2.set(reg1.get());
         reg1.set(temp);
     }
+
+    @Override
+    public String toString() {
+        return "exx";
+    }
 }

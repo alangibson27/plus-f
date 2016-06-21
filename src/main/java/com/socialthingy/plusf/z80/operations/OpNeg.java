@@ -27,4 +27,9 @@ public class OpNeg implements Operation {
         flagsRegister.set(FlagsRegister.Flag.C, result[0] != 0);
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "neg";
+    }
 }

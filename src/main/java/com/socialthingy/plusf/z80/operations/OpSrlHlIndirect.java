@@ -20,4 +20,9 @@ public class OpSrlHlIndirect extends SrlOperation {
         Memory.set(memory, address, shift(memory[address]));
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "srl (hl)";
+    }
 }

@@ -12,4 +12,9 @@ public class OpCpi extends BlockOperation {
         blockCompare();
         return 16;
     }
+
+    @Override
+    public String toString() {
+        return "cpi";
+    }
 }

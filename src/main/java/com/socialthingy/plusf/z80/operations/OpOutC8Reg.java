@@ -20,4 +20,9 @@ public class OpOutC8Reg implements Operation {
         io.write(cReg.get(), bReg.get(), sourceRegister.get());
         return 12;
     }
+
+    @Override
+    public String toString() {
+        return "out (c), " + sourceRegister.name();
+    }
 }

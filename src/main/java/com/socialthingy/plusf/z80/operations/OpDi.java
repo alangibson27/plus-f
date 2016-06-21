@@ -16,4 +16,9 @@ public class OpDi implements Operation {
         processor.setIff(1, false);
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "di";
+    }
 }

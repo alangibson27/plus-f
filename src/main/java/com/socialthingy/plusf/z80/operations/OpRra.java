@@ -16,4 +16,9 @@ public class OpRra extends RotateOperation {
         setCarryAndNegateAfterRotate(lowBit);
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "rra";
+    }
 }

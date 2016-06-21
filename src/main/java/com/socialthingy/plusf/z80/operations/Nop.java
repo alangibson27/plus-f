@@ -7,4 +7,9 @@ public class Nop implements Operation {
     public int execute() {
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "nop";
+    }
 }

@@ -19,4 +19,9 @@ public class OpPop16Reg implements Operation {
         register.set(Word.from(processor.popByte(), processor.popByte()));
         return 10;
     }
+
+    @Override
+    public String toString() {
+        return "pop " + register.name();
+    }
 }

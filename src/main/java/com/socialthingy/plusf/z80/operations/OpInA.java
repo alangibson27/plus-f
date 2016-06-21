@@ -21,4 +21,9 @@ public class OpInA implements Operation {
         accumulator.set(io.read(processor.fetchNextByte(), accumulator.get()));
         return 11;
     }
+
+    @Override
+    public String toString() {
+        return "in a, (n)";
+    }
 }

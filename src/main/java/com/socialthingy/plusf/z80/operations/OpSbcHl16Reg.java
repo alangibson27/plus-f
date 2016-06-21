@@ -34,4 +34,9 @@ public class OpSbcHl16Reg implements Operation {
         hlReg.set(result[0]);
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "sbc hl, " + sourceReg.name();
+    }
 }

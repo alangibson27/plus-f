@@ -18,4 +18,9 @@ public class OpScf implements Operation {
         flagsRegister.set(FlagsRegister.Flag.C, true);
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "scf";
+    }
 }

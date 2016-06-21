@@ -32,4 +32,9 @@ public class OpRld extends RotateOperation {
 
         return 18;
     }
+
+    @Override
+    public String toString() {
+        return "rld";
+    }
 }

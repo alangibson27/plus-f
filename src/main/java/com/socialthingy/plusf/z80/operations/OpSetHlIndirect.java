@@ -8,11 +8,14 @@ public class OpSetHlIndirect extends BitModificationOperation {
 
     private final Register hlReg;
     private final int[] memory;
+    private final String toString;
 
     public OpSetHlIndirect(final Processor processor, final int[] memory, final int bitPosition) {
         super(bitPosition);
         this.hlReg = processor.register("hl");
         this.memory = memory;
+
+        this.toString = String.format("set %d, (hl)", bitPosition);
     }
 
     @Override
@@ -24,6 +27,6 @@ public class OpSetHlIndirect extends BitModificationOperation {
 
     @Override
     public String toString() {
-        return "set (hl)";
+        return toString;
     }
 }

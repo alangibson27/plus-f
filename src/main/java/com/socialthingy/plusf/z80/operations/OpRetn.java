@@ -13,4 +13,9 @@ public class OpRetn extends RetOperation {
         ret();
         return 14;
     }
+
+    @Override
+    public String toString() {
+        return "retn";
+    }
 }
