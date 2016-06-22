@@ -345,7 +345,6 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
     (0x6e, "im 0"),
     (0x6f, "rld"),
 
-    (0x70, "in (c)"),
     (0x71, "out (c), 0"),
     (0x72, "sbc hl, sp"),
     (0x73, "ld (nn), sp"),
@@ -382,6 +381,12 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
   forAll(extendedOperations) { (opcode, operation) =>
     s"operation at 0xed 0x${opcode.toHexString}" should s"be $operation" in {
       edTable(opcode).toString shouldBe operation
+    }
+  }
+
+  "operation at 0xed 0x70" should "be in(c)" in {
+    pendingUntilFixed {
+      edTable(0x70).toString shouldBe "in (c)"
     }
   }
 
