@@ -21,4 +21,9 @@ public class OpOutA implements Operation {
         io.write(processor.fetchNextByte(), accumulator.get(), accumulator.get());
         return 11;
     }
+
+    @Override
+    public String toString() {
+        return "out (n), a";
+    }
 }

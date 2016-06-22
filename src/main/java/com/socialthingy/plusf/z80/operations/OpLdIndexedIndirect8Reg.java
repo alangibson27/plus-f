@@ -24,6 +24,6 @@ public class OpLdIndexedIndirect8Reg implements Operation {
 
     @Override
     public String toString() {
-        return String.format("ld (%s), %s", indexRegister.name(), source.name());
+        return String.format("ld (%s + n), %s", indexRegister.name(), source.name());
     }
 }

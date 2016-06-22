@@ -13,4 +13,9 @@ public class OpRlca extends RotateOperation {
         accumulator.set(rlcValue(accumulator.get()));
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "rlca";
+    }
 }

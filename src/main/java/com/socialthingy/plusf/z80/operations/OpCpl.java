@@ -21,4 +21,9 @@ public class OpCpl implements Operation {
         flagsRegister.set(FlagsRegister.Flag.N, true);
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "cpl";
+    }
 }

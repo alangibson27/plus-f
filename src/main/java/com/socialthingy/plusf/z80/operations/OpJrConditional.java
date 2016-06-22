@@ -13,6 +13,7 @@ public class OpJrConditional implements Operation {
     private final FlagsRegister flagsRegister;
     private final Flag flag;
     private final boolean whenSet;
+    private final String toString;
 
     public OpJrConditional(final Processor processor, final Flag flag, final boolean whenSet) {
         this.processor = processor;
@@ -20,6 +21,12 @@ public class OpJrConditional implements Operation {
         this.flagsRegister = FlagsRegister.class.cast(processor.register("f"));
         this.flag = flag;
         this.whenSet = whenSet;
+
+        if (whenSet) {
+            this.toString = "jr " + flag.name().toLowerCase() + ", n";
+        } else {
+            this.toString = "jr n" + flag.name().toLowerCase() + ", n";
+        }
     }
 
     @Override
@@ -31,5 +38,10 @@ public class OpJrConditional implements Operation {
         } else {
             return 7;
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.toString;
     }
 }

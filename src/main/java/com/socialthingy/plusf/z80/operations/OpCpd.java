@@ -12,4 +12,9 @@ public class OpCpd extends BlockOperation {
         blockCompare();
         return 16;
     }
+
+    @Override
+    public String toString() {
+        return "cpd";
+    }
 }

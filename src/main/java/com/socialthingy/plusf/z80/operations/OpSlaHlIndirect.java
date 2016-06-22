@@ -20,4 +20,9 @@ public class OpSlaHlIndirect extends SlaOperation {
         Memory.set(memory, address, shift(memory[address]));
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "sla (hl)";
+    }
 }

@@ -23,6 +23,6 @@ public class OpAddAHlIndirect extends ArithmeticOperation {
 
     @Override
     public String toString() {
-        return "add (hl)";
+        return useCarryFlag ? "adc a, (hl)" : "add a, (hl)";
     }
 }

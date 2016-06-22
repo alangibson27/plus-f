@@ -17,4 +17,9 @@ public class OpOrA8Reg extends OrOperation {
         or(register.get());
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "or " + register.name();
+    }
 }

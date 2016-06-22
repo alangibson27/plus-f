@@ -11,6 +11,7 @@ public class OpJpConditional implements Operation {
     private final Register pcReg;
     private final FlagsRegister.Flag flag;
     private final boolean whenSet;
+    private final String toString;
 
     public OpJpConditional(final Processor processor, final FlagsRegister.Flag flag, final boolean whenSet) {
         this.pcReg = processor.register("pc");
@@ -18,6 +19,12 @@ public class OpJpConditional implements Operation {
         this.processor = processor;
         this.flag = flag;
         this.whenSet = whenSet;
+
+        if (whenSet) {
+            this.toString = "jp " + flag.name().toLowerCase() + ", nn";
+        } else {
+            this.toString = "jp n" + flag.name().toLowerCase() + ", nn";
+        }
     }
 
     @Override
@@ -27,5 +34,10 @@ public class OpJpConditional implements Operation {
             pcReg.set(destination);
         }
         return 10;
+    }
+
+    @Override
+    public String toString() {
+        return toString;
     }
 }

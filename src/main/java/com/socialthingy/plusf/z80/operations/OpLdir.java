@@ -14,4 +14,9 @@ public class OpLdir extends BlockOperation {
         flagsRegister.set(FlagsRegister.Flag.P, false);
         return adjustPC();
     }
+
+    @Override
+    public String toString() {
+        return "ldir";
+    }
 }

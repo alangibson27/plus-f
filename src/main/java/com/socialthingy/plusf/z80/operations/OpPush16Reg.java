@@ -20,4 +20,9 @@ public class OpPush16Reg implements Operation {
         processor.pushByte(register.getLow());
         return 11;
     }
+
+    @Override
+    public String toString() {
+        return "push " + register.name();
+    }
 }

@@ -20,4 +20,9 @@ public class OpSraHlIndirect extends SraOperation {
         Memory.set(memory, address, shift(memory[address]));
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "sra (hl)";
+    }
 }

@@ -33,4 +33,9 @@ public class OpExSpIndirectHl implements Operation {
         Memory.set(memory, spHigh, oldH);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return "ex (sp), hl";
+    }
 }

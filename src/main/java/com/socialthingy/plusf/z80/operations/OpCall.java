@@ -12,4 +12,9 @@ public class OpCall extends CallOperation {
         call(processor.fetchNextWord());
         return 17;
     }
+
+    @Override
+    public String toString() {
+        return "call nn";
+    }
 }

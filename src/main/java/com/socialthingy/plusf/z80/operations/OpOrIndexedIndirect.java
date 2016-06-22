@@ -20,4 +20,9 @@ public class OpOrIndexedIndirect extends OrOperation {
         or(memory[indexRegister.withOffset(processor.fetchNextByte())]);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return "or (" + indexRegister.name() + " + n)";
+    }
 }

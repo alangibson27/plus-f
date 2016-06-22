@@ -17,4 +17,9 @@ public class OpXorAIndexed8Reg extends XorOperation {
         xor(register.get());
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "xor " + register.name();
+    }
 }

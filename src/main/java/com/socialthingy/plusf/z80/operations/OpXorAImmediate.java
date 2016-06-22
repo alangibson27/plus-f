@@ -16,4 +16,9 @@ public class OpXorAImmediate extends XorOperation {
         xor(processor.fetchNextByte());
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "xor n";
+    }
 }

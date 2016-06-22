@@ -97,4 +97,9 @@ public class OpDaa implements Operation {
         flagsRegister.set(FlagsRegister.Flag.Z, result == 0);
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(result));
     }
+
+    @Override
+    public String toString() {
+        return "daa";
+    }
 }

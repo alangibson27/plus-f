@@ -19,4 +19,9 @@ public class OpCcf implements Operation {
         flagsRegister.set(FlagsRegister.Flag.C, !oldCarry);
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "ccf";
+    }
 }

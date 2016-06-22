@@ -16,4 +16,9 @@ public class OpOtir extends BlockOutOperation {
         flagsRegister.set(FlagsRegister.Flag.N, true);
         return adjustPC();
     }
+
+    @Override
+    public String toString() {
+        return "otir";
+    }
 }

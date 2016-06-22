@@ -16,4 +16,9 @@ public class OpOrAImmediate extends OrOperation {
         or(processor.fetchNextByte());
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "or n";
+    }
 }

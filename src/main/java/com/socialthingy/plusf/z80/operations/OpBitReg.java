@@ -6,10 +6,13 @@ import com.socialthingy.plusf.z80.Register;
 public class OpBitReg extends BitOperation {
 
     private final Register register;
+    private final String toString;
 
     public OpBitReg(final Processor processor, final Register register, final int bitPosition) {
         super(processor, bitPosition);
         this.register = register;
+
+        this.toString = String.format("bit %d, %s", bitPosition, register.name());
     }
 
     @Override
@@ -20,6 +23,6 @@ public class OpBitReg extends BitOperation {
 
     @Override
     public String toString() {
-        return "bit " + register.name();
+        return toString;
     }
 }

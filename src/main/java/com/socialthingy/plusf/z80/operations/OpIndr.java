@@ -17,4 +17,9 @@ public class OpIndr extends BlockInOperation {
 
         return adjustPC();
     }
+
+    @Override
+    public String toString() {
+        return "indr";
+    }
 }

@@ -17,4 +17,9 @@ public class OpIm implements Operation {
         processor.setInterruptMode(mode);
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "im " + mode;
+    }
 }

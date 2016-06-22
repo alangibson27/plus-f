@@ -27,4 +27,9 @@ public class OpExSpIndirectIndexed implements Operation {
         Memory.set(memory, spHigh, (oldIndex & 0xff00) >> 8);
         return 23;
     }
+
+    @Override
+    public String toString() {
+        return "ex (sp), " + indexRegister.name();
+    }
 }

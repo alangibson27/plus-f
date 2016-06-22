@@ -15,4 +15,9 @@ public class OpCpir extends BlockOperation {
             return adjustPC();
         }
     }
+
+    @Override
+    public String toString() {
+        return "cpir";
+    }
 }

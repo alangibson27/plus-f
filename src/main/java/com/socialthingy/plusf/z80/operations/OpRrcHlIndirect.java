@@ -23,4 +23,9 @@ public class OpRrcHlIndirect extends RotateOperation {
         Memory.set(memory, address, result);
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "rrc (hl)";
+    }
 }

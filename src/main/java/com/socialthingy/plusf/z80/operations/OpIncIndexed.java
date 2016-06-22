@@ -16,4 +16,9 @@ public class OpIncIndexed implements Operation {
         register.set(register.get() + 1);
         return 10;
     }
+
+    @Override
+    public String toString() {
+        return "inc " + register.name();
+    }
 }

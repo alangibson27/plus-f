@@ -15,4 +15,9 @@ public class OpEi implements Operation {
         processor.enableInterrupts();
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "ei";
+    }
 }

@@ -12,4 +12,9 @@ public class OpLdd extends BlockOperation {
         blockTransfer();
         return 16;
     }
+
+    @Override
+    public String toString() {
+        return "ldd";
+    }
 }
