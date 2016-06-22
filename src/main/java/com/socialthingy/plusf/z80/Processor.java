@@ -16,6 +16,12 @@ public class Processor {
     private final Map<String, Register> registers = new HashMap<>();
     private final int[] memory;
     private final Operation[] operations;
+    private final Operation[] edOperations;
+    private final Operation[] cbOperations;
+    private final Operation[] ddOperations;
+    private final Operation[] ddCbOperations;
+    private final Operation[] fdOperations;
+    private final Operation[] fdCbOperations;
     private boolean enableIff = false;
     private boolean halting = false;
     private boolean iffs[] = new boolean[2];
@@ -36,6 +42,12 @@ public class Processor {
 
         prepareRegisters();
         operations = OperationTable.build(this, memory, io);
+        edOperations = OperationTable.buildEdGroup(this, memory, io);
+        cbOperations = OperationTable.buildCbGroup(this, memory);
+        ddOperations = OperationTable.buildIndexedGroup(this, memory, (IndexRegister) registers.get("ix"));
+        fdOperations = OperationTable.buildIndexedGroup(this, memory, (IndexRegister) registers.get("iy"));
+        ddCbOperations = OperationTable.buildIndexedBitwiseGroup(this, memory, (IndexRegister) registers.get("ix"));
+        fdCbOperations = OperationTable.buildIndexedBitwiseGroup(this, memory, (IndexRegister) registers.get("iy"));
 
         this.im1ResponseOp = new OpRst(this, 0x0038);
         this.nmiResponseOp = new OpRst(this, 0x0066);
@@ -179,7 +191,35 @@ public class Processor {
             if (halting) {
                 return operations[0x00];
             } else {
-                return operations[fetchNextOpcode()];
+                int opCode = fetchNextOpcode();
+                switch (opCode) {
+                    case 0xcb:
+                        return cbOperations[fetchNextOpcode()];
+
+                    case 0xed:
+                        return edOperations[fetchNextOpcode()];
+
+                    case 0xdd:
+                        opCode = fetchNextOpcode();
+                        if (opCode == 0xcb) {
+                            fetchNextByte();
+                            return ddCbOperations[fetchNextByte()];
+                        } else {
+                            return ddOperations[opCode];
+                        }
+
+                    case 0xfd:
+                        opCode = fetchNextOpcode();
+                        if (opCode == 0xcb) {
+                            fetchNextOpcode();
+                            return fdCbOperations[fetchNextOpcode()];
+                        } else {
+                            return fdOperations[opCode];
+                        }
+
+                    default:
+                        return operations[opCode];
+                }
             }
         }
     }
