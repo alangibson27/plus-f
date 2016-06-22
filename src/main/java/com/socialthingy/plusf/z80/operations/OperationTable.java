@@ -280,11 +280,6 @@ public class OperationTable {
         operations[0xfe] = new OpCpImmediate(processor);
         operations[0xff] = new OpRst(processor, 0x38);
 
-        operations[0xcb] = new GroupCb(processor, memory);
-        operations[0xed] = new GroupEd(processor, memory, io);
-        operations[0xdd] = new GroupDdFd(processor, memory, IndexRegister.class.cast(processor.register("ix")));
-        operations[0xfd] = new GroupDdFd(processor, memory, IndexRegister.class.cast(processor.register("iy")));
-        
         return operations;
     }
 
@@ -767,14 +762,56 @@ public class OperationTable {
         operations[0xbd] = new OpCpAIndexed8Reg(processor, indexRegister.lowReg());
         operations[0xbe] = new OpCpIndexedIndirect(processor, memory, indexRegister);
 
-        operations[0xcb] = new GroupCbIndexed(indexRegister, processor, memory);
-
         operations[0xe1] = new OpPopIndexed(processor, indexRegister);
         operations[0xe3] = new OpExSpIndirectIndexed(processor, indexRegister, memory);
         operations[0xe5] = new OpPushIndexed(processor, indexRegister);
         operations[0xe9] = new OpJpIndexedIndirect(processor, indexRegister);
 
         operations[0xf9] = new OpLdSpIndexed(processor, indexRegister);
+
+        return operations;
+    }
+
+    public static Operation[] buildIndexedBitwiseGroup(
+        final Processor processor,
+        final int[] memory,
+        final IndexRegister indexRegister
+    ) {
+        final Operation[] operations = new Operation[0x100];
+        operations[0x06] = new OpRlcIndexedIndirect(processor, memory, indexRegister);
+        operations[0x0e] = new OpRrcIndexedIndirect(processor, memory, indexRegister);
+        operations[0x16] = new OpRlIndexedIndirect(processor, memory, indexRegister);
+        operations[0x1e] = new OpRrIndexedIndirect(processor, memory, indexRegister);
+        operations[0x26] = new OpSlaIndexedIndirect(processor, memory, indexRegister);
+        operations[0x2e] = new OpSraIndexedIndirect(processor, memory, indexRegister);
+        operations[0x3e] = new OpSrlIndexedIndirect(processor, memory, indexRegister);
+
+        operations[0x46] = new OpBitIndexedIndirect(processor, memory, indexRegister, 0);
+        operations[0x4e] = new OpBitIndexedIndirect(processor, memory, indexRegister, 1);
+        operations[0x56] = new OpBitIndexedIndirect(processor, memory, indexRegister, 2);
+        operations[0x5e] = new OpBitIndexedIndirect(processor, memory, indexRegister, 3);
+        operations[0x66] = new OpBitIndexedIndirect(processor, memory, indexRegister, 4);
+        operations[0x6e] = new OpBitIndexedIndirect(processor, memory, indexRegister, 5);
+        operations[0x76] = new OpBitIndexedIndirect(processor, memory, indexRegister, 6);
+        operations[0x7e] = new OpBitIndexedIndirect(processor, memory, indexRegister, 7);
+
+        operations[0x86] = new OpResIndexedIndirect(processor, memory, indexRegister, 0);
+        operations[0x8e] = new OpResIndexedIndirect(processor, memory, indexRegister, 1);
+        operations[0x96] = new OpResIndexedIndirect(processor, memory, indexRegister, 2);
+        operations[0x9e] = new OpResIndexedIndirect(processor, memory, indexRegister, 3);
+        operations[0xa6] = new OpResIndexedIndirect(processor, memory, indexRegister, 4);
+        operations[0xae] = new OpResIndexedIndirect(processor, memory, indexRegister, 5);
+        operations[0xb6] = new OpResIndexedIndirect(processor, memory, indexRegister, 6);
+        operations[0xbe] = new OpResIndexedIndirect(processor, memory, indexRegister, 7);
+
+        operations[0xc6] = new OpSetIndexedIndirect(processor, memory, indexRegister, 0);
+        operations[0xce] = new OpSetIndexedIndirect(processor, memory, indexRegister, 1);
+        operations[0xd6] = new OpSetIndexedIndirect(processor, memory, indexRegister, 2);
+        operations[0xde] = new OpSetIndexedIndirect(processor, memory, indexRegister, 3);
+        operations[0xe6] = new OpSetIndexedIndirect(processor, memory, indexRegister, 4);
+        operations[0xee] = new OpSetIndexedIndirect(processor, memory, indexRegister, 5);
+        operations[0xf6] = new OpSetIndexedIndirect(processor, memory, indexRegister, 6);
+        operations[0xfe] = new OpSetIndexedIndirect(processor, memory, indexRegister, 7);
 
         return operations;
     }
