@@ -17,4 +17,9 @@ public class OpOrAIndexed8Reg extends OrOperation {
         or(register.get());
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "or " + register.name();
+    }
 }

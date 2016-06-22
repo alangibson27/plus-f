@@ -20,4 +20,9 @@ public class OpPushIndexed implements Operation {
         processor.pushByte(value & 0x00ff);
         return 15;
     }
+
+    @Override
+    public String toString() {
+        return "push " + indexRegister.name();
+    }
 }

@@ -20,4 +20,9 @@ public class OpXorIndexedIndirect extends XorOperation {
         xor(memory[indexRegister.withOffset(processor.fetchNextByte())]);
         return 19;
     }
+
+    @Override
+    public String toString() {
+        return "xor (" + indexRegister.name() + " + n)";
+    }
 }

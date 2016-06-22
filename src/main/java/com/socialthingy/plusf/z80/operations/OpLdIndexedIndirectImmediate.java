@@ -24,6 +24,6 @@ public class OpLdIndexedIndirectImmediate implements Operation {
 
     @Override
     public String toString() {
-        return String.format("ld (%s), n", indexRegister.name());
+        return String.format("ld (%s + n), n", indexRegister.name());
     }
 }

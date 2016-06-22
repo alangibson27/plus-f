@@ -27,6 +27,6 @@ public class OpDecIndexedIndirect extends DecOperation {
 
     @Override
     public String toString() {
-        return "dec (" + indexRegister.name() + ")";
+        return "dec (" + indexRegister.name() + " + n)";
     }
 }

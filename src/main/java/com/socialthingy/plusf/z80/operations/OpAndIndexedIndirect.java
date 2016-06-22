@@ -23,6 +23,6 @@ public class OpAndIndexedIndirect extends AndOperation {
 
     @Override
     public String toString() {
-        return "and (" + indexRegister.name() + ")";
+        return "and (" + indexRegister.name() + " + n)";
     }
 }

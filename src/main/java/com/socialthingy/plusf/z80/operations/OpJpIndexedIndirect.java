@@ -19,4 +19,9 @@ public class OpJpIndexedIndirect implements Operation {
         pcReg.set(indexRegister.get());
         return 8;
     }
+
+    @Override
+    public String toString() {
+        return "jp (" + indexRegister.name() + ")";
+    }
 }

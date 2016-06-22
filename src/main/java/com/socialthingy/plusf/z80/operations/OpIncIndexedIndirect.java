@@ -27,6 +27,6 @@ public class OpIncIndexedIndirect extends IncOperation {
 
     @Override
     public String toString() {
-        return "inc (" + indexRegister.name() + ")";
+        return "inc (" + indexRegister.name() + " + n)";
     }
 }

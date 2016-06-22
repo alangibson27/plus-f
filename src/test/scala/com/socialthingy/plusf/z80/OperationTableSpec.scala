@@ -7,6 +7,14 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class OperationTableSpec extends FlatSpec with Matchers with TableDrivenPropertyChecks with MockitoSugar {
 
+  val memory = Array.ofDim[Int](0x10000)
+  val io = mock[IO]
+  val processor = new Processor(memory, io)
+  val table = OperationTable.build(processor, memory, io)
+  val edTable = OperationTable.buildEdGroup(processor, memory, io)
+  val cbTable = OperationTable.buildCbGroup(processor, memory)
+  val ixTable = OperationTable.buildIndexedGroup(processor, memory, processor.register("ix").asInstanceOf[IndexRegister])
+
   val singleOpcodeOperations = Table(
     ("opcode", "operation"),
     (0x00, "nop"),
@@ -278,15 +286,8 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
     (0xff, "rst 38")
   )
 
-  val memory = Array.ofDim[Int](0x10000)
-  val io = mock[IO]
-  val processor = new Processor(memory, io)
-  val table = OperationTable.build(processor, memory, io)
-  val edTable = OperationTable.buildEdGroup(processor, memory, io)
-  val cbTable = OperationTable.buildCbGroup(processor, memory)
-
   forAll(singleOpcodeOperations) { (opcode, operation) =>
-    s"operation at ${opcode.toHexString}" should s"be $operation" in {
+    s"operation at 0x${opcode.toHexString}" should s"be $operation" in {
       table(opcode).toString shouldBe operation
     }
   }
@@ -379,7 +380,7 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
   )
 
   forAll(extendedOperations) { (opcode, operation) =>
-    s"operation at ${opcode.toHexString}" should s"be $operation" in {
+    s"operation at 0xed 0x${opcode.toHexString}" should s"be $operation" in {
       edTable(opcode).toString shouldBe operation
     }
   }
@@ -657,14 +658,117 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
     (0xfd, "set 7, l"),
     (0xfe, "set 7, (hl)"),
     (0xff, "set 7, a")
-
   )
 
   forAll(bitOperations) { (opcode, operation) =>
-    s"operation at ${opcode.toHexString}" should s"be $operation" in {
+    s"operation at 0xcb 0x${opcode.toHexString}" should s"be $operation" in {
       cbTable(opcode).toString shouldBe operation
     }
   }
 
+  val ixOperations = Table(
+    ("opcode", "operation"),
+    (0x09, "add ix, bc"),
+    (0x19, "add ix, de"),
+    (0x21, "ld ix, nn"),
+    (0x22, "ld (nn), ix"),
+    (0x23, "inc ix"),
+    (0x24, "inc ixh"),
+    (0x25, "dec ixh"),
+    (0x26, "ld ixh, n"),
+    (0x29, "add ix, ix"),
+    (0x2a, "ld ix, (nn)"),
+    (0x2b, "dec ix"),
+    (0x2c, "inc ixl"),
+    (0x2d, "dec ixl"),
+    (0x2e, "ld ixl, n"),
+
+    (0x34, "inc (ix + n)"),
+    (0x35, "dec (ix + n)"),
+    (0x36, "ld (ix + n), n"),
+    (0x39, "add ix, sp"),
+
+    (0x44, "ld b, ixh"),
+    (0x45, "ld b, ixl"),
+    (0x46, "ld b, (ix + n)"),
+    (0x4c, "ld c, ixh"),
+    (0x4d, "ld c, ixl"),
+    (0x4e, "ld c, (ix + n)"),
+
+    (0x54, "ld d, ixh"),
+    (0x55, "ld d, ixl"),
+    (0x56, "ld d, (ix + n)"),
+    (0x5c, "ld e, ixh"),
+    (0x5d, "ld e, ixl"),
+    (0x5e, "ld e, (ix + n)"),
+
+    (0x60, "ld ixh, b"),
+    (0x61, "ld ixh, c"),
+    (0x62, "ld ixh, d"),
+    (0x63, "ld ixh, e"),
+    (0x64, "ld ixh, ixh"),
+    (0x65, "ld ixh, ixl"),
+    (0x66, "ld h, (ix + n)"),
+    (0x67, "ld ixh, a"),
+    (0x68, "ld ixl, b"),
+    (0x69, "ld ixl, c"),
+    (0x6a, "ld ixl, d"),
+    (0x6b, "ld ixl, e"),
+    (0x6c, "ld ixl, ixh"),
+    (0x6d, "ld ixl, ixl"),
+    (0x6e, "ld l, (ix + n)"),
+    (0x6f, "ld ixl, a"),
+
+    (0x70, "ld (ix + n), b"),
+    (0x71, "ld (ix + n), c"),
+    (0x72, "ld (ix + n), d"),
+    (0x73, "ld (ix + n), e"),
+    (0x74, "ld (ix + n), h"),
+    (0x75, "ld (ix + n), l"),
+    (0x77, "ld (ix + n), a"),
+    (0x7c, "ld a, ixh"),
+    (0x7d, "ld a, ixl"),
+    (0x7e, "ld a, (ix + n)"),
+
+    (0x84, "add a, ixh"),
+    (0x85, "add a, ixl"),
+    (0x86, "add a, (ix + n)"),
+    (0x8c, "adc a, ixh"),
+    (0x8d, "adc a, ixl"),
+    (0x8e, "adc a, (ix + n)"),
+
+    (0x94, "sub a, ixh"),
+    (0x95, "sub a, ixl"),
+    (0x96, "sub a, (ix + n)"),
+    (0x9c, "sbc a, ixh"),
+    (0x9d, "sbc a, ixl"),
+    (0x9e, "sbc a, (ix + n)"),
+
+    (0xa4, "and ixh"),
+    (0xa5, "and ixl"),
+    (0xa6, "and (ix + n)"),
+    (0xac, "xor ixh"),
+    (0xad, "xor ixl"),
+    (0xae, "xor (ix + n)"),
+
+    (0xb4, "or ixh"),
+    (0xb5, "or ixl"),
+    (0xb6, "or (ix + n)"),
+    (0xbc, "cp ixh"),
+    (0xbd, "cp ixl"),
+    (0xbe, "cp (ix + n)"),
+
+    (0xe1, "pop ix"),
+    (0xe3, "ex (sp), ix"),
+    (0xe5, "push ix"),
+    (0xe9, "jp (ix)"),
+    (0xf9, "ld sp, ix")
+  )
+
+  forAll(ixOperations) { (opcode, operation) =>
+    s"operation at 0xdd 0x${opcode.toHexString}" should s"be $operation" in {
+      ixTable(opcode).toString shouldBe operation
+    }
+  }
 
 }

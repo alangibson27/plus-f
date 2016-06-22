@@ -19,4 +19,9 @@ public class OpPopIndexed implements Operation {
         indexRegister.set(Word.from(processor.popByte(), processor.popByte()));
         return 14;
     }
+
+    @Override
+    public String toString() {
+        return "pop " + indexRegister.name();
+    }
 }

@@ -23,6 +23,6 @@ public class OpCpIndexedIndirect extends ArithmeticOperation {
 
     @Override
     public String toString() {
-        return "cp (" + indexRegister.name() + ")";
+        return "cp (" + indexRegister.name() + " + n)";
     }
 }
