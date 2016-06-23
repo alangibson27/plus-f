@@ -24,7 +24,7 @@ abstract class ArithmeticOperation implements Operation {
         final byte signedAccumulator = (byte) accumulator.get();
 
         if (useCarryFlag && flagsRegister.get(Flag.C)) {
-            value = (value + 1) & 0xff;
+            value = value + 1;
         }
 
         final int[] result = Bitwise.add(accumulator.get(), value);
@@ -37,7 +37,7 @@ abstract class ArithmeticOperation implements Operation {
         final byte signedAccumulator = (byte) accumulator.get();
 
         if (useCarryFlag && flagsRegister.get(Flag.C)) {
-            value = (value + 1) & 0xff;
+            value = value + 1;
         }
 
         final int[] result = Bitwise.sub(accumulator.get(), value);

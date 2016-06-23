@@ -21,8 +21,8 @@ public class OpSbcHl16Reg implements Operation {
     public int execute() {
         final int hlValue = hlReg.get();
         final int carry = flagsRegister.get(FlagsRegister.Flag.C) ? 1 : 0;
-        final int[] result = Bitwise.subWord(hlValue, (sourceReg.get() + carry) & 0xffff);
-        //TODO - review this final int[] result = Bitwise.subWord(hlValue, sourceReg.get() + carry);
+//        final int[] result = Bitwise.subWord(hlValue, (sourceReg.get() + carry) & 0xffff);
+        final int[] result = Bitwise.subWord(hlValue, sourceReg.get() + carry);
 
         flagsRegister.set(FlagsRegister.Flag.S, (result[0] & 0x8000) > 0);
         flagsRegister.set(FlagsRegister.Flag.Z, result[0] == 0);
