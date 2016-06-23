@@ -6,12 +6,11 @@ import com.socialthingy.plusf.z80.operations.OpRst;
 import com.socialthingy.plusf.z80.operations.OperationTable;
 
 import java.io.PrintStream;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class Processor {
+    private static final Logger logger = Logger.getLogger(Processor.class.getName());
 
     private final Map<String, Register> registers = new HashMap<>();
     private final int[] memory;
@@ -36,6 +35,11 @@ public class Processor {
     private final OpRst nmiResponseOp;
     private int lastTime;
     private Operation lastOp;
+
+    private Set<String> capturedOperations = new HashSet<>();
+    private Integer captureStart = 0x19fb;
+    private Integer captureEnd = 0x1a15;
+    private boolean capturing = false;
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -142,8 +146,20 @@ public class Processor {
     }
 
     public Operation execute() throws ExecutionException {
+        if (!capturing && captureStart != null && pcReg.get() == captureStart) {
+            capturing = true;
+            capturedOperations.clear();
+        }
+
+        if (capturing && captureEnd != null && pcReg.get() == captureEnd) {
+            capturing = false;
+            logger.info("Captured operations");
+            capturedOperations.forEach(logger::info);
+        }
+
         final boolean enableIffAfterExecution = enableIff;
         final Operation op = fetch();
+        capturedOperations.add(op.toString());
         this.lastOp = op;
         if (op == null) {
             throw new IllegalStateException("Unimplemented operation");
