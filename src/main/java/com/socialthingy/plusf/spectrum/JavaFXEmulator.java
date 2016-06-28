@@ -349,7 +349,7 @@ public class JavaFXEmulator extends Application {
     private void load(final ActionEvent ae) {
         withComputerPaused(() -> {
             final FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Load Snapshot File");
+            fileChooser.setTitle("Load Z80 or TZX file");
             if (userPrefs.containsKey(PREF_LAST_SNAPSHOT_DIRECTORY)) {
                 fileChooser.setInitialDirectory(new File(userPrefs.getProperty(PREF_LAST_SNAPSHOT_DIRECTORY)));
             }
