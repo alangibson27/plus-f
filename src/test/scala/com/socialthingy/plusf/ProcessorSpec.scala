@@ -1,7 +1,7 @@
 package com.socialthingy.plusf
 
 import com.socialthingy.plusf.z80.FlagsRegister.Flag
-import com.socialthingy.plusf.z80.{ByteRegister, IO, Processor}
+import com.socialthingy.plusf.z80.{ByteRegister, IO, Memory, Processor}
 import org.mockito.Matchers._
 import org.mockito.Mockito.{verify, when => mockitoWhen}
 import org.mockito.{Matchers => MockitoMatchers}
@@ -13,6 +13,8 @@ import scala.util.Random
 trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with MockitoSugar {
 
   trait Machine {
+    Memory.disableMemoryProtection()
+
     var instructionPointer = 0x0
     val memory = new Array[Int](0x10000)
     val io = {

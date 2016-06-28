@@ -6,15 +6,12 @@ import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.snapshot.SnapshotLoader;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.z80.*;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,11 +25,9 @@ public class Computer implements InterruptingDevice {
     private final Processor processor;
     private final MetricRegistry metricRegistry;
     private final int tstatesPerRefresh;
-    private final Queue<InstructionRecord> recentInstructions = new CircularFifoQueue<>(1000);
     private final ULA ula;
 
     private int currentCycleTstates;
-    private boolean memoryProtectionEnabled;
 
     public Computer(
         final Processor processor,
@@ -48,11 +43,6 @@ public class Computer implements InterruptingDevice {
         this.ula = ula;
 
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
-    }
-
-    public boolean toggleMemoryProtectionEnabled() {
-        memoryProtectionEnabled = !memoryProtectionEnabled;
-        return memoryProtectionEnabled;
     }
 
     protected void dump(final PrintStream out) {
@@ -95,56 +85,20 @@ public class Computer implements InterruptingDevice {
         }
     }
 
-    private List<Integer> breakPoints = new ArrayList<>();
-
-    public void setBreakPoints(final List<Integer> breakPoints) {
-        this.breakPoints = breakPoints;
-    }
-
     public void singleCycle() {
         currentCycleTstates = 0;
         processor.interrupt(new InterruptRequest(this));
 
         final Timer.Context timer = processorExecuteTimer.time();
-        recentInstructions.add(new InstructionRecord(
-            processor.register("pc").get(),
-            new Operation() {
-                @Override
-                public int execute() {
-                    return 0;
-                }
-
-                @Override
-                public String toString() {
-                    return "NEW CYCLE";
-                }
-            }
-        ));
-
         ula.newCycle();
         try {
             while (currentCycleTstates < tstatesPerRefresh) {
-                if (breakPoints.contains(processor.register("pc").get())) {
-                    dump(System.out);
-                    int x = 0;
-                    if (x != 0) {
-                        recentInstructions.forEach(ir ->
-                                logger.fine(String.format("%04x - %s\n", ir.addr, ir.op.toString()))
-                        );
-                    }
-                }
-
                 try {
-                    final int addr = processor.register("pc").get();
-                    final Operation executed = processor.execute();
-                    recentInstructions.add(new InstructionRecord(addr, executed));
+                    processor.execute();
                 } catch (ExecutionException ex) {
                     logger.warning(String.format("Processor error encountered: %s\n", ex.getCause().getMessage()));
-                    logger.fine("Recent operations:");
-                    recentInstructions.add(new InstructionRecord(-1, ex.getOperation()));
-                    recentInstructions.forEach(ir ->
-                        logger.fine(String.format("%04x - %s\n", ir.addr, ir.op.toString()))
-                    );
+                    logger.warning("Last operation:");
+                    logger.warning(ex.getOperation().toString());
                 } catch (Exception ex) {
                     logger.log(Level.WARNING, "Unrecoverable error encountered", ex);
                 }
@@ -159,15 +113,5 @@ public class Computer implements InterruptingDevice {
 
     @Override
     public void acknowledge() {
-    }
-
-    private class InstructionRecord {
-        private final int addr;
-        private final Operation op;
-
-        private InstructionRecord(final int addr, final Operation op) {
-            this.addr = addr;
-            this.op = op;
-        }
     }
 }

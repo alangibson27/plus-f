@@ -11,9 +11,11 @@ import com.socialthingy.plusf.spectrum.input.SpectrumKeyboard;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.spectrum.remote.*;
+import com.socialthingy.plusf.spectrum.remote.EmulatorConnectionSetup;
+import com.socialthingy.plusf.spectrum.remote.EmulatorState;
+import com.socialthingy.plusf.spectrum.remote.GuestState;
+import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
 import com.socialthingy.plusf.tzx.*;
-import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.animation.Transition;
 import javafx.application.Application;
@@ -33,10 +35,11 @@ import java.io.*;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import static com.socialthingy.plusf.spectrum.UIBuilder.*;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
@@ -125,7 +128,6 @@ public class JavaFXEmulator extends Application {
     public void start(final Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         newComputer();
-        Memory.enableRomProtection();
 
         final Iterator<String> params = getParameters().getRaw().iterator();
         params.next();
@@ -140,9 +142,8 @@ public class JavaFXEmulator extends Application {
                     dump(System.out);
                     break;
 
-                case F9:
-                    final boolean enabled = computer.toggleMemoryProtectionEnabled();
-                    System.out.println("Memory protection " + (enabled ? "enabled" : "disabled"));
+                case F2:
+                    computer.getProcessor().startDebugging();
             }
         });
 
@@ -163,23 +164,6 @@ public class JavaFXEmulator extends Application {
         });
         primaryStage.setTitle("+F Spectrum Emulator");
         primaryStage.show();
-
-        new Thread(() -> {
-            final Scanner scanner = new Scanner(System.in);
-            while (true) {
-                final String line = scanner.nextLine();
-                if (line.startsWith("break ")) {
-                    final String[] breakpoints = line.split(" ");
-                    computer.setBreakPoints(
-                        Arrays.asList(breakpoints)
-                                .stream()
-                                .skip(1)
-                                .map(a -> Integer.parseInt(a, 16))
-                                .collect(Collectors.toList())
-                    );
-                }
-            }
-        }).start();
 
         computerLoop.play();
     }

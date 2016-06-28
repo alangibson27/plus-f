@@ -7,11 +7,8 @@ import com.socialthingy.plusf.z80.operations.OperationTable;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class Processor {
-    private static final Logger logger = Logger.getLogger(Processor.class.getName());
-
     private final Map<String, Register> registers = new HashMap<>();
     private final int[] memory;
     private final Operation[] operations;
@@ -36,10 +33,9 @@ public class Processor {
     private int lastTime;
     private Operation lastOp;
 
-    private Set<String> capturedOperations = new HashSet<>();
-    private Integer captureStart = 0x19fb;
-    private Integer captureEnd = 0x1a15;
-    private boolean capturing = false;
+    private boolean debugging = false;
+    private Set<Integer> breakpoints = new HashSet<>();
+    private Set<Integer> temporaryBreakpoints = new HashSet<>();
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -146,23 +142,21 @@ public class Processor {
     }
 
     public Operation execute() throws ExecutionException {
-        if (!capturing && captureStart != null && pcReg.get() == captureStart) {
-            capturing = true;
-            capturedOperations.clear();
-        }
-
-        if (capturing && captureEnd != null && pcReg.get() == captureEnd) {
-            capturing = false;
-            logger.info("Captured operations");
-            capturedOperations.forEach(logger::info);
-        }
-
         final boolean enableIffAfterExecution = enableIff;
+        final int pc = pcReg.get();
         final Operation op = fetch();
-        capturedOperations.add(op.toString());
         this.lastOp = op;
         if (op == null) {
             throw new IllegalStateException("Unimplemented operation");
+        }
+
+        if (breakpoints.contains(pc) || temporaryBreakpoints.contains(pc)) {
+            debugging = true;
+            temporaryBreakpoints.remove(pc);
+        }
+
+        if (debugging) {
+            debugConsole(pc);
         }
 
         try {
@@ -175,17 +169,89 @@ public class Processor {
             }
 
             return op;
-        } catch (RomProtectionException ex) {
-            final int pc = pcReg.get();
-            if ((pc == 0x33e1 || pc == 0x33ea || pc == 0x33f4) && this.register("de").get() <= 0x0004) {
-                // Operations "ld (de), a" at 0x33e0, "ldir" at 0x33e8 and "ld (de), a" at 0x33f3
-                // are expected to write to ROM locations 0-4. Ignore.
-                return op;
-            } else {
-                throw new ExecutionException(op, ex);
-            }
         } catch (Exception ex) {
             throw new ExecutionException(op, ex);
+        }
+    }
+
+    private void debugConsole(final int pc) {
+        System.out.printf("Stopped at %04x\n", pc);
+        final Scanner in = new Scanner(System.in);
+        while (true) {
+            System.out.printf("[%04x] %s\n", pc, lastOp != null ? lastOp.toString() : "");
+            System.out.print("> ");
+            final String command = in.next();
+            if ("run".equals(command)) {
+                debugging = false;
+                break;
+            }
+
+            if ("next".equals(command)) {
+                break;
+            }
+
+            if ("skip".equals(command)) {
+                temporaryBreakpoints.add(pcReg.get());
+                debugging = false;
+                break;
+            }
+
+            if ("calcstack".equals(command)) {
+                printCalcStack();
+            }
+
+            if ("break".equals(command)) {
+                breakpoints.add(Integer.decode(in.next()));
+            }
+
+            if ("clearbreak".equals(command)) {
+                breakpoints.clear();
+            }
+
+            if ("memory".equals(command)) {
+                final int start = in.nextInt();
+                final int end = in.nextInt();
+
+                for (int i = start; i < end; i += 8) {
+                    System.out.printf(
+                        "%04x: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+                        i,
+                        memory[i],
+                        memory[(i + 1) & 0xffff],
+                        memory[(i + 2) & 0xffff],
+                        memory[(i + 3) & 0xffff],
+                        memory[(i + 4) & 0xffff],
+                        memory[(i + 5) & 0xffff],
+                        memory[(i + 6) & 0xffff],
+                        memory[(i + 7) & 0xffff]
+                    );
+                }
+            }
+
+            if ("print".equals(command)) {
+                final String reg = in.next();
+                if (register(reg) != null) {
+                    System.out.printf("%04x\n", register(reg).get());
+                }
+            }
+        }
+    }
+
+    private void printCalcStack() {
+        final int stkBot = Word.from(memory[23651], memory[23652]);
+        final int stkEnd = Word.from(memory[23653], memory[23654]);
+
+        System.out.println("Calculator stack (from bottom):");
+        for (int i = stkBot; i < stkEnd; i += 5) {
+            System.out.printf(
+                "[%04x] %02x %02x %02x %02x %02x\n",
+                i,
+                memory[i],
+                memory[i + 1],
+                memory[i + 2],
+                memory[i + 3],
+                memory[i + 4]
+            );
         }
     }
 
@@ -331,13 +397,13 @@ public class Processor {
         out.flush();
     }
 
-    public void setLastOp(final Operation op) {
-        this.lastOp = op;
-    }
-
     public void reset() {
         for (Register reg: registers.values()) {
             reg.set(0);
         }
+    }
+
+    public void startDebugging() {
+        debugging = true;
     }
 }
