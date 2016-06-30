@@ -28,6 +28,8 @@ class Inc8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe false
       flag("p").value shouldBe false
       flag("n").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -48,6 +50,8 @@ class Inc8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h").value shouldBe true
     flag("p").value shouldBe false
     flag("n").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "inc <reg>" should "correctly calculate a result with overflow" in new Machine {
@@ -67,6 +71,8 @@ class Inc8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h").value shouldBe true
     flag("p").value shouldBe true
     flag("n").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "inc (hl)" should "calculate the correct result" in new Machine {
@@ -87,6 +93,8 @@ class Inc8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h").value shouldBe false
     flag("p").value shouldBe false
     flag("n").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedIncIndirectOperations = Table(
@@ -115,6 +123,8 @@ class Inc8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe false
       flag("p").value shouldBe false
       flag("n").value shouldBe false
+      flag("f3").value shouldBe true
+      flag("f5").value shouldBe true
     }
   }
 

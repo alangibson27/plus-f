@@ -21,6 +21,7 @@ abstract class IncOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.Z, result[0] == 0);
         flagsRegister.set(FlagsRegister.Flag.H, result[1] == 1);
         flagsRegister.set(FlagsRegister.Flag.N, false);
+        flagsRegister.setUndocumentedFlagsFromValue(result[0]);
 
         return result[0];
     }

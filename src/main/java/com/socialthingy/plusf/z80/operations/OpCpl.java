@@ -19,6 +19,7 @@ public class OpCpl implements Operation {
         accumulator.set(0xff - accumulator.get());
         flagsRegister.set(FlagsRegister.Flag.H, true);
         flagsRegister.set(FlagsRegister.Flag.N, true);
+        flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
         return 4;
     }
 
