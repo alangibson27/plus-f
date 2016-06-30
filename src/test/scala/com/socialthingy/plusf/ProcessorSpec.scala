@@ -103,6 +103,8 @@ class FlagBuilder(name: String, processor: Processor) {
     case "h" => flagsRegister.set(Flag.H, value)
     case "z" => flagsRegister.set(Flag.Z, value)
     case "s" => flagsRegister.set(Flag.S, value)
+    case "f3" => flagsRegister.set(Flag.F3, value)
+    case "f5" => flagsRegister.set(Flag.F5, value)
   }
 
   def value(): Boolean = name match {
@@ -112,5 +114,7 @@ class FlagBuilder(name: String, processor: Processor) {
     case "h" => flagsRegister.get(Flag.H)
     case "z" => flagsRegister.get(Flag.Z)
     case "s" => flagsRegister.get(Flag.S)
+    case "f3" => flagsRegister.get(Flag.F3)
+    case "f5" => flagsRegister.get(Flag.F5)
   }
 }

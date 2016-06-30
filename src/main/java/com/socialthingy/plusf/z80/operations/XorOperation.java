@@ -23,5 +23,6 @@ abstract class XorOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(result));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, false);
+        flagsRegister.setUndocumentedFlagsFromValue(result);
     }
 }

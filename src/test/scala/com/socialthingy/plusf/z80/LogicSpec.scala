@@ -31,6 +31,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
 
     it should "correctly calculate a result with overflow" in new Machine {
@@ -53,6 +55,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -85,6 +89,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -108,6 +114,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "and a with itself" should "not modify the value of the accumulator" in new Machine {
@@ -128,6 +136,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "and n" should "calculate the correct value" in new Machine {
@@ -148,6 +158,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "and (hl)" should "calculate the correct result" in new Machine {
@@ -171,6 +183,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   val indexedAndOperations = Table(
@@ -202,6 +216,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe true
+      flag("f5").value shouldBe true
     }
   }
 
@@ -231,6 +247,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -263,6 +281,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
 
     it should "correctly calculate a result with overflow" in new Machine {
@@ -285,6 +305,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -308,6 +330,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "or a with itself" should "not modify the value of the accumulator" in new Machine {
@@ -328,6 +352,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "or n" should "calculate the correct result" in new Machine {
@@ -348,6 +374,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "or (hl)" should "calculate the correct result" in new Machine {
@@ -371,6 +399,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   val indexedOrOperations = Table(
@@ -402,6 +432,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe true
+      flag("f5").value shouldBe true
     }
   }
 
@@ -431,6 +463,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -463,6 +497,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -486,6 +522,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "xor <reg>" should "correctly calcualte a result with even parity" in new Machine {
@@ -508,6 +546,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "xor <reg>" should "correctly calculate a result with odd parity" in new Machine {
@@ -530,6 +570,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "xor a with itself" should "give a zero result" in new Machine {
@@ -550,6 +592,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "xor n" should "calculate the correct result" in new Machine {
@@ -570,6 +614,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "xor (hl)" should "calculate the correct result" in new Machine {
@@ -593,6 +639,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   val indexedXorOperations = Table(
@@ -624,6 +672,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe true
+      flag("f5").value shouldBe true
     }
   }
 }

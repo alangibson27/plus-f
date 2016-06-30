@@ -25,5 +25,6 @@ abstract class OrOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, (signedAccumulator < 0) != (signedResult < 0));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, false);
+        flagsRegister.setUndocumentedFlagsFromValue(result);
     }
 }

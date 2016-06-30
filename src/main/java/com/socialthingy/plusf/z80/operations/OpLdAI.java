@@ -28,6 +28,7 @@ public class OpLdAI implements Operation {
         flags.set(Flag.S, (byte) iValue < 0);
         flags.set(Flag.N, false);
         flags.set(Flag.H, false);
+        flags.setUndocumentedFlagsFromValue(iValue);
         return 9;
     }
 

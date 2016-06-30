@@ -31,6 +31,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe true
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -52,6 +54,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "sub a, <reg>" should "correctly calculate a positive result with half borrow" in new Machine {
@@ -74,6 +78,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe false
   }
 
   "sub a, <reg>" should "correctly calculate a negative result with full borrow and overflow" in new Machine {
@@ -96,6 +102,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe true
   }
 
   "sub a, n" should "calculate the correct result" in new Machine {
@@ -116,6 +124,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "sub a, (hl)" should "calculate the correct result" in new Machine {
@@ -139,6 +149,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedSubOperations = Table(
@@ -171,6 +183,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe true
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -204,6 +218,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         flag("p").value shouldBe false
         flag("n").value shouldBe true
         flag("c").value shouldBe false
+        flag("f3").value shouldBe false
+        flag("f5").value shouldBe false
       }
     }
   }
@@ -229,6 +245,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "sbc a, a with carry set" should "calculate the correct result" in new Machine {
@@ -250,6 +268,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "sbc a, n with carry set" should "calculate the correct result" in new Machine {
@@ -271,6 +291,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "sbc a, n with carry reset" should "calculate the correct result" in new Machine {
@@ -292,6 +314,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "sbc a, (hl) with carry set" should "calculate the correct value" in new Machine {
@@ -316,6 +340,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedSbcOperations = Table(
@@ -349,6 +375,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe true
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -381,6 +409,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe true
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -415,6 +445,8 @@ class Subtract8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         flag("p").value shouldBe false
         flag("n").value shouldBe true
         flag("c").value shouldBe false
+        flag("f3").value shouldBe false
+        flag("f5").value shouldBe false
       }
     }
   }

@@ -187,6 +187,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerValue("pc") shouldBe 0x0002
     flag("h").value shouldBe false
     flag("n").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   it should "set the parity flag if interrupts are enabled" in new Machine {
@@ -275,6 +277,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe false
       flag("p").value shouldBe iff2
       flag("n").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 

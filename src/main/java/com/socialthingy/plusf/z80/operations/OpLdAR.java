@@ -27,6 +27,7 @@ public class OpLdAR implements Operation {
         flagsRegister.set(FlagsRegister.Flag.H, false);
         flagsRegister.set(FlagsRegister.Flag.P, processor.getIff(1));
         flagsRegister.set(FlagsRegister.Flag.N, false);
+        flagsRegister.setUndocumentedFlagsFromValue(value);
         return 9;
     }
 

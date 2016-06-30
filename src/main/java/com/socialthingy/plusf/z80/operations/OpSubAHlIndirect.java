@@ -17,7 +17,8 @@ public class OpSubAHlIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(memory[hlReg.get()]));
+        accumulator.set(sub(memory[hlReg.get()], true));
+        flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
         return 7;
     }
 

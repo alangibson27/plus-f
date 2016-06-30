@@ -24,7 +24,7 @@ public class OpSubAIndexedIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(memory[indexRegister.withOffset(processor.fetchNextByte())]));
+        accumulator.set(sub(memory[indexRegister.withOffset(processor.fetchNextByte())], true));
         return 19;
     }
 
