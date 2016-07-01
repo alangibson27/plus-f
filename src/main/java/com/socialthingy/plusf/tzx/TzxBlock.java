@@ -48,4 +48,8 @@ public abstract class TzxBlock {
     protected static int nextWord(final InputStream tzxFile) throws IOException {
         return Word.from(tzxFile.read(), tzxFile.read());
     }
+
+    protected static int nextTriple(final InputStream tzxFile) throws IOException {
+        return tzxFile.read() + (tzxFile.read() << 8) + (tzxFile.read() << 16);
+    }
 }

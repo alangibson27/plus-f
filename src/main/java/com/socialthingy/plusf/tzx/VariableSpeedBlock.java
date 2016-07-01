@@ -36,7 +36,7 @@ public class VariableSpeedBlock extends TzxBlock {
             final int pilotToneLength = nextWord(tzxFile);
             final int finalByteBitsUsed = nextByte(tzxFile);
             final Duration pauseLength = Duration.ofMillis(nextWord(tzxFile));
-            final int dataLength = nextWord(tzxFile);
+            final int dataLength = nextTriple(tzxFile);
 
             final int[] data = new int[dataLength];
             for (int i = 0; i < dataLength; i++) {
@@ -119,7 +119,6 @@ public class VariableSpeedBlock extends TzxBlock {
         }
 
         // sync 1 - off pulse
-        state = false;
         tape.add(new Bit(state, "sync 1"), sync1PulseLength);
         state = !state;
 
@@ -145,6 +144,7 @@ public class VariableSpeedBlock extends TzxBlock {
                 state = !state;
             }
         }
+        tape.add(new Bit(state, "end"), 3500);
 
         // pause
         tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());

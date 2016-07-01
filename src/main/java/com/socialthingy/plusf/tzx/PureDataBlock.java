@@ -17,7 +17,7 @@ public class PureDataBlock extends TzxBlock {
             final int onePulseLength = nextWord(tzxFile);
             final int finalByteBitsUsed = nextByte(tzxFile);
             final Duration pauseLength = Duration.ofMillis(nextWord(tzxFile));
-            final int dataLength = (nextByte(tzxFile) << 16) + (nextByte(tzxFile) << 8) + nextByte(tzxFile);
+            final int dataLength = nextTriple(tzxFile);
 
             final int[] data = new int[dataLength];
             for (int i = 0; i < dataLength; i++) {
@@ -48,7 +48,6 @@ public class PureDataBlock extends TzxBlock {
     private final int zeroPulseLength;
     private final int onePulseLength;
     private final int finalByteBitsUsed;
-    private String description;
 
     private PureDataBlock(
         final Duration pauseLength,
@@ -62,7 +61,6 @@ public class PureDataBlock extends TzxBlock {
         this.zeroPulseLength = zeroPulseLength;
         this.onePulseLength = onePulseLength;
         this.finalByteBitsUsed = finalByteBitsUsed;
-        this.description = "turbo";
     }
 
     public Duration getPauseLength() {
@@ -102,6 +100,6 @@ public class PureDataBlock extends TzxBlock {
 
     @Override
     public String toString() {
-        return String.format("%s speed block", description);
+        return "pure data block";
     }
 }
