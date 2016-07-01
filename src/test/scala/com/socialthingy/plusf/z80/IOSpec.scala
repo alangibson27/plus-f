@@ -18,7 +18,29 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // then
     registerValue("a") shouldBe 0xaa
   }  
-  
+
+  "in (c)" should "update the flags accordingly" in new Machine {
+    // given
+    readFromPort(0xfe, 0xef) returns 0xaa
+
+    registerContainsValue("b", 0xef)
+    registerContainsValue("c", 0xfe)
+
+    nextInstructionIs(0xed, 0x70)
+
+    // when
+    processor.execute()
+
+    // then
+    flag("s").value shouldBe true
+    flag("z").value shouldBe false
+    flag("h").value shouldBe false
+    flag("p").value shouldBe true
+    flag("n").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
+  }
+
   val inOperations = Table(
     ("opcode", "register"),
     (0x40, "b"), (0x48, "c"), (0x50, "d"), (0x58, "e"),
