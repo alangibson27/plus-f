@@ -29,6 +29,7 @@ public class OpAdcHl16Reg implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, ((short) hlValue < 0) != ((short) result[0] < 0));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, result[2] == 1);
+        flagsRegister.setUndocumentedFlagsFromValue(result[0] >> 8);
 
         hlReg.set(result[0]);
         return 15;

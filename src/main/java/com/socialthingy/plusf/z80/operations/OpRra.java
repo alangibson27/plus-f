@@ -14,6 +14,7 @@ public class OpRra extends RotateOperation {
         final int lowBit = value & 0b1;
         accumulator.set((value >> 1) | (flagsRegister.get(FlagsRegister.Flag.C) ? 0b10000000 : 0));
         setCarryAndNegateAfterRotate(lowBit);
+        flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
         return 4;
     }
 

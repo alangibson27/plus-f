@@ -29,6 +29,7 @@ public class OpRrd extends RotateOperation {
         setSignZeroAndParity(accumulator.get());
         flagsRegister.set(FlagsRegister.Flag.H, false);
         flagsRegister.set(FlagsRegister.Flag.N, false);
+        flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
 
         return 18;
     }

@@ -25,6 +25,7 @@ abstract class RotateOperation implements Operation {
         final int highBit = value >> 7;
         final int result = ((value << 1) & 0xff) | highBit;
         setCarryAndNegateAfterRotate(highBit);
+        flagsRegister.setUndocumentedFlagsFromValue(result);
         return result;
     }
 
@@ -38,6 +39,7 @@ abstract class RotateOperation implements Operation {
         final int highBit = value >> 7;
         final int result = ((value << 1) & 0xff) | (flagsRegister.get(FlagsRegister.Flag.C) ? 0b1 : 0);
         setCarryAndNegateAfterRotate(highBit);
+        flagsRegister.setUndocumentedFlagsFromValue(result);
         return result;
     }
 
@@ -45,6 +47,7 @@ abstract class RotateOperation implements Operation {
         final int lowBit = value & 0b1;
         final int result = (value >> 1) | (lowBit * 0b10000000);
         setCarryAndNegateAfterRotate(lowBit);
+        flagsRegister.setUndocumentedFlagsFromValue(result);
         return result;
     }
 
@@ -52,6 +55,7 @@ abstract class RotateOperation implements Operation {
         final int lowBit = value & 0b1;
         final int result = (value >> 1) | (flagsRegister.get(FlagsRegister.Flag.C) ? 0b10000000 : 0);
         setCarryAndNegateAfterRotate(lowBit);
+        flagsRegister.setUndocumentedFlagsFromValue(result);
         return result;
     }
 }

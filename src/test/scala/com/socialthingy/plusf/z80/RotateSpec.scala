@@ -36,6 +36,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe finalCarry
+      flag("f3").value shouldBe (finalValue & binary("00001000")) > 0
+      flag("f5").value shouldBe (finalValue & binary("00101000")) > 0
     }
 
     def checkRegRotation(register: String, opcode: Int, initialValue: Int, initialCarry: Boolean, finalValue: Int, finalCarry: Boolean, s: Boolean, z: Boolean, p: Boolean): Unit = {
@@ -57,6 +59,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe p
       flag("n").value shouldBe false
       flag("c").value shouldBe finalCarry
+      flag("f3").value shouldBe (finalValue & binary("00001000")) > 0
+      flag("f5").value shouldBe (finalValue & binary("00101000")) > 0
     }
 
     def checkRldRrd(opcode: Int, initialAccumulator: Int, initialMemory: Int, sign: Boolean, zero: Boolean,
@@ -80,6 +84,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe false
       flag("p").value shouldBe parity
       flag("n").value shouldBe false
+      flag("f3").value shouldBe (finalAccumulator & binary("00001000")) > 0
+      flag("f5").value shouldBe (finalAccumulator & binary("00101000")) > 0
     }
   }
 
@@ -151,7 +157,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c").is(false)
-    memory(0x4000) = binary("10101010")
+    memory(0x4000) = binary("01010101")
 
     nextInstructionIs(0xcb, 0x06)
 
@@ -159,14 +165,16 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("01010101")
+    memory(0x4000) shouldBe binary("10101010")
 
-    flag("s").value shouldBe false
+    flag("s").value shouldBe true
     flag("z").value shouldBe false
     flag("h").value shouldBe false
     flag("p").value shouldBe true
     flag("n").value shouldBe false
-    flag("c").value shouldBe true
+    flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
   
   val indexedRlcOperations = Table(
@@ -182,7 +190,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c").is(false)
-      memory(address) = binary("10101010")
+      memory(address) = binary("01010101")
 
       nextInstructionIs(opcode, 0xcb, offset, 0x06)
 
@@ -190,14 +198,16 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("01010101")
+      memory(address) shouldBe binary("10101010")
 
-      flag("s").value shouldBe false
+      flag("s").value shouldBe true
       flag("z").value shouldBe false
       flag("h").value shouldBe false
       flag("p").value shouldBe true
       flag("n").value shouldBe false
-      flag("c").value shouldBe true
+      flag("c").value shouldBe false
+      flag("f3").value shouldBe true
+      flag("f5").value shouldBe true
     }
   }
 
@@ -243,6 +253,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedRlOperations = Table(
@@ -274,6 +286,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe true
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -319,6 +333,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedRrcOperations = Table(
@@ -350,6 +366,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -395,6 +413,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedRrOperations = Table(
@@ -426,6 +446,8 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
