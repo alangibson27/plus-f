@@ -32,6 +32,7 @@ public class Processor {
     private final OpRst nmiResponseOp;
     private int lastTime;
     private Operation lastOp;
+    private int lastPc;
 
     private boolean debugging = false;
     private Set<Integer> breakpoints = new HashSet<>();
@@ -145,7 +146,6 @@ public class Processor {
         final boolean enableIffAfterExecution = enableIff;
         final int pc = pcReg.get();
         final Operation op = fetch();
-        this.lastOp = op;
         if (op == null) {
             throw new IllegalStateException("Unimplemented operation");
         }
@@ -156,9 +156,11 @@ public class Processor {
         }
 
         if (debugging) {
-            debugConsole(pc);
+            debugConsole(pc, op);
         }
 
+        this.lastOp = op;
+        this.lastPc = pc;
         try {
             this.lastTime = op.execute();
 
@@ -174,11 +176,11 @@ public class Processor {
         }
     }
 
-    private void debugConsole(final int pc) {
+    private void debugConsole(final int pc, final Operation currentOp) {
         System.out.printf("Stopped at %04x\n", pc);
         final Scanner in = new Scanner(System.in);
         while (true) {
-            System.out.printf("[%04x] %s\n", pc, lastOp != null ? lastOp.toString() : "");
+            System.out.printf("[%04x] %s\n", pc, lastOp != null ? currentOp.toString() : "");
             System.out.print("> ");
             final String command = in.next();
             if ("run".equals(command)) {
@@ -188,6 +190,10 @@ public class Processor {
 
             if ("next".equals(command)) {
                 break;
+            }
+
+            if ("last".equals(command)) {
+                System.out.printf("Last operation: [%04x] %s\n", lastPc, lastOp.toString());
             }
 
             if ("skip".equals(command)) {
@@ -209,8 +215,8 @@ public class Processor {
             }
 
             if ("memory".equals(command)) {
-                final int start = in.nextInt();
-                final int end = in.nextInt();
+                final int start = Integer.decode(in.next());
+                final int end = Integer.decode(in.next());
 
                 for (int i = start; i < end; i += 8) {
                     System.out.printf(

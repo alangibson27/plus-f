@@ -32,7 +32,7 @@ public class PulseSequenceBlock extends TzxBlock {
 
     @Override
     public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        boolean state = initialState;
+        boolean state = false;
         for (int i = 0; i < pulseCount; i++) {
             tape.add(new Bit(state, "pilot"), pulseLengths[i]);
             state = !state;
