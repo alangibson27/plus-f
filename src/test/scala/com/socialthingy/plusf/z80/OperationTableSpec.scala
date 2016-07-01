@@ -385,9 +385,7 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
   }
 
   "operation at 0xed 0x70" should "be in(c)" in {
-    pendingUntilFixed {
-      edTable(0x70).toString shouldBe "in (c)"
-    }
+    edTable(0x70).toString shouldBe "in (c)"
   }
 
   val bitOperations = Table(

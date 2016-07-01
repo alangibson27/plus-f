@@ -16,7 +16,7 @@ public class OpCpAHlIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        sub(memory[hlReg.get()]);
+        sub(memory[hlReg.get()], false);
         return 7;
     }
 

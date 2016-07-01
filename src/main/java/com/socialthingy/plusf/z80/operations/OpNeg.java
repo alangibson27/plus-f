@@ -25,6 +25,7 @@ public class OpNeg implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, result[0] == 0x80);
         flagsRegister.set(FlagsRegister.Flag.N, true);
         flagsRegister.set(FlagsRegister.Flag.C, result[0] != 0);
+        flagsRegister.setUndocumentedFlagsFromValue(result[0]);
         return 8;
     }
 

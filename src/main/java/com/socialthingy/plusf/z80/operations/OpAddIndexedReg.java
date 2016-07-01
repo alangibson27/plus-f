@@ -24,6 +24,7 @@ public class OpAddIndexedReg implements Operation {
         flagsRegister.set(FlagsRegister.Flag.H, result[1] == 1);
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, result[2] == 1);
+        flagsRegister.setUndocumentedFlagsFromValue(result[0] >> 8);
         return 15;
     }
 

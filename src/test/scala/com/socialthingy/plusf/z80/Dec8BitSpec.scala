@@ -28,6 +28,8 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h") is false
       flag("p") is false
       flag("n") is true
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -48,6 +50,8 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h") is false
     flag("p") is false
     flag("n") is true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "dec <reg>" should "correctly calculate a result with underflow" in new Machine {
@@ -67,6 +71,8 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h") is true
     flag("p") is true
     flag("n") is true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "dec (hl)" should "calculate the correct result" in new Machine {
@@ -87,6 +93,8 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h") is false
     flag("p") is false
     flag("n") is true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedDecIndirectOperations = Table(
@@ -115,6 +123,8 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h") is false
       flag("p") is false
       flag("n") is true
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe true
     }
   }
 
@@ -144,6 +154,8 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h") is false
       flag("p") is false
       flag("n") is true
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 

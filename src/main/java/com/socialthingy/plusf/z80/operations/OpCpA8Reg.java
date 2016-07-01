@@ -14,7 +14,7 @@ public class OpCpA8Reg extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        sub(register.get());
+        sub(register.get(), false);
         return 4;
     }
 

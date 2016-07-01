@@ -69,6 +69,7 @@ public class OpDaa implements Operation {
         flagsRegister.set(FlagsRegister.Flag.S, (byte) result < 0);
         flagsRegister.set(FlagsRegister.Flag.Z, result == 0);
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(result));
+        flagsRegister.setUndocumentedFlagsFromValue(result);
     }
 
     private void daaAfterSub(final boolean fullCarry, final boolean halfCarry, final char[] digits) {
@@ -96,6 +97,7 @@ public class OpDaa implements Operation {
         flagsRegister.set(FlagsRegister.Flag.S, (byte) result < 0);
         flagsRegister.set(FlagsRegister.Flag.Z, result == 0);
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(result));
+        flagsRegister.setUndocumentedFlagsFromValue(result);
     }
 
     @Override

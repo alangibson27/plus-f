@@ -5,17 +5,19 @@ import com.socialthingy.plusf.ProcessorSpec
 class AccumulatorOpsSpec extends ProcessorSpec {
   "cpl" should "complement the accumulator" in new Machine {
     // given
-    registerContainsValue("a", binary("10101010"))
+    registerContainsValue("a", binary("01010101"))
     nextInstructionIs(0x2f)
 
     // when
     processor.execute()
 
     // then
-    registerValue("a") shouldBe binary("01010101")
+    registerValue("a") shouldBe binary("10101010")
 
     flag("h").value shouldBe true
     flag("n").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "neg" should "negate 0" in new Machine {
@@ -35,6 +37,8 @@ class AccumulatorOpsSpec extends ProcessorSpec {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   it should "negate a positive number" in new Machine {
@@ -54,6 +58,8 @@ class AccumulatorOpsSpec extends ProcessorSpec {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   it should "negate a negative number" in new Machine {
@@ -73,6 +79,8 @@ class AccumulatorOpsSpec extends ProcessorSpec {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   it should "negate 0x80" in new Machine {
@@ -92,5 +100,7 @@ class AccumulatorOpsSpec extends ProcessorSpec {
     flag("p").value shouldBe true
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 }

@@ -21,6 +21,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe true
     flag("p").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe true
   }
 
   it should "correct addition with full carry" in new ArithmeticMachine {
@@ -40,6 +42,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe false
     flag("p").value shouldBe false
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   it should "correct addition with full and half carry" in new ArithmeticMachine {
@@ -59,6 +63,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe true
     flag("p").value shouldBe false
     flag("c").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe false
   }
 
   it should "correct addition with no carries" in new ArithmeticMachine {
@@ -78,6 +84,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe false
     flag("p").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   it should "correct subtraction with half carry" in new ArithmeticMachine {
@@ -97,6 +105,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe true
     flag("p").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   it should "correct subtraction with full carry" in new ArithmeticMachine {
@@ -116,6 +126,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe false
     flag("c").value shouldBe true
     flag("p").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   it should "correct subtraction with half and full carry" in new ArithmeticMachine {
@@ -135,6 +147,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe true
     flag("c").value shouldBe true
     flag("p").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   it should "correct subtraction with no carries" in new ArithmeticMachine {
@@ -154,6 +168,8 @@ class BinaryCodedDecimalSpec extends ProcessorSpec {
     flag("h").value shouldBe false
     flag("c").value shouldBe false
     flag("p").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   trait ArithmeticMachine extends Machine {

@@ -20,7 +20,8 @@ public class OpSubAIndexed8Reg extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(register.get()));
+        accumulator.set(sub(register.get(), true));
+        flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
         return 8;
     }
 

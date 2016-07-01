@@ -17,7 +17,7 @@ public class OpSubA8Reg extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(register.get()));
+        accumulator.set(sub(register.get(), true));
         return 4;
     }
 

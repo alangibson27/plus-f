@@ -27,6 +27,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe true
     }
   }
 
@@ -45,6 +47,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe true
   }
 
   "add hl, bc" should "calculate the correct result with full and half carry" in new Machine {
@@ -63,6 +67,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("h").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val truthValues = Table("value", true, false)
@@ -94,6 +100,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         flag("p").value shouldBe false
         flag("n").value shouldBe false
         flag("c").value shouldBe false
+        flag("f3").value shouldBe false
+        flag("f5").value shouldBe false
       }
     }
   }
@@ -118,6 +126,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   it should "correctly calculate a zero result" in new Machine {
@@ -140,6 +150,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val sbcHlRegOperations = Table(
@@ -170,6 +182,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         flag("p").value shouldBe false
         flag("n").value shouldBe true
         flag("c").value shouldBe false
+        flag("f3").value shouldBe false
+        flag("f5").value shouldBe false
       }
     }
   }
@@ -193,6 +207,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "sbc hl, hl with carry false" should "calculate the correct result" in new Machine {
@@ -214,6 +230,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexRegisters = Table(("prefix", "register"), (0xdd, "ix"), (0xfd, "iy"))
@@ -240,6 +258,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         flag("h").value shouldBe false
         flag("n").value shouldBe false
         flag("c").value shouldBe false
+        flag("f3").value shouldBe false
+        flag("f5").value shouldBe false
       }
     }
   }
@@ -261,6 +281,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe true
     }
   }
 
@@ -281,6 +303,8 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe true
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 

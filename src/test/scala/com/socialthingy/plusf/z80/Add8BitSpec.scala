@@ -459,4 +459,29 @@ class Add8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       }
     }
   }
+
+  "add and adc operations" should "set flag bits 3 and 5 to the corresponding bits of the accumulator" in new Machine {
+    val permutations = Table(
+      ("b value", "f3 value", "f5 value"),
+      (binary("00101000"), true, true),
+      (binary("00000000"), false, false),
+      (binary("00100000"), false, true),
+      (binary("00001000"), true, false)
+    )
+
+    forAll(permutations) { (bval, f3val, f5val) =>
+      // given
+      registerContainsValue("a", 0)
+      registerContainsValue("b", bval)
+
+      nextInstructionIs(0x80)
+
+      // when
+      processor.execute()
+
+      // then
+      flag("f3").value shouldBe f3val
+      flag("f5").value shouldBe f5val
+    }
+  }
 }

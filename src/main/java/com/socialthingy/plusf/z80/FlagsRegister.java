@@ -6,7 +6,9 @@ public class FlagsRegister extends ByteRegister {
         C(0b00000001),
         N(0b00000010),
         P(0b00000100),
+       F3(0b00001000),
         H(0b00010000),
+       F5(0b00100000),
         Z(0b01000000),
         S(0b10000000);
 
@@ -43,5 +45,10 @@ public class FlagsRegister extends ByteRegister {
 
     public boolean get(final Flag flag) {
         return (value & flag.mask) > 0;
+    }
+
+    public void setUndocumentedFlagsFromValue(final int value) {
+        set(Flag.F3, (value & 0b00001000) > 0);
+        set(Flag.F5, (value & 0b00100000) > 0);
     }
 }

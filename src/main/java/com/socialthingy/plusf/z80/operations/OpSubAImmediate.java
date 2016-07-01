@@ -10,7 +10,8 @@ public class OpSubAImmediate extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(processor.fetchNextByte()));
+        accumulator.set(sub(processor.fetchNextByte(), true));
+        flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
         return 7;
     }
 

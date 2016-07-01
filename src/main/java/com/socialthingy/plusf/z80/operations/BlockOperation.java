@@ -35,6 +35,7 @@ abstract class BlockOperation implements Operation {
     }
 
     protected void blockTransfer() {
+        final int undocumentedValue = (accumulator.get() + memory[hlReg.get()]) & 0xff;
         Memory.set(memory, deReg.get(), memory[hlReg.get()]);
         deReg.set(deReg.get() + increment);
         hlReg.set(hlReg.get() + increment);
@@ -43,6 +44,8 @@ abstract class BlockOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.H, false);
         flagsRegister.set(FlagsRegister.Flag.P, counter != 0);
         flagsRegister.set(FlagsRegister.Flag.N, false);
+        flagsRegister.set(FlagsRegister.Flag.F3, (undocumentedValue & 0b00001000) > 0);
+        flagsRegister.set(FlagsRegister.Flag.F5, (undocumentedValue & 0b00000010) > 0);
     }
 
     protected int blockCompare() {
@@ -56,6 +59,10 @@ abstract class BlockOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.H, result[1] == 1);
         flagsRegister.set(FlagsRegister.Flag.P, counter != 0);
         flagsRegister.set(FlagsRegister.Flag.N, true);
+
+        final int undocumentedValue = (accumulator.get() - memory[hlValue] - result[1]);
+        flagsRegister.set(FlagsRegister.Flag.F3, (undocumentedValue & 0b00001000) > 0);
+        flagsRegister.set(FlagsRegister.Flag.F5, (undocumentedValue & 0b00000010) > 0);
 
         return result[0];
     }

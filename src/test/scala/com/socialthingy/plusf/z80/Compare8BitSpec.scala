@@ -31,6 +31,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe true
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -63,6 +65,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe true
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -84,6 +88,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "cp <reg>" should "correctly calculate a positive result with half borrow" in new Machine {
@@ -106,6 +112,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe false
   }
 
   "cp <reg>" should "correctly calculate a negative result with full borrow and overflow" in new Machine {
@@ -128,6 +136,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe true
     flag("c").value shouldBe true
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "cp n" should "calculate the correct result" in new Machine {
@@ -148,6 +158,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "cp (hl)" should "calculate the correct result" in new Machine {
@@ -171,6 +183,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe true
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexedCompareOperations = Table(
@@ -202,6 +216,8 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe true
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 }

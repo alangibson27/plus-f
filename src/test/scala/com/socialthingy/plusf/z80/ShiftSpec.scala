@@ -25,6 +25,8 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe p
       flag("n").value shouldBe false
       flag("c").value shouldBe finalCarry
+      flag("f3").value shouldBe (finalAcc & binary("00001000")) > 0
+      flag("f5").value shouldBe (finalAcc & binary("00101000")) > 0
     }
   }
 
@@ -70,6 +72,8 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   val indexRegisters = Table(
@@ -100,6 +104,8 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe true
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -145,6 +151,8 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   forAll(indexRegisters) { (prefix, register) =>
@@ -170,6 +178,8 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -215,6 +225,8 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe false
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   forAll(indexRegisters) { (prefix, register) =>
@@ -240,6 +252,8 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
+      flag("f3").value shouldBe false
+      flag("f5").value shouldBe false
     }
   }
 
@@ -285,5 +299,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe true
     flag("n").value shouldBe false
     flag("c").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 }

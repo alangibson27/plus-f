@@ -19,5 +19,6 @@ abstract class ShiftOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.S, (byte) result < 0);
         flagsRegister.set(FlagsRegister.Flag.Z, result == 0);
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(result));
+        flagsRegister.setUndocumentedFlagsFromValue(result);
     }
 }

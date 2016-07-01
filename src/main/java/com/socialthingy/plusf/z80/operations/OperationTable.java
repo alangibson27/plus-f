@@ -348,7 +348,7 @@ public class OperationTable {
         operations[0x6e] = opIm0;
         operations[0x6f] = new OpRld(processor, memory);
 
-        operations[0x70] = opInAC;
+        operations[0x70] = new OpInFlagsC(processor, io);
         operations[0x71] = new OpOutCZero(processor, io);
         operations[0x72] = new OpSbcHl16Reg(processor, processor.register("sp"));
         operations[0x73] = new OpLdAddress16Reg(processor, memory, processor.register("sp"));

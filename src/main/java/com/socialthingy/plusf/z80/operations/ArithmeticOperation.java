@@ -31,9 +31,10 @@ abstract class ArithmeticOperation implements Operation {
         accumulator.set(result[0]);
         flagsRegister.set(Flag.N, false);
         setCommonFlags(signedAccumulator, result);
+        flagsRegister.setUndocumentedFlagsFromValue(result[0]);
     }
 
-    protected int sub(int value) {
+    protected int sub(int value, final boolean setUndocumentedFlagsFromResult) {
         final byte signedAccumulator = (byte) accumulator.get();
 
         if (useCarryFlag && flagsRegister.get(Flag.C)) {
@@ -43,6 +44,11 @@ abstract class ArithmeticOperation implements Operation {
         final int[] result = Bitwise.sub(accumulator.get(), value);
         flagsRegister.set(Flag.N, true);
         setCommonFlags(signedAccumulator, result);
+        if (setUndocumentedFlagsFromResult) {
+            flagsRegister.setUndocumentedFlagsFromValue(result[0]);
+        } else {
+            flagsRegister.setUndocumentedFlagsFromValue(value);
+        }
         return result[0];
     }
 
@@ -54,5 +60,4 @@ abstract class ArithmeticOperation implements Operation {
         flagsRegister.set(Flag.P, (signedAccumulator < 0) != (signedResult < 0));
         flagsRegister.set(Flag.C, result[2] == 1);
     }
-
 }

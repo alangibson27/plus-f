@@ -15,6 +15,7 @@ public class OpRrReg extends RotateOperation {
     public int execute() {
         final int result = rrValue(register.get());
         setSignZeroAndParity(result);
+        flagsRegister.setUndocumentedFlagsFromValue(result);
         register.set(result);
         return 8;
     }
