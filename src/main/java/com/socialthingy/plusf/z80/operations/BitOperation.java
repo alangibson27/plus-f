@@ -13,9 +13,11 @@ abstract class BitOperation implements Operation {
         this.bitPosition = bitPosition;
     }
 
-    protected void checkBit(final int value) {
-        flagsRegister.set(FlagsRegister.Flag.Z, (value & (1 << bitPosition)) == 0);
+    protected boolean checkBit(final int value) {
+        final boolean bitSet = (value & (1 << bitPosition)) > 0;
+        flagsRegister.set(FlagsRegister.Flag.Z,  !bitSet);
         flagsRegister.set(FlagsRegister.Flag.H, true);
         flagsRegister.set(FlagsRegister.Flag.N, false);
+        return bitSet;
     }
 }

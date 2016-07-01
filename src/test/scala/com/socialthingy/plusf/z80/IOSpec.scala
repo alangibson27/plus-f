@@ -45,6 +45,8 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("h").value shouldBe false
       flag("p").value shouldBe true
       flag("n").value shouldBe false
+      flag("f3").value shouldBe true
+      flag("f5").value shouldBe true
     }
   }  
   

@@ -31,8 +31,14 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
         // then
         flag("z").value shouldBe !value
+        flag("p").value shouldBe !value
         flag("h").value shouldBe true
         flag("n").value shouldBe false
+        if (bitPosition == 7 || bitPosition == 5 || bitPosition == 3) {
+          flag("s").value shouldBe value
+        } else {
+          flag("s").value shouldBe false
+        }
       }
     }
   }

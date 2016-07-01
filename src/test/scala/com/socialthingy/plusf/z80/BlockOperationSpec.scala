@@ -6,6 +6,7 @@ class BlockOperationSpec extends ProcessorSpec {
 
   "ldi" should "operate correctly when bc decrements to a non-zero value" in new Machine {
     // given
+    registerContainsValue("a", 0x80)
     registerContainsValue("hl", 0x1000)
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0xbeef)
@@ -26,10 +27,13 @@ class BlockOperationSpec extends ProcessorSpec {
     flag("h").value shouldBe false
     flag("p").value shouldBe true
     flag("n").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "ldi" should "operate correctly when bc decrements to zero" in new Machine {
     // given
+    registerContainsValue("a", 0x80)
     registerContainsValue("hl", 0x1000)
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x0001)
@@ -50,10 +54,13 @@ class BlockOperationSpec extends ProcessorSpec {
     flag("h").value shouldBe false
     flag("p").value shouldBe false
     flag("n").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "ldir" should "operate correctly when bc is greater than 1" in new Machine {
     // given
+    registerContainsValue("a", 0x08)
     registerContainsValue("hl", 0x1000)
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x000a)
@@ -272,6 +279,8 @@ class BlockOperationSpec extends ProcessorSpec {
     flag("h").value shouldBe false
     flag("p").value shouldBe true
     flag("n").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe false
   }
 
   "cpi" should "operate correctly with memory equal to a and bc equal to 1" in new Machine {
@@ -320,6 +329,8 @@ class BlockOperationSpec extends ProcessorSpec {
     flag("h").value shouldBe true
     flag("p").value shouldBe false
     flag("n").value shouldBe true
+    flag("f3").value shouldBe false
+    flag("f5").value shouldBe true
   }
 
   "cpi" should "operate correctly with memory greater than a and half borrow" in new Machine {

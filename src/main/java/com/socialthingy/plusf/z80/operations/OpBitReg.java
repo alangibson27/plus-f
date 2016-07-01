@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
@@ -17,7 +18,12 @@ public class OpBitReg extends BitOperation {
 
     @Override
     public int execute() {
-        checkBit(register.get());
+        final boolean bitSet = checkBit(register.get());
+        flagsRegister.set(FlagsRegister.Flag.P, flagsRegister.get(FlagsRegister.Flag.Z));
+        flagsRegister.set(
+            FlagsRegister.Flag.S,
+            (bitPosition == 7 || bitPosition == 5 || bitPosition == 3) && bitSet
+        );
         return 8;
     }
 

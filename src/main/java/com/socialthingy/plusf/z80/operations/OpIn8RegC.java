@@ -28,6 +28,7 @@ public class OpIn8RegC implements Operation {
         flagsRegister.set(FlagsRegister.Flag.H, false);
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(value));
         flagsRegister.set(FlagsRegister.Flag.N, false);
+        flagsRegister.setUndocumentedFlagsFromValue(destRegister.get());
         return 12;
     }
 
