@@ -1,9 +1,7 @@
 package com.socialthingy.plusf.z80;
 
 import com.socialthingy.plusf.util.Word;
-import com.socialthingy.plusf.z80.operations.OpCallDirect;
-import com.socialthingy.plusf.z80.operations.OpRst;
-import com.socialthingy.plusf.z80.operations.OperationTable;
+import com.socialthingy.plusf.z80.operations.*;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -18,6 +16,7 @@ public class Processor {
     private final Operation[] ddCbOperations;
     private final Operation[] fdOperations;
     private final Operation[] fdCbOperations;
+    private final Nop nop = new Nop();
     private boolean enableIff = false;
     private boolean halting = false;
     private boolean iffs[] = new boolean[2];
@@ -188,8 +187,15 @@ public class Processor {
                 break;
             }
 
-            if ("next".equals(command)) {
+            if (command.startsWith("n")) {
                 break;
+            }
+
+            if ("set".equals(command)) {
+                final String register = in.next();
+                final String value = in.next();
+
+                register(register).set(Integer.decode(value));
             }
 
             if ("last".equals(command)) {
@@ -263,6 +269,7 @@ public class Processor {
 
     private Operation fetch() {
         if (iffs[0] && !interruptRequests.isEmpty()) {
+            incrementR();
             halting = false;
             final InterruptRequest request = interruptRequests.removeFirst();
             request.getDevice().acknowledge();
@@ -285,7 +292,12 @@ public class Processor {
                         return cbOperations[fetchNextOpcode()];
 
                     case 0xed:
-                        return edOperations[fetchNextOpcode()];
+                        final Operation op = edOperations[fetchNextOpcode()];
+                        if (op == null) {
+                            return nop;
+                        } else {
+                            return op;
+                        }
 
                     case 0xdd:
                         opCode = fetchNextOpcode();
@@ -299,8 +311,8 @@ public class Processor {
                     case 0xfd:
                         opCode = fetchNextOpcode();
                         if (opCode == 0xcb) {
-                            fetchNextOpcode();
-                            return fdCbOperations[fetchNextOpcode()];
+                            fetchNextByte();
+                            return fdCbOperations[fetchNextByte()];
                         } else {
                             return fdOperations[opCode];
                         }
@@ -313,9 +325,13 @@ public class Processor {
     }
 
     public int fetchNextOpcode() {
+        incrementR();
+        return memory[pcReg.getAndInc()];
+    }
+
+    private void incrementR() {
         final int rValue = rReg.get();
         rReg.set((rValue & 0b10000000) | ((rValue + 1) & 0b01111111));
-        return memory[pcReg.getAndInc()];
     }
 
     public int fetchNextByte() {

@@ -137,29 +137,37 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerValue("r") shouldBe binary("00000010")
   }
 
-  it should "increment twice when an index register operation is executed" in new Machine {
-    // given
-    registerContainsValue("r", binary("00000000"))
-    nextInstructionIs(0xdd, 0x21, 0xff, 0xff)
+  val indexRegisters = Table(
+    ("register", "prefix"),
+    ("ix", 0xdd),
+    ("iy", 0xfd)
+  )
 
-    // when
-    processor.execute()
+  forAll(indexRegisters) { (register, prefix) =>
+    it should s"increment twice when an $register operation is executed" in new Machine {
+      // given
+      registerContainsValue("r", binary("00000000"))
+      nextInstructionIs(prefix, 0x21, 0xff, 0xff)
 
-    // then
-    registerValue("ix") shouldBe 0xffff
-    registerValue("r") shouldBe binary("00000010")
-  }
+      // when
+      processor.execute()
 
-  it should "increment twice when a triple-byte operation is executed" in new Machine {
-    // given
-    registerContainsValue("r", binary("00000000"))
-    nextInstructionIs(0xdd, 0xcb, 0x01, 0x06)
+      // then
+      registerValue(register) shouldBe 0xffff
+      registerValue("r") shouldBe binary("00000010")
+    }
 
-    // when
-    processor.execute()
+    it should s"increment twice when a triple-byte $register operation is executed" in new Machine {
+      // given
+      registerContainsValue("r", binary("00000000"))
+      nextInstructionIs(prefix, 0xcb, 0x01, 0x06)
 
-    // then
-    registerValue("r") shouldBe binary("00000010")
+      // when
+      processor.execute()
+
+      // then
+      registerValue("r") shouldBe binary("00000010")
+    }
   }
 
   "ld i, a" should "transfer the accumulator to the i register" in new Machine {
@@ -388,8 +396,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(2)
     nextInstructionIs(0xcb, 0xc0)
 
-    memory(0xb0e0) = 0xef
-    memory(0xb0e1) = 0xbe
+    memory(0xb0e2) = 0xef
+    memory(0xb0e3) = 0xbe
 
     registerContainsValue("i", 0xb0)
     registerContainsValue("r", 0xe1)
