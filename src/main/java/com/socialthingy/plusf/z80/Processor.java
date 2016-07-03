@@ -144,7 +144,6 @@ public class Processor {
     public Operation execute() throws ExecutionException {
         final boolean enableIffAfterExecution = enableIff;
         final int pc = pcReg.get();
-        final int oldR = register("r").get();
         final Operation op = fetch();
         if (op == null) {
             throw new IllegalStateException("Unimplemented operation");
