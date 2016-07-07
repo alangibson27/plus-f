@@ -20,6 +20,7 @@ public class OpBitIndexedIndirect extends BitOperation {
     public int execute() {
         final int offset = processor.fetchRelative(-2);
         checkBit(memory[indexRegister.withOffset(offset)]);
+        flagsRegister.setUndocumentedFlagsFromValue((indexRegister.getHigh() + offset) & 0xff);
         return 20;
     }
 

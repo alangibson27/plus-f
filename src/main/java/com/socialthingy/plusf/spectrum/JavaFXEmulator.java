@@ -434,7 +434,7 @@ public class JavaFXEmulator extends Application {
                     display.refresh(memory, flashActive);
                     border.refresh(borderLines);
                 }
-                updateDisplay = !updateDisplay;
+//                updateDisplay = !updateDisplay;
                 computer.singleCycle();
                 flashCycleCount--;
                 if (flashCycleCount < 0) {

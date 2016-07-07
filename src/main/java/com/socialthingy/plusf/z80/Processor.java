@@ -33,9 +33,8 @@ public class Processor {
     private Operation lastOp;
     private int lastPc;
 
-    private boolean debugging = false;
+    private int cyclesUntilBreak = -1;
     private Set<Integer> breakpoints = new HashSet<>();
-    private Set<Integer> temporaryBreakpoints = new HashSet<>();
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -149,13 +148,14 @@ public class Processor {
             throw new IllegalStateException("Unimplemented operation");
         }
 
-        if (breakpoints.contains(pc) || temporaryBreakpoints.contains(pc)) {
-            debugging = true;
-            temporaryBreakpoints.remove(pc);
+        if (breakpoints.contains(pc)) {
+            cyclesUntilBreak = 0;
         }
 
-        if (debugging) {
+        if (cyclesUntilBreak == 0) {
             debugConsole(pc, op);
+        } else if (cyclesUntilBreak > 0) {
+            cyclesUntilBreak--;
         }
 
         this.lastOp = op;
@@ -176,6 +176,7 @@ public class Processor {
     }
 
     private void debugConsole(final int pc, final Operation currentOp) {
+        // start at 0xeac0
         System.out.printf("Stopped at %04x\n", pc);
         final Scanner in = new Scanner(System.in);
         while (true) {
@@ -183,11 +184,14 @@ public class Processor {
             System.out.print("> ");
             final String command = in.next();
             if ("run".equals(command)) {
-                debugging = false;
+                cyclesUntilBreak = -1;
                 break;
             }
 
             if (command.startsWith("n")) {
+                if (in.hasNextInt()) {
+                    cyclesUntilBreak = in.nextInt();
+                }
                 break;
             }
 
@@ -203,8 +207,7 @@ public class Processor {
             }
 
             if ("skip".equals(command)) {
-                temporaryBreakpoints.add(pcReg.get());
-                debugging = false;
+                cyclesUntilBreak = 1;
                 break;
             }
 
@@ -426,6 +429,6 @@ public class Processor {
     }
 
     public void startDebugging() {
-        debugging = true;
+        cyclesUntilBreak = 0;
     }
 }

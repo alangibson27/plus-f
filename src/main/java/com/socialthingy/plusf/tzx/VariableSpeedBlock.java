@@ -144,7 +144,9 @@ public class VariableSpeedBlock extends TzxBlock {
                 state = !state;
             }
         }
-        tape.add(new Bit(state, "end"), 3500);
+        if (state) {
+            tape.add(new Bit(state, "end"), 3500);
+        }
 
         // pause
         tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());

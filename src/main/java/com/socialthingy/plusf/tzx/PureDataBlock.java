@@ -73,7 +73,6 @@ public class PureDataBlock extends TzxBlock {
 
     @Override
     public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        // pilot tone
         boolean state = initialState;
         for (int i = 0; i < data.length; i++) {
             final int b;
@@ -83,7 +82,7 @@ public class PureDataBlock extends TzxBlock {
                 b = data[i];
             }
 
-            for (int bit = 7; bit >= 0; bit --) {
+            for (int bit = 7; bit >= 8 - finalByteBitsUsed; bit --) {
                 final boolean high = (b & (1 << bit)) != 0;
                 final int pulseLen = high ? onePulseLength : zeroPulseLength;
                 tape.add(new Bit(state, "data"), pulseLen);
@@ -100,6 +99,13 @@ public class PureDataBlock extends TzxBlock {
 
     @Override
     public String toString() {
-        return "pure data block";
+        return String.format(
+            "Pure data block: %d bytes, hi: %d, lo: %d, fbb: %d, pause: %d ms",
+            data.length,
+            onePulseLength,
+            zeroPulseLength,
+            finalByteBitsUsed,
+            pauseLength.toMillis()
+        );
     }
 }

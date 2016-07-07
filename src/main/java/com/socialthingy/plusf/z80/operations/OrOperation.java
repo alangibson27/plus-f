@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.util.Bitwise;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
@@ -15,14 +16,12 @@ abstract class OrOperation implements Operation {
     }
 
     protected void or(final int value) {
-        final byte signedAccumulator = (byte) accumulator.get();
         final int result = accumulator.set(accumulator.get() | value);
-        final byte signedResult = (byte) result;
 
-        flagsRegister.set(FlagsRegister.Flag.S, signedResult < 0);
+        flagsRegister.set(FlagsRegister.Flag.S, (byte) result < 0);
         flagsRegister.set(FlagsRegister.Flag.Z, result == 0);
         flagsRegister.set(FlagsRegister.Flag.H, false);
-        flagsRegister.set(FlagsRegister.Flag.P, (signedAccumulator < 0) != (signedResult < 0));
+        flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(result));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, false);
         flagsRegister.setUndocumentedFlagsFromValue(result);

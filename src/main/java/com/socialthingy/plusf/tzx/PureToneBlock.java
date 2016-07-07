@@ -32,7 +32,7 @@ public class PureToneBlock extends TzxBlock {
 
     @Override
     public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        boolean state = false;
+        boolean state = initialState;
         for (int i = 0; i < toneLength; i++) {
             tape.add(new Bit(state, "pure tone"), pulseLength);
             state = !state;
@@ -43,6 +43,6 @@ public class PureToneBlock extends TzxBlock {
 
     @Override
     public String toString() {
-        return "Pure tone block";
+        return String.format("Pure tone block: %d pulses of %d", toneLength, pulseLength);
     }
 }

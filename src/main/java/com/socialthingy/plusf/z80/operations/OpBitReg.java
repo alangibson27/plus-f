@@ -18,11 +18,10 @@ public class OpBitReg extends BitOperation {
 
     @Override
     public int execute() {
-        final boolean bitSet = checkBit(register.get());
-        flagsRegister.set(
-            FlagsRegister.Flag.S,
-            (bitPosition == 7 || bitPosition == 5 || bitPosition == 3) && bitSet
-        );
+        final int value = register.get();
+        checkBit(value);
+        flagsRegister.set(FlagsRegister.Flag.F3, bitSet(value, 3));
+        flagsRegister.set(FlagsRegister.Flag.F5, bitSet(value, 5));
         return 8;
     }
 

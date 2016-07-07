@@ -34,7 +34,9 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         flag("p").value shouldBe !value
         flag("h").value shouldBe true
         flag("n").value shouldBe false
-        if (bitPosition == 7 || bitPosition == 5 || bitPosition == 3) {
+        flag("f3").value shouldBe (registerValue(register) & 8) > 0
+        flag("f5").value shouldBe (registerValue(register) & 32) > 0
+        if (bitPosition == 7) {
           flag("s").value shouldBe value
         } else {
           flag("s").value shouldBe false
@@ -64,6 +66,7 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
         // then
         flag("z").value shouldBe !value
+        flag("p").value shouldBe !value
         flag("h").value shouldBe true
         flag("n").value shouldBe false
       }
@@ -91,8 +94,19 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
           // then
           flag("z").value shouldBe !value
+          flag("p").value shouldBe !value
           flag("h").value shouldBe true
           flag("n").value shouldBe false
+
+          val undocumentedValue = (0x12 + offset) & 0xff
+          flag("f3").value shouldBe (undocumentedValue & 8) > 0
+          flag("f5").value shouldBe (undocumentedValue & 32) > 0
+
+          if (bitPosition == 7) {
+            flag("s").value shouldBe value
+          } else {
+            flag("s").value shouldBe false
+          }
         }
       }
     }

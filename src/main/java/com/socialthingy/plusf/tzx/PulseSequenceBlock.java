@@ -5,6 +5,8 @@ import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class PulseSequenceBlock extends TzxBlock {
 
@@ -32,7 +34,7 @@ public class PulseSequenceBlock extends TzxBlock {
 
     @Override
     public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        boolean state = false;
+        boolean state = initialState;
         for (int i = 0; i < pulseCount; i++) {
             tape.add(new Bit(state, "pilot"), pulseLengths[i]);
             state = !state;
@@ -43,6 +45,7 @@ public class PulseSequenceBlock extends TzxBlock {
 
     @Override
     public String toString() {
-        return String.format("Pulse block - %d pulses", pulseCount);
+        final String pulses = Arrays.stream(pulseLengths).limit(5).mapToObj(String::valueOf).collect(Collectors.joining(","));
+        return String.format("Pulse block - %d pulses [%s ...]", pulseCount, pulses);
     }
 }
