@@ -3,7 +3,6 @@ package com.socialthingy.plusf.tzx;
 import com.socialthingy.plusf.RepeatingList;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class TzxPlayer {
@@ -67,19 +66,5 @@ public class TzxPlayer {
         tape.add(new TzxBlock.Bit(false, "end"), 3500);
 
         return new PlayableTzx(tape.iterator());
-    }
-
-    public Iterator<TzxBlock.Bit> playBlock(final int idx) {
-        final RepeatingList<TzxBlock.Bit> tape = new RepeatingList<>();
-        if (idx < expandedBlocks.size()) {
-            expandedBlocks.get(idx).write(tape, true);
-        }
-
-        if (idx == expandedBlocks.size() - 1) {
-            tape.add(new TzxBlock.Bit(false, "end"), 3500);
-        }
-
-        tape.add(new TzxBlock.Bit(false, "end"), 3500);
-        return tape.iterator();
     }
 }
