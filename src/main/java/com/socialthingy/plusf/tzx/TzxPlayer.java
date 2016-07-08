@@ -59,10 +59,11 @@ public class TzxPlayer {
 
     public PlayableTzx getPlayableTzx() {
         final RepeatingList<TzxBlock.Bit> tape = new RepeatingList<>();
-        boolean state = true;
+        boolean state = false;
         for (TzxBlock block: expandedBlocks) {
             state = block.write(tape, state);
         }
+        tape.add(new TzxBlock.Bit(state, "end"), 3500);
         tape.add(new TzxBlock.Bit(false, "end"), 3500);
 
         return new PlayableTzx(tape.iterator());

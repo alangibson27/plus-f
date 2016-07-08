@@ -112,7 +112,7 @@ public class VariableSpeedBlock extends TzxBlock {
     @Override
     public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
         // pilot tone
-        boolean state = true;
+        boolean state = false;
         for (int i = 0; i < pilotToneLength; i++) {
             tape.add(new Bit(state, "pilot"), pilotPulseLength);
             state = !state;
@@ -147,13 +147,14 @@ public class VariableSpeedBlock extends TzxBlock {
                 state = !state;
             }
         }
-        if (state && !pauseLength.isZero()) {
+
+        if (!pauseLength.isZero()) {
             tape.add(new Bit(state, "end"), 3500);
+            tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
+            state = false;
         }
 
-        // pause
-        tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
-        return false;
+        return state;
     }
 
     @Override
