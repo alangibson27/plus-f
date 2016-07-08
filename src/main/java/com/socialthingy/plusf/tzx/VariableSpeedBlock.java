@@ -129,13 +129,16 @@ public class VariableSpeedBlock extends TzxBlock {
         // data
         for (int i = 0; i < data.length; i++) {
             final int b;
+            final int lastBit;
             if (i == data.length - 1) {
                 b = data[i] & finalByteMask[finalByteBitsUsed - 1];
+                lastBit = 8 - finalByteBitsUsed;
             } else {
                 b = data[i];
+                lastBit = 0;
             }
 
-            for (int bit = 7; bit >= 0; bit --) {
+            for (int bit = 7; bit >= lastBit; bit --) {
                 final boolean high = (b & (1 << bit)) != 0;
                 final int pulseLen = high ? onePulseLength : zeroPulseLength;
                 tape.add(new Bit(state, "data"), pulseLen);
@@ -144,7 +147,7 @@ public class VariableSpeedBlock extends TzxBlock {
                 state = !state;
             }
         }
-        if (state) {
+        if (state && !pauseLength.isZero()) {
             tape.add(new Bit(state, "end"), 3500);
         }
 
