@@ -19,6 +19,7 @@ import com.socialthingy.plusf.tzx.*;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.animation.Transition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -38,6 +39,7 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -59,6 +61,7 @@ public class JavaFXEmulator extends Application {
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
     private final Properties userPrefs = new Properties();
 
+    private java.util.Timer cycleTimer = new java.util.Timer("Computer Cycle Timer");
     private ComputerLoop computerLoop;
     private ULA ula;
     private Computer computer;
@@ -165,7 +168,7 @@ public class JavaFXEmulator extends Application {
         primaryStage.setTitle("+F Spectrum Emulator");
         primaryStage.show();
 
-        computerLoop.play();
+        cycleTimer.scheduleAtFixedRate(computerLoop, 0, 20);
     }
 
     @Override
@@ -285,10 +288,10 @@ public class JavaFXEmulator extends Application {
     }
 
     private void toggleFastMode(final ActionEvent ae) {
-        computerLoop.stop();
+        computerLoop.cancel();
         final boolean fastMode = ((CheckMenuItem) ae.getSource()).isSelected();
-        computerLoop = new ComputerLoop(fastMode ? 100.0 : 50.0);
-        computerLoop.play();
+        computerLoop = new ComputerLoop();
+        cycleTimer.scheduleAtFixedRate(computerLoop, 0, fastMode ? 1 : 20);
     }
 
     private DatagramSocket getSocket() throws SocketException {
@@ -399,11 +402,12 @@ public class JavaFXEmulator extends Application {
     }
 
     private void withComputerPaused(final Runnable r) {
-        computerLoop.pause();
+        computerLoop.cancel();
         try {
             r.run();
         } finally {
-            computerLoop.play();
+            computerLoop = new ComputerLoop();
+            cycleTimer.scheduleAtFixedRate(computerLoop, 0, 20);
         }
     }
 
@@ -411,24 +415,13 @@ public class JavaFXEmulator extends Application {
         computer.dump(out);
     }
 
-    private class ComputerLoop extends Transition {
+    private class ComputerLoop extends TimerTask {
         private boolean flashActive = false;
         private int flashCycleCount = 0x10;
-        private final int[] screenBytes = new int[0x1b00];
         private boolean updateDisplay = true;
 
-        public ComputerLoop() {
-            this(50.0);
-        }
-
-        public ComputerLoop(final double frameRate) {
-            super(frameRate);
-            setCycleCount(Transition.INDEFINITE);
-            setCycleDuration(Duration.millis(1000.0));
-        }
-
         @Override
-        protected void interpolate(double frac) {
+        public void run() {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
                 if (updateDisplay) {
@@ -436,10 +429,11 @@ public class JavaFXEmulator extends Application {
                     hostRelay.ifPresent(h -> {
                         h.sendDataToPartner(new EmulatorState(memory, borderLines, flashActive));
                     });
-                    display.refresh(memory, flashActive);
-                    border.refresh(borderLines);
+                    Platform.runLater(() -> {
+                        display.refresh(memory, flashActive);
+                        border.refresh(borderLines);
+                    });
                 }
-//                updateDisplay = !updateDisplay;
                 computer.singleCycle();
                 flashCycleCount--;
                 if (flashCycleCount < 0) {
