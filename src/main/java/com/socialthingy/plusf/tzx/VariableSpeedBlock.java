@@ -11,6 +11,19 @@ import static com.socialthingy.plusf.util.Bitwise.binary;
 
 public class VariableSpeedBlock extends TzxBlock {
 
+    public static Try<VariableSpeedBlock> readTapBlock(final InputStream tzxFile, final int dataLength) {
+        try {
+            final int[] data = new int[dataLength];
+            for (int i = 0; i < dataLength; i++) {
+                data[i] = nextByte(tzxFile);
+            }
+
+            return Try.success(new VariableSpeedBlock(Duration.ofSeconds(1), data));
+        } catch (IOException ex) {
+            return Try.failure(ex);
+        }
+    }
+
     public static Try<VariableSpeedBlock> readStandardSpeedBlock(final InputStream tzxFile) {
         try {
             final Duration pauseLength = Duration.ofMillis(nextWord(tzxFile));

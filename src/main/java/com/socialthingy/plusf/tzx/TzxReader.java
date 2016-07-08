@@ -45,6 +45,29 @@ public class TzxReader {
         blockMappers.put(0x32, ArchiveInfoBlock::read);
     }
 
+    public Tzx readTap() throws TzxException, IOException {
+        try {
+            int lenLo = tzxFile.read();
+            int lenHi = tzxFile.read();
+            final List<TzxBlock> blocks = new ArrayList<>();
+            int blockId = 0;
+            while (lenLo >= 0 && lenHi >= 0) {
+                blockId++;
+                final int len = (lenHi << 8) + lenLo;
+                logger.info(String.format("Block #%d: %d bytes", blockId, len));
+                VariableSpeedBlock.readTapBlock(tzxFile, len).ifSuccess(blocks::add);
+
+                lenLo = tzxFile.read();
+                lenHi = tzxFile.read();
+            }
+
+            logger.info("Reached end of file");
+            return new Tzx("TAP", blocks);
+        } finally {
+            tzxFile.close();
+        }
+    }
+
     public Tzx readTzx() throws TzxException, IOException {
         try {
             final String header = readText();

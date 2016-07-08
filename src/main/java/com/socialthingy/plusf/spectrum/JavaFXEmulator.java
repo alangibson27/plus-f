@@ -383,7 +383,12 @@ public class JavaFXEmulator extends Application {
             is.read(buf);
         }
 
-        if (TzxReader.recognises(buf)) {
+        if (chosen.getName().toLowerCase().endsWith(".tap")) {
+            final Tzx tap = new TzxReader(chosen).readTap();
+            tzxPlayer = Optional.of(new TzxPlayer(tap));
+            playTapeItem.setDisable(false);
+            return Optional.empty();
+        } else if (TzxReader.recognises(buf)) {
             final Tzx tzx = new TzxReader(chosen).readTzx();
             tzxPlayer = Optional.of(new TzxPlayer(tzx));
             playTapeItem.setDisable(false);
