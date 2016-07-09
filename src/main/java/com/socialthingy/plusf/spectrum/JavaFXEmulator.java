@@ -17,7 +17,6 @@ import com.socialthingy.plusf.spectrum.remote.GuestState;
 import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
 import com.socialthingy.plusf.tzx.*;
 import com.socialthingy.plusf.z80.Processor;
-import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -30,7 +29,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.*;
 import java.net.DatagramSocket;
@@ -39,7 +37,9 @@ import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -61,12 +61,14 @@ public class JavaFXEmulator extends Application {
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
     private final Properties userPrefs = new Properties();
 
-    private java.util.Timer cycleTimer = new java.util.Timer("Computer Cycle Timer");
-    private ComputerLoop computerLoop;
+    private ScheduledExecutorService cycleTimer = Executors.newSingleThreadScheduledExecutor();
+    private SingleCycle singleCycle;
+    private ScheduledFuture<?> cycleLoop;
     private ULA ula;
     private Computer computer;
     private SpectrumKeyboard keyboard;
     private int[] memory;
+    private int[] memoryForDisplay;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
     private MenuItem playTapeItem;
@@ -80,6 +82,7 @@ public class JavaFXEmulator extends Application {
 
     private Stage primaryStage;
     private IOMultiplexer ioMux;
+    private boolean fastMode;
 
     public static void main(final String ... args) {
         com.guigarage.flatterfx.FlatterFX.style();
@@ -90,7 +93,7 @@ public class JavaFXEmulator extends Application {
         metricRegistry = new MetricRegistry();
         displayRefreshTimer = new Timer(new SlidingTimeWindowReservoir(1, TimeUnit.SECONDS));
         metricRegistry.register(DISPLAY_REFRESH_TIMER_NAME, displayRefreshTimer);
-        computerLoop = new ComputerLoop();
+        singleCycle = new SingleCycle();
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
         statusLabel = new Label("No guest connected");
@@ -109,6 +112,7 @@ public class JavaFXEmulator extends Application {
     private void newComputer() throws IOException {
         ioMux = new IOMultiplexer();
         memory = new int[0x10000];
+        memoryForDisplay = new int[0x10000];
         ula = new ULA(BORDER, BORDER);
         computer = new Computer(
             new Processor(memory, ioMux),
@@ -164,11 +168,13 @@ public class JavaFXEmulator extends Application {
         primaryStage.setOnCloseRequest(we -> {
             statusBarTimer.cancel();
             hostRelay.ifPresent(h -> h.disconnect());
+            cycleLoop.cancel(true);
+            cycleTimer.shutdownNow();
         });
         primaryStage.setTitle("+F Spectrum Emulator");
         primaryStage.show();
 
-        cycleTimer.scheduleAtFixedRate(computerLoop, 0, 20);
+        cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, 20, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -196,11 +202,14 @@ public class JavaFXEmulator extends Application {
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
-        final CheckMenuItem fastMode = new CheckMenuItem("Fast mode");
-        fastMode.setSelected(false);
-        fastMode.setOnAction(this::toggleFastMode);
-        fastMode.setAccelerator(new KeyCodeCombination(F, KeyCombination.ALT_DOWN));
-        computerMenu.getItems().add(fastMode);
+        final CheckMenuItem fastModeItem = new CheckMenuItem("Fast mode");
+        fastModeItem.setSelected(false);
+        fastModeItem.setOnAction(ae -> {
+            fastMode = ((CheckMenuItem) ae.getSource()).isSelected();
+            changeSpeed();
+        });
+        fastModeItem.setAccelerator(new KeyCodeCombination(F, KeyCombination.ALT_DOWN));
+        computerMenu.getItems().add(fastModeItem);
 
         final Menu tapeMenu = new Menu("Tape");
         playTapeItem = registerMenuItem(tapeMenu, "Play from Start", Optional.of(P), this::playTape);
@@ -287,11 +296,13 @@ public class JavaFXEmulator extends Application {
         }
     }
 
-    private void toggleFastMode(final ActionEvent ae) {
-        computerLoop.cancel();
-        final boolean fastMode = ((CheckMenuItem) ae.getSource()).isSelected();
-        computerLoop = new ComputerLoop();
-        cycleTimer.scheduleAtFixedRate(computerLoop, 0, fastMode ? 1 : 20);
+    private void changeSpeed() {
+        cycleLoop.cancel(false);
+        if (fastMode) {
+            cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, 100, TimeUnit.NANOSECONDS);
+        } else {
+            cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, 20, TimeUnit.MILLISECONDS);
+        }
     }
 
     private DatagramSocket getSocket() throws SocketException {
@@ -402,12 +413,11 @@ public class JavaFXEmulator extends Application {
     }
 
     private void withComputerPaused(final Runnable r) {
-        computerLoop.cancel();
+        cycleLoop.cancel(false);
         try {
             r.run();
         } finally {
-            computerLoop = new ComputerLoop();
-            cycleTimer.scheduleAtFixedRate(computerLoop, 0, 20);
+            changeSpeed();
         }
     }
 
@@ -415,7 +425,7 @@ public class JavaFXEmulator extends Application {
         computer.dump(out);
     }
 
-    private class ComputerLoop extends TimerTask {
+    private class SingleCycle implements Runnable {
         private boolean flashActive = false;
         private int flashCycleCount = 0x10;
         private boolean updateDisplay = true;
@@ -425,15 +435,17 @@ public class JavaFXEmulator extends Application {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
                 if (updateDisplay) {
+                    System.arraycopy(memory, 0x4000, memoryForDisplay, 0x4000, 0x1b00);
                     final int[] borderLines = ula.getBorderLines();
                     hostRelay.ifPresent(h -> {
                         h.sendDataToPartner(new EmulatorState(memory, borderLines, flashActive));
                     });
                     Platform.runLater(() -> {
-                        display.refresh(memory, flashActive);
+                        display.refresh(memoryForDisplay, flashActive);
                         border.refresh(borderLines);
                     });
                 }
+                updateDisplay = !updateDisplay;
                 computer.singleCycle();
                 flashCycleCount--;
                 if (flashCycleCount < 0) {
