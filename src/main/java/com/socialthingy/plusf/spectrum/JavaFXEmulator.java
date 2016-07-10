@@ -5,28 +5,33 @@ import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
+import com.socialthingy.plusf.spectrum.display.Icons;
 import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
 import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
 import com.socialthingy.plusf.spectrum.input.SpectrumKeyboard;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.spectrum.remote.EmulatorConnectionSetup;
-import com.socialthingy.plusf.spectrum.remote.EmulatorState;
-import com.socialthingy.plusf.spectrum.remote.GuestState;
-import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
+import com.socialthingy.plusf.spectrum.remote.*;
 import com.socialthingy.plusf.tzx.*;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -45,6 +50,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.socialthingy.plusf.spectrum.UIBuilder.*;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
+import static com.socialthingy.plusf.spectrum.display.Icons.iconFrom;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXEmulator extends Application {
@@ -57,6 +63,7 @@ public class JavaFXEmulator extends Application {
     private final JavaFXDisplay display;
     private final JavaFXBorder border;
     private final Label statusLabel;
+    private final Label speedLabel;
     private final AtomicLong timestamper = new AtomicLong(0);
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
     private final Properties userPrefs = new Properties();
@@ -73,7 +80,7 @@ public class JavaFXEmulator extends Application {
     private MenuItem disconnectItem;
     private MenuItem playTapeItem;
     private MenuItem stopTapeItem;
-    private MenuItem resumeTapeItem;
+    private MenuItem rewindTapeToStartItem;
     private Optional<NetworkPeer<GuestState, EmulatorState>> hostRelay = Optional.empty();
     private DatagramSocket socket;
     private SinglePortIO guestKempstonJoystick;
@@ -82,7 +89,8 @@ public class JavaFXEmulator extends Application {
 
     private Stage primaryStage;
     private IOMultiplexer ioMux;
-    private boolean fastMode;
+    private EmulatorSpeed speed = EmulatorSpeed.NORMAL;
+    private Rectangle tapePlayingIndicator;
 
     public static void main(final String ... args) {
         com.guigarage.flatterfx.FlatterFX.style();
@@ -97,6 +105,7 @@ public class JavaFXEmulator extends Application {
         display = new JavaFXDisplay();
         border = new JavaFXBorder();
         statusLabel = new Label("No guest connected");
+        speedLabel = new Label("Normal speed");
 
         if (prefsFile.exists()) {
             try (final FileReader fr = new FileReader(prefsFile)) {
@@ -162,7 +171,37 @@ public class JavaFXEmulator extends Application {
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
 
-        buildUI(primaryStage, display, border, statusLabel, getMenuBar());
+        final MenuBar menuBar = getMenuBar();
+
+        tapePlayingIndicator = new Rectangle();
+        tapePlayingIndicator.setWidth(20.0);
+        tapePlayingIndicator.setHeight(20.0);
+        final ImageView tapeIcon = iconFrom(Icons.tape);
+        final StackPane tapeStackPane = new StackPane(tapePlayingIndicator, tapeIcon);
+
+        final Button playTapeButton = new Button();
+        playTapeButton.setGraphic(iconFrom(Icons.play));
+        playTapeButton.setOnAction(playTapeItem.getOnAction());
+        playTapeButton.disableProperty().bindBidirectional(playTapeItem.disableProperty());
+
+        final Button rewindTapeToStartButton = new Button();
+        rewindTapeToStartButton.setGraphic(iconFrom(Icons.rewindToStart));
+        rewindTapeToStartButton.setOnAction(rewindTapeToStartItem.getOnAction());
+        rewindTapeToStartButton.disableProperty().bindBidirectional(rewindTapeToStartItem.disableProperty());
+
+        final Button stopTapeButton = new Button();
+        stopTapeButton.setGraphic(iconFrom(Icons.stop));
+        stopTapeButton.setOnAction(stopTapeItem.getOnAction());
+        stopTapeButton.disableProperty().bindBidirectional(stopTapeItem.disableProperty());
+
+        final HBox tapeControls = new HBox(tapeStackPane, playTapeButton, stopTapeButton, rewindTapeToStartButton);
+        tapeControls.setAlignment(Pos.CENTER);
+
+        final BorderPane statusPane = new BorderPane();
+        statusPane.setLeft(statusLabel);
+        statusPane.setCenter(tapeControls);
+        statusPane.setRight(speedLabel);
+        buildUI(primaryStage, display, border, statusPane, menuBar);
 
         final java.util.Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> hostRelay);
         primaryStage.setOnCloseRequest(we -> {
@@ -202,24 +241,38 @@ public class JavaFXEmulator extends Application {
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
-        final CheckMenuItem fastModeItem = new CheckMenuItem("Fast mode");
-        fastModeItem.setSelected(false);
-        fastModeItem.setOnAction(ae -> {
-            fastMode = ((CheckMenuItem) ae.getSource()).isSelected();
-            changeSpeed();
-        });
-        fastModeItem.setAccelerator(new KeyCodeCombination(F, KeyCombination.ALT_DOWN));
-        computerMenu.getItems().add(fastModeItem);
+        final Menu speedSubMenu = new Menu("Speed");
+        final ToggleGroup speedGroup = new ToggleGroup();
+        for (EmulatorSpeed availableSpeed: EmulatorSpeed.values()) {
+            final RadioMenuItem item = new RadioMenuItem(availableSpeed.displayName);
+            item.setOnAction(ae -> {
+                speed = availableSpeed;
+                speedLabel.setText(String.format("%s speed", speed.displayName));
+                changeSpeed();
+            });
+            item.setToggleGroup(speedGroup);
+            item.setSelected(availableSpeed == speed);
+            item.setAccelerator(new KeyCodeCombination(availableSpeed.shortcutKey));
+            speedSubMenu.getItems().add(item);
+        }
+
+        computerMenu.getItems().add(speedSubMenu);
 
         final Menu tapeMenu = new Menu("Tape");
-        playTapeItem = registerMenuItem(tapeMenu, "Play from Start", Optional.of(P), this::playTape);
+        playTapeItem = registerMenuItem(tapeMenu, "Play", Optional.empty(), this::playTape);
+        playTapeItem.setAccelerator(new KeyCodeCombination(F9));
+        playTapeItem.setGraphic(iconFrom(Icons.play));
         playTapeItem.setDisable(true);
 
-        stopTapeItem = registerMenuItem(tapeMenu, "Stop/Pause", Optional.of(S), this::stopTape);
+        stopTapeItem = registerMenuItem(tapeMenu, "Stop", Optional.empty(), this::stopTape);
+        stopTapeItem.setAccelerator(new KeyCodeCombination(F10));
+        stopTapeItem.setGraphic(iconFrom(Icons.stop));
         stopTapeItem.setDisable(true);
 
-        resumeTapeItem = registerMenuItem(tapeMenu, "Resume", Optional.of(U), this::resumeTape);
-        resumeTapeItem.setDisable(true);
+        rewindTapeToStartItem = registerMenuItem(tapeMenu, "Rewind to Start", Optional.empty(), this::rewindTapeToStart);
+        rewindTapeToStartItem.setAccelerator(new KeyCodeCombination(F11));
+        rewindTapeToStartItem.setGraphic(iconFrom(Icons.rewindToStart));
+        rewindTapeToStartItem.setDisable(true);
 
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(computerMenu);
@@ -229,29 +282,36 @@ public class JavaFXEmulator extends Application {
     }
 
     private void playTape(final ActionEvent ae) {
-        tape = tzxPlayer.map(TzxPlayer::getPlayableTzx);
+        if (!tape.isPresent()) {
+            rewindTapeToStart(ae);
+        }
+
         tape.ifPresent(t -> {
             t.play();
-            ula.setTape(t);
+            tapePlayingIndicator.setFill(Color.GREEN);
+            playTapeItem.setDisable(true);
             stopTapeItem.setDisable(false);
-            resumeTapeItem.setDisable(true);
+            rewindTapeToStartItem.setDisable(false);
         });
     }
 
     private void stopTape(final ActionEvent ae) {
         tape.ifPresent(t -> {
             t.stop();
+            tapePlayingIndicator.setFill(Color.GRAY);
+            playTapeItem.setDisable(false);
             stopTapeItem.setDisable(true);
-            resumeTapeItem.setDisable(false);
+            rewindTapeToStartItem.setDisable(false);
         });
     }
 
-    private void resumeTape(final ActionEvent ae) {
-        tape.ifPresent(t -> {
-            t.play();
-            stopTapeItem.setDisable(false);
-            resumeTapeItem.setDisable(true);
-        });
+    private void rewindTapeToStart(final ActionEvent ae) {
+        tape = tzxPlayer.map(TzxPlayer::getPlayableTzx);
+        tape.ifPresent(t -> ula.setTape(t));
+
+        playTapeItem.setDisable(false);
+        stopTapeItem.setDisable(true);
+        rewindTapeToStartItem.setDisable(false);
     }
 
     private void easyConnectToGuest(final ActionEvent ae) {
@@ -298,11 +358,7 @@ public class JavaFXEmulator extends Application {
 
     private void changeSpeed() {
         cycleLoop.cancel(false);
-        if (fastMode) {
-            cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, 100, TimeUnit.NANOSECONDS);
-        } else {
-            cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, 20, TimeUnit.MILLISECONDS);
-        }
+        cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, speed.period, speed.timeUnit);
     }
 
     private DatagramSocket getSocket() throws SocketException {
@@ -363,7 +419,7 @@ public class JavaFXEmulator extends Application {
     private void load(final ActionEvent ae) {
         withComputerPaused(() -> {
             final FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Load Z80 or TZX file");
+            fileChooser.setTitle("Load TAP, TZX or Z80 file");
             if (userPrefs.containsKey(PREF_LAST_SNAPSHOT_DIRECTORY)) {
                 fileChooser.setInitialDirectory(new File(userPrefs.getProperty(PREF_LAST_SNAPSHOT_DIRECTORY)));
             }
@@ -437,9 +493,12 @@ public class JavaFXEmulator extends Application {
                 if (updateDisplay) {
                     System.arraycopy(memory, 0x4000, memoryForDisplay, 0x4000, 0x1b00);
                     final int[] borderLines = ula.getBorderLines();
-                    hostRelay.ifPresent(h -> {
-                        h.sendDataToPartner(new EmulatorState(memory, borderLines, flashActive));
-                    });
+                    if (speed == EmulatorSpeed.NORMAL) {
+                        hostRelay.ifPresent(h -> {
+                            h.sendDataToPartner(new EmulatorState(memory, borderLines, flashActive));
+                        });
+                    }
+
                     Platform.runLater(() -> {
                         display.refresh(memoryForDisplay, flashActive);
                         border.refresh(borderLines);

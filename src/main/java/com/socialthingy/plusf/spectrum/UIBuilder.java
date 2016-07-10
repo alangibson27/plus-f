@@ -7,6 +7,7 @@ import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -38,7 +39,7 @@ public class UIBuilder {
         final Stage primaryStage,
         final JavaFXDisplay display,
         final JavaFXBorder border,
-        final Label statusLabel,
+        final Node statusArea,
         final MenuBar menuBar
     ) {
         primaryStage.getIcons().add(new Image(UIBuilder.class.getResourceAsStream("/plus-f.png")));
@@ -56,7 +57,7 @@ public class UIBuilder {
         BorderPane root = new BorderPane();
         root.setCenter(sp);
         root.setTop(menuBar);
-        root.setBottom(statusLabel);
+        root.setBottom(statusArea);
 
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
@@ -98,7 +99,7 @@ public class UIBuilder {
                             label.setTextFill(Color.BLACK);
                         } else {
                             final String text = String.format(
-                                    "Network delay: %.2f ms, out-of-sequence: %d, average size: %.2f K",
+                                    "Delay: %.2f ms, unordered: %d, size: %.2f K",
                                     g.getAverageLatency(),
                                     g.getOutOfOrderPacketCount(),
                                     g.getAveragePacketSize()

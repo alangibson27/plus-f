@@ -1,7 +1,5 @@
 package com.socialthingy.plusf.tzx;
 
-import com.socialthingy.plusf.RepeatingList;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -32,7 +30,11 @@ public class PlayableTzx implements Iterator<TzxBlock.Bit> {
         if (playerState == PlayerState.STOPPED) {
             return false;
         } else {
-            return tape.hasNext();
+            final boolean hasNext = tape.hasNext();
+            if (!hasNext) {
+                stop();
+            }
+            return hasNext;
         }
     }
 
