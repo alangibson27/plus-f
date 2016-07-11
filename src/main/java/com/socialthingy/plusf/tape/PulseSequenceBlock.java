@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class PulseSequenceBlock extends TzxBlock {
+public class PulseSequenceBlock extends TapeBlock {
 
     public static Try<PulseSequenceBlock> read(final InputStream tzxFile) {
         try {

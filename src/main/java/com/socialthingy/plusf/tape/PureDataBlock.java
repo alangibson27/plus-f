@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
@@ -9,7 +9,7 @@ import java.time.Duration;
 
 import static com.socialthingy.plusf.util.Bitwise.binary;
 
-public class PureDataBlock extends TzxBlock {
+public class PureDataBlock extends TapeBlock {
 
     public static Try<PureDataBlock> read(final InputStream tzxFile) {
         try {

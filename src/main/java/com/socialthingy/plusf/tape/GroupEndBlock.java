@@ -1,15 +1,14 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
 
-import java.io.IOException;
 import java.io.InputStream;
 
-public class LoopEndBlock extends TzxBlock {
+public class GroupEndBlock extends TapeBlock {
 
-    public static Try<LoopEndBlock> read(final InputStream tzxFile) {
-        return Try.success(new LoopEndBlock());
+    public static Try<GroupEndBlock> read(final InputStream tzxFile) {
+        return Try.success(new GroupEndBlock());
     }
 
     @Override
@@ -20,6 +19,6 @@ public class LoopEndBlock extends TzxBlock {
 
     @Override
     public String toString() {
-        return String.format("Loop end");
+        return "Group end";
     }
 }

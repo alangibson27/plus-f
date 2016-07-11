@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.tzx
+package com.socialthingy.plusf.tape
 
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
@@ -12,15 +12,15 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     val standardSpeedFile = getClass.getResourceAsStream("/test.tzx")
 
     // when
-    val tzx = new TzxReader(standardSpeedFile).readTzx()
+    val tzx = new TapeFileReader(standardSpeedFile).readTzx()
 
     // then
     tzx.getVersion shouldBe "1.10"
 
-    val blocks = tzx.getBlocks.asScala.toList
+    val blocks = tzx.getBlocks
     blocks should have size 2
 
-    val programHeaderBlock = blocks.head
+    val programHeaderBlock = blocks(0)
     programHeaderBlock shouldBe a[VariableSpeedBlock]
     programHeaderBlock.asInstanceOf[VariableSpeedBlock].getPauseLength.toMillis shouldBe 0x03e8
     programHeaderBlock.asInstanceOf[VariableSpeedBlock].getData should have length 0x0013
@@ -36,8 +36,8 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     val malformedFile = getClass.getResourceAsStream("/screenfiller.z80")
 
     // when
-    intercept[TzxException] {
-      new TzxReader(malformedFile).readTzx()
+    intercept[TapeException] {
+      new TapeFileReader(malformedFile).readTzx()
     }
   }
 

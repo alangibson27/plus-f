@@ -1,18 +1,17 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Word;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 
-public abstract class TzxBlock {
-    protected static String getFixedLengthString(final InputStream tzxFile) throws IOException {
-        final int length = nextByte(tzxFile);
+public abstract class TapeBlock {
+    protected static String getFixedLengthString(final InputStream tapeFile) throws IOException {
+        final int length = nextByte(tapeFile);
         final byte[] buf = new byte[length];
         for (int i = 0; i < length; i++) {
-            buf[i] = (byte) nextByte(tzxFile);
+            buf[i] = (byte) nextByte(tapeFile);
         }
         return new String(buf);
     }

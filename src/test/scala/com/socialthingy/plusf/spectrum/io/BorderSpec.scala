@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.spectrum.io
 
+import com.socialthingy.plusf.spectrum.TapePlayer
 import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
 class BorderSpec extends FlatSpec with Matchers with Inspectors {
@@ -77,7 +78,7 @@ class BorderSpec extends FlatSpec with Matchers with Inspectors {
   type SpectrumColourId = Int
   trait TestComputer {
     val BLACK: SpectrumColourId = 0
-    val ula = new ULA(ULA.TOP_BORDER_HEIGHT, ULA.BOTTOM_BORDER_HEIGHT)
+    val ula = new ULA(ULA.TOP_BORDER_HEIGHT, ULA.BOTTOM_BORDER_HEIGHT, new TapePlayer())
 
     def atClockCycle(clockCycle: Int)(state: => Unit) = {
       ula.newCycle()

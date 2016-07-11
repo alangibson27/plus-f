@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.input
 
+import com.socialthingy.plusf.spectrum.TapePlayer
 import com.socialthingy.plusf.spectrum.io.ULA
-import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
 
@@ -82,7 +82,7 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
   }
 
   trait Spectrum {
-    val ula = new ULA(ULA.TOP_BORDER_HEIGHT, ULA.BOTTOM_BORDER_HEIGHT)
+    val ula = new ULA(ULA.TOP_BORDER_HEIGHT, ULA.BOTTOM_BORDER_HEIGHT, new TapePlayer())
   }
 
   implicit class BinaryOps(i: String) {

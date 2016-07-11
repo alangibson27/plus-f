@@ -13,24 +13,20 @@ import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.*;
-import com.socialthingy.plusf.tzx.*;
+import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -84,13 +80,11 @@ public class JavaFXEmulator extends Application {
     private Optional<NetworkPeer<GuestState, EmulatorState>> hostRelay = Optional.empty();
     private DatagramSocket socket;
     private SinglePortIO guestKempstonJoystick;
-    private Optional<TzxPlayer> tzxPlayer = Optional.empty();
-    private Optional<PlayableTzx> tape = Optional.empty();
+    private TapePlayer tapePlayer;
 
     private Stage primaryStage;
     private IOMultiplexer ioMux;
     private EmulatorSpeed speed = EmulatorSpeed.NORMAL;
-    private Rectangle tapePlayingIndicator;
 
     public static void main(final String ... args) {
         com.guigarage.flatterfx.FlatterFX.style();
@@ -106,6 +100,7 @@ public class JavaFXEmulator extends Application {
         border = new JavaFXBorder();
         statusLabel = new Label("No guest connected");
         speedLabel = new Label("Normal speed");
+        tapePlayer = new TapePlayer();
 
         if (prefsFile.exists()) {
             try (final FileReader fr = new FileReader(prefsFile)) {
@@ -122,7 +117,7 @@ public class JavaFXEmulator extends Application {
         ioMux = new IOMultiplexer();
         memory = new int[0x10000];
         memoryForDisplay = new int[0x10000];
-        ula = new ULA(BORDER, BORDER);
+        ula = new ULA(BORDER, BORDER, tapePlayer);
         computer = new Computer(
             new Processor(memory, ioMux),
             ula,
@@ -172,35 +167,43 @@ public class JavaFXEmulator extends Application {
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
 
         final MenuBar menuBar = getMenuBar();
+        final Rectangle tapePlayingIndicator = new Rectangle();
+        final HBox tapeControls = TapeControls.getTapeControls(
+            playTapeItem,
+            stopTapeItem,
+            rewindTapeToStartItem,
+            tapePlayer.playingProperty()
+        );
 
-        tapePlayingIndicator = new Rectangle();
-        tapePlayingIndicator.setWidth(20.0);
-        tapePlayingIndicator.setHeight(20.0);
-        final ImageView tapeIcon = iconFrom(Icons.tape);
-        final StackPane tapeStackPane = new StackPane(tapePlayingIndicator, tapeIcon);
+        tapePlayer.playAvailableProperty().addListener((observable, oldValue, newValue) -> {
+            playTapeItem.setDisable(!newValue);
+        });
 
-        final Button playTapeButton = new Button();
-        playTapeButton.setGraphic(iconFrom(Icons.play));
-        playTapeButton.setOnAction(playTapeItem.getOnAction());
-        playTapeButton.disableProperty().bindBidirectional(playTapeItem.disableProperty());
+        tapePlayer.stopAvailableProperty().addListener((observable, oldValue, newValue) -> {
+            stopTapeItem.setDisable(!newValue);
+        });
 
-        final Button rewindTapeToStartButton = new Button();
-        rewindTapeToStartButton.setGraphic(iconFrom(Icons.rewindToStart));
-        rewindTapeToStartButton.setOnAction(rewindTapeToStartItem.getOnAction());
-        rewindTapeToStartButton.disableProperty().bindBidirectional(rewindTapeToStartItem.disableProperty());
+        tapePlayer.seekAvailableProperty().addListener((observable, oldValue, newValue) -> {
+            rewindTapeToStartItem.setDisable(!newValue);
+        });
 
-        final Button stopTapeButton = new Button();
-        stopTapeButton.setGraphic(iconFrom(Icons.stop));
-        stopTapeButton.setOnAction(stopTapeItem.getOnAction());
-        stopTapeButton.disableProperty().bindBidirectional(stopTapeItem.disableProperty());
 
-        final HBox tapeControls = new HBox(tapeStackPane, playTapeButton, stopTapeButton, rewindTapeToStartButton);
-        tapeControls.setAlignment(Pos.CENTER);
+        final GridPane statusPane = new GridPane();
+        final ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPercentWidth(25);
+        final ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPercentWidth(50);
+        final ColumnConstraints column3 = new ColumnConstraints();
+        column3.setPercentWidth(25);
+        statusPane.getColumnConstraints().addAll(column1, column2, column3);
+        GridPane.setHalignment(speedLabel, HPos.RIGHT);
 
-        final BorderPane statusPane = new BorderPane();
-        statusPane.setLeft(statusLabel);
-        statusPane.setCenter(tapeControls);
-        statusPane.setRight(speedLabel);
+        statusPane.setAlignment(Pos.CENTER_LEFT);
+        statusPane.setStyle("-fx-border-width: 1px; -fx-border-color: #000000");
+        statusPane.add(statusLabel, 0, 0);
+        statusPane.add(tapeControls, 1, 0);
+        statusPane.add(speedLabel, 2, 0);
+
         buildUI(primaryStage, display, border, statusPane, menuBar);
 
         final java.util.Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> hostRelay);
@@ -281,37 +284,20 @@ public class JavaFXEmulator extends Application {
         return menuBar;
     }
 
-    private void playTape(final ActionEvent ae) {
-        if (!tape.isPresent()) {
-            rewindTapeToStart(ae);
+    private void playTape(final Event ae) {
+        tapePlayer.play();
+    }
+
+    private void stopTape(final Event ae) {
+        tapePlayer.stop();
+    }
+
+    private void rewindTapeToStart(final Event ae) {
+        try {
+            tapePlayer.rewindToStart();
+        } catch (TapeException e) {
+            e.printStackTrace();
         }
-
-        tape.ifPresent(t -> {
-            t.play();
-            tapePlayingIndicator.setFill(Color.GREEN);
-            playTapeItem.setDisable(true);
-            stopTapeItem.setDisable(false);
-            rewindTapeToStartItem.setDisable(false);
-        });
-    }
-
-    private void stopTape(final ActionEvent ae) {
-        tape.ifPresent(t -> {
-            t.stop();
-            tapePlayingIndicator.setFill(Color.GRAY);
-            playTapeItem.setDisable(false);
-            stopTapeItem.setDisable(true);
-            rewindTapeToStartItem.setDisable(false);
-        });
-    }
-
-    private void rewindTapeToStart(final ActionEvent ae) {
-        tape = tzxPlayer.map(TzxPlayer::getPlayableTzx);
-        tape.ifPresent(t -> ula.setTape(t));
-
-        playTapeItem.setDisable(false);
-        stopTapeItem.setDisable(true);
-        rewindTapeToStartItem.setDisable(false);
     }
 
     private void easyConnectToGuest(final ActionEvent ae) {
@@ -431,7 +417,7 @@ public class JavaFXEmulator extends Application {
                     borderColour.ifPresent(bc -> ula.setBorder(bc));
                     userPrefs.setProperty(PREF_LAST_SNAPSHOT_DIRECTORY, chosen.getParent());
                     savePrefs();
-                } catch (IOException | TzxException ex) {
+                } catch (IOException | TapeException ex) {
                     final Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Loading Error");
                     alert.setHeaderText("Unable to load file");
@@ -447,21 +433,19 @@ public class JavaFXEmulator extends Application {
         });
     }
 
-    private Optional<Integer> detectAndLoad(final File chosen) throws IOException, TzxException {
+    private Optional<Integer> detectAndLoad(final File chosen) throws IOException, TapeException {
         final byte[] buf = new byte[256];
         try (final InputStream is = new FileInputStream(chosen)) {
             is.read(buf);
         }
 
         if (chosen.getName().toLowerCase().endsWith(".tap")) {
-            final Tzx tap = new TzxReader(chosen).readTap();
-            tzxPlayer = Optional.of(new TzxPlayer(tap));
-            playTapeItem.setDisable(false);
+            final Tape tap = new TapeFileReader(chosen).readTap();
+            tapePlayer.setTape(tap);
             return Optional.empty();
-        } else if (TzxReader.recognises(buf)) {
-            final Tzx tzx = new TzxReader(chosen).readTzx();
-            tzxPlayer = Optional.of(new TzxPlayer(tzx));
-            playTapeItem.setDisable(false);
+        } else if (TapeFileReader.recognises(buf)) {
+            final Tape tzx = new TapeFileReader(chosen).readTzx();
+            tapePlayer.setTape(tzx);
             return Optional.empty();
         } else {
             return Optional.of(computer.loadSnapshot(chosen));

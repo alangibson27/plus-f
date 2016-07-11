@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.util.Try;
 
@@ -11,10 +11,10 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TzxReader {
-    private static final Logger logger = Logger.getLogger(TzxReader.class.getName());
+public class TapeFileReader {
+    private static final Logger logger = Logger.getLogger(TapeFileReader.class.getName());
 
-    private Map<Integer, Function<InputStream, Try<? extends TzxBlock>>> blockMappers = new HashMap<>();
+    private Map<Integer, Function<InputStream, Try<? extends TapeBlock>>> blockMappers = new HashMap<>();
 
     private final InputStream tzxFile;
 
@@ -22,11 +22,11 @@ public class TzxReader {
         return "ZXTape!".equals(new String(start, 0, 7));
     }
 
-    public TzxReader(final File tzxFile) throws FileNotFoundException {
+    public TapeFileReader(final File tzxFile) throws FileNotFoundException {
         this(new FileInputStream(tzxFile));
     }
 
-    public TzxReader(final InputStream tzxFile) {
+    public TapeFileReader(final InputStream tzxFile) {
         this.tzxFile = tzxFile;
 
         blockMappers.put(0x10, VariableSpeedBlock::readStandardSpeedBlock);
@@ -45,11 +45,11 @@ public class TzxReader {
         blockMappers.put(0x32, ArchiveInfoBlock::read);
     }
 
-    public Tzx readTap() throws TzxException, IOException {
+    public Tape readTap() throws TapeException, IOException {
         try {
             int lenLo = tzxFile.read();
             int lenHi = tzxFile.read();
-            final List<TzxBlock> blocks = new ArrayList<>();
+            final List<TapeBlock> blocks = new ArrayList<>();
             int blockId = 0;
             while (lenLo >= 0 && lenHi >= 0) {
                 blockId++;
@@ -62,33 +62,33 @@ public class TzxReader {
             }
 
             logger.info("Reached end of file");
-            return new Tzx("TAP", blocks);
+            return new Tape("TAP", blocks);
         } finally {
             tzxFile.close();
         }
     }
 
-    public Tzx readTzx() throws TzxException, IOException {
+    public Tape readTzx() throws TapeException, IOException {
         try {
             final String header = readText();
             if (!header.equals("ZXTape!")) {
-                throw new TzxException("Incorrect header");
+                throw new TapeException("Incorrect header");
             }
 
             final String version = String.format("%d.%d", tzxFile.read(), tzxFile.read());
             logger.info(String.format("TZX version %s", version));
 
-            final List<TzxBlock> blocks = new ArrayList<>();
+            final List<TapeBlock> blocks = new ArrayList<>();
             int blockType = tzxFile.read();
             int blockId = 0;
             while (blockType != -1) {
                 blockId++;
-                final Function<InputStream, Try<? extends TzxBlock>> mapper = blockMappers.get(blockType);
+                final Function<InputStream, Try<? extends TapeBlock>> mapper = blockMappers.get(blockType);
                 logger.info(String.format("Reading block #%d: type %d", blockId, blockType));
                 if (mapper == null) {
                     logger.info("Unsupported block");
                 } else {
-                    final Try<? extends TzxBlock> block = mapper.apply(tzxFile);
+                    final Try<? extends TapeBlock> block = mapper.apply(tzxFile);
                     block.ifSuccess(b -> {
                         blocks.add(b);
                         logger.info(String.format("Block description: %s", b.toString()));
@@ -100,7 +100,7 @@ public class TzxReader {
             }
 
             logger.info("Reached end of file");
-            return new Tzx(version, blocks);
+            return new Tape(version, blocks);
         } finally {
             tzxFile.close();
         }

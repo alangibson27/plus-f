@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.spectrum.Computer;
-import com.socialthingy.plusf.tzx.TzxBlock;
+import com.socialthingy.plusf.spectrum.TapePlayer;
+import com.socialthingy.plusf.tape.TapeBlock;
 import com.socialthingy.plusf.z80.IO;
 
 import java.util.*;
@@ -32,9 +32,10 @@ public class ULA implements IO {
     private int earBit;
     private int initialBorderColour;
     private int currentCycleTstates;
-    private Optional<Iterator<TzxBlock.Bit>> tape = Optional.empty();
+    private TapePlayer tapePlayer;
 
-    public ULA(final int displayedTopBorder, final int displayedBottomBorder) {
+    public ULA(final int displayedTopBorder, final int displayedBottomBorder, final TapePlayer tapePlayer) {
+        this.tapePlayer = tapePlayer;
         borderLines = new int[displayedTopBorder + SCREEN_HEIGHT + displayedBottomBorder];
         fullDisplayStart = TOP_BORDER_HEIGHT - displayedTopBorder;
         fullDisplayEnd = TOP_BORDER_HEIGHT + SCREEN_HEIGHT + displayedBottomBorder;
@@ -55,10 +56,6 @@ public class ULA implements IO {
             keyBits.put(rowKeys.charAt(i), KEY_POSITIONS[i]);
         }
         return keyBits;
-    }
-
-    public void setTape(final Iterator<TzxBlock.Bit> tape) {
-        this.tape = Optional.of(tape);
     }
 
     @Override
@@ -97,13 +94,11 @@ public class ULA implements IO {
 
     public void advanceCycle(final int tstates) {
         currentCycleTstates += tstates;
-        tape.ifPresent(t -> {
-            for (int i = 0; i < tstates; i++) {
-                if (t.hasNext()) {
-                    earIn(t.next().getState());
-                }
+        for (int i = 0; i < tstates; i++) {
+            if (tapePlayer.hasNext()) {
+                earIn(tapePlayer.next().getState());
             }
-        });
+        }
     }
 
     public void earIn(final boolean high) {

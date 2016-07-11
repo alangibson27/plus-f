@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
@@ -6,7 +6,7 @@ import com.socialthingy.plusf.util.Try;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class LoopStartBlock extends TzxBlock {
+public class LoopStartBlock extends TapeBlock {
 
     private final int iterations;
 

@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
@@ -9,7 +9,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.*;
 
-public class ArchiveInfoBlock extends TzxBlock {
+public class ArchiveInfoBlock extends TapeBlock {
 
     private static Map<Integer, String> textIds = new HashMap<>();
     static {

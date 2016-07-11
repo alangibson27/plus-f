@@ -1,15 +1,12 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
 
-import static com.socialthingy.plusf.util.Bitwise.binary;
-
-public class PureToneBlock extends TzxBlock {
+public class PureToneBlock extends TapeBlock {
 
     public static Try<PureToneBlock> read(final InputStream tzxFile) {
         try {

@@ -19,6 +19,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -35,7 +36,7 @@ public class UIBuilder {
     public static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
     public static final int DISPLAY_HEIGHT = ULA.SCREEN_HEIGHT + (BORDER * 2);
 
-    public static void buildUI(
+    public static Pane buildUI(
         final Stage primaryStage,
         final JavaFXDisplay display,
         final JavaFXBorder border,
@@ -62,6 +63,7 @@ public class UIBuilder {
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.sizeToScene();
+        return root;
     }
 
     public static MenuItem registerMenuItem(

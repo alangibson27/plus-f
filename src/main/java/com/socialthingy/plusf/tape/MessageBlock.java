@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 
-public class MessageBlock extends TzxBlock {
+public class MessageBlock extends TapeBlock {
 
     private final String description;
     private final Duration duration;

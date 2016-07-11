@@ -5,6 +5,7 @@ import javafx.scene.image.ImageView;
 
 public class Icons {
     public static final Image tape = new Image("/icons/tape.png");
+    public static final Image tapePlaying = new Image("/icons/tape-playing.png");
     public static final Image rewindToStart = new Image("/icons/rewind-to-start.png");
     public static final Image play = new Image("/icons/play.png");
     public static final Image stop = new Image("/icons/stop.png");

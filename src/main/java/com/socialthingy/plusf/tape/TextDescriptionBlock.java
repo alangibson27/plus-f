@@ -1,27 +1,25 @@
-package com.socialthingy.plusf.tzx;
+package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
 
-public class GroupStartBlock extends TzxBlock {
+public class TextDescriptionBlock extends TapeBlock {
 
     private final String description;
 
-    public static Try<GroupStartBlock> read(final InputStream tzxFile) {
+    public static Try<TextDescriptionBlock> read(final InputStream tzxFile) {
         try {
-            final String message = getFixedLengthString(tzxFile);
-
-            return Try.success(new GroupStartBlock(message));
+            final String description = getFixedLengthString(tzxFile);
+            return Try.success(new TextDescriptionBlock(description));
         } catch (IOException ex) {
             return Try.failure(ex);
         }
     }
 
-    public GroupStartBlock(final String description) {
+    public TextDescriptionBlock(final String description) {
         this.description = description;
     }
 
@@ -33,6 +31,6 @@ public class GroupStartBlock extends TzxBlock {
 
     @Override
     public String toString() {
-        return String.format("Group start: %s", description);
+        return description;
     }
 }

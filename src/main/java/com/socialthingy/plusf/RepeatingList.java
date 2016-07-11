@@ -77,16 +77,4 @@ public class RepeatingList<T> implements Iterable<T> {
             }
         }
     }
-
-    public static void main(final String ... args) {
-        final RepeatingList<String> rl = new RepeatingList<>();
-        rl.add("A", 3);
-        rl.add("B", 5);
-        rl.add("C", 0);
-        rl.add("D", 1);
-
-        for (String s: rl) {
-            System.out.println(s);
-        }
-    }
 }
