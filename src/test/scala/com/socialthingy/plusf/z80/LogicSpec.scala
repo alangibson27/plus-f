@@ -28,7 +28,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("s").value shouldBe true
       flag("z").value shouldBe false
       flag("h").value shouldBe true
-      flag("p").value shouldBe false
+      flag("p").value shouldBe true
       flag("n").value shouldBe false
       flag("c").value shouldBe false
       flag("f3").value shouldBe false
@@ -52,7 +52,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("s").value shouldBe false
       flag("z").value shouldBe false
       flag("h").value shouldBe true
-      flag("p").value shouldBe true
+      flag("p").value shouldBe false
       flag("n").value shouldBe false
       flag("c").value shouldBe false
       flag("f3").value shouldBe false
@@ -396,8 +396,8 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     flag("p").value shouldBe false
     flag("n").value shouldBe false
     flag("c").value shouldBe false
-    flag("f3").value shouldBe false
-    flag("f5").value shouldBe false
+    flag("f3").value shouldBe true
+    flag("f5").value shouldBe true
   }
 
   "or a with itself" should "not modify the value of the accumulator" in new Machine {
