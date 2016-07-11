@@ -40,10 +40,27 @@ enabling multi-player games on your computer, the process you need to follow for
 
 ### Making a connection
 
+The Emulator and the Guest connect to one another through the Plus-F Relay Service, which allows them to discover one
+another's addresses. Follow these steps to get up and running:
+
+1. The player running the Emulator invokes the *Connect to guest* item and enters a connection code.
+   It's not especially important what this code is, and you can use the same one over and over again if you like.
+   They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.
+
+2. The player running the Emulator passes the connection code to the player running the Guest. This could be by
+   email, instant message, phone, shouting across a room - whatever works.
+
+3. The player running the Guest invokes the *Connect to emulator* item, and enters the connection code.
+
+If the two codes match, you should now be enjoying a two-player session.
+
 First, the two players need to tell each other how the Emulator and Computer can reach one another. Each player should
 invoke the *Get connection details* item from the *Network* menu, and send the host and port details displayed to the
 other player.
 
-The other player then invokes the *Connect to guest/emulator* item from the same menu to make the connection.
-Eventually, the Emulator's display should be sent to the Guest, and status messages below the display on both the
-Emulator and the Guest will indicate the status and quality of the connection.
+Status messages below the display will show the current connection status. The colour of the message indicates the
+overall quality of the connection:
+
+* Green: The connection is good enough for games to be playable.
+* Yellow: The connection quality is poor, and delays may be experienced.
+* Red: The connection has dropped, either temporarily or permanently.

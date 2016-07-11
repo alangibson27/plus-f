@@ -96,13 +96,34 @@ enabling multi-player games on your computer, the process you need to follow for
 
 &lt;h3 id=&#34;making-a-connection:94545177397886f3162838504e334017&#34;&gt;Making a connection&lt;/h3&gt;
 
+&lt;p&gt;The Emulator and the Guest connect to one another through the Plus-F Relay Service, which allows them to discover one
+another&amp;rsquo;s addresses. Follow these steps to get up and running:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;The player running the Emulator invokes the &lt;em&gt;Connect to guest&lt;/em&gt; item and enters a connection code.
+It&amp;rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
+They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;The player running the Emulator passes the connection code to the player running the Guest. This could be by
+email, instant message, phone, shouting across a room - whatever works.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;The player running the Guest invokes the &lt;em&gt;Connect to emulator&lt;/em&gt; item, and enters the connection code.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;If the two codes match, you should now be enjoying a two-player session.&lt;/p&gt;
+
 &lt;p&gt;First, the two players need to tell each other how the Emulator and Computer can reach one another. Each player should
 invoke the &lt;em&gt;Get connection details&lt;/em&gt; item from the &lt;em&gt;Network&lt;/em&gt; menu, and send the host and port details displayed to the
 other player.&lt;/p&gt;
 
-&lt;p&gt;The other player then invokes the &lt;em&gt;Connect to guest/emulator&lt;/em&gt; item from the same menu to make the connection.
-Eventually, the Emulator&amp;rsquo;s display should be sent to the Guest, and status messages below the display on both the
-Emulator and the Guest will indicate the status and quality of the connection.&lt;/p&gt;
+&lt;p&gt;Status messages below the display will show the current connection status. The colour of the message indicates the
+overall quality of the connection:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Green: The connection is good enough for games to be playable.&lt;/li&gt;
+&lt;li&gt;Yellow: The connection quality is poor, and delays may be experienced.&lt;/li&gt;
+&lt;li&gt;Red: The connection has dropped, either temporarily or permanently.&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
@@ -174,8 +195,11 @@ SOFTWARE.&lt;/p&gt;
       
       <guid>http://replace-this-with-your-hugo-site.com/games/</guid>
       <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
-Z80, TAP and TZX. At present, Plus-F can only load and run Spectrum programs distributed as Z80 files. Further, it
-can only run 48k programs.&lt;/p&gt;
+Z80, TAP and TZX, all of which Plus-F can load. TAP files are at present the most reliable, although you should be able
+to use a lot of Z80 and TZX files as well.&lt;/p&gt;
+
+&lt;p&gt;One of the most authoritative sources for Spectrum games the &lt;a href=&#34;http://www.worldofspectrum.org/archive.html&#34;&gt;World of Spectrum Archive&lt;/a&gt;,
+which has an extensive collection of TAP and TZX files.&lt;/p&gt;
 
 &lt;p&gt;Don&amp;rsquo;t forget that the classic Spectrum games we can play today on emulators remain the result of the skills and
 dedication of the programmers who developed them. While many have granted free distribution rights for their games,
@@ -194,11 +218,11 @@ for full details on which publishers and developers have granted free distributi
       <guid>http://replace-this-with-your-hugo-site.com/emulator/</guid>
       <description>
 
-&lt;p&gt;The Plus-F Emulator is a program that emulates a ZX Spectrum, with the following features and limitations:&lt;/p&gt;
+&lt;p&gt;The Plus-F Emulator is a program that emulates a ZX Spectrum, with the following features:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Emulates a 48k Spectrum, and not a 128k variant (e.g. 128, +2 or +3)&lt;/li&gt;
-&lt;li&gt;Supports loading of Z80 snapshot files&lt;/li&gt;
+&lt;li&gt;Emulates a 48k Spectrum&lt;/li&gt;
+&lt;li&gt;Loads from TAP, Z80 and TZX files (TAP is the most reliable)&lt;/li&gt;
 &lt;li&gt;No sound support&lt;/li&gt;
 &lt;li&gt;Emulation timing is not 100% accurate with respect to a &amp;ldquo;real&amp;rdquo; Spectrum&lt;/li&gt;
 &lt;/ul&gt;
@@ -214,22 +238,43 @@ for full details on which publishers and developers have granted free distributi
 &lt;h3 id=&#34;file-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;File menu&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Load: Load a Z80 snapshot file&lt;/li&gt;
-&lt;li&gt;Quit: Quit the Emulator&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Open: Open a TAP, Z80 or TZX file.&lt;/p&gt;
+
+&lt;p&gt;Z80 files will start automatically. To load from a TAP or TZX file, type LOAD &amp;ldquo;&amp;rdquo; (key J then symbol shift+P twice) in
+Spectrum BASIC, and then choose Play from the Tape menu.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Quit: Quit the Emulator.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;computer-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Computer menu&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Reset: Reset the Emulator (just like pulling the plug out and putting it back in again)&lt;/li&gt;
-&lt;li&gt;Fast mode: Run the Emulator faster than a real Spectrum&lt;/li&gt;
+&lt;li&gt;Reset: Reset the Emulator (just like pulling the plug out and putting it back in again).&lt;/li&gt;
+&lt;li&gt;Speed: Choose the speed the Emulator runs at:
+
+&lt;ul&gt;
+&lt;li&gt;Normal: The same speed as a real Spectrum.&lt;/li&gt;
+&lt;li&gt;Fast: 1.5 times the speed of a real Spectrum.&lt;/li&gt;
+&lt;li&gt;Double: Double the speed of a real Spectrum.&lt;/li&gt;
+&lt;li&gt;Turbo: Much, much faster than a real Spectrum. Use this if you&amp;rsquo;re bored waiting for TAP or TZX files to load.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;tape-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Tape menu&lt;/h3&gt;
+
+&lt;p&gt;The controls on the tape menu are also displayed on buttons at the bottom of the Emulator window. The tape icon turns
+green to indicate when the tape is playing.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Play: Play a TAP or TZX file.&lt;/li&gt;
+&lt;li&gt;Stop: Stop the tape.&lt;/li&gt;
+&lt;li&gt;Rewind to Start: Rewind to the start of the current tape.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;network-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Network menu&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Get contact info: Display the contact information you need to give to the Guest for a two-player gaming session.&lt;/li&gt;
-&lt;li&gt;Connect to guest: Enter the contact information of a Guest for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Connect to guest: Enter a connection code to pair up with a Guest for a two-player gaming session.&lt;/li&gt;
 &lt;li&gt;Disconnect from guest: Disconnect from a Guest to stop a two-player gaming session.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
@@ -272,8 +317,7 @@ two-player game, provided the game has Kempston joystick support (most have).&lt
 &lt;h3 id=&#34;network-menu:d7fc600d3e074e81e78248f47945b74b&#34;&gt;Network menu&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Get contact info: Display the contact information you need to give to the Emulator for a two-player gaming session.&lt;/li&gt;
-&lt;li&gt;Connect to emulator: Enter the contact information of an Emulator for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Connect to emulator: Enter a connection code to pair up with an Emulator for a two-player gaming session.&lt;/li&gt;
 &lt;li&gt;Disconnect from emulator: Disconnect from an Emulator to stop a two-player gaming session.&lt;/li&gt;
 &lt;/ul&gt;
 </description>

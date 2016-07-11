@@ -28,6 +28,5 @@ The Guest can also be controlled by the options in the menu bar at the top of th
 
 ### Network menu
 
-* Get contact info: Display the contact information you need to give to the Emulator for a two-player gaming session.
-* Connect to emulator: Enter the contact information of an Emulator for a two-player gaming session.
+* Connect to emulator: Enter a connection code to pair up with an Emulator for a two-player gaming session.
 * Disconnect from emulator: Disconnect from an Emulator to stop a two-player gaming session.
