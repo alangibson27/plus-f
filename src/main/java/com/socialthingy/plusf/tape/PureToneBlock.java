@@ -5,6 +5,7 @@ import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 public class PureToneBlock extends TapeBlock {
 
@@ -22,7 +23,7 @@ public class PureToneBlock extends TapeBlock {
     private final int pulseLength;
     private final int toneLength;
 
-    private PureToneBlock(final int pulseLength, final int toneLength) {
+    public PureToneBlock(final int pulseLength, final int toneLength) {
         this.pulseLength = pulseLength;
         this.toneLength = toneLength;
     }
@@ -39,7 +40,38 @@ public class PureToneBlock extends TapeBlock {
     }
 
     @Override
+    public Iterator<Bit> bits(final SignalState signalState) {
+        return new PureToneIterator(signalState);
+    }
+
+    @Override
     public String toString() {
         return String.format("Pure tone block: %d pulses of %d", toneLength, pulseLength);
+    }
+
+    private class PureToneIterator implements Iterator<Bit> {
+        private final SignalState signalState;
+        private int pulsesLeft = toneLength - 1;
+        private int tstatesUntilChange = pulseLength;
+
+        private PureToneIterator(final SignalState signalState) {
+            this.signalState = signalState;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (pulsesLeft + tstatesUntilChange) > 0;
+        }
+
+        @Override
+        public Bit next() {
+            if (tstatesUntilChange == 0) {
+                tstatesUntilChange = pulseLength;
+                pulsesLeft--;
+                signalState.flip();
+            }
+            tstatesUntilChange--;
+            return new Bit(signalState.get(), "pure tone");
+        }
     }
 }

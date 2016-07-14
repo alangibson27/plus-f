@@ -5,6 +5,7 @@ import com.socialthingy.plusf.util.Word;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 public abstract class TapeBlock {
     protected static String getFixedLengthString(final InputStream tapeFile) throws IOException {
@@ -38,6 +39,12 @@ public abstract class TapeBlock {
         public String toString() {
             return String.format("%d [%s]", state ? 1 : 0, stage);
         }
+    }
+
+    public Iterator<Bit> bits(final SignalState signalState) {
+        final RepeatingList<Bit> tape = new RepeatingList<>();
+        signalState.set(write(tape, signalState.get()));
+        return tape.iterator();
     }
 
     protected static int nextByte(final InputStream tzxFile) throws IOException {
