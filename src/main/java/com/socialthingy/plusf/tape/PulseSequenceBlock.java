@@ -46,39 +46,13 @@ public class PulseSequenceBlock extends TapeBlock {
 
     @Override
     public Iterator<Bit> bits(final SignalState signalState) {
-        return new PulseSequenceIterator(signalState);
+        signalState.set(false);
+        return new PulseSequenceIterator(signalState, pulseLengths);
     }
 
     @Override
     public String toString() {
         final String pulses = Arrays.stream(pulseLengths).limit(5).mapToObj(String::valueOf).collect(Collectors.joining(","));
         return String.format("Pulse block - %d pulses [%s ...]", pulseCount, pulses);
-    }
-
-    private class PulseSequenceIterator implements Iterator<Bit> {
-        private final SignalState signalState;
-        private int pulseIdx = 0;
-        private int tstatesUntilChange = pulseLengths[0];
-
-        public PulseSequenceIterator(final SignalState signalState) {
-            this.signalState = signalState;
-            this.signalState.set(false);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return (tstatesUntilChange > 0) || (pulseIdx < pulseCount - 1);
-        }
-
-        @Override
-        public Bit next() {
-            if (tstatesUntilChange == 0) {
-                pulseIdx++;
-                tstatesUntilChange = pulseLengths[pulseIdx];
-                signalState.flip();
-            }
-            tstatesUntilChange--;
-            return new Bit(signalState.get(), "pulse");
-        }
     }
 }

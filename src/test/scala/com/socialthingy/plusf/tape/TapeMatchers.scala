@@ -18,7 +18,7 @@ trait TapeMatchers {
   class PulseSequenceMatcher(length: Int, state: Boolean) extends Matcher[List[Bit]] {
     override def apply(left: List[Bit]): MatchResult = MatchResult(
       left.length == length && left.forall(_.getState == state),
-      s"pulse was not $length bits of ${if (state) "high" else "low"}",
+      s"pulse was not $length bits of ${if (state) "high" else "low"}, it was ${left.length} bits",
       s"pulse was $length bits of ${if (state) "high" else "low"}"
     )
   }

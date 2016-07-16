@@ -131,11 +131,11 @@ public class VariableSpeedBlock extends TapeBlock {
             state = !state;
         }
 
-        // sync 1 - off pulse
+        // sync 1 - on pulse
         tape.add(new Bit(state, "sync 1"), sync1PulseLength);
         state = !state;
 
-        // sync 2 - on pulse
+        // sync 2 - off pulse
         tape.add(new Bit(state, "sync 2"), sync2PulseLength);
         state = !state;
 
