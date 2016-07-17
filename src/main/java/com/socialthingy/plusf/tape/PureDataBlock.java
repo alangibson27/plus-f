@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.IteratorIterator;
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
@@ -70,40 +69,6 @@ public class PureDataBlock extends TapeBlock {
 
     public int[] getData() {
         return data;
-    }
-
-    @Override
-    public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        boolean state = initialState;
-        for (int i = 0; i < data.length; i++) {
-            final int b;
-            final int lastBit;
-            if (i == data.length - 1) {
-                b = data[i] & finalByteMask[finalByteBitsUsed - 1];
-                lastBit = 8 - finalByteBitsUsed;
-            } else {
-                b = data[i];
-                lastBit = 0;
-            }
-
-            for (int bit = 7; bit >= lastBit; bit--) {
-                final boolean high = (b & (1 << bit)) != 0;
-                final int pulseLen = high ? onePulseLength : zeroPulseLength;
-                tape.add(new Bit(state, "data"), pulseLen);
-                state = !state;
-                tape.add(new Bit(state, "data"), pulseLen);
-                state = !state;
-            }
-        }
-
-        // pause
-        if (!pauseLength.isZero()) {
-            tape.add(new Bit(state, "end"), 3500);
-            tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
-            state = false;
-        }
-
-        return state;
     }
 
     @Override

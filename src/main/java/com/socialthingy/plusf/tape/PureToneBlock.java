@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
@@ -26,17 +25,6 @@ public class PureToneBlock extends TapeBlock {
     public PureToneBlock(final int pulseLength, final int toneLength) {
         this.pulseLength = pulseLength;
         this.toneLength = toneLength;
-    }
-
-    @Override
-    public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        boolean state = false;
-        for (int i = 0; i < toneLength; i++) {
-            tape.add(new Bit(state, "pure tone"), pulseLength);
-            state = !state;
-        }
-
-        return state;
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.socialthingy.plusf.tape
 import java.time.Duration
 import java.util.function.Consumer
 
-import com.socialthingy.plusf.RepeatingList
 import com.socialthingy.plusf.tape.TapeBlock.Bit
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
@@ -171,22 +170,6 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
       (0 until 8 + finalByteLength) foreach { idx =>
         pulses(idx * 2) should haveLengthAndState(50, high)
         pulses((idx * 2) + 1) should haveLengthAndState(50, low)
-      }
-    }
-  }
-
-  "vsb" should "work" in {
-    val vsb = new VariableSpeedBlock(Duration.ofMillis(10), Array(0x84), 10, 7, 5, 5, 10, 3, 8)
-
-    val tape = new RepeatingList[Bit]()
-    vsb.write(tape, false)
-    val oldBits = tape.iterator().asScala.toList
-    val newBits = vsb.bits(new SignalState(false)).asScala.toList
-
-    oldBits.size shouldBe newBits.size
-    (0 until oldBits.size) foreach  { idx =>
-      withClue(s"bit $idx (${oldBits(idx).getStage})") {
-        oldBits(idx).getState shouldBe newBits(idx).getState
       }
     }
   }

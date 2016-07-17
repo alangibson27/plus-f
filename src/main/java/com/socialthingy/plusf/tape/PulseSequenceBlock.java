@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
@@ -38,17 +37,6 @@ public class PulseSequenceBlock extends TapeBlock {
 
     public PulseSequenceBlock(final int[] pulseLengths) {
         this(Adjustment.SET_LOW, pulseLengths);
-    }
-
-    @Override
-    public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        boolean state = false;
-        for (int i = 0; i < pulseCount; i++) {
-            tape.add(new Bit(state, "pilot"), pulseLengths[i]);
-            state = !state;
-        }
-
-        return state;
     }
 
     @Override

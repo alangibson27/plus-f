@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.IteratorIterator;
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
@@ -9,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Iterator;
-
-import static com.socialthingy.plusf.util.Bitwise.binary;
 
 public class VariableSpeedBlock extends TapeBlock {
 
@@ -67,17 +64,6 @@ public class VariableSpeedBlock extends TapeBlock {
         }
     }
 
-    private static final int[] finalByteMask = new int[] {
-        binary("10000000"),
-        binary("11000000"),
-        binary("11100000"),
-        binary("11110000"),
-        binary("11111000"),
-        binary("11111100"),
-        binary("11111110"),
-        binary("11111111")
-    };
-
     protected final Duration pauseLength;
     protected final int[] data;
     protected final int pilotPulseLength;
@@ -123,54 +109,6 @@ public class VariableSpeedBlock extends TapeBlock {
 
     public int[] getData() {
         return data;
-    }
-
-    @Override
-    public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        // pilot tone
-        boolean state = false;
-        for (int i = 0; i < pilotToneLength; i++) {
-            tape.add(new Bit(state, "pilot"), pilotPulseLength);
-            state = !state;
-        }
-
-        // sync 1 - on pulse
-        tape.add(new Bit(state, "sync 1"), sync1PulseLength);
-        state = !state;
-
-        // sync 2 - off pulse
-        tape.add(new Bit(state, "sync 2"), sync2PulseLength);
-        state = !state;
-
-        // data
-        for (int i = 0; i < data.length; i++) {
-            final int b;
-            final int lastBit;
-            if (i == data.length - 1) {
-                b = data[i] & finalByteMask[finalByteBitsUsed - 1];
-                lastBit = 8 - finalByteBitsUsed;
-            } else {
-                b = data[i];
-                lastBit = 0;
-            }
-
-            for (int bit = 7; bit >= lastBit; bit --) {
-                final boolean high = (b & (1 << bit)) != 0;
-                final int pulseLen = high ? onePulseLength : zeroPulseLength;
-                tape.add(new Bit(state, "data"), pulseLen);
-                state = !state;
-                tape.add(new Bit(state, "data"), pulseLen);
-                state = !state;
-            }
-        }
-
-        if (!pauseLength.isZero()) {
-            tape.add(new Bit(state, "end"), 3500);
-            tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
-            state = false;
-        }
-
-        return state;
     }
 
     @Override

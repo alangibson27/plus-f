@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
@@ -27,12 +26,6 @@ public class PauseBlock extends TapeBlock {
 
     public Duration getPauseLength() {
         return pauseLength;
-    }
-
-    @Override
-    public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
-        tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
-        return false;
     }
 
     @Override

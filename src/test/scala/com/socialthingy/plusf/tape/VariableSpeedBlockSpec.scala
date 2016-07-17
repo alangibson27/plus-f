@@ -2,7 +2,6 @@ package com.socialthingy.plusf.tape
 
 import java.time.Duration
 
-import com.socialthingy.plusf.RepeatingList
 import com.socialthingy.plusf.tape.TapeBlock.Bit
 import com.socialthingy.plusf.util.Bitwise._
 import org.scalatest.{FlatSpec, Matchers}

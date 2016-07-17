@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.TapeBlock.Bit;
 
 import java.time.Duration;

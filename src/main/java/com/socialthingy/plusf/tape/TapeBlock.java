@@ -1,11 +1,12 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Word;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+
+import static java.util.Collections.emptyIterator;
 
 public abstract class TapeBlock {
     protected static String getFixedLengthString(final InputStream tapeFile) throws IOException {
@@ -16,8 +17,6 @@ public abstract class TapeBlock {
         }
         return new String(buf);
     }
-
-    public abstract boolean write(RepeatingList<Bit> tape, boolean initialState);
 
     public static class Bit {
         private final boolean state;
@@ -42,9 +41,7 @@ public abstract class TapeBlock {
     }
 
     public Iterator<Bit> bits(final SignalState signalState) {
-        final RepeatingList<Bit> tape = new RepeatingList<>();
-        signalState.set(write(tape, signalState.get()));
-        return tape.iterator();
+        return emptyIterator();
     }
 
     protected static int nextByte(final InputStream tzxFile) throws IOException {
