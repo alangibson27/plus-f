@@ -24,7 +24,7 @@ public class IteratorIterator<T> implements Iterator<T> {
     @Override
     public T next() {
         final T value = currentIterator.next();
-        if (!currentIterator.hasNext() & allIterators.hasNext()) {
+        if (!currentIterator.hasNext() && allIterators.hasNext()) {
             currentIterator = allIterators.next();
         }
         return value;

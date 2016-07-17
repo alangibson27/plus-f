@@ -6,6 +6,7 @@ import com.socialthingy.plusf.util.Try;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.Iterator;
 
 public class PauseBlock extends TapeBlock {
 
@@ -20,7 +21,7 @@ public class PauseBlock extends TapeBlock {
 
     private final Duration pauseLength;
 
-    private PauseBlock(final Duration pauseLength) {
+    public PauseBlock(final Duration pauseLength) {
         this.pauseLength = pauseLength;
     }
 
@@ -35,7 +36,30 @@ public class PauseBlock extends TapeBlock {
     }
 
     @Override
+    public Iterator<Bit> bits(final SignalState signalState) {
+        if (pauseLength.isZero()) {
+            return new StopTapeIterator();
+        } else {
+            return new PauseIterator(signalState, pauseLength);
+        }
+    }
+
+    @Override
     public String toString() {
         return String.format("%s pause", pauseLength.getSeconds());
+    }
+
+    private class StopTapeIterator implements Iterator<Bit> {
+        private boolean read = false;
+
+        @Override
+        public boolean hasNext() {
+            return !read;
+        }
+
+        @Override
+        public Bit next() {
+            return StopTapeBit.INSTANCE;
+        }
     }
 }

@@ -1,11 +1,14 @@
 package com.socialthingy.plusf.tape;
 
+import com.socialthingy.plusf.IteratorIterator;
 import com.socialthingy.plusf.RepeatingList;
+import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.Iterator;
 
 import static com.socialthingy.plusf.util.Bitwise.binary;
 
@@ -75,18 +78,18 @@ public class VariableSpeedBlock extends TapeBlock {
         binary("11111111")
     };
 
-    private final Duration pauseLength;
-    private final int[] data;
-    private final int pilotPulseLength;
-    private final int sync1PulseLength;
-    private final int sync2PulseLength;
-    private final int zeroPulseLength;
-    private final int onePulseLength;
-    private final int pilotToneLength;
-    private final int finalByteBitsUsed;
+    protected final Duration pauseLength;
+    protected final int[] data;
+    protected final int pilotPulseLength;
+    protected final int sync1PulseLength;
+    protected final int sync2PulseLength;
+    protected final int zeroPulseLength;
+    protected final int onePulseLength;
+    protected final int pilotToneLength;
+    protected final int finalByteBitsUsed;
     private String description;
 
-    private VariableSpeedBlock(
+    public VariableSpeedBlock(
         final Duration pauseLength,
         final int[] data,
         final int pilotPulseLength,
@@ -109,7 +112,7 @@ public class VariableSpeedBlock extends TapeBlock {
         this.description = "turbo";
     }
 
-    private VariableSpeedBlock(final Duration pauseLength, final int[] data) {
+    public VariableSpeedBlock(final Duration pauseLength, final int[] data) {
         this(pauseLength, data, 2168, 667, 735, 855, 1710, data[0] < 128 ? 8063 : 3223, 8);
         this.description = "standard";
     }
@@ -168,6 +171,18 @@ public class VariableSpeedBlock extends TapeBlock {
         }
 
         return state;
+    }
+
+    @Override
+    public Iterator<Bit> bits(SignalState signalState) {
+        final PureToneBlock pilot = new PureToneBlock(pilotPulseLength, pilotToneLength);
+        final PulseSequenceBlock pulseSequence = new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength});
+        final PureDataBlock pureData = new PureDataBlock(pauseLength, data, zeroPulseLength, onePulseLength, finalByteBitsUsed);
+        return new IteratorIterator<>(
+            pilot.bits(signalState),
+            pulseSequence.bits(signalState),
+            pureData.bits(signalState)
+        );
     }
 
     @Override

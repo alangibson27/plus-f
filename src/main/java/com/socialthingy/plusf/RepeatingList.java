@@ -71,10 +71,6 @@ public class RepeatingList<T> implements Iterable<T> {
                 item = nextRep.item;
                 count = nextRep.repetitions;
             }
-
-            if (!hasNext()) {
-                System.out.println("End of stream");
-            }
         }
     }
 }

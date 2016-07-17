@@ -2,6 +2,7 @@ package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.IteratorIterator;
 import com.socialthingy.plusf.RepeatingList;
+import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
@@ -54,21 +55,17 @@ public class PureDataBlock extends TapeBlock {
     private final int finalByteBitsUsed;
 
     public PureDataBlock(
-            final Duration pauseLength,
-            final int[] data,
-            final int zeroPulseLength,
-            final int onePulseLength,
-            final int finalByteBitsUsed
+        final Duration pauseLength,
+        final int[] data,
+        final int zeroPulseLength,
+        final int onePulseLength,
+        final int finalByteBitsUsed
     ) {
         this.pauseLength = pauseLength;
         this.data = data;
         this.zeroPulseLength = zeroPulseLength;
         this.onePulseLength = onePulseLength;
         this.finalByteBitsUsed = finalByteBitsUsed;
-    }
-
-    public Duration getPauseLength() {
-        return pauseLength;
     }
 
     public int[] getData() {
@@ -111,12 +108,13 @@ public class PureDataBlock extends TapeBlock {
 
     @Override
     public Iterator<Bit> bits(final SignalState signalState) {
+        final PureDataIterator dataIterator = new PureDataIterator(signalState);
         if (pauseLength.isZero()) {
-            return new PureDataIterator(signalState);
+            return dataIterator;
         } else {
             return new IteratorIterator<>(
-                new PureDataIterator(signalState),
-                new PulseSequenceIterator(signalState, FINAL_OPPOSITE_EDGE_PULSE),
+                dataIterator,
+                new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, FINAL_OPPOSITE_EDGE_PULSE),
                 new PauseIterator(signalState, pauseLength)
             );
         }
@@ -176,7 +174,7 @@ public class PureDataBlock extends TapeBlock {
         public DataByteIterator(final SignalState signalState, final int dataByte, final int bitsUsed) {
             this.signalState = signalState;
             this.dataByte = dataByte;
-            this.currentIterator = new PulseSequenceIterator(signalState, bitPulses(dataByte, bitIdx));
+            this.currentIterator = new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, bitPulses(dataByte, bitIdx));
             this.lastBit = 8 - bitsUsed;
         }
 
@@ -189,10 +187,9 @@ public class PureDataBlock extends TapeBlock {
         public Bit next() {
             final Bit nextValue = currentIterator.next();
             if (!currentIterator.hasNext()) {
-                signalState.flip();
                 bitIdx--;
                 if (bitIdx >= lastBit) {
-                    currentIterator = new PulseSequenceIterator(signalState, bitPulses(dataByte, bitIdx));
+                    currentIterator = new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, bitPulses(dataByte, bitIdx));
                 }
             }
             return nextValue;

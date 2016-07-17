@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.RepeatingList;
+import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class PulseSequenceBlock extends TapeBlock {
                 pulseLengths[i] = nextWord(tzxFile);
             }
 
-            return Try.success(new PulseSequenceBlock(pulseCount, pulseLengths));
+            return Try.success(new PulseSequenceBlock(pulseLengths));
         } catch (IOException ex) {
             return Try.failure(ex);
         }
@@ -27,10 +28,16 @@ public class PulseSequenceBlock extends TapeBlock {
 
     private final int pulseCount;
     private final int[] pulseLengths;
+    private final Adjustment initialState;
 
-    public PulseSequenceBlock(final int pulseCount, final int[] pulseLengths) {
-        this.pulseCount = pulseCount;
+    public PulseSequenceBlock(final Adjustment initialState, final int[] pulseLengths) {
+        this.pulseCount = pulseLengths.length;
         this.pulseLengths = pulseLengths;
+        this.initialState = initialState;
+    }
+
+    public PulseSequenceBlock(final int[] pulseLengths) {
+        this(Adjustment.SET_LOW, pulseLengths);
     }
 
     @Override
@@ -46,8 +53,7 @@ public class PulseSequenceBlock extends TapeBlock {
 
     @Override
     public Iterator<Bit> bits(final SignalState signalState) {
-        signalState.set(false);
-        return new PulseSequenceIterator(signalState, pulseLengths);
+        return new PulseSequenceIterator(initialState, signalState, pulseLengths);
     }
 
     @Override
