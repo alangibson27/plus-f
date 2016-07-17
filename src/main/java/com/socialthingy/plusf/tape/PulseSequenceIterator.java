@@ -7,19 +7,25 @@ import java.util.Optional;
 
 public class PulseSequenceIterator implements Iterator<TapeBlock.Bit> {
     private final SignalState signalState;
-    private final int[] pulseLengths;
-    private final int pulseCount;
-    private int pulseIdx = 0;
+    private final Adjustment initialState;
+    private int[] pulseLengths;
+    private int pulseCount;
+    private int pulseIdx;
     private int tstatesUntilChange;
     private boolean initialPulse = true;
-    private final Adjustment initialState;
 
     public PulseSequenceIterator(final Adjustment initialState, final SignalState signalState, final int[] pulseLengths) {
         this.signalState = signalState;
+        this.initialState = initialState;
+        reset(pulseLengths);
+    }
+
+    public void reset(final int[] pulseLengths) {
         this.pulseCount = pulseLengths.length;
         this.pulseLengths = pulseLengths;
         this.tstatesUntilChange = pulseLengths[0];
-        this.initialState = initialState;
+        this.initialPulse = true;
+        this.pulseIdx = 0;
     }
 
     @Override

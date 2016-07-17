@@ -28,7 +28,6 @@ public class ReferenceVariableSpeedBlock {
     private final int onePulseLength;
     private final int pilotToneLength;
     private final int finalByteBitsUsed;
-    private String description;
 
     public ReferenceVariableSpeedBlock(
         final Duration pauseLength,
@@ -50,7 +49,6 @@ public class ReferenceVariableSpeedBlock {
         this.onePulseLength = onePulseLength;
         this.pilotToneLength = pilotToneLength;
         this.finalByteBitsUsed = finalByteBitsUsed;
-        this.description = "turbo";
     }
 
     public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {

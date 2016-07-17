@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 public class JumpBlock extends TapeBlock {
 
-    private final int blocks;
+    private final int block;
 
     public static Try<JumpBlock> read(final InputStream tzxFile) {
         try {
@@ -18,16 +18,16 @@ public class JumpBlock extends TapeBlock {
         }
     }
 
-    public JumpBlock(final int blocks) {
-        this.blocks = blocks;
+    public JumpBlock(final int block) {
+        this.block = block;
     }
 
-    public int getBlocks() {
-        return blocks;
+    public int getBlock() {
+        return block;
     }
 
     @Override
     public String toString() {
-        return String.format("Jump block: %d", blocks);
+        return String.format("Jump block: %d", block);
     }
 }

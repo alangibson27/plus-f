@@ -11,7 +11,8 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
     private int blockIdx = 0;
     private final SignalState signalState = new SignalState(false);
     private Optional<Iterator<TapeBlock.Bit>> currentBlock;
-    private final Stack<Integer> loopStack = new Stack<>();
+    private int loopStart = -1;
+    private int loopCount = 0;
 
     private Optional<TapeBlock[]> blocks = Optional.empty();
     private SimpleBooleanProperty isPlaying = new SimpleBooleanProperty(false);
@@ -36,9 +37,10 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
     }
 
     public void ejectTape() {
+        stop();
         blocks = Optional.empty();
         blockIdx = -1;
-        loopStack.clear();
+        loopStart = -1;
         playAvailable.set(false);
         stopAvailable.set(false);
         seekAvailable.set(false);
@@ -91,12 +93,16 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
     public boolean hasNext() {
         if (!isPlaying.get()) {
             return false;
-        } else {
-            final boolean hasNext = currentBlock.map(Iterator::hasNext).orElse(false);
-            if (!hasNext) {
-                stop();
+        } else if (currentBlock.isPresent()) {
+            if (currentBlock.get().hasNext()) {
+                return true;
+            } else {
+                currentBlock = nextBlock();
+                return hasNext();
             }
-            return hasNext;
+        } else {
+            stop();
+            return false;
         }
     }
 
@@ -132,17 +138,22 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
 
         final TapeBlock nextBlock = blocks[blockIdx];
         if (nextBlock instanceof LoopStartBlock) {
-            loopStack.push(blockIdx);
+            loopStart = blockIdx;
+            loopCount = ((LoopStartBlock) nextBlock).getIterations();
             return nextBlock();
         }
 
         if (nextBlock instanceof LoopEndBlock) {
-            if (loopStack.isEmpty()) {
-                return Optional.empty();
-            } else {
-                blockIdx = loopStack.pop();
-                return nextBlock();
+            loopCount--;
+            if (loopCount > 0) {
+                blockIdx = loopStart;
             }
+            return nextBlock();
+        }
+
+        if (nextBlock instanceof JumpBlock) {
+            blockIdx = ((JumpBlock) nextBlock).getBlock();
+            return nextBlock();
         }
 
         return Optional.of(nextBlock.bits(signalState));

@@ -100,7 +100,7 @@ public class PureDataBlock extends TapeBlock {
     private class PureDataIterator implements Iterator<Bit> {
         private final SignalState signalState;
         private int byteIdx = 0;
-        private Iterator<Bit> currentIterator;
+        private DataByteIterator currentIterator;
 
         public PureDataIterator(final SignalState signalState) {
             this.signalState = signalState;
@@ -132,29 +132,29 @@ public class PureDataBlock extends TapeBlock {
     private class DataByteIterator implements Iterator<Bit> {
         private final SignalState signalState;
         private final int dataByte;
-        private Iterator<Bit> currentIterator;
+        private PulseSequenceIterator bitIterator;
         private int bitIdx = 7;
         private final int lastBit;
 
         public DataByteIterator(final SignalState signalState, final int dataByte, final int bitsUsed) {
             this.signalState = signalState;
             this.dataByte = dataByte;
-            this.currentIterator = new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, bitPulses(dataByte, bitIdx));
+            this.bitIterator = new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, bitPulses(dataByte, bitIdx));
             this.lastBit = 8 - bitsUsed;
         }
 
         @Override
         public boolean hasNext() {
-            return currentIterator.hasNext();
+            return bitIterator.hasNext();
         }
 
         @Override
         public Bit next() {
-            final Bit nextValue = currentIterator.next();
-            if (!currentIterator.hasNext()) {
+            final Bit nextValue = bitIterator.next();
+            if (!bitIterator.hasNext()) {
                 bitIdx--;
                 if (bitIdx >= lastBit) {
-                    currentIterator = new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, bitPulses(dataByte, bitIdx));
+                    bitIterator.reset(bitPulses(dataByte, bitIdx));
                 }
             }
             return nextValue;
