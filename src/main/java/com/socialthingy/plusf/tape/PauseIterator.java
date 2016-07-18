@@ -3,8 +3,7 @@ package com.socialthingy.plusf.tape;
 import java.time.Duration;
 import java.util.Iterator;
 
-public class PauseIterator implements Iterator<TapeBlock.Bit> {
-    public static final TapeBlock.Bit PAUSE_BIT = new TapeBlock.Bit(false, "pause");
+public class PauseIterator implements Iterator<Boolean> {
     private final SignalState signalState;
     private long tstatesUntilEnd;
 
@@ -19,9 +18,9 @@ public class PauseIterator implements Iterator<TapeBlock.Bit> {
     }
 
     @Override
-    public TapeBlock.Bit next() {
+    public Boolean next() {
         signalState.set(false);
         tstatesUntilEnd--;
-        return PAUSE_BIT;
+        return false;
     }
 }

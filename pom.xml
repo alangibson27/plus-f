@@ -55,9 +55,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.guigarage</groupId>
-            <artifactId>flatter</artifactId>
-            <version>0.7</version>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>8.40.10</version>
         </dependency>
 
         <dependency>

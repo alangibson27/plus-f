@@ -3,14 +3,15 @@ package com.socialthingy.plusf.spectrum;
 import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import javafx.beans.property.SimpleBooleanProperty;
+import org.controlsfx.control.Notifications;
 
 import java.time.Duration;
 import java.util.*;
 
-public class TapePlayer implements Iterator<TapeBlock.Bit> {
+public class TapePlayer implements Iterator<Boolean> {
     private int blockIdx = 0;
     private final SignalState signalState = new SignalState(false);
-    private Optional<Iterator<TapeBlock.Bit>> currentBlock;
+    private Optional<Iterator<Boolean>> currentBlock;
     private int loopStart = -1;
     private int loopCount = 0;
 
@@ -80,6 +81,7 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
 
     public void rewindToStart() throws TapeException {
         if (blocks.isPresent()) {
+            Notifications.create().title("Tape").text("Tape has been rewound to start").showInformation();
             isPlaying.set(false);
             blockIdx = -1;
             currentBlock = nextBlock();
@@ -107,16 +109,12 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
     }
 
     @Override
-    public TapeBlock.Bit next() {
+    public Boolean next() {
         if (!isPlaying.get() || !currentBlock.isPresent()) {
             throw new NoSuchElementException("Tape stopped");
         } else {
-            final Iterator<TapeBlock.Bit> block = currentBlock.get();
-            final TapeBlock.Bit nextBit = block.next();
-            if (nextBit instanceof StopTapeBit) {
-                stop();
-            }
-
+            final Iterator<Boolean> block = currentBlock.get();
+            final Boolean nextBit = block.next();
             if (!block.hasNext()) {
                 currentBlock = nextBlock();
             }
@@ -125,18 +123,23 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
         }
     }
 
-    private Optional<Iterator<TapeBlock.Bit>> nextBlock() {
+    private Optional<Iterator<Boolean>> nextBlock() {
         if (!blocks.isPresent()) {
             return Optional.empty();
         }
 
         blockIdx++;
         final TapeBlock[] blocks = this.blocks.get();
-        if (blockIdx >= blocks.length) {
+        if (blockIdx >= blocks.length || blockIdx < 0) {
             return Optional.empty();
         }
 
         final TapeBlock nextBlock = blocks[blockIdx];
+        if (nextBlock instanceof PauseBlock && ((PauseBlock) nextBlock).shouldStopTape()) {
+            stop();
+            return nextBlock();
+        }
+
         if (nextBlock instanceof LoopStartBlock) {
             loopStart = blockIdx;
             loopCount = ((LoopStartBlock) nextBlock).getIterations();
@@ -152,7 +155,7 @@ public class TapePlayer implements Iterator<TapeBlock.Bit> {
         }
 
         if (nextBlock instanceof JumpBlock) {
-            blockIdx = ((JumpBlock) nextBlock).getBlock();
+            blockIdx += (((JumpBlock) nextBlock).getJumpSize() - 1);
             return nextBlock();
         }
 

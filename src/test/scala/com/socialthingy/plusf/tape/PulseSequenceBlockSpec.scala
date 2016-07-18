@@ -1,7 +1,5 @@
 package com.socialthingy.plusf.tape
 
-import com.socialthingy.plusf.tape.TapeBlock.Bit
-
 import scala.collection.JavaConverters._
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -33,6 +31,6 @@ class PulseSequenceBlockSpec extends FlatSpec with TapeMatchers with Matchers {
 
   it should "always start with a low signal, even if the signal before the block is high" in {
     val bits = pulseSequenceBlock.bits(highSignal).asScala.take(1).toList
-    bits.head.getState shouldBe false
+    bits.head shouldBe false
   }
 }

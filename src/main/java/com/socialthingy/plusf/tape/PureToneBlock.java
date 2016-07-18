@@ -28,7 +28,7 @@ public class PureToneBlock extends TapeBlock {
     }
 
     @Override
-    public Iterator<Bit> bits(final SignalState signalState) {
+    public Iterator<Boolean> bits(final SignalState signalState) {
         return new PureToneIterator(signalState);
     }
 
@@ -37,7 +37,7 @@ public class PureToneBlock extends TapeBlock {
         return String.format("Pure tone block: %d pulses of %d", toneLength, pulseLength);
     }
 
-    private class PureToneIterator implements Iterator<Bit> {
+    private class PureToneIterator implements Iterator<Boolean> {
         private final SignalState signalState;
         private boolean initialPulse = true;
         private int pulsesLeft = toneLength;
@@ -53,7 +53,7 @@ public class PureToneBlock extends TapeBlock {
         }
 
         @Override
-        public Bit next() {
+        public Boolean next() {
             if (initialPulse) {
                 signalState.set(false);
                 initialPulse = false;
@@ -69,7 +69,7 @@ public class PureToneBlock extends TapeBlock {
                 signalState.flip();
             }
 
-            return new Bit(state, "pure tone");
+            return state;
         }
     }
 }

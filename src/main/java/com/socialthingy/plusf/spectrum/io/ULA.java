@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.spectrum.TapePlayer;
-import com.socialthingy.plusf.tape.TapeBlock;
 import com.socialthingy.plusf.z80.IO;
 
 import java.util.*;
@@ -96,7 +95,7 @@ public class ULA implements IO {
         currentCycleTstates += tstates;
         for (int i = 0; i < tstates; i++) {
             if (tapePlayer.hasNext()) {
-                earIn(tapePlayer.next().getState());
+                earIn(tapePlayer.next());
             }
         }
     }

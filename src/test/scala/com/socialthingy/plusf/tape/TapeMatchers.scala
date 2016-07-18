@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.tape
 
-import com.socialthingy.plusf.tape.TapeBlock.Bit
 import org.scalatest.matchers.{MatchResult, Matcher}
+import java.lang.{ Boolean => JBoolean }
 
 import scala.annotation.tailrec
 
@@ -12,21 +12,21 @@ trait TapeMatchers {
   def lowSignal: SignalState = new SignalState(low)
   def highSignal: SignalState = new SignalState(high)
 
-  def haveLengthAndState(length: Int, state: Boolean): Matcher[List[Bit]] =
+  def haveLengthAndState(length: Int, state: JBoolean): Matcher[List[JBoolean]] =
     new PulseSequenceMatcher(length, state)
 
-  class PulseSequenceMatcher(length: Int, state: Boolean) extends Matcher[List[Bit]] {
-    override def apply(left: List[Bit]): MatchResult = MatchResult(
-      left.length == length && left.forall(_.getState == state),
+  class PulseSequenceMatcher(length: Int, state: JBoolean) extends Matcher[List[JBoolean]] {
+    override def apply(left: List[JBoolean]): MatchResult = MatchResult(
+      left.length == length && left.forall(_ == state),
       s"pulse was not $length bits of ${if (state) "high" else "low"}, it was ${left.length} bits",
       s"pulse was $length bits of ${if (state) "high" else "low"}"
     )
   }
 
-  implicit class BitListOps(bl: List[Bit]) {
-    def splitInto(counts: Int*): List[List[Bit]] = {
+  implicit class BitListOps(bl: List[JBoolean]) {
+    def splitInto(counts: Int*): List[List[JBoolean]] = {
       @tailrec
-      def loop(acc: List[List[Bit]], bits: List[Bit], counts: List[Int]): List[List[Bit]] =
+      def loop(acc: List[List[JBoolean]], bits: List[JBoolean], counts: List[Int]): List[List[JBoolean]] =
         if (bits.isEmpty) {
           acc
         } else {
@@ -36,7 +36,7 @@ trait TapeMatchers {
           }
         }
 
-      loop(List[List[Bit]](), bl, counts.toList)
+      loop(List[List[JBoolean]](), bl, counts.toList)
     }
   }
 }

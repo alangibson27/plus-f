@@ -17,7 +17,7 @@ class PureToneBlockSpec extends FlatSpec with TapeMatchers with Matchers with In
 
     bits should have length 5
     forAll(bits) { bit =>
-      bit.getState shouldBe low
+      bit shouldBe low
     }
   }
 
@@ -54,7 +54,7 @@ class PureToneBlockSpec extends FlatSpec with TapeMatchers with Matchers with In
 
   it should "always begin with a low pulse even if the signal state is high before the block begins" in {
     val initialPulse = pureToneBlock.bits(highSignal).asScala.take(1).toList
-    initialPulse.head.getState shouldBe false
+    initialPulse.head shouldBe false
   }
 
   it should "have the correct number of tones of the correct pulse length when the signal is initially high" in {

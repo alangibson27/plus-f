@@ -72,7 +72,7 @@ public class PureDataBlock extends TapeBlock {
     }
 
     @Override
-    public Iterator<Bit> bits(final SignalState signalState) {
+    public Iterator<Boolean> bits(final SignalState signalState) {
         final PureDataIterator dataIterator = new PureDataIterator(signalState);
         if (pauseLength.isZero()) {
             return dataIterator;
@@ -97,13 +97,11 @@ public class PureDataBlock extends TapeBlock {
         );
     }
 
-    private class PureDataIterator implements Iterator<Bit> {
-        private final SignalState signalState;
+    private class PureDataIterator implements Iterator<Boolean> {
         private int byteIdx = 0;
         private DataByteIterator currentIterator;
 
         public PureDataIterator(final SignalState signalState) {
-            this.signalState = signalState;
             this.currentIterator = new DataByteIterator(signalState, data[byteIdx], data.length > 1 ? 8 : finalByteBitsUsed);
         }
 
@@ -113,8 +111,8 @@ public class PureDataBlock extends TapeBlock {
         }
 
         @Override
-        public Bit next() {
-            final Bit nextValue = currentIterator.next();
+        public Boolean next() {
+            final boolean nextValue = currentIterator.next();
             if (!currentIterator.hasNext()) {
                 byteIdx++;
                 if (byteIdx < data.length) {
@@ -129,7 +127,7 @@ public class PureDataBlock extends TapeBlock {
         }
     }
 
-    private class DataByteIterator implements Iterator<Bit> {
+    private class DataByteIterator implements Iterator<Boolean> {
         private final SignalState signalState;
         private int dataByte;
         private PulseSequenceIterator bitIterator;
@@ -156,8 +154,8 @@ public class PureDataBlock extends TapeBlock {
         }
 
         @Override
-        public Bit next() {
-            final Bit nextValue = bitIterator.next();
+        public Boolean next() {
+            final boolean nextValue = bitIterator.next();
             if (!bitIterator.hasNext()) {
                 bitIdx--;
                 if (bitIdx >= lastBit) {

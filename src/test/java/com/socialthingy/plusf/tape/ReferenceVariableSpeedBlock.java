@@ -1,7 +1,5 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.tape.TapeBlock.Bit;
-
 import java.time.Duration;
 
 import static com.socialthingy.plusf.util.Bitwise.binary;
@@ -51,20 +49,20 @@ public class ReferenceVariableSpeedBlock {
         this.finalByteBitsUsed = finalByteBitsUsed;
     }
 
-    public boolean write(final RepeatingList<Bit> tape, final boolean initialState) {
+    public boolean write(final RepeatingList<Boolean> tape, final boolean initialState) {
         // pilot tone
         boolean state = false;
         for (int i = 0; i < pilotToneLength; i++) {
-            tape.add(new Bit(state, "pilot"), pilotPulseLength);
+            tape.add(state, pilotPulseLength);
             state = !state;
         }
 
         // sync 1 - on pulse
-        tape.add(new Bit(state, "sync 1"), sync1PulseLength);
+        tape.add(state, sync1PulseLength);
         state = !state;
 
         // sync 2 - off pulse
-        tape.add(new Bit(state, "sync 2"), sync2PulseLength);
+        tape.add(state, sync2PulseLength);
         state = !state;
 
         // data
@@ -82,16 +80,16 @@ public class ReferenceVariableSpeedBlock {
             for (int bit = 7; bit >= lastBit; bit --) {
                 final boolean high = (b & (1 << bit)) != 0;
                 final int pulseLen = high ? onePulseLength : zeroPulseLength;
-                tape.add(new Bit(state, "data"), pulseLen);
+                tape.add(state, pulseLen);
                 state = !state;
-                tape.add(new Bit(state, "data"), pulseLen);
+                tape.add(state, pulseLen);
                 state = !state;
             }
         }
 
         if (!pauseLength.isZero()) {
-            tape.add(new Bit(state, "end"), 3500);
-            tape.add(new Bit(false, "pause"), 3500 * (int) pauseLength.toMillis());
+            tape.add(state, 3500);
+            tape.add(false, 3500 * (int) pauseLength.toMillis());
             state = false;
         }
 

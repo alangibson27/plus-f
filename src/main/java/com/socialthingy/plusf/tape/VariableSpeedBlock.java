@@ -112,7 +112,7 @@ public class VariableSpeedBlock extends TapeBlock {
     }
 
     @Override
-    public Iterator<Bit> bits(SignalState signalState) {
+    public Iterator<Boolean> bits(SignalState signalState) {
         final PureToneBlock pilot = new PureToneBlock(pilotPulseLength, pilotToneLength);
         final PulseSequenceBlock pulseSequence = new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength});
         final PureDataBlock pureData = new PureDataBlock(pauseLength, data, zeroPulseLength, onePulseLength, finalByteBitsUsed);

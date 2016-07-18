@@ -40,7 +40,7 @@ public class PulseSequenceBlock extends TapeBlock {
     }
 
     @Override
-    public Iterator<Bit> bits(final SignalState signalState) {
+    public Iterator<Boolean> bits(final SignalState signalState) {
         return new PulseSequenceIterator(initialState, signalState, pulseLengths);
     }
 

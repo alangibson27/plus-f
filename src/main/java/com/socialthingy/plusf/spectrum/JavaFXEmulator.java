@@ -87,7 +87,6 @@ public class JavaFXEmulator extends Application {
     private EmulatorSpeed speed = EmulatorSpeed.NORMAL;
 
     public static void main(final String ... args) {
-        com.guigarage.flatterfx.FlatterFX.style();
         Application.launch(args);
     }
 

@@ -3,9 +3,8 @@ package com.socialthingy.plusf.tape;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 
 import java.util.Iterator;
-import java.util.Optional;
 
-public class PulseSequenceIterator implements Iterator<TapeBlock.Bit> {
+public class PulseSequenceIterator implements Iterator<Boolean> {
     private final SignalState signalState;
     private final Adjustment initialState;
     private int[] pulseLengths;
@@ -34,7 +33,7 @@ public class PulseSequenceIterator implements Iterator<TapeBlock.Bit> {
     }
 
     @Override
-    public TapeBlock.Bit next() {
+    public Boolean next() {
         if (initialPulse) {
             initialPulse = false;
             signalState.adjust(initialState);
@@ -50,6 +49,6 @@ public class PulseSequenceIterator implements Iterator<TapeBlock.Bit> {
             signalState.flip();
         }
 
-        return new TapeBlock.Bit(state, "pulse");
+        return state;
     }
 }
