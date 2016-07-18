@@ -119,9 +119,9 @@ public class PureDataBlock extends TapeBlock {
                 byteIdx++;
                 if (byteIdx < data.length) {
                     if (byteIdx == data.length - 1) {
-                        currentIterator = new DataByteIterator(signalState, data[byteIdx], finalByteBitsUsed);
+                        currentIterator.reset(data[byteIdx], finalByteBitsUsed);
                     } else {
-                        currentIterator = new DataByteIterator(signalState, data[byteIdx], 8);
+                        currentIterator.reset(data[byteIdx], 8);
                     }
                 }
             }
@@ -131,16 +131,23 @@ public class PureDataBlock extends TapeBlock {
 
     private class DataByteIterator implements Iterator<Bit> {
         private final SignalState signalState;
-        private final int dataByte;
+        private int dataByte;
         private PulseSequenceIterator bitIterator;
         private int bitIdx = 7;
-        private final int lastBit;
+        private int lastBit;
 
         public DataByteIterator(final SignalState signalState, final int dataByte, final int bitsUsed) {
             this.signalState = signalState;
             this.dataByte = dataByte;
             this.bitIterator = new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, bitPulses(dataByte, bitIdx));
             this.lastBit = 8 - bitsUsed;
+        }
+
+        public void reset(final int dataByte, final int bitsUsed) {
+            this.bitIdx = 7;
+            this.dataByte = dataByte;
+            this.lastBit = 8 - bitsUsed;
+            this.bitIterator.reset(bitPulses(dataByte, bitIdx));
         }
 
         @Override
