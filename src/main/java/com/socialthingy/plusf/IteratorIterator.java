@@ -3,6 +3,7 @@ package com.socialthingy.plusf;
 import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class IteratorIterator<T> implements Iterator<T> {
     private final Iterator<Iterator<T>> allIterators;
@@ -13,6 +14,14 @@ public class IteratorIterator<T> implements Iterator<T> {
             throw new IllegalArgumentException();
         }
         this.allIterators = Iterators.forArray(iterators);
+        this.currentIterator = this.allIterators.next();
+    }
+
+    public IteratorIterator(final List<Iterator<T>> iterators) {
+        if (iterators.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        this.allIterators = iterators.iterator();
         this.currentIterator = this.allIterators.next();
     }
 

@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.IteratorIterator;
+import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
@@ -73,16 +74,23 @@ public class PureDataBlock extends TapeBlock {
 
     @Override
     public Iterator<Boolean> bits(final SignalState signalState) {
-        final PureDataIterator dataIterator = new PureDataIterator(signalState);
-        if (pauseLength.isZero()) {
-            return dataIterator;
-        } else {
-            return new IteratorIterator<>(
-                dataIterator,
-                new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, FINAL_OPPOSITE_EDGE_PULSE),
-                new PauseIterator(signalState, pauseLength)
-            );
+        final RepeatingList<Boolean> bits = new RepeatingList<>();
+        for (int byteIdx = 0; byteIdx < data.length - 1; byteIdx++) {
+            for (int bitIdx = 7; bitIdx >= 0; bitIdx--) {
+                bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(data[byteIdx], bitIdx)).getBits(signalState));
+            }
         }
+        final int finalByte = data[data.length - 1];
+        for (int bitIdx = 7; bitIdx >= 8 - finalByteBitsUsed; bitIdx--) {
+            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(finalByte, bitIdx)).getBits(signalState));
+        }
+
+        if (!pauseLength.isZero()) {
+            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, FINAL_OPPOSITE_EDGE_PULSE).getBits(signalState));
+            bits.append(new PauseBlock(pauseLength).getBits(signalState));
+        }
+
+        return bits.iterator();
     }
 
     @Override

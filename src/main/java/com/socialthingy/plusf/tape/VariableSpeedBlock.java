@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.IteratorIterator;
+import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
@@ -18,7 +19,15 @@ public class VariableSpeedBlock extends TapeBlock {
                 data[i] = nextByte(tzxFile);
             }
 
-            return Try.success(new VariableSpeedBlock(Duration.ofSeconds(1), data));
+            final Duration pause;
+            if (dataLength >= 250 && dataLength <= 280) {
+                // probably a bleepload block
+                pause = Duration.ZERO;
+            } else {
+                pause = Duration.ofSeconds(2);
+            }
+
+            return Try.success(new VariableSpeedBlock(pause, data));
         } catch (IOException ex) {
             return Try.failure(ex);
         }

@@ -1,5 +1,7 @@
 package com.socialthingy.plusf.tape;
 
+import com.socialthingy.plusf.RepeatingList;
+
 import java.time.Duration;
 
 import static com.socialthingy.plusf.util.Bitwise.binary;

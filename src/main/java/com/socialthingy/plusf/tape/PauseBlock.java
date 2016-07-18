@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.tape;
 
+import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;
@@ -30,11 +31,17 @@ public class PauseBlock extends TapeBlock {
 
     @Override
     public Iterator<Boolean> bits(final SignalState signalState) {
-        return new PauseIterator(signalState, pauseLength);
+        return getBits(signalState).iterator();
     }
 
     @Override
     public String toString() {
         return String.format("%s pause", pauseLength.getSeconds());
+    }
+
+    public RepeatingList<Boolean> getBits(final SignalState signalState) {
+        final RepeatingList<Boolean> bits = new RepeatingList<>();
+        bits.add(false, (int) pauseLength.toMillis() * 3500);
+        return bits;
     }
 }

@@ -1,13 +1,15 @@
-package com.socialthingy.plusf.tape;
+package com.socialthingy.plusf;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 
 public class RepeatingList<T> implements Iterable<T> {
     private Queue<Repetition> items = new LinkedList<>();
+
+    public void append(final RepeatingList<T> other) {
+        other.items.forEach(this.items::add);
+    }
 
     public void add(final T item, final int repetitions) {
         if (repetitions > 0) {
@@ -18,16 +20,6 @@ public class RepeatingList<T> implements Iterable<T> {
     @Override
     public Iterator<T> iterator() {
         return new RepetitionIterator();
-    }
-
-    @Override
-    public void forEach(final Consumer<? super T> action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Spliterator<T> spliterator() {
-        throw new UnsupportedOperationException();
     }
 
     private class Repetition {

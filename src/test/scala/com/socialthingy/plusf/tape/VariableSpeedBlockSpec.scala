@@ -1,8 +1,9 @@
 package com.socialthingy.plusf.tape
 
-import java.lang.{ Boolean => JBoolean }
+import java.lang.{Boolean => JBoolean}
 import java.time.Duration
 
+import com.socialthingy.plusf.RepeatingList
 import org.scalatest.{FlatSpec, Matchers}
 
 class VariableSpeedBlockSpec extends FlatSpec with Matchers with TapeMatchers {
