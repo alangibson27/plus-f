@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.IteratorIterator;
 import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
@@ -9,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Iterator;
-
-import static com.socialthingy.plusf.util.Bitwise.binary;
 
 public class PureDataBlock extends TapeBlock {
 
@@ -36,17 +33,6 @@ public class PureDataBlock extends TapeBlock {
             return Try.failure(ex);
         }
     }
-
-    private static final int[] finalByteMask = new int[]{
-            binary("10000000"),
-            binary("11000000"),
-            binary("11100000"),
-            binary("11110000"),
-            binary("11111000"),
-            binary("11111100"),
-            binary("11111110"),
-            binary("11111111")
-    };
 
     private final Duration pauseLength;
     private final int[] data;
@@ -103,75 +89,6 @@ public class PureDataBlock extends TapeBlock {
                 finalByteBitsUsed,
                 pauseLength.toMillis()
         );
-    }
-
-    private class PureDataIterator implements Iterator<Boolean> {
-        private int byteIdx = 0;
-        private DataByteIterator currentIterator;
-
-        public PureDataIterator(final SignalState signalState) {
-            this.currentIterator = new DataByteIterator(signalState, data[byteIdx], data.length > 1 ? 8 : finalByteBitsUsed);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return currentIterator.hasNext();
-        }
-
-        @Override
-        public Boolean next() {
-            final boolean nextValue = currentIterator.next();
-            if (!currentIterator.hasNext()) {
-                byteIdx++;
-                if (byteIdx < data.length) {
-                    if (byteIdx == data.length - 1) {
-                        currentIterator.reset(data[byteIdx], finalByteBitsUsed);
-                    } else {
-                        currentIterator.reset(data[byteIdx], 8);
-                    }
-                }
-            }
-            return nextValue;
-        }
-    }
-
-    private class DataByteIterator implements Iterator<Boolean> {
-        private final SignalState signalState;
-        private int dataByte;
-        private PulseSequenceIterator bitIterator;
-        private int bitIdx = 7;
-        private int lastBit;
-
-        public DataByteIterator(final SignalState signalState, final int dataByte, final int bitsUsed) {
-            this.signalState = signalState;
-            this.dataByte = dataByte;
-            this.bitIterator = new PulseSequenceIterator(Adjustment.NO_CHANGE, signalState, bitPulses(dataByte, bitIdx));
-            this.lastBit = 8 - bitsUsed;
-        }
-
-        public void reset(final int dataByte, final int bitsUsed) {
-            this.bitIdx = 7;
-            this.dataByte = dataByte;
-            this.lastBit = 8 - bitsUsed;
-            this.bitIterator.reset(bitPulses(dataByte, bitIdx));
-        }
-
-        @Override
-        public boolean hasNext() {
-            return bitIterator.hasNext();
-        }
-
-        @Override
-        public Boolean next() {
-            final boolean nextValue = bitIterator.next();
-            if (!bitIterator.hasNext()) {
-                bitIdx--;
-                if (bitIdx >= lastBit) {
-                    bitIterator.reset(bitPulses(dataByte, bitIdx));
-                }
-            }
-            return nextValue;
-        }
     }
 
     private int[] bitPulses(final int dataByte, final int bit) {
