@@ -14,12 +14,15 @@ public class SpectrumColour {
             0xffffff
     };
 
+    private static final int DULL_COLOUR_MASK = 0xcccccc;
+    private static final int BRIGHT_COLOUR_MASK = 0xffffff;
+
     private boolean flash;
     private Color ink;
     private Color paper;
 
     public static int dullColour(final int index) {
-        return SPECTRUM_COLOUR_MASKS[index] & 0xaaaaaa;
+        return SPECTRUM_COLOUR_MASKS[index] & DULL_COLOUR_MASK;
     }
 
     public SpectrumColour(final int flash, final int bright, final int paper, final int ink) {
@@ -41,7 +44,7 @@ public class SpectrumColour {
     }
 
     private Color toColour(final boolean bright, final int value) {
-        final int brightnessMultiplier = bright ? 0xffffff : 0xaaaaaa;
+        final int brightnessMultiplier = bright ? BRIGHT_COLOUR_MASK : DULL_COLOUR_MASK;
         final int colour = SPECTRUM_COLOUR_MASKS[value] & brightnessMultiplier;
         return new Color((colour & 0xff0000) >> 16, (colour & 0x00ff00) >> 8, (colour & 0x0000ff));
     }

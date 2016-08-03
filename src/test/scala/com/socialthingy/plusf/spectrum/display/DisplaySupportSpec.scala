@@ -15,7 +15,7 @@ class DisplaySupportSpec extends FlatSpec with Matchers {
     memory(0x5800) = binary("10000001")
 
     // when
-    refresh(memory, notFlashing)
+    refresh(borderLines, memory, notFlashing)
 
     // then
     pixels(0) shouldBe new Color(0x00, 0x00, 0xaa)
@@ -28,7 +28,7 @@ class DisplaySupportSpec extends FlatSpec with Matchers {
     memory(0x5800) = binary("10000001")
 
     // when
-    refresh(memory, flashing)
+    refresh(borderLines, memory, flashing)
 
     // then
     pixels(0) shouldBe Color.BLACK
@@ -41,18 +41,19 @@ class DisplaySupportSpec extends FlatSpec with Matchers {
     memory(0x5800) = binary("00000001")
 
     // when
-    refresh(memory, notFlashing)
+    refresh(borderLines, memory, notFlashing)
 
     // then
     pixels(0) shouldBe new Color(0x00, 0x00, 0xaa)
     pixels(1) shouldBe Color.BLACK
   }
 
-  trait TestDisplay extends DisplaySupport[Unit] with DisplayPixelUpdate {
+  trait TestDisplay extends DisplaySupport with DisplayPixelUpdate {
+    val borderLines = Array.ofDim[Int](1)
     val memory = Array.ofDim[Int](0x10000)
     val pixels = Array.ofDim[Color](256 * 192)
 
-    override def refresh(memory: Array[Int], flashActive: Boolean): Unit = {
+    override def refresh(borderLines: Array[Int], memory: Array[Int], flashActive: Boolean): Unit = {
       draw(memory, flashActive, this)
     }
 

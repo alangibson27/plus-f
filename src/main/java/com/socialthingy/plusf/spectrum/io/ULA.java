@@ -5,6 +5,7 @@ import com.socialthingy.plusf.z80.IO;
 
 import java.util.*;
 
+import static com.socialthingy.plusf.spectrum.display.DisplaySupport.SCREEN_HEIGHT;
 import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 
 public class ULA implements IO {
@@ -17,7 +18,6 @@ public class ULA implements IO {
         binary("01111")
     };
 
-    public static final int SCREEN_HEIGHT = 192;
     public static final int TOP_BORDER_HEIGHT = 64;
     public static final int BOTTOM_BORDER_HEIGHT = 56;
 

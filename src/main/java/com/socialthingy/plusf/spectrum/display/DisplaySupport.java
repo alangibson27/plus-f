@@ -1,6 +1,9 @@
 package com.socialthingy.plusf.spectrum.display;
 
-abstract class DisplaySupport<T> {
+public abstract class DisplaySupport {
+    public static final int SCREEN_WIDTH = 256;
+    public static final int SCREEN_HEIGHT = 192;
+
     protected final SpectrumColour[] colours = new SpectrumColour[0x100];
     protected int[][] pixelAddresses = new int[192][];
     protected int[][] colourAddresses = new int[192][];
@@ -47,7 +50,7 @@ abstract class DisplaySupport<T> {
         return addressBase + (line * 32);
     }
 
-    public abstract T refresh(final int[] memory, final boolean flashActive);
+    public abstract void refresh(final int[] borderLines, final int[] memory, final boolean flashActive);
 
     protected void draw(final int[] memory, final boolean flashActive, final DisplayPixelUpdate updateFunction) {
         for (int y = 0; y < 192; y++) {

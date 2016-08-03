@@ -1,8 +1,6 @@
 package com.socialthingy.plusf.spectrum;
 
-import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
 import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
-import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -14,49 +12,31 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.Serializable;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Supplier;
 
 public class UIBuilder {
-    public static final int BORDER = 16;
-    public static final int SCREEN_WIDTH = 256;
-    public static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
-    public static final int DISPLAY_HEIGHT = ULA.SCREEN_HEIGHT + (BORDER * 2);
 
     public static Pane buildUI(
         final Stage primaryStage,
         final JavaFXDisplay display,
-        final JavaFXBorder border,
         final Node statusArea,
         final MenuBar menuBar
     ) {
         primaryStage.getIcons().add(new Image(UIBuilder.class.getResourceAsStream("/plus-f.png")));
 
-        final ImageView borderImage = new ImageView(border.getBorder());
-        borderImage.setFitWidth(DISPLAY_WIDTH * 2);
-        borderImage.setFitHeight(DISPLAY_HEIGHT * 2);
-
-        final ImageView screenImage = new ImageView(display.getScreen());
-        screenImage.setFitHeight(ULA.SCREEN_HEIGHT * 2);
-        screenImage.setFitWidth(SCREEN_WIDTH * 2);
-
-        final StackPane sp = new StackPane(borderImage, screenImage);
-
         BorderPane root = new BorderPane();
-        root.setCenter(sp);
+        root.setCenter(display.getDisplay());
         root.setTop(menuBar);
         root.setBottom(statusArea);
 

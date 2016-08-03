@@ -2,7 +2,6 @@ package com.socialthingy.plusf.spectrum;
 
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
-import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
 import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
 import com.socialthingy.plusf.spectrum.input.KempstonJoystick;
 import com.socialthingy.plusf.spectrum.remote.*;
@@ -34,7 +33,6 @@ public class JavaFXGuest extends Application {
     private static final int LOCAL_PORT = Settings.GUEST_PORT;
 
     private final JavaFXDisplay display;
-    private final JavaFXBorder border;
     private final Label statusLabel;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
@@ -51,13 +49,12 @@ public class JavaFXGuest extends Application {
 
     public JavaFXGuest() {
         display = new JavaFXDisplay();
-        border = new JavaFXBorder();
         statusLabel = new Label("Not connected to computer");
     }
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
-        buildUI(primaryStage, display, border, statusLabel, getMenuBar());
+        buildUI(primaryStage, display, statusLabel, getMenuBar());
 
         final Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> guestRelay);
         primaryStage.setOnCloseRequest(we -> {
@@ -84,8 +81,7 @@ public class JavaFXGuest extends Application {
                 if (lastHostData != null) {
                     System.arraycopy(lastHostData.getMemory(), 0x4000, memory, 0x4000, 0x1b00);
                     Platform.runLater(() -> {
-                        border.refresh(lastHostData.getBorderLines());
-                        display.refresh(memory, lastHostData.isFlashActive());
+                        display.refresh(lastHostData.getBorderLines(), memory, lastHostData.isFlashActive());
                     });
                 }
 

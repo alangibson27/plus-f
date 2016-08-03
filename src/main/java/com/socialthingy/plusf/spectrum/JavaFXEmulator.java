@@ -6,7 +6,6 @@ import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.Icons;
-import com.socialthingy.plusf.spectrum.display.JavaFXBorder;
 import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
 import com.socialthingy.plusf.spectrum.input.SpectrumKeyboard;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
@@ -47,6 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.socialthingy.plusf.spectrum.UIBuilder.*;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
 import static com.socialthingy.plusf.spectrum.display.Icons.iconFrom;
+import static com.socialthingy.plusf.spectrum.display.JavaFXDisplay.BORDER;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXEmulator extends Application {
@@ -57,7 +57,6 @@ public class JavaFXEmulator extends Application {
     private final Timer displayRefreshTimer;
     private final MetricRegistry metricRegistry;
     private final JavaFXDisplay display;
-    private final JavaFXBorder border;
     private final Label statusLabel;
     private final Label speedLabel;
     private final AtomicLong timestamper = new AtomicLong(0);
@@ -96,7 +95,6 @@ public class JavaFXEmulator extends Application {
         metricRegistry.register(DISPLAY_REFRESH_TIMER_NAME, displayRefreshTimer);
         singleCycle = new SingleCycle();
         display = new JavaFXDisplay();
-        border = new JavaFXBorder();
         statusLabel = new Label("No guest connected");
         speedLabel = new Label("Normal speed");
         tapePlayer = new TapePlayer();
@@ -203,7 +201,7 @@ public class JavaFXEmulator extends Application {
         statusPane.add(tapeControls, 1, 0);
         statusPane.add(speedLabel, 2, 0);
 
-        buildUI(primaryStage, display, border, statusPane, menuBar);
+        buildUI(primaryStage, display, statusPane, menuBar);
 
         final java.util.Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> hostRelay);
         primaryStage.setOnCloseRequest(we -> {
@@ -483,8 +481,7 @@ public class JavaFXEmulator extends Application {
                     }
 
                     Platform.runLater(() -> {
-                        display.refresh(memoryForDisplay, flashActive);
-                        border.refresh(borderLines);
+                        display.refresh(borderLines, memoryForDisplay, flashActive);
                     });
                 }
                 updateDisplay = !updateDisplay;

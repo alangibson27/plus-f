@@ -1,16 +1,17 @@
 package com.socialthingy.plusf.spectrum.remote;
 
 import com.google.common.primitives.Ints;
-import com.socialthingy.plusf.spectrum.UIBuilder;
-import com.socialthingy.plusf.spectrum.io.ULA;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import static com.socialthingy.plusf.spectrum.display.DisplaySupport.SCREEN_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.JavaFXDisplay.BORDER;
+
 public class EmulatorState {
-    public static final int BORDER_LINE_COUNT = ULA.SCREEN_HEIGHT + (2 * UIBuilder.BORDER);
+    public static final int BORDER_LINE_COUNT = SCREEN_HEIGHT + (2 * BORDER);
 
     private int[] memory;
     private int[] borderLines;
