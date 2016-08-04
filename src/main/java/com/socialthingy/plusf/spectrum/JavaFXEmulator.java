@@ -26,7 +26,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -163,7 +162,6 @@ public class JavaFXEmulator extends Application {
         primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
 
         final MenuBar menuBar = getMenuBar();
-        final Rectangle tapePlayingIndicator = new Rectangle();
         final HBox tapeControls = TapeControls.getTapeControls(
             playTapeItem,
             stopTapeItem,

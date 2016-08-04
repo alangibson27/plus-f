@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.IteratorIterator;
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
 
