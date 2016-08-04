@@ -7,7 +7,7 @@ import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.Icons;
 import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
-import com.socialthingy.plusf.spectrum.input.SpectrumKeyboard;
+import com.socialthingy.plusf.spectrum.input.JavaFXKeyboard;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
@@ -67,7 +67,7 @@ public class JavaFXEmulator extends Application {
     private ScheduledFuture<?> cycleLoop;
     private ULA ula;
     private Computer computer;
-    private SpectrumKeyboard keyboard;
+    private JavaFXKeyboard keyboard;
     private int[] memory;
     private int[] memoryForDisplay;
     private MenuItem easyConnectItem;
@@ -113,7 +113,8 @@ public class JavaFXEmulator extends Application {
         ioMux = new IOMultiplexer();
         memory = new int[0x10000];
         memoryForDisplay = new int[0x10000];
-        ula = new ULA(display, tapePlayer);
+        keyboard = new JavaFXKeyboard();
+        ula = new ULA(display, keyboard, tapePlayer);
         computer = new Computer(
             new Processor(memory, ioMux),
             ula,
@@ -122,7 +123,6 @@ public class JavaFXEmulator extends Application {
             metricRegistry
         );
         guestKempstonJoystick = new SinglePortIO(0x1f);
-        keyboard = new SpectrumKeyboard(ula);
 
         ioMux.register(0xfe, ula);
         ioMux.register(0x1f, guestKempstonJoystick);

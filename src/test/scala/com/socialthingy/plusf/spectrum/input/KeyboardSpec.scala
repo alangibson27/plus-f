@@ -2,7 +2,7 @@ package com.socialthingy.plusf.spectrum.input
 
 import com.socialthingy.plusf.spectrum.TapePlayer
 import com.socialthingy.plusf.spectrum.display.Display
-import com.socialthingy.plusf.spectrum.io.ULA
+import com.socialthingy.plusf.spectrum.io.{Keyboard, ULA}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
@@ -38,7 +38,7 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
       val key = halfRowKeys(bit)
       it should s"reset bit $bit on port 254 when the $key is pressed and its half-row is selected" in new Spectrum {
         Given(s"the $key key is pressed")
-        ula.keyDown(key)
+        keyboard.keyDown(key)
 
         When(s"port 254 is read with the half-row for $key selected")
         val result = ula.read(0xfe, halfRowCode) & "11111".binary
@@ -57,10 +57,10 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
 
   it should "reset bits 0 and 4 when Q and T are pressed simultaneously" in new Spectrum {
     Given("the Q key is pressed")
-    ula.keyDown('q')
+    keyboard.keyDown('q')
 
     And("the T key is pressed")
-    ula.keyDown('t')
+    keyboard.keyDown('t')
 
     When(s"port 254 is read with the half-row for Q and T selected")
     val result = ula.read(0xfe, 0xfb) & "11111".binary
@@ -71,10 +71,10 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
 
   it should "reset bits 1 and 3 when Z and N are pressed simulatenously and both their half-rows are selected" in new Spectrum {
     Given("the Z key is pressed")
-    ula.keyDown('z')
+    keyboard.keyDown('z')
 
     And("the N key is pressed")
-    ula.keyDown('n')
+    keyboard.keyDown('n')
 
     When(s"port 254 is read with the half-rows for Z and N both selected")
     val result = ula.read(0xfe, "01111110".binary) & "11111".binary
@@ -84,7 +84,8 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
   }
 
   trait Spectrum {
-    val ula = new ULA(new Display(16, 16), new TapePlayer())
+    val keyboard = new Keyboard()
+    val ula = new ULA(new Display(16, 16), keyboard, new TapePlayer())
   }
 
   implicit class BinaryOps(i: String) {

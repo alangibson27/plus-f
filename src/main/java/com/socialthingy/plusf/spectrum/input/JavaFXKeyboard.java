@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum.input;
 
-import com.socialthingy.plusf.spectrum.io.ULA;
+import com.socialthingy.plusf.spectrum.io.Keyboard;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.KeyCode;
@@ -10,14 +10,11 @@ import java.util.*;
 
 import static javafx.scene.input.KeyCode.*;
 
-public class SpectrumKeyboard implements EventHandler<KeyEvent> {
+public class JavaFXKeyboard extends Keyboard implements EventHandler<KeyEvent> {
     private final Map<KeyCode, Character> spectrumKeys = new HashMap<>();
     private final Map<KeyCode, List<KeyCode>> convenienceKeys = new HashMap<>();
-    private final ULA ula;
 
-    public SpectrumKeyboard(final ULA ula) {
-        this.ula = ula;
-
+    public JavaFXKeyboard() {
         spectrumKeys.put(A, 'a');
         spectrumKeys.put(B, 'b');
         spectrumKeys.put(C, 'c');
@@ -99,9 +96,9 @@ public class SpectrumKeyboard implements EventHandler<KeyEvent> {
         final Character spectrumKey = spectrumKeys.get(keyCode);
         if (spectrumKey != null) {
             if (eventType == KeyEvent.KEY_PRESSED) {
-                ula.keyDown(spectrumKey);
+                keyDown(spectrumKey);
             } else if (eventType == KeyEvent.KEY_RELEASED) {
-                ula.keyUp(spectrumKey);
+                keyUp(spectrumKey);
             }
         }
 
