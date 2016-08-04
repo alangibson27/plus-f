@@ -46,7 +46,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.socialthingy.plusf.spectrum.UIBuilder.*;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
 import static com.socialthingy.plusf.spectrum.display.Icons.iconFrom;
-import static com.socialthingy.plusf.spectrum.display.JavaFXDisplay.BORDER;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXEmulator extends Application {
@@ -114,7 +113,7 @@ public class JavaFXEmulator extends Application {
         ioMux = new IOMultiplexer();
         memory = new int[0x10000];
         memoryForDisplay = new int[0x10000];
-        ula = new ULA(BORDER, BORDER, tapePlayer);
+        ula = new ULA(display, tapePlayer);
         computer = new Computer(
             new Processor(memory, ioMux),
             ula,
@@ -141,7 +140,7 @@ public class JavaFXEmulator extends Application {
         params.next();
         if (params.hasNext()) {
             final int borderColour = computer.loadSnapshot(new File(params.next()));
-            ula.setBorder(borderColour);
+            display.setBorder(borderColour);
         }
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
@@ -411,7 +410,7 @@ public class JavaFXEmulator extends Application {
             if (chosen != null) {
                 try {
                     final Optional<Integer> borderColour = detectAndLoad(chosen);
-                    borderColour.ifPresent(bc -> ula.setBorder(bc));
+                    borderColour.ifPresent(bc -> display.setBorder(bc));
                     userPrefs.setProperty(PREF_LAST_SNAPSHOT_DIRECTORY, chosen.getParent());
                     savePrefs();
                 } catch (IOException | TapeException ex) {
@@ -473,15 +472,15 @@ public class JavaFXEmulator extends Application {
             try {
                 if (updateDisplay) {
                     System.arraycopy(memory, 0x4000, memoryForDisplay, 0x4000, 0x1b00);
-                    final int[] borderLines = ula.getBorderLines();
+                    display.redrawBorder();
                     if (speed == EmulatorSpeed.NORMAL) {
                         hostRelay.ifPresent(h -> {
-                            h.sendDataToPartner(new EmulatorState(memory, borderLines, flashActive));
+                            h.sendDataToPartner(new EmulatorState(memory, display.getBorderLines(), flashActive));
                         });
                     }
 
                     Platform.runLater(() -> {
-                        display.refresh(borderLines, memoryForDisplay, flashActive);
+                        display.refresh(memoryForDisplay, flashActive);
                     });
                 }
                 updateDisplay = !updateDisplay;

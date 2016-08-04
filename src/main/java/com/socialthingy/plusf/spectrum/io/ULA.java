@@ -1,12 +1,10 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.spectrum.TapePlayer;
+import com.socialthingy.plusf.spectrum.display.Display;
 import com.socialthingy.plusf.z80.IO;
 
 import java.util.*;
-
-import static com.socialthingy.plusf.spectrum.display.DisplaySupport.SCREEN_HEIGHT;
-import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 
 public class ULA implements IO {
 
@@ -18,26 +16,18 @@ public class ULA implements IO {
         binary("01111")
     };
 
-    public static final int TOP_BORDER_HEIGHT = 64;
-    public static final int BOTTOM_BORDER_HEIGHT = 56;
 
-    private final List<int[]> borderChanges = new ArrayList<>();
-    private final int[] borderLines;
     private final Set<Character> keysDown = new HashSet<>();
     private final Map<Character, Integer>[] halfRows = new Map[8];
-    private final int fullDisplayStart;
-    private final int fullDisplayEnd;
 
     private int earBit;
-    private int initialBorderColour;
     private int currentCycleTstates;
     private TapePlayer tapePlayer;
+    private final Display display;
 
-    public ULA(final int displayedTopBorder, final int displayedBottomBorder, final TapePlayer tapePlayer) {
+    public ULA(final Display display, final TapePlayer tapePlayer) {
+        this.display = display;
         this.tapePlayer = tapePlayer;
-        borderLines = new int[displayedTopBorder + SCREEN_HEIGHT + displayedBottomBorder];
-        fullDisplayStart = TOP_BORDER_HEIGHT - displayedTopBorder;
-        fullDisplayEnd = TOP_BORDER_HEIGHT + SCREEN_HEIGHT + displayedBottomBorder;
 
         halfRows[0] = buildHalfRow("^zxcv");
         halfRows[1] = buildHalfRow("asdfg");
@@ -83,7 +73,7 @@ public class ULA implements IO {
     @Override
     public void write(int port, int accumulator, int value) {
         if (port == 0xfe) {
-            borderChanges.add(new int[] {currentCycleTstates, value & 0b111});
+            display.changeBorder(currentCycleTstates, value);
         }
     }
 
@@ -116,53 +106,8 @@ public class ULA implements IO {
         keysDown.clear();
     }
 
-    public void setBorder(final int spectrumColour) {
-        this.initialBorderColour = 0xff000000 | dullColour(spectrumColour);
-    }
-
     private static int binary(final String value) {
         return Integer.valueOf(value, 2);
     }
 
-    public int[] getBorderLines() {
-        if (!borderChanges.isEmpty()) {
-            final int[] firstChange = borderChanges.get(0);
-            for (int j = 0; j < firstChange[0] / 224; j++) {
-                setBorderLine(j, initialBorderColour);
-            }
-
-            for (int i = 0; i < borderChanges.size() - 1; i++) {
-                final int[] change1 = borderChanges.get(i);
-                final int[] change2 = borderChanges.get(i + 1);
-
-                final int blockStart = change1[0] / 224;
-                final int blockEnd = change2[0] / 224;
-
-                final int colour = 0xff000000 | dullColour(change1[1]);
-                for (int j = blockStart; j < blockEnd; j++) {
-                    setBorderLine(j, colour);
-                }
-            }
-
-            final int[] finalChange = borderChanges.get(borderChanges.size() - 1);
-            final int colour = 0xff000000 | dullColour(finalChange[1]);
-            for (int j = finalChange[0] / 224; j < borderLines.length; j++) {
-                setBorderLine(j, colour);
-            }
-            initialBorderColour = colour;
-            borderChanges.clear();
-        } else {
-            for (int i = 0; i < borderLines.length; i++) {
-                borderLines[i] = initialBorderColour;
-            }
-        }
-
-        return borderLines;
-    }
-
-    private void setBorderLine(final int line, final int colourId) {
-        if (line >= fullDisplayStart && line < fullDisplayEnd) {
-            borderLines[line - fullDisplayStart] = colourId;
-        }
-    }
 }

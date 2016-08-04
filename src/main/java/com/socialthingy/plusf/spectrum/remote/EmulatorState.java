@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static com.socialthingy.plusf.spectrum.display.DisplaySupport.SCREEN_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.Display.SCREEN_HEIGHT;
 import static com.socialthingy.plusf.spectrum.display.JavaFXDisplay.BORDER;
 
 public class EmulatorState {

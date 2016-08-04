@@ -4,7 +4,7 @@ import java.awt.Color
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class DisplaySupportSpec extends FlatSpec with Matchers {
+class DisplaySpec extends FlatSpec with Matchers {
 
   val flashing = true
   val notFlashing = false
@@ -15,10 +15,10 @@ class DisplaySupportSpec extends FlatSpec with Matchers {
     memory(0x5800) = binary("10000001")
 
     // when
-    refresh(borderLines, memory, notFlashing)
+    refresh(memory, notFlashing)
 
     // then
-    pixels(0) shouldBe new Color(0x00, 0x00, 0xaa)
+    pixels(0) shouldBe new Color(0x00, 0x00, 0xcc)
     pixels(1) shouldBe Color.BLACK
   }
 
@@ -28,11 +28,11 @@ class DisplaySupportSpec extends FlatSpec with Matchers {
     memory(0x5800) = binary("10000001")
 
     // when
-    refresh(borderLines, memory, flashing)
+    refresh(memory, flashing)
 
     // then
     pixels(0) shouldBe Color.BLACK
-    pixels(1) shouldBe new Color(0x00, 0x00, 0xaa)
+    pixels(1) shouldBe new Color(0x00, 0x00, 0xcc)
   }
 
   "colour block with flashing attribute not set" should "not show inverted colours when flashing" in new TestDisplay {
@@ -41,20 +41,21 @@ class DisplaySupportSpec extends FlatSpec with Matchers {
     memory(0x5800) = binary("00000001")
 
     // when
-    refresh(borderLines, memory, notFlashing)
+    refresh(memory, notFlashing)
 
     // then
-    pixels(0) shouldBe new Color(0x00, 0x00, 0xaa)
+    pixels(0) shouldBe new Color(0x00, 0x00, 0xcc)
     pixels(1) shouldBe Color.BLACK
   }
 
-  trait TestDisplay extends DisplaySupport with DisplayPixelUpdate {
+  class TestDisplay extends DisplayPixelUpdate {
+    val display = new Display(16, 16)
     val borderLines = Array.ofDim[Int](1)
     val memory = Array.ofDim[Int](0x10000)
     val pixels = Array.ofDim[Color](256 * 192)
 
-    override def refresh(borderLines: Array[Int], memory: Array[Int], flashActive: Boolean): Unit = {
-      draw(memory, flashActive, this)
+    def refresh(memory: Array[Int], flashActive: Boolean): Unit = {
+      display.draw(memory, flashActive, this)
     }
 
     override def update(x: Int, y: Int, colour: Color): Unit = {

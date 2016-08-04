@@ -9,10 +9,10 @@ import javafx.scene.layout.StackPane;
 
 import java.awt.Color;
 
-public class JavaFXDisplay extends DisplaySupport {
+public class JavaFXDisplay extends Display {
     public static final int BORDER = 16;
-    public static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
-    public static final int DISPLAY_HEIGHT = SCREEN_HEIGHT + (BORDER * 2);
+    private static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
+    private static final int DISPLAY_HEIGHT = SCREEN_HEIGHT + (BORDER * 2);
 
     private final WritableImage screen = new WritableImage(256, 192);
     private final PixelWriter screenWriter = screen.getPixelWriter();
@@ -20,9 +20,13 @@ public class JavaFXDisplay extends DisplaySupport {
     private final WritableImage border = new WritableImage(1, DISPLAY_HEIGHT);
     private final PixelWriter borderWriter = border.getPixelWriter();
 
+    private final Node display;
+
     private final int[] pixels = new int[256 * 192];
 
-    public Node getDisplay() {
+    public JavaFXDisplay() {
+        super(BORDER, BORDER);
+
         final ImageView borderImage = new ImageView(border);
         borderImage.setFitWidth(DISPLAY_WIDTH * 2);
         borderImage.setFitHeight(DISPLAY_HEIGHT * 2);
@@ -31,11 +35,14 @@ public class JavaFXDisplay extends DisplaySupport {
         screenImage.setFitHeight(SCREEN_HEIGHT * 2);
         screenImage.setFitWidth(SCREEN_WIDTH * 2);
 
-        return new StackPane(borderImage, screenImage);
+        display = new StackPane(borderImage, screenImage);
     }
 
-    @Override
-    public void refresh(final int[] borderLines, final int[] memory, final boolean flashActive) {
+    public Node getDisplay() {
+        return display;
+    }
+
+    public void refresh(final int[] memory, final boolean flashActive) {
         super.draw(memory, flashActive, this::setPixel);
         screenWriter.setPixels(0, 0, 256, 192, PixelFormat.getIntArgbInstance(), pixels, 0, 256);
         borderWriter.setPixels(0, 0, 1, DISPLAY_HEIGHT, PixelFormat.getIntArgbInstance(), borderLines, 0, 1);
@@ -44,4 +51,5 @@ public class JavaFXDisplay extends DisplaySupport {
     private void setPixel(final int x, final int y, final Color color) {
         pixels[x + (y * 256)] = color.getRGB();
     }
+
 }
