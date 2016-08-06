@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static com.socialthingy.plusf.spectrum.display.Display.SCREEN_HEIGHT;
-import static com.socialthingy.plusf.spectrum.display.JavaFXDisplay.BORDER;
+import static com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay.BORDER;
 
 public class EmulatorState {
     public static final int BORDER_LINE_COUNT = SCREEN_HEIGHT + (2 * BORDER);
