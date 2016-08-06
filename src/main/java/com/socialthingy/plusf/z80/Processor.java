@@ -35,6 +35,7 @@ public class Processor {
 
     private int cyclesUntilBreak = -1;
     private Set<Integer> breakpoints = new HashSet<>();
+    private Set<Range> rangeBreakpoints = new HashSet<>();
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -145,11 +146,20 @@ public class Processor {
         final int pc = pcReg.get();
         final Operation op = fetch();
         if (op == null) {
-            throw new IllegalStateException("Unimplemented operation");
+            throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
         }
 
         if (breakpoints.contains(pc)) {
             cyclesUntilBreak = 0;
+        }
+
+        if (!rangeBreakpoints.isEmpty() && cyclesUntilBreak != 0) {
+            for (Range range: rangeBreakpoints) {
+                if (!range.contains(lastPc) && range.contains(pc)) {
+                    cyclesUntilBreak = 0;
+                    break;
+                }
+            }
         }
 
         if (cyclesUntilBreak == 0) {
@@ -165,8 +175,7 @@ public class Processor {
 
             if (enableIffAfterExecution) {
                 enableIff = false;
-                iffs[0] = true;
-                iffs[1] = true;
+                setIffState(true);
             }
 
             return op;
@@ -219,8 +228,13 @@ public class Processor {
                 breakpoints.add(Integer.decode(in.next()));
             }
 
+            if ("rangebreak".equals(command)) {
+                rangeBreakpoints.add(new Range(Integer.decode(in.next()), Integer.decode(in.next())));
+            }
+
             if ("clearbreak".equals(command)) {
                 breakpoints.clear();
+                rangeBreakpoints.clear();
             }
 
             if ("memory".equals(command)) {
@@ -247,7 +261,24 @@ public class Processor {
                 final String reg = in.next();
                 if (register(reg) != null) {
                     System.out.printf("%04x\n", register(reg).get());
+                } else if ("iff".equals(reg)) {
+                    System.out.printf("iff1: %d\n", iffs[0] ? 0 : 1);
+                    System.out.printf("iff2: %d\n", iffs[1] ? 0 : 1);
                 }
+            }
+
+            if ("memsearch".equals(command)) {
+                final int value = Integer.decode(in.next()) & 0xffff;
+                final int v1 = value >> 8;
+                final int v2 = value & 0xff;
+
+                final List<Integer> results = new ArrayList<>();
+                for (int i = 0; i < 0xffff; i++) {
+                    if (memory[i] == v1 && memory[i + 1] == v2) {
+                        results.add(i);
+                    }
+                }
+                results.forEach(addr -> System.out.printf("%04x", addr));
             }
         }
     }
@@ -271,58 +302,59 @@ public class Processor {
     }
 
     private Operation fetch() {
-        if (iffs[0] && !interruptRequests.isEmpty()) {
+        final Optional<InterruptRequest> interrupt = Optional.ofNullable(interruptRequests.peekFirst());
+
+        if (iffs[0] && interrupt.isPresent()) {
             incrementR();
-            halting = false;
-            final InterruptRequest request = interruptRequests.removeFirst();
-            request.getDevice().acknowledge();
+            if (halting) {
+                pcReg.getAndInc();
+                halting = false;
+            }
+            setIffState(false);
+            interrupt.get().getDevice().acknowledge();
 
             if (interruptMode == 1) {
                 return im1ResponseOp;
             } else {
-                final int jumpBase = Word.from(rReg.get() & 0xfe, iReg.get());
+                final int jumpBase = Word.from(0xff, iReg.get());
                 final int jumpLow = memory[jumpBase];
                 final int jumpHigh = memory[(jumpBase + 1) & 0xffff];
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
-            if (halting) {
-                return operations[0x00];
-            } else {
-                int opCode = fetchNextOpcode();
-                switch (opCode) {
-                    case 0xcb:
-                        return cbOperations[fetchNextOpcode()];
+            int opCode = fetchNextOpcode();
+            switch (opCode) {
+                case 0xcb:
+                    return cbOperations[fetchNextOpcode()];
 
-                    case 0xed:
-                        final Operation op = edOperations[fetchNextOpcode()];
-                        if (op == null) {
-                            return nop;
-                        } else {
-                            return op;
-                        }
+                case 0xed:
+                    final Operation op = edOperations[fetchNextOpcode()];
+                    if (op == null) {
+                        return nop;
+                    } else {
+                        return op;
+                    }
 
-                    case 0xdd:
-                        opCode = fetchNextOpcode();
-                        if (opCode == 0xcb) {
-                            fetchNextByte();
-                            return ddCbOperations[fetchNextByte()];
-                        } else {
-                            return ddOperations[opCode];
-                        }
+                case 0xdd:
+                    opCode = fetchNextOpcode();
+                    if (opCode == 0xcb) {
+                        fetchNextByte();
+                        return ddCbOperations[fetchNextByte()];
+                    } else {
+                        return ddOperations[opCode];
+                    }
 
-                    case 0xfd:
-                        opCode = fetchNextOpcode();
-                        if (opCode == 0xcb) {
-                            fetchNextByte();
-                            return fdCbOperations[fetchNextByte()];
-                        } else {
-                            return fdOperations[opCode];
-                        }
+                case 0xfd:
+                    opCode = fetchNextOpcode();
+                    if (opCode == 0xcb) {
+                        fetchNextByte();
+                        return fdCbOperations[fetchNextByte()];
+                    } else {
+                        return fdOperations[opCode];
+                    }
 
-                    default:
-                        return operations[opCode];
-                }
+                default:
+                    return operations[opCode];
             }
         }
     }
@@ -369,10 +401,14 @@ public class Processor {
         return this.iffs[iff];
     }
 
-    public void interrupt(final InterruptRequest request) {
+    public void requestInterrupt(final InterruptRequest request) {
         if (!interruptRequests.contains(request)) {
             interruptRequests.addLast(request);
         }
+    }
+
+    public void cancelInterrupt(final InterruptRequest request) {
+        interruptRequests.remove(request);
     }
 
     public void nmi() {
@@ -382,7 +418,13 @@ public class Processor {
     }
 
     public void enableInterrupts() {
+        setIffState(false);
         enableIff = true;
+    }
+
+    private void setIffState(final boolean iffState) {
+        iffs[0] = iffState;
+        iffs[1] = iffState;
     }
 
     public void setInterruptMode(final int mode) {
@@ -391,6 +433,7 @@ public class Processor {
 
     public void halt() {
         this.halting = true;
+        pcReg.decAndGet();
     }
 
     public void dump(final PrintStream out) {
@@ -430,5 +473,19 @@ public class Processor {
 
     public void startDebugging() {
         cyclesUntilBreak = 0;
+    }
+
+    private class Range {
+        private final int start;
+        private final int end;
+
+        public Range(final int start, final int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public boolean contains(final int address) {
+            return address >= start && address <= end;
+        }
     }
 }

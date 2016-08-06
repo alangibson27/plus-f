@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.z80
 
 import com.socialthingy.plusf.ProcessorSpec
-import com.socialthingy.plusf.z80.operations.Nop
+import com.socialthingy.plusf.z80.operations.{Nop, OpHalt}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
@@ -33,14 +33,14 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     def anIm1InterruptIsGenerated: AckReceiver = {
       val ackReceiver = new AckReceiver()
       val request = new InterruptRequest(ackReceiver)
-      processor.interrupt(request)
+      processor.requestInterrupt(request)
       ackReceiver
     }
 
     def anIm2InterruptIsGenerated: AckReceiver = {
       val interruptingDevice = new AckReceiver()
       val request = new InterruptRequest(interruptingDevice)
-      processor.interrupt(request)
+      processor.requestInterrupt(request)
       interruptingDevice
     }
 
@@ -396,11 +396,10 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(2)
     nextInstructionIs(0xcb, 0xc0)
 
-    memory(0xb0e2) = 0xef
-    memory(0xb0e3) = 0xbe
+    memory(0xb0ff) = 0xef
+    memory(0xb100) = 0xbe
 
     registerContainsValue("i", 0xb0)
-    registerContainsValue("r", 0xe1)
 
     val interruptingDevice = anIm2InterruptIsGenerated
 
@@ -490,6 +489,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   
   "halt" should "execute nops until a non-maskable interrupt" in new InterruptingMachine {
     // given
+    val addressOfHalt = registerValue("pc")
     nextInstructionIs(0x76)
 
     routineAt(0x0066).does(0x3c,        // inc a
@@ -497,16 +497,19 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // when
     processor.execute()
+    registerValue("pc") shouldBe addressOfHalt
 
     var lastOp = processor.execute()
-    lastOp.isInstanceOf[Nop] shouldBe true
+    registerValue("pc") shouldBe addressOfHalt
+    lastOp.isInstanceOf[OpHalt] shouldBe true
 
     processor.nmi()
     lastOp = processor.execute()
 
     // then
-    lastOp.isInstanceOf[Nop] shouldBe false
+    lastOp.isInstanceOf[OpHalt] shouldBe false
     registerValue("a") shouldBe 0x01
+    registerValue("pc") shouldBe 0x0067
   }
   
   "halt" should "execute nops until a maskable interrupt when maskable interrupts are enabled" in new InterruptingMachine {
@@ -516,21 +519,25 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(1)
     maskableInterruptsAreEnabled
 
+    val addressOfHalt = registerValue("pc")
     nextInstructionIs(0x76)
 
     // when
     processor.execute()
+    registerValue("pc") shouldBe addressOfHalt
 
     var lastOp = processor.execute()
-    lastOp.isInstanceOf[Nop] shouldBe true
+    registerValue("pc") shouldBe addressOfHalt
+    lastOp.isInstanceOf[OpHalt] shouldBe true
 
     anIm1InterruptIsGenerated
     processor.execute()
     lastOp = processor.execute()
 
     // then
-    lastOp.isInstanceOf[Nop] shouldBe false
+    lastOp.isInstanceOf[OpHalt] shouldBe false
     registerValue("a") shouldBe 0x01
+    registerValue("pc") shouldBe 0x0039
   }
   
   "halt" should "execute nops despite maskable interrupt when maskable interrupts are disabled" in new InterruptingMachine {
@@ -540,19 +547,23 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(1)
     maskableInterruptsAreDisabled
 
+    val addressOfHalt = registerValue("pc")
     nextInstructionIs(0x76)
 
     // when
     processor.execute()
+    registerValue("pc") shouldBe addressOfHalt
 
     var lastOp = processor.execute()
-    lastOp.isInstanceOf[Nop] shouldBe true
+    registerValue("pc") shouldBe addressOfHalt
+    lastOp.isInstanceOf[OpHalt] shouldBe true
 
     anIm1InterruptIsGenerated
     lastOp = processor.execute()
 
     // then
-    lastOp.isInstanceOf[Nop] shouldBe true
+    registerValue("pc") shouldBe addressOfHalt
+    lastOp.isInstanceOf[OpHalt] shouldBe true
   }
   
   "retn" should "re-enable maskable interrupts" in new InterruptingMachine {
@@ -590,10 +601,10 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     }
 
     val firstRequest = new InterruptRequest(device)
-    processor.interrupt(firstRequest)
+    processor.requestInterrupt(firstRequest)
 
     val secondRequest = new InterruptRequest(device)
-    processor.interrupt(secondRequest)
+    processor.requestInterrupt(secondRequest)
 
     // when
     processor.execute()

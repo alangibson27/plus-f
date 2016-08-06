@@ -148,7 +148,7 @@ public class JavaFXEmulator extends Application {
                     dump(System.out);
                     break;
 
-                case F2:
+                case F5:
                     computer.getProcessor().startDebugging();
             }
         });

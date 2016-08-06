@@ -87,7 +87,8 @@ public class Computer implements InterruptingDevice {
 
     public void singleCycle() {
         currentCycleTstates = 0;
-        processor.interrupt(new InterruptRequest(this));
+        final InterruptRequest interrupt = new InterruptRequest(this);
+        processor.requestInterrupt(interrupt);
 
         final Timer.Context timer = processorExecuteTimer.time();
         ula.newCycle();
@@ -101,6 +102,10 @@ public class Computer implements InterruptingDevice {
                     logger.warning(ex.getOperation().toString());
                 } catch (Exception ex) {
                     logger.log(Level.WARNING, "Unrecoverable error encountered", ex);
+                } finally {
+                    if (currentCycleTstates == 0) {
+                        processor.cancelInterrupt(interrupt);
+                    }
                 }
 
                 currentCycleTstates += processor.lastTime();
