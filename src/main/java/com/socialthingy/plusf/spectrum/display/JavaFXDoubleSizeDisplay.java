@@ -9,37 +9,35 @@ import javafx.scene.layout.StackPane;
 
 import java.awt.Color;
 
-public class JavaFXDisplay extends Display {
+public class JavaFXDoubleSizeDisplay extends Display {
     public static final int BORDER = 16;
     private static final int DISPLAY_WIDTH = SCREEN_WIDTH + (BORDER * 2);
     private static final int DISPLAY_HEIGHT = SCREEN_HEIGHT + (BORDER * 2);
+    private static final int SCALE = 2;
 
     private final WritableImage border = new WritableImage(1, DISPLAY_HEIGHT);
     private final PixelWriter borderWriter = border.getPixelWriter();
-
-    private final WritableImage screen;
     private final PixelWriter screenWriter;
 
     private final Node display;
-    private final int scale;
     private final int scaledWidth;
     private final int scaledHeight;
     private final int[] sourcePixels = new int[SCREEN_WIDTH * SCREEN_WIDTH];
     private final int[] targetPixels;
 
-    public JavaFXDisplay() {
+    public JavaFXDoubleSizeDisplay() {
         super(BORDER, BORDER);
 
-        this.scale = 2;
-        this.scaledWidth = SCREEN_WIDTH * scale;
-        this.scaledHeight = SCREEN_HEIGHT * scale;
-        this.screen = new WritableImage(scaledWidth, scaledHeight);
+        this.scaledWidth = SCREEN_WIDTH * SCALE;
+        this.scaledHeight = SCREEN_HEIGHT * SCALE;
+
+        final WritableImage screen = new WritableImage(scaledWidth, scaledHeight);
         this.screenWriter = screen.getPixelWriter();
         this.targetPixels = new int[scaledWidth * scaledHeight];
 
         final ImageView borderImage = new ImageView(border);
-        borderImage.setFitWidth(DISPLAY_WIDTH * scale);
-        borderImage.setFitHeight(DISPLAY_HEIGHT * scale);
+        borderImage.setFitWidth(DISPLAY_WIDTH * SCALE);
+        borderImage.setFitHeight(DISPLAY_HEIGHT * SCALE);
 
         final ImageView screenImage = new ImageView(screen);
         screenImage.setFitHeight(scaledHeight);
@@ -64,17 +62,13 @@ public class JavaFXDisplay extends Display {
     }
 
     private void scale() {
-        for (int x = 1; x < SCREEN_WIDTH - 1; x++) {
-            for (int y = 1; y < SCREEN_HEIGHT - 1; y++) {
-                final int a = sourcePixels[sourcePixelAt(x - 1, y - 1)];
+        for (int x = 0; x < SCREEN_WIDTH; x++) {
+            for (int y = 0; y < SCREEN_HEIGHT; y++) {
                 final int b = sourcePixels[sourcePixelAt(x, y - 1)];
-                final int c = sourcePixels[sourcePixelAt(x + 1, y - 1)];
                 final int d = sourcePixels[sourcePixelAt(x - 1, y)];
                 final int e = sourcePixels[sourcePixelAt(x, y)];
                 final int f = sourcePixels[sourcePixelAt(x + 1, y)];
-                final int g = sourcePixels[sourcePixelAt(x - 1, y + 1)];
                 final int h = sourcePixels[sourcePixelAt(x, y + 1)];
-                final int i = sourcePixels[sourcePixelAt(x + 1, y + 1)];
 
                 final int e0;
                 final int e1;
@@ -101,10 +95,10 @@ public class JavaFXDisplay extends Display {
     }
 
     private final int sourcePixelAt(final int x, final int y) {
-        return x + (y * SCREEN_WIDTH);
+        return (x & 0xff) + ((y & 0xff) * SCREEN_WIDTH);
     }
 
     private final int targetPixelAt(final int mainx, final int mainy, final int subx, final int suby) {
-        return (mainx + subx) + ((mainy + suby) * SCREEN_WIDTH * 2);
+        return (mainx + subx) + ((mainy + suby) * scaledWidth);
     }
 }

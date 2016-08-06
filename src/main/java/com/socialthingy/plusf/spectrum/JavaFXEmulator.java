@@ -6,7 +6,7 @@ import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.Icons;
-import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
+import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
 import com.socialthingy.plusf.spectrum.input.JavaFXKeyboard;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SinglePortIO;
@@ -54,7 +54,7 @@ public class JavaFXEmulator extends Application {
 
     private final Timer displayRefreshTimer;
     private final MetricRegistry metricRegistry;
-    private final JavaFXDisplay display;
+    private final JavaFXDoubleSizeDisplay display;
     private final Label statusLabel;
     private final Label speedLabel;
     private final AtomicLong timestamper = new AtomicLong(0);
@@ -92,7 +92,7 @@ public class JavaFXEmulator extends Application {
         displayRefreshTimer = new Timer(new SlidingTimeWindowReservoir(1, TimeUnit.SECONDS));
         metricRegistry.register(DISPLAY_REFRESH_TIMER_NAME, displayRefreshTimer);
         singleCycle = new SingleCycle();
-        display = new JavaFXDisplay();
+        display = new JavaFXDoubleSizeDisplay();
         statusLabel = new Label("No guest connected");
         speedLabel = new Label("Normal speed");
         tapePlayer = new TapePlayer();

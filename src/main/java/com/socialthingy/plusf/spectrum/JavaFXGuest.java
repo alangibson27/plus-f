@@ -2,7 +2,7 @@ package com.socialthingy.plusf.spectrum;
 
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
-import com.socialthingy.plusf.spectrum.display.JavaFXDisplay;
+import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
 import com.socialthingy.plusf.spectrum.input.KempstonJoystick;
 import com.socialthingy.plusf.spectrum.remote.*;
 import javafx.animation.AnimationTimer;
@@ -32,7 +32,7 @@ import static javafx.scene.input.KeyCode.*;
 public class JavaFXGuest extends Application {
     private static final int LOCAL_PORT = Settings.GUEST_PORT;
 
-    private final JavaFXDisplay display;
+    private final JavaFXDoubleSizeDisplay display;
     private final Label statusLabel;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
@@ -48,7 +48,7 @@ public class JavaFXGuest extends Application {
     }
 
     public JavaFXGuest() {
-        display = new JavaFXDisplay();
+        display = new JavaFXDoubleSizeDisplay();
         statusLabel = new Label("Not connected to computer");
     }
 
