@@ -175,8 +175,7 @@ public class Processor {
 
             if (enableIffAfterExecution) {
                 enableIff = false;
-                iffs[0] = true;
-                iffs[1] = true;
+                setIffState(true);
             }
 
             return op;
@@ -267,6 +266,20 @@ public class Processor {
                     System.out.printf("iff2: %d\n", iffs[1] ? 0 : 1);
                 }
             }
+
+            if ("memsearch".equals(command)) {
+                final int value = Integer.decode(in.next()) & 0xffff;
+                final int v1 = value >> 8;
+                final int v2 = value & 0xff;
+
+                final List<Integer> results = new ArrayList<>();
+                for (int i = 0; i < 0xffff; i++) {
+                    if (memory[i] == v1 && memory[i + 1] == v2) {
+                        results.add(i);
+                    }
+                }
+                results.forEach(addr -> System.out.printf("%04x", addr));
+            }
         }
     }
 
@@ -289,58 +302,59 @@ public class Processor {
     }
 
     private Operation fetch() {
-        if (iffs[0] && !interruptRequests.isEmpty()) {
+        final Optional<InterruptRequest> interrupt = Optional.ofNullable(interruptRequests.peekFirst());
+
+        if (iffs[0] && interrupt.isPresent()) {
             incrementR();
-            halting = false;
-            final InterruptRequest request = interruptRequests.removeFirst();
-            request.getDevice().acknowledge();
+            if (halting) {
+                pcReg.getAndInc();
+                halting = false;
+            }
+            setIffState(false);
+            interrupt.get().getDevice().acknowledge();
 
             if (interruptMode == 1) {
                 return im1ResponseOp;
             } else {
-                final int jumpBase = Word.from(rReg.get() & 0xfe, iReg.get());
+                final int jumpBase = Word.from(0xff, iReg.get());
                 final int jumpLow = memory[jumpBase];
                 final int jumpHigh = memory[(jumpBase + 1) & 0xffff];
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
-            if (halting) {
-                return operations[0x00];
-            } else {
-                int opCode = fetchNextOpcode();
-                switch (opCode) {
-                    case 0xcb:
-                        return cbOperations[fetchNextOpcode()];
+            int opCode = fetchNextOpcode();
+            switch (opCode) {
+                case 0xcb:
+                    return cbOperations[fetchNextOpcode()];
 
-                    case 0xed:
-                        final Operation op = edOperations[fetchNextOpcode()];
-                        if (op == null) {
-                            return nop;
-                        } else {
-                            return op;
-                        }
+                case 0xed:
+                    final Operation op = edOperations[fetchNextOpcode()];
+                    if (op == null) {
+                        return nop;
+                    } else {
+                        return op;
+                    }
 
-                    case 0xdd:
-                        opCode = fetchNextOpcode();
-                        if (opCode == 0xcb) {
-                            fetchNextByte();
-                            return ddCbOperations[fetchNextByte()];
-                        } else {
-                            return ddOperations[opCode];
-                        }
+                case 0xdd:
+                    opCode = fetchNextOpcode();
+                    if (opCode == 0xcb) {
+                        fetchNextByte();
+                        return ddCbOperations[fetchNextByte()];
+                    } else {
+                        return ddOperations[opCode];
+                    }
 
-                    case 0xfd:
-                        opCode = fetchNextOpcode();
-                        if (opCode == 0xcb) {
-                            fetchNextByte();
-                            return fdCbOperations[fetchNextByte()];
-                        } else {
-                            return fdOperations[opCode];
-                        }
+                case 0xfd:
+                    opCode = fetchNextOpcode();
+                    if (opCode == 0xcb) {
+                        fetchNextByte();
+                        return fdCbOperations[fetchNextByte()];
+                    } else {
+                        return fdOperations[opCode];
+                    }
 
-                    default:
-                        return operations[opCode];
-                }
+                default:
+                    return operations[opCode];
             }
         }
     }
@@ -387,10 +401,14 @@ public class Processor {
         return this.iffs[iff];
     }
 
-    public void interrupt(final InterruptRequest request) {
+    public void requestInterrupt(final InterruptRequest request) {
         if (!interruptRequests.contains(request)) {
             interruptRequests.addLast(request);
         }
+    }
+
+    public void cancelInterrupt(final InterruptRequest request) {
+        interruptRequests.remove(request);
     }
 
     public void nmi() {
@@ -400,7 +418,13 @@ public class Processor {
     }
 
     public void enableInterrupts() {
+        setIffState(false);
         enableIff = true;
+    }
+
+    private void setIffState(final boolean iffState) {
+        iffs[0] = iffState;
+        iffs[1] = iffState;
     }
 
     public void setInterruptMode(final int mode) {
@@ -409,6 +433,7 @@ public class Processor {
 
     public void halt() {
         this.halting = true;
+        pcReg.decAndGet();
     }
 
     public void dump(final PrintStream out) {
