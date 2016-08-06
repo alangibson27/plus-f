@@ -32,7 +32,7 @@ import static javafx.scene.input.KeyCode.*;
 public class JavaFXGuest extends Application {
     private static final int LOCAL_PORT = Settings.GUEST_PORT;
 
-    private final JavaFXDoubleSizeDisplay display;
+    private final JavaFXGuestDoubleSizeDisplay display;
     private final Label statusLabel;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
@@ -48,7 +48,7 @@ public class JavaFXGuest extends Application {
     }
 
     public JavaFXGuest() {
-        display = new JavaFXDoubleSizeDisplay();
+        display = new JavaFXGuestDoubleSizeDisplay();
         statusLabel = new Label("Not connected to computer");
     }
 
@@ -81,6 +81,7 @@ public class JavaFXGuest extends Application {
                 if (lastHostData != null) {
                     System.arraycopy(lastHostData.getMemory(), 0x4000, memory, 0x4000, 0x1b00);
                     Platform.runLater(() -> {
+                        display.setBorderLines(lastHostData.getBorderLines());
                         display.refresh(memory, lastHostData.isFlashActive());
                     });
                 }
@@ -191,6 +192,12 @@ public class JavaFXGuest extends Application {
 
     private void update(final EmulatorState hostData) {
         this.lastHostData = hostData;
+    }
+
+    private class JavaFXGuestDoubleSizeDisplay extends JavaFXDoubleSizeDisplay {
+        public void setBorderLines(final int[] borderLines) {
+            System.arraycopy(borderLines, 0, this.borderLines, 0, borderLines.length);
+        }
     }
 }
 
