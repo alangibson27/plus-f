@@ -35,6 +35,7 @@ public class Processor {
 
     private int cyclesUntilBreak = -1;
     private Set<Integer> breakpoints = new HashSet<>();
+    private Set<Range> rangeBreakpoints = new HashSet<>();
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -145,11 +146,20 @@ public class Processor {
         final int pc = pcReg.get();
         final Operation op = fetch();
         if (op == null) {
-            throw new IllegalStateException("Unimplemented operation");
+            throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
         }
 
         if (breakpoints.contains(pc)) {
             cyclesUntilBreak = 0;
+        }
+
+        if (!rangeBreakpoints.isEmpty() && cyclesUntilBreak != 0) {
+            for (Range range: rangeBreakpoints) {
+                if (!range.contains(lastPc) && range.contains(pc)) {
+                    cyclesUntilBreak = 0;
+                    break;
+                }
+            }
         }
 
         if (cyclesUntilBreak == 0) {
@@ -219,8 +229,13 @@ public class Processor {
                 breakpoints.add(Integer.decode(in.next()));
             }
 
+            if ("rangebreak".equals(command)) {
+                rangeBreakpoints.add(new Range(Integer.decode(in.next()), Integer.decode(in.next())));
+            }
+
             if ("clearbreak".equals(command)) {
                 breakpoints.clear();
+                rangeBreakpoints.clear();
             }
 
             if ("memory".equals(command)) {
@@ -247,6 +262,9 @@ public class Processor {
                 final String reg = in.next();
                 if (register(reg) != null) {
                     System.out.printf("%04x\n", register(reg).get());
+                } else if ("iff".equals(reg)) {
+                    System.out.printf("iff1: %d\n", iffs[0] ? 0 : 1);
+                    System.out.printf("iff2: %d\n", iffs[1] ? 0 : 1);
                 }
             }
         }
@@ -430,5 +448,19 @@ public class Processor {
 
     public void startDebugging() {
         cyclesUntilBreak = 0;
+    }
+
+    private class Range {
+        private final int start;
+        private final int end;
+
+        public Range(final int start, final int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public boolean contains(final int address) {
+            return address >= start && address <= end;
+        }
     }
 }
