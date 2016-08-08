@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.util.Word;
+import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +19,8 @@ public abstract class TapeBlock {
         return new String(buf);
     }
 
-    public Iterator<Boolean> bits(final SignalState signalState) {
-        return emptyIterator();
+    public RepList<Boolean> getBitList(final SignalState signalState) {
+        return new RepList<>();
     }
 
     protected static int nextByte(final InputStream tzxFile) throws IOException {

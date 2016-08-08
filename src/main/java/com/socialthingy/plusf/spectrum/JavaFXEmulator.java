@@ -33,6 +33,7 @@ import java.io.*;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Properties;
@@ -463,12 +464,18 @@ public class JavaFXEmulator extends Application {
         private boolean flashActive = false;
         private int flashCycleCount = 0x10;
         private boolean updateDisplay = true;
+        private long lastDisplayUpdate = 0;
+
+        private boolean shouldUpdateDisplay() {
+            return (speed != EmulatorSpeed.TURBO && updateDisplay) ||
+                    (speed == EmulatorSpeed.TURBO && (System.currentTimeMillis() - lastDisplayUpdate) >= 40);
+        }
 
         @Override
         public void run() {
             final Timer.Context timer = displayRefreshTimer.time();
             try {
-                if (updateDisplay) {
+                if (shouldUpdateDisplay()) {
                     System.arraycopy(memory, 0x4000, memoryForDisplay, 0x4000, 0x1b00);
                     display.redrawBorder();
                     if (speed == EmulatorSpeed.NORMAL) {
@@ -479,6 +486,7 @@ public class JavaFXEmulator extends Application {
 
                     Platform.runLater(() -> {
                         display.refresh(memoryForDisplay, flashActive);
+                        lastDisplayUpdate = System.currentTimeMillis();
                     });
                 }
                 updateDisplay = !updateDisplay;

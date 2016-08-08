@@ -2,6 +2,7 @@ package com.socialthingy.plusf.spectrum;
 
 import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
+import com.socialthingy.replist.SkippableIterator;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.controlsfx.control.Notifications;
 
@@ -11,7 +12,7 @@ import java.util.*;
 public class TapePlayer implements Iterator<Boolean> {
     private int blockIdx = 0;
     private final SignalState signalState = new SignalState(false);
-    private Optional<Iterator<Boolean>> currentBlock;
+    private Optional<SkippableIterator<Boolean>> currentBlock = Optional.empty();
     private int loopStart = -1;
     private int loopCount = 0;
 
@@ -123,7 +124,20 @@ public class TapePlayer implements Iterator<Boolean> {
         }
     }
 
-    private Optional<Iterator<Boolean>> nextBlock() {
+    public boolean skip(final int amount) {
+        int remaining = amount - 1;
+        while (remaining > 0 && currentBlock.isPresent()) {
+            final SkippableIterator<Boolean> block = currentBlock.get();
+            remaining -= block.skip(remaining);
+            if (!block.hasNext()) {
+                currentBlock = nextBlock();
+            }
+        }
+
+        return hasNext() ? next() : false;
+    }
+
+    private Optional<SkippableIterator<Boolean>> nextBlock() {
         if (!blocks.isPresent()) {
             return Optional.empty();
         }
@@ -159,7 +173,7 @@ public class TapePlayer implements Iterator<Boolean> {
             return nextBlock();
         }
 
-        return Optional.of(nextBlock.bits(signalState));
+        return Optional.of(nextBlock.getBitList(signalState).iterator());
     }
 
 }

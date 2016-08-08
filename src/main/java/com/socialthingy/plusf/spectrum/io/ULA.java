@@ -39,10 +39,8 @@ public class ULA implements IO {
 
     public void advanceCycle(final int tstates) {
         currentCycleTstates += tstates;
-        for (int i = 0; i < tstates; i++) {
-            if (tapePlayer.hasNext()) {
-                this.earBit = tapePlayer.next() ? 1 << 6 : 0;
-            }
+        if (tapePlayer.playingProperty().get()) {
+            earBit = tapePlayer.skip(tstates) ? 1 << 6 : 0;
         }
     }
 }

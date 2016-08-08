@@ -20,7 +20,7 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
       s"have the correct number of tones of the correct pulse length when the signal is initially $level" in {
       val pureDataBlock = new PureDataBlock(Duration.ZERO, Array[Int](0x54, 0xf0), 50, 100, 8)
 
-      val bits = pureDataBlock.bits(new SignalState(firstValue)).asScala.toList
+      val bits = pureDataBlock.getBitList(new SignalState(firstValue)).iterator().asScala.toList
 
       val pulses = bits.splitInto(
         50, 50, 100, 100, 50, 50, 100, 100, 50, 50, 100, 100, 50, 50, 50, 50,
@@ -81,7 +81,7 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
   "a pure data block followed by a pause" should "finish with a low signal for the pause duration" in {
     val pureDataBlock = new PureDataBlock(Duration.ofMillis(10), Array[Int](0x00), 50, 100, 8)
 
-    val bits = pureDataBlock.bits(lowSignal).asScala.toList
+    val bits = pureDataBlock.getBitList(lowSignal).iterator().asScala.toList
 
     val pulses = bits.splitInto(50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 35000 + 3500)
 
@@ -117,7 +117,7 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
   it should "have a short ending high pulse when the final data pulse is low" in {
     val pureDataBlock = new PureDataBlock(Duration.ofMillis(10), Array[Int](0x00), 50, 100, 8)
 
-    val bits = pureDataBlock.bits(highSignal).asScala.toList
+    val bits = pureDataBlock.getBitList(highSignal).iterator().asScala.toList
 
     val pulses = bits.splitInto(50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 3500, 35000)
 
@@ -157,7 +157,7 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
     s"a pure data block with $finalByteLength bits in the final byte" should "be represented correctly" in {
       val pureDataBlock = new PureDataBlock(Duration.ZERO, Array[Int](0x00, 0x00), 50, 100, finalByteLength)
 
-      val bits = pureDataBlock.bits(highSignal).asScala.toList
+      val bits = pureDataBlock.getBitList(highSignal).iterator().asScala.toList
 
       val numPulses = 16 + (finalByteLength * 2)
       val pulses = bits.splitInto(Array.fill(numPulses)(50): _*)
