@@ -69,7 +69,6 @@ public class JavaFXEmulator extends Application {
     private Computer computer;
     private JavaFXKeyboard keyboard;
     private int[] memory;
-    private int[] memoryForDisplay;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
     private MenuItem playTapeItem;
@@ -112,7 +111,6 @@ public class JavaFXEmulator extends Application {
     private void newComputer() throws IOException {
         ioMux = new IOMultiplexer();
         memory = new int[0x10000];
-        memoryForDisplay = new int[0x10000];
         keyboard = new JavaFXKeyboard();
         ula = new ULA(display, keyboard, tapePlayer);
         computer = new Computer(
@@ -339,7 +337,11 @@ public class JavaFXEmulator extends Application {
 
     private void changeSpeed() {
         cycleLoop.cancel(false);
-        cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, speed.period, speed.timeUnit);
+        if (speed == EmulatorSpeed.TURBO) {
+            cycleLoop = cycleTimer.schedule(singleCycle, 0, speed.timeUnit);
+        } else {
+            cycleLoop = cycleTimer.scheduleAtFixedRate(singleCycle, 0, speed.period, speed.timeUnit);
+        }
     }
 
     private DatagramSocket getSocket() throws SocketException {
@@ -467,38 +469,42 @@ public class JavaFXEmulator extends Application {
         private long lastDisplayUpdate = 0;
 
         private boolean shouldUpdateDisplay() {
-            return (speed != EmulatorSpeed.TURBO && updateDisplay) ||
-                    (speed == EmulatorSpeed.TURBO && (System.currentTimeMillis() - lastDisplayUpdate) >= 40);
+            return speed != EmulatorSpeed.TURBO || (System.currentTimeMillis() - lastDisplayUpdate) >= 40;
         }
 
         @Override
         public void run() {
             final Timer.Context timer = displayRefreshTimer.time();
-            try {
-                if (shouldUpdateDisplay()) {
-                    System.arraycopy(memory, 0x4000, memoryForDisplay, 0x4000, 0x1b00);
-                    display.redrawBorder();
-                    if (speed == EmulatorSpeed.NORMAL) {
-                        hostRelay.ifPresent(h -> {
-                            h.sendDataToPartner(new EmulatorState(memory, display.getBorderLines(), flashActive));
+            do {
+                try {
+                    if (shouldUpdateDisplay()) {
+                        display.redrawBorder();
+                        final boolean screenRefreshRequired = display.render(memory, flashActive, flashCycleCount == 0x10);
+                        if (speed == EmulatorSpeed.NORMAL) {
+                            hostRelay.ifPresent(h -> {
+                                h.sendDataToPartner(new EmulatorState(memory, display.getBorderLines(), flashActive));
+                            });
+                        }
+
+                        Platform.runLater(() -> {
+                            if (screenRefreshRequired) {
+                                display.refreshScreen();
+                            }
+                            display.refreshBorder();
+                            lastDisplayUpdate = System.currentTimeMillis();
                         });
                     }
-
-                    Platform.runLater(() -> {
-                        display.refresh(memoryForDisplay, flashActive, flashCycleCount == 0x10);
-                        lastDisplayUpdate = System.currentTimeMillis();
-                    });
+                    updateDisplay = !updateDisplay;
+                    computer.singleCycle();
+                    flashCycleCount--;
+                    if (flashCycleCount < 0) {
+                        flashCycleCount = 0x10;
+                        flashActive = !flashActive;
+                    }
+                } finally {
+                    timer.stop();
                 }
-                updateDisplay = !updateDisplay;
-                computer.singleCycle();
-                flashCycleCount--;
-                if (flashCycleCount < 0) {
-                    flashCycleCount = 0x10;
-                    flashActive = !flashActive;
-                }
-            } finally {
-                timer.stop();
-            }
+            } while (speed == EmulatorSpeed.TURBO);
         }
     }
 }

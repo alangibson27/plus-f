@@ -8,7 +8,7 @@ public enum EmulatorSpeed {
     NORMAL("Normal", 20, TimeUnit.MILLISECONDS, KeyCode.F1),
     FAST("Fast", 15, TimeUnit.MILLISECONDS, KeyCode.F2),
     DOUBLE("Double", 10, TimeUnit.MILLISECONDS, KeyCode.F3),
-    TURBO("Turbo", 10, TimeUnit.NANOSECONDS, KeyCode.F4);
+    TURBO("Turbo", 0, TimeUnit.NANOSECONDS, KeyCode.F4);
 
     public final String displayName;
     public final int period;
