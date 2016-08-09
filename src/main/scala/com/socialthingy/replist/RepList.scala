@@ -36,20 +36,21 @@ class RepList[T] extends java.lang.Iterable[T] {
     override def hasNext: Boolean = count > 0 || items.nonEmpty
     override def skip(amount: Int): Int = {
       require(amount >= 0)
-      if (amount <= count) {
-        count = count - amount
-        nextItem()
-        amount
-      } else {
-        val taken = count
-        count = 0
-        nextItem()
-        if (hasNext) {
-          taken + skip(amount - taken)
+
+      var remaining = amount
+      while (remaining > 0 && hasNext) {
+        if (remaining <= count) {
+          count = count - remaining
+          nextItem()
+          remaining = 0
         } else {
-          taken
+          remaining = remaining - count
+          count = 0
+          nextItem()
         }
       }
+
+      amount - remaining
     }
   }
 }
