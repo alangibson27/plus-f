@@ -485,7 +485,7 @@ public class JavaFXEmulator extends Application {
                     }
 
                     Platform.runLater(() -> {
-                        display.refresh(memoryForDisplay, flashActive);
+                        display.refresh(memoryForDisplay, flashActive, flashCycleCount == 0x10);
                         lastDisplayUpdate = System.currentTimeMillis();
                     });
                 }
@@ -493,7 +493,7 @@ public class JavaFXEmulator extends Application {
                 computer.singleCycle();
                 flashCycleCount--;
                 if (flashCycleCount < 0) {
-                    flashCycleCount = 16;
+                    flashCycleCount = 0x10;
                     flashActive = !flashActive;
                 }
             } finally {

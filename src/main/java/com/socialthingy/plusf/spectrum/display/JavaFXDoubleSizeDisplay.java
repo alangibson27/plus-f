@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.spectrum.display;
 
+import com.socialthingy.plusf.z80.Memory;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.ImageView;
@@ -88,10 +89,15 @@ public class JavaFXDoubleSizeDisplay extends Display {
         return display;
     }
 
-    public void refresh(final int[] memory, final boolean flashActive) {
-        super.draw(memory, flashActive, this::setPixel);
-        scale();
-        screenWriter.setPixels(0, 0, scaledWidth, scaledHeight, PixelFormat.getIntArgbInstance(), targetPixels, 0, scaledWidth);
+    public void refresh(final int[] memory, final boolean flashActive, final boolean flashChanged) {
+        if (Memory.screenChanged() || flashChanged) {
+            Memory.markScreenDrawn();
+            super.draw(memory, flashActive, this::setPixel);
+            scale();
+            screenWriter.setPixels(0, 0, scaledWidth, scaledHeight, PixelFormat.getIntArgbInstance(), targetPixels, 0, scaledWidth);
+            System.out.print("!");
+        }
+
         borderWriter.setPixels(0, 0, 1, DISPLAY_HEIGHT, PixelFormat.getIntArgbInstance(), borderLines, 0, 1);
     }
 
