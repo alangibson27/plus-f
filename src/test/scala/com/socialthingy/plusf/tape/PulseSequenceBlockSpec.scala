@@ -8,7 +8,7 @@ class PulseSequenceBlockSpec extends FlatSpec with TapeMatchers with Matchers {
   val pulseSequenceBlock = new PulseSequenceBlock(Array[Int](100, 75, 125))
 
   "a pulse sequence block" should "have the correct number of tones of the correct pulse length when the signal is initially low" in {
-    val bits = pulseSequenceBlock.bits(lowSignal).asScala.toList
+    val bits = pulseSequenceBlock.getBitList(lowSignal).iterator().asScala.toList
 
     val pulses = bits.splitInto(100, 75, 125)
 
@@ -19,7 +19,7 @@ class PulseSequenceBlockSpec extends FlatSpec with TapeMatchers with Matchers {
   }
 
   it should "have the correct number of tones of the correct pulse length when the signal is initially high" in {
-    val bits = pulseSequenceBlock.bits(highSignal).asScala.toList
+    val bits = pulseSequenceBlock.getBitList(highSignal).iterator().asScala.toList
 
     val pulses = bits.splitInto(100, 75, 125)
 
@@ -30,7 +30,7 @@ class PulseSequenceBlockSpec extends FlatSpec with TapeMatchers with Matchers {
   }
 
   it should "always start with a low signal, even if the signal before the block is high" in {
-    val bits = pulseSequenceBlock.bits(highSignal).asScala.take(1).toList
+    val bits = pulseSequenceBlock.getBitList(highSignal).iterator().asScala.take(1).toList
     bits.head shouldBe false
   }
 }

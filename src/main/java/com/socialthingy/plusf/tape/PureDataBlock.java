@@ -1,13 +1,12 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
+import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
-import java.util.Iterator;
 
 public class PureDataBlock extends TapeBlock {
 
@@ -59,24 +58,25 @@ public class PureDataBlock extends TapeBlock {
     }
 
     @Override
-    public Iterator<Boolean> bits(final SignalState signalState) {
-        final RepeatingList<Boolean> bits = new RepeatingList<>();
+    public RepList<Boolean> getBitList(SignalState signalState) {
+        final RepList<Boolean> bits = new RepList<>();
         for (int byteIdx = 0; byteIdx < data.length - 1; byteIdx++) {
             for (int bitIdx = 7; bitIdx >= 0; bitIdx--) {
-                bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(data[byteIdx], bitIdx)).getBits(signalState));
+                bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(data[byteIdx], bitIdx)).getBitList(signalState));
             }
         }
+
         final int finalByte = data[data.length - 1];
         for (int bitIdx = 7; bitIdx >= 8 - finalByteBitsUsed; bitIdx--) {
-            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(finalByte, bitIdx)).getBits(signalState));
+            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(finalByte, bitIdx)).getBitList(signalState));
         }
 
         if (!pauseLength.isZero()) {
-            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, FINAL_OPPOSITE_EDGE_PULSE).getBits(signalState));
-            bits.append(new PauseBlock(pauseLength).getBits(signalState));
+            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, FINAL_OPPOSITE_EDGE_PULSE).getBitList(signalState));
+            bits.append(new PauseBlock(pauseLength).getBitList(signalState));
         }
 
-        return bits.iterator();
+        return bits;
     }
 
     @Override

@@ -13,7 +13,7 @@ class PureToneBlockSpec extends FlatSpec with TapeMatchers with Matchers with In
     val singleTone = new PureToneBlock(5, 1)
 
     val signal = lowSignal
-    val bits = singleTone.bits(signal).asScala.toList
+    val bits = singleTone.getBitList(signal).iterator().asScala.toList
 
     bits should have length 5
     forAll(bits) { bit =>
@@ -35,14 +35,14 @@ class PureToneBlockSpec extends FlatSpec with TapeMatchers with Matchers with In
 
       val signal = new SignalState(startValue)
 
-      tripleTone.bits(signal).asScala.toList should have length (pulseCount * 5)
+      tripleTone.getBitList(signal).iterator().asScala.toList should have length (pulseCount * 5)
 
       signal.get shouldBe endValue
     }
   }
 
   "a pure tone block" should "have the correct number of tones of the correct pulse length when the signal is initially low" in {
-    val bits = pureToneBlock.bits(lowSignal).asScala.toList
+    val bits = pureToneBlock.getBitList(lowSignal).iterator().asScala.toList
 
     val pulses = bits.splitInto(100, 100)
 
@@ -53,12 +53,12 @@ class PureToneBlockSpec extends FlatSpec with TapeMatchers with Matchers with In
   }
 
   it should "always begin with a low pulse even if the signal state is high before the block begins" in {
-    val initialPulse = pureToneBlock.bits(highSignal).asScala.take(1).toList
+    val initialPulse = pureToneBlock.getBitList(highSignal).iterator().asScala.take(1).toList
     initialPulse.head shouldBe false
   }
 
   it should "have the correct number of tones of the correct pulse length when the signal is initially high" in {
-    val bits = pureToneBlock.bits(highSignal).asScala.toList
+    val bits = pureToneBlock.getBitList(highSignal).iterator().asScala.toList
 
     val pulses = bits.splitInto(100, 100)
 

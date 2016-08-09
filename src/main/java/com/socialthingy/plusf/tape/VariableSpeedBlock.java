@@ -1,13 +1,12 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.IteratorIterator;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
+import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
-import java.util.Iterator;
 
 public class VariableSpeedBlock extends TapeBlock {
 
@@ -120,15 +119,11 @@ public class VariableSpeedBlock extends TapeBlock {
     }
 
     @Override
-    public Iterator<Boolean> bits(SignalState signalState) {
-        final PureToneBlock pilot = new PureToneBlock(pilotPulseLength, pilotToneLength);
-        final PulseSequenceBlock pulseSequence = new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength});
-        final PureDataBlock pureData = new PureDataBlock(pauseLength, data, zeroPulseLength, onePulseLength, finalByteBitsUsed);
-        return new IteratorIterator<>(
-            pilot.bits(signalState),
-            pulseSequence.bits(signalState),
-            pureData.bits(signalState)
-        );
+    public RepList<Boolean> getBitList(SignalState signalState) {
+        final RepList<Boolean> bits = new PureToneBlock(pilotPulseLength, pilotToneLength).getBitList(signalState);
+        bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength}).getBitList(signalState));
+        bits.append(new PureDataBlock(pauseLength, data, zeroPulseLength, onePulseLength, finalByteBitsUsed).getBitList(signalState));
+        return bits;
     }
 
     @Override
