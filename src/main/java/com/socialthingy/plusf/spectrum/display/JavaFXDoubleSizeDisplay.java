@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum.display;
 
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
@@ -72,19 +73,15 @@ public class JavaFXDoubleSizeDisplay extends Display {
         this.scaledWidth = SCREEN_WIDTH * SCALE;
         this.scaledHeight = SCREEN_HEIGHT * SCALE;
 
-        final WritableImage screen = new WritableImage(scaledWidth, scaledHeight);
-        this.screenWriter = screen.getPixelWriter();
+        final Canvas screen = new Canvas(scaledWidth, scaledHeight);
+        this.screenWriter = screen.getGraphicsContext2D().getPixelWriter();
         this.targetPixels = new int[scaledWidth * scaledHeight];
 
         final ImageView borderImage = new ImageView(border);
         borderImage.setFitWidth(DISPLAY_WIDTH * SCALE);
         borderImage.setFitHeight(DISPLAY_HEIGHT * SCALE);
 
-        final ImageView screenImage = new ImageView(screen);
-        screenImage.setFitHeight(scaledHeight);
-        screenImage.setFitWidth(scaledWidth);
-
-        this.display = new StackPane(borderImage, screenImage);
+        this.display = new StackPane(borderImage, screen);
     }
 
     public Node getDisplay() {
