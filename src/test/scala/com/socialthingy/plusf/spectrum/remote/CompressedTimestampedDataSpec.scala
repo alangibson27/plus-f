@@ -4,7 +4,7 @@ import java.io.{InputStream, OutputStream}
 import java.util.function.{Consumer, Function => JFunction}
 
 import org.scalatest.{FlatSpec, Matchers}
-import org.apache.commons.lang3.tuple.{Pair => JPair}
+import javafx.util.{Pair => JPair}
 
 import scala.util.Random
 
@@ -24,8 +24,6 @@ class CompressedTimestampedDataSpec extends FlatSpec with Matchers {
     val input = new CompressedTimestampedData[EmulatorState](1L, new EmulatorState(screen, borderLines, true))
 
     val packet = input.toPacket(serialiser)
-
-    val bytesOut = packet.getData
     println(packet.getLength)
 
     val output = CompressedTimestampedData.from(packet, deserialiser)

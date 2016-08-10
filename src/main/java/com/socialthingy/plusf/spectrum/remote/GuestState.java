@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum.remote;
 
-import org.apache.commons.lang3.tuple.Pair;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;

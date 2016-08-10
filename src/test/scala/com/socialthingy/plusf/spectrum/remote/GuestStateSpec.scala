@@ -3,7 +3,7 @@ package com.socialthingy.plusf.spectrum.remote
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
 import org.scalatest.{FlatSpec, Matchers}
-import org.apache.commons.lang3.tuple.{Pair => JPair}
+import javafx.util.{Pair => JPair}
 
 class GuestStateSpec extends FlatSpec with Matchers {
 
@@ -11,7 +11,7 @@ class GuestStateSpec extends FlatSpec with Matchers {
     val input = new GuestState(1, 2, 3)
 
     val bytesOut = new ByteArrayOutputStream
-    GuestState.serialise(JPair.of(input, bytesOut))
+    GuestState.serialise(new JPair(input, bytesOut))
     val serialisedForm = bytesOut.toByteArray
 
     val bytesIn = new ByteArrayInputStream(serialisedForm)

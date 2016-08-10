@@ -2,7 +2,7 @@ package com.socialthingy.plusf.spectrum.remote
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
-import org.apache.commons.lang3.tuple.{Pair => JPair}
+import javafx.util.{Pair => JPair}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.Random
@@ -15,7 +15,7 @@ class SpectrumStateSpec extends FlatSpec with Matchers {
     val input = new EmulatorState(screen, borderLines, true)
 
     val bytesOut = new ByteArrayOutputStream
-    EmulatorState.serialise(JPair.of(input, bytesOut))
+    EmulatorState.serialise(new JPair(input, bytesOut))
     val serialisedForm = bytesOut.toByteArray
 
     val bytesIn = new ByteArrayInputStream(serialisedForm)

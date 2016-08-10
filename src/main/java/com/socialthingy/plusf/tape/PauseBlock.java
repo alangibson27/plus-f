@@ -1,13 +1,11 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
 import com.socialthingy.plusf.util.Try;
 import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
-import java.util.Iterator;
 
 public class PauseBlock extends TapeBlock {
 

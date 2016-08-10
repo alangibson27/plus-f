@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.tape;
 
-import com.socialthingy.plusf.RepeatingList;
+import com.socialthingy.replist.RepList;
 
 import java.time.Duration;
 
@@ -51,7 +51,7 @@ public class ReferenceVariableSpeedBlock {
         this.finalByteBitsUsed = finalByteBitsUsed;
     }
 
-    public boolean write(final RepeatingList<Boolean> tape, final boolean initialState) {
+    public boolean write(final RepList<Boolean> tape, final boolean initialState) {
         // pilot tone
         boolean state = false;
         for (int i = 0; i < pilotToneLength; i++) {

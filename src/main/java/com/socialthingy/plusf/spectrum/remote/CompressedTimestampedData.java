@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.remote;
 
 import com.google.common.primitives.Longs;
-import org.apache.commons.lang3.tuple.Pair;
+import javafx.util.Pair;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -73,7 +73,7 @@ public class CompressedTimestampedData<T> {
             try (final DeflaterOutputStream dos = new DeflaterOutputStream(bos)) {
                 dos.write(Longs.toByteArray(timestamp));
                 dos.write(Longs.toByteArray(systemTime));
-                serialiser.accept(Pair.of(data, dos));
+                serialiser.accept(new Pair<>(data, dos));
             }
             final byte[] serialised = bos.toByteArray();
             return new DatagramPacket(serialised, serialised.length);

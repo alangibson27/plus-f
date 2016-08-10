@@ -3,7 +3,7 @@ package com.socialthingy.plusf.tape
 import java.lang.{Boolean => JBoolean}
 import java.time.Duration
 
-import com.socialthingy.plusf.RepeatingList
+import com.socialthingy.replist.RepList
 import org.scalatest.{FlatSpec, Matchers}
 
 class VariableSpeedBlockSpec extends FlatSpec with Matchers with TapeMatchers {
@@ -24,7 +24,7 @@ class VariableSpeedBlockSpec extends FlatSpec with Matchers with TapeMatchers {
   private def checkSameContent(variableSpeedBlock: VariableSpeedBlock, referenceBlock: ReferenceVariableSpeedBlock): Unit = {
     val newBits = variableSpeedBlock.getBitList(new SignalState(false)).iterator()
 
-    val referenceTape = new RepeatingList[JBoolean]()
+    val referenceTape = new RepList[JBoolean]()
     referenceBlock.write(referenceTape, false)
     val referenceBits = referenceTape.iterator()
 

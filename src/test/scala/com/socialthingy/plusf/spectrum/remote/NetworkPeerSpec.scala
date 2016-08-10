@@ -5,7 +5,6 @@ import java.net.{DatagramPacket, DatagramSocket}
 import java.util.concurrent.atomic.AtomicLong
 import java.util.function.{Consumer, Supplier}
 
-import org.apache.commons.lang3.tuple.Pair
 import org.scalatest.concurrent.Eventually
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
@@ -15,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.{implicitConversions, postfixOps}
-import org.apache.commons.lang3.tuple.{Pair => JPair}
+import javafx.util.{Pair => JPair}
 import java.util.function.{Function => JFunction}
 
 class NetworkPeerSpec extends FlatSpec
@@ -175,7 +174,7 @@ class NetworkPeerSpec extends FlatSpec
 
 object TestData {
   val serialiser = new Consumer[JPair[TestData, OutputStream]] {
-    override def accept(t: Pair[TestData, OutputStream]): Unit = {
+    override def accept(t: JPair[TestData, OutputStream]): Unit = {
       t.getValue.write(t.getKey.text.getBytes)
     }
   }

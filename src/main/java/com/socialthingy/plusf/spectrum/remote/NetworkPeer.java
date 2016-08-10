@@ -2,7 +2,7 @@ package com.socialthingy.plusf.spectrum.remote;
 
 import com.codahale.metrics.*;
 import javafx.scene.paint.Color;
-import org.apache.commons.lang3.tuple.Pair;
+import javafx.util.Pair;
 
 import java.io.*;
 import java.net.DatagramPacket;

@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 
-import org.apache.commons.lang3.tuple.{Pair => JPair}
+import javafx.util.{Pair => JPair}
 
 class NetworkPeerIntegrationSpec extends FlatSpec with Matchers with Eventually with BeforeAndAfter {
 
