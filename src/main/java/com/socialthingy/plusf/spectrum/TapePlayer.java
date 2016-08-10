@@ -3,6 +3,7 @@ package com.socialthingy.plusf.spectrum;
 import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.replist.SkippableIterator;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.controlsfx.control.Notifications;
 
@@ -104,6 +105,7 @@ public class TapePlayer implements Iterator<Boolean> {
                 return hasNext();
             }
         } else {
+            Platform.runLater(() -> Notifications.create().title("Tape").text("End of tape reached").showInformation());
             stop();
             return false;
         }
