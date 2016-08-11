@@ -13,6 +13,7 @@ import com.socialthingy.plusf.spectrum.io.SinglePortIO;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.*;
 import com.socialthingy.plusf.tape.*;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -109,24 +110,25 @@ public class JavaFXEmulator extends Application {
     }
 
     private void newComputer() throws IOException {
+        final Model model = Model._48K;
         ioMux = new IOMultiplexer();
-        memory = new int[0x10000];
+        memory = Memory.configure(model);
         keyboard = new JavaFXKeyboard();
-        ula = new ULA(display, keyboard, tapePlayer);
+        ula = new ULA(display, keyboard, tapePlayer, memory);
         computer = new Computer(
             new Processor(memory, ioMux),
             ula,
             memory,
-            new Timings(50, 60, 3500000),
+            model,
             metricRegistry
         );
         guestKempstonJoystick = new SinglePortIO(0x1f);
 
         ioMux.register(0xfe, ula);
+        if (model.ramPageCount > 1) {
+            ioMux.register(0xfd, ula);
+        }
         ioMux.register(0x1f, guestKempstonJoystick);
-
-        final String romFile = getParameters().getRaw().get(0);
-        computer.loadRom(romFile);
     }
 
     @Override

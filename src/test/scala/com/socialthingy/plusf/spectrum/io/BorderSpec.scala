@@ -88,7 +88,7 @@ class BorderSpec extends FlatSpec with Matchers with Inspectors with MockitoSuga
   trait TestComputer {
     val BLACK: SpectrumColourId = 0
     val display = new Display(TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT)
-    val ula = new ULA(display, new Keyboard(), new TapePlayer())
+    val ula = new ULA(display, new Keyboard(), new TapePlayer(), Array.ofDim[Int](0x10000))
 
     def atClockCycle(clockCycle: Int)(state: => Unit) = {
       ula.newCycle()

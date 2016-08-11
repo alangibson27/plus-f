@@ -33,13 +33,13 @@ public class Computer implements InterruptingDevice {
         final Processor processor,
         final ULA ula,
         final int[] memory,
-        final Timings timings,
+        final Model model,
         final MetricRegistry metricRegistry
     ) {
         this.memory = memory;
         this.processor = processor;
         this.metricRegistry = metricRegistry;
-        this.tstatesPerRefresh = timings.getTstatesPerRefresh();
+        this.tstatesPerRefresh = model.tstatesPerRefresh;
         this.ula = ula;
 
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
@@ -67,15 +67,6 @@ public class Computer implements InterruptingDevice {
 
     public Processor getProcessor() {
         return processor;
-    }
-
-    public void loadRom(final String romFile) throws IOException {
-        try (final FileInputStream fis = new FileInputStream(romFile)) {
-            int addr = 0;
-            for (int next = fis.read(); next != -1; next = fis.read()) {
-                memory[addr++] = next;
-            }
-        }
     }
 
     public int loadSnapshot(final File snapshotFile) throws IOException {
