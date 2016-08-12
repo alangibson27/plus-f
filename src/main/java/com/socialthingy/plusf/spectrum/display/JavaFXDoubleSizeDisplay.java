@@ -92,7 +92,7 @@ public class JavaFXDoubleSizeDisplay extends Display {
     public boolean render(final int[] memory, final boolean flashActive, final boolean flashChanged) {
         if (Memory.screenChanged() || flashChanged) {
             Memory.markScreenDrawn();
-            super.draw(memory, flashActive, this::setPixel);
+            super.draw(Memory.getScreenBytes(memory), flashActive, this::setPixel);
             scale();
             return true;
         } else {
