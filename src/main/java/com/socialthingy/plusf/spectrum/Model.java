@@ -1,9 +1,10 @@
 package com.socialthingy.plusf.spectrum;
 
 public enum Model {
-    _48K(69888, "/48.rom"),
-    PLUS_2(70908, 8, 5, 2, 0, "/plus2-0.rom", "/plus2-1.rom");
+    _48K("48K", 69888, "/48.rom"),
+    PLUS_2("+2", 70908, 8, 5, 2, 0, "/plus2-0.rom", "/plus2-1.rom");
 
+    public final String displayName;
     public final int tstatesPerRefresh;
     public final int ramPageCount;
     public final int screenPage;
@@ -12,6 +13,7 @@ public enum Model {
     public final String[] romFileNames;
 
     Model(
+        final String displayName,
         final int tstatesPerRefresh,
         final int ramPageCount,
         final int screenPage,
@@ -19,6 +21,7 @@ public enum Model {
         final int highPage,
         final String ... romFileNames
     ) {
+        this.displayName = displayName;
         this.tstatesPerRefresh = tstatesPerRefresh;
         this.ramPageCount = ramPageCount;
         this.screenPage = screenPage;
@@ -27,7 +30,8 @@ public enum Model {
         this.romFileNames = romFileNames;
     }
 
-    Model(final int tstatesPerRefresh, final String romFileName) {
+    Model(final String displayName, final int tstatesPerRefresh, final String romFileName) {
+        this.displayName = displayName;
         this.tstatesPerRefresh = tstatesPerRefresh;
         this.romFileNames = new String[] {romFileName};
         this.ramPageCount = 0;

@@ -66,6 +66,7 @@ public class JavaFXEmulator extends Application {
     private ScheduledExecutorService cycleTimer = Executors.newSingleThreadScheduledExecutor();
     private SingleCycle singleCycle;
     private ScheduledFuture<?> cycleLoop;
+    private Model currentModel = Model._48K;
     private ULA ula;
     private Computer computer;
     private JavaFXKeyboard keyboard;
@@ -110,22 +111,21 @@ public class JavaFXEmulator extends Application {
     }
 
     private void newComputer() throws IOException {
-        final Model model = Model._48K;
         ioMux = new IOMultiplexer();
-        memory = Memory.configure(model);
+        memory = Memory.configure(currentModel);
         keyboard = new JavaFXKeyboard();
         ula = new ULA(display, keyboard, tapePlayer, memory);
         computer = new Computer(
             new Processor(memory, ioMux),
             ula,
             memory,
-            model,
+            currentModel,
             metricRegistry
         );
         guestKempstonJoystick = new SinglePortIO(0x1f);
 
         ioMux.register(0xfe, ula);
-        if (model.ramPageCount > 1) {
+        if (currentModel.ramPageCount > 1) {
             ioMux.register(0xfd, ula);
         }
         ioMux.register(0x1f, guestKempstonJoystick);
@@ -238,6 +238,22 @@ public class JavaFXEmulator extends Application {
 
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
+
+        final Menu modelSubMenu = new Menu("Model");
+        final ToggleGroup modelGroup = new ToggleGroup();
+        for (Model availableModel: Model.values()) {
+            final RadioMenuItem item = new RadioMenuItem(availableModel.displayName);
+            item.setOnAction(ae -> {
+                if (currentModel != availableModel) {
+                    changeModel(availableModel);
+                }
+            });
+            item.setToggleGroup(modelGroup);
+            item.setSelected(availableModel == currentModel);
+            modelSubMenu.getItems().add(item);
+        }
+
+        computerMenu.getItems().add(modelSubMenu);
 
         final Menu speedSubMenu = new Menu("Speed");
         final ToggleGroup speedGroup = new ToggleGroup();
@@ -391,6 +407,28 @@ public class JavaFXEmulator extends Application {
         });
     }
 
+    private void changeModel(final Model newModel) {
+        withComputerPaused(() -> {
+            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Change Model?");
+            alert.setHeaderText("This will reset the computer. Do you want to continue?");
+            alert.getDialogPane().getChildren().stream()
+                    .filter(node -> node instanceof Label)
+                    .forEach(node -> ((Label) node).setMinHeight(Region.USE_PREF_SIZE));
+            final Optional<ButtonType> clicked = alert.showAndWait();
+            clicked.ifPresent(bt -> {
+                if (bt == ButtonType.OK) {
+                    try {
+                        currentModel = newModel;
+                        newComputer();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        });
+    }
+
     private void savePrefs() {
         try (final FileWriter fw = new FileWriter(prefsFile)) {
             userPrefs.store(fw, "Plus-F user preferences");
@@ -471,7 +509,7 @@ public class JavaFXEmulator extends Application {
         private long lastDisplayUpdate = 0;
 
         private boolean shouldUpdateDisplay() {
-            return speed != EmulatorSpeed.TURBO || (System.currentTimeMillis() - lastDisplayUpdate) >= 40;
+            return speed != EmulatorSpeed.TURBO || (System.currentTimeMillis() - lastDisplayUpdate) >= 200;
         }
 
         @Override

@@ -110,24 +110,27 @@ public class Memory {
             if (memory[addr] != value) {
                 memory[addr] = value;
 
-                if (currentModel == Model._48K) {
-                    screenChanged = screenChanged || addr >= 0x4000 && addr < 0x5b00;
-                } else {
-                    switch (page) {
-                        case 1:
-                            screenChanged = screenChanged || (screenPage == 5 && addr >= 0x4000 && addr < 0x5b00);
-                            if (highPage == 5) {
-                                memory[addr + 0x8000] = value;
-                            }
-                            break;
+                switch (currentModel) {
+                    case _48K:
+                        screenChanged = screenChanged || addr >= 0x4000 && addr < 0x5b00;
+                        break;
 
-                        case 3:
-                            screenChanged = screenChanged || (screenPage == highPage && addr >= 0xc000 && addr < 0xdb00);
-                            if (highPage == 5) {
-                                memory[addr - 0x8000] = value;
-                            }
-                            break;
-                    }
+                    case PLUS_2:
+                        switch (page) {
+                            case 1:
+                                screenChanged = screenChanged || (screenPage == 5 && addr >= 0x4000 && addr < 0x5b00);
+                                if (highPage == 5) {
+                                    memory[addr + 0x8000] = value;
+                                }
+                                break;
+
+                            case 3:
+                                screenChanged = screenChanged || (screenPage == highPage && addr >= 0xc000 && addr < 0xdb00);
+                                if (highPage == 5) {
+                                    memory[addr - 0x8000] = value;
+                                }
+                                break;
+                        }
                 }
             }
         }
