@@ -37,14 +37,14 @@ public class ULA implements IO {
         }
 
         if (port == 0xfd && accumulator == 0x7f && !pagingDisabled) {
-            final int newHighPage = value & 0b111;
-            final int newScreenPage = (value & 0b1000) == 0 ? 5 : 7;
-            final int newRomPage = (value & 0b10000) == 0 ? 0 : 1;
+            final int newHighPage = value & 0b00000111;
+            final int newScreenPage = (value & 0b00001000) == 0 ? 5 : 7;
+            final int newRomPage = (value & 0b00010000) == 0 ? 0 : 1;
             Memory.setHighPage(memory, newHighPage);
             Memory.setScreenPage(newScreenPage);
             Memory.setRomPage(memory, newRomPage);
 
-            pagingDisabled = (value & 0b100000) != 0;
+            pagingDisabled = (value & 0b00100000) != 0;
         }
     }
 

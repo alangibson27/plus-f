@@ -15,7 +15,6 @@
             <directory>src/assembly</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>48.rom</include>
                 <include>emulator.sh</include>
                 <include>emulator.exe</include>
                 <include>emulator.ini</include>

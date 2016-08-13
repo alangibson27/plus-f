@@ -34,7 +34,6 @@ import java.io.*;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.time.Instant;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Properties;
@@ -51,6 +50,7 @@ import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXEmulator extends Application {
     private static final String PREF_LAST_SNAPSHOT_DIRECTORY = "last-snapshot-directory";
+    private static final String PREF_MODEL = "initial-model";
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
     private static final int LOCAL_PORT = Settings.COMPUTER_PORT;
 
@@ -106,6 +106,14 @@ public class JavaFXEmulator extends Application {
                 System.out.println(
                         String.format("Unable to read preferences file %s. Saved preferences will not be used.", prefsFile.getAbsolutePath())
                 );
+            }
+        }
+
+        if (userPrefs.containsKey(PREF_MODEL)) {
+            try {
+                currentModel = Model.valueOf(userPrefs.getProperty(PREF_MODEL));
+            } catch (IllegalArgumentException e) {
+                currentModel = Model._48K;
             }
         }
     }
@@ -420,6 +428,8 @@ public class JavaFXEmulator extends Application {
                 if (bt == ButtonType.OK) {
                     try {
                         currentModel = newModel;
+                        userPrefs.setProperty(PREF_MODEL, currentModel.name());
+                        savePrefs();
                         newComputer();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -509,7 +519,7 @@ public class JavaFXEmulator extends Application {
         private long lastDisplayUpdate = 0;
 
         private boolean shouldUpdateDisplay() {
-            return speed != EmulatorSpeed.TURBO || (System.currentTimeMillis() - lastDisplayUpdate) >= 200;
+            return speed != EmulatorSpeed.TURBO || (System.currentTimeMillis() - lastDisplayUpdate) >= 40;
         }
 
         @Override

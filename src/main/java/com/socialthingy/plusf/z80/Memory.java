@@ -6,6 +6,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Memory {
+
+    private static final int PAGE_SIZE = 0x4000;
+    private static final int DISPLAY_SIZE = 0x1b00;
+
+    private static final int ROM_PAGE = 0;
+    private static final int SCREEN_PAGE = 1;
+    private static final int MIDDLE_PAGE = 2;
+    private static final int HIGH_PAGE = 3;
+
     private Memory() {}
 
     private static Model currentModel;
@@ -14,7 +23,7 @@ public class Memory {
 
     private static int[][] romPages;
     private static int[][] ramPages;
-    private static int[] swapPage = new int[0x4000];
+    private static int[] swapPage = new int[PAGE_SIZE];
     private static int[] displayMemory = new int[0x10000];
 
     private static int romPage;
@@ -32,7 +41,7 @@ public class Memory {
 
         ramPages = new int[model.ramPageCount][];
         for (int i = 0; i < model.ramPageCount; i++) {
-            ramPages[i] = new int[0x4000];
+            ramPages[i] = new int[PAGE_SIZE];
         }
 
         romPage = 0;
@@ -41,13 +50,13 @@ public class Memory {
         highPage = model.highPage;
         currentModel = model;
 
-        System.arraycopy(romPages[0], 0, addressableMemory, 0, 0x4000);
+        copyPageIntoMemory(addressableMemory, romPages[0], ROM_PAGE);
         return addressableMemory;
     }
 
     private static final int[] readRom(final String romFileName) throws IOException {
         try (final InputStream is = Memory.class.getResourceAsStream(romFileName)) {
-            final int[] rom = new int[0x4000];
+            final int[] rom = new int[PAGE_SIZE];
             int i = 0;
             for (int next = is.read(); next != -1; next = is.read()) {
                 rom[i++] = next;
@@ -58,9 +67,9 @@ public class Memory {
 
     public static void setRomPage(final int[] memory, final int newRomPage) {
         if (romPage != newRomPage) {
-            System.arraycopy(memory, 0x0000, swapPage, 0, 0x4000);
-            System.arraycopy(romPages[newRomPage], 0x0000, memory, 0x0000, 0x4000);
-            System.arraycopy(swapPage, 0x0000, romPages[romPage], 0x0000, 0x4000);
+            copyMemoryIntoPage(memory, swapPage, 0);
+            copyPageIntoMemory(memory, romPages[newRomPage], 0);
+            copyPageIntoPage(swapPage, romPages[romPage]);
 
             romPage = newRomPage;
         }
@@ -79,12 +88,29 @@ public class Memory {
 
     public static void setHighPage(final int[] memory, final int newHighPage) {
         if (highPage != newHighPage) {
-            System.arraycopy(memory, 0xc000, swapPage, 0, 0x4000);
-            System.arraycopy(ramPages[newHighPage], 0x0000, memory, 0xc000, 0x4000);
-            System.arraycopy(swapPage, 0x0000, ramPages[highPage], 0x0000, 0x4000);
+            if (newHighPage == 2) {
+                copyMemoryIntoPage(memory, ramPages[2], MIDDLE_PAGE);
+            } else if (newHighPage == 5) {
+                copyMemoryIntoPage(memory, ramPages[5], SCREEN_PAGE);
+            }
+            copyMemoryIntoPage(memory, swapPage, HIGH_PAGE);
+            copyPageIntoMemory(memory, ramPages[newHighPage], HIGH_PAGE);
+            copyPageIntoPage(swapPage, ramPages[highPage]);
 
             highPage = newHighPage;
         }
+    }
+
+    private static void copyPageIntoMemory(final int[] memory, final int[] sourcePage, final int page) {
+        System.arraycopy(sourcePage, 0x0000, memory, page * PAGE_SIZE, PAGE_SIZE);
+    }
+
+    private static void copyMemoryIntoPage(final int[] memory, final int[] targetPage, final int page) {
+        System.arraycopy(memory, page * PAGE_SIZE, targetPage, 0x0000, PAGE_SIZE);
+    }
+
+    private static void copyPageIntoPage(final int[] sourcePage, final int[] targetPage) {
+        System.arraycopy(sourcePage, 0x0000, targetPage, 0x0000, PAGE_SIZE);
     }
 
     public static void disableMemoryProtection() {
@@ -96,15 +122,18 @@ public class Memory {
             return memory;
         } else {
             if (highPage == 7) {
-                System.arraycopy(memory, 0xc000, displayMemory, 0x4000, 0x1b00);
+                System.arraycopy(memory, HIGH_PAGE * PAGE_SIZE, displayMemory, SCREEN_PAGE * PAGE_SIZE, DISPLAY_SIZE);
             } else {
-                System.arraycopy(ramPages[7], 0x0000, displayMemory, 0x4000, 0x1b00);
+                System.arraycopy(ramPages[7], 0x0000, displayMemory, SCREEN_PAGE * PAGE_SIZE, DISPLAY_SIZE);
             }
             return displayMemory;
         }
     }
 
     public static void set(final int[] memory, final int addr, final int value) {
+        if (addr >= 15616 && addr < 16384) {
+            System.out.println("Break!");
+        }
         final int page = addr >> 14;
         if (!memoryProtectionEnabled || page > 0) {
             if (memory[addr] != value) {
@@ -112,21 +141,28 @@ public class Memory {
 
                 switch (currentModel) {
                     case _48K:
-                        screenChanged = screenChanged || addr >= 0x4000 && addr < 0x5b00;
+                        screenChanged = screenChanged || addr >= PAGE_SIZE && addr < 0x5b00;
                         break;
 
                     case PLUS_2:
                         switch (page) {
                             case 1:
-                                screenChanged = screenChanged || (screenPage == 5 && addr >= 0x4000 && addr < 0x5b00);
+                                screenChanged = screenChanged || (screenPage == 5 && addr >= PAGE_SIZE && addr < 0x5b00);
                                 if (highPage == 5) {
                                     memory[addr + 0x8000] = value;
                                 }
                                 break;
 
+                            case 2:
+                                if (highPage == 2) {
+                                    memory[addr + PAGE_SIZE] = value;
+                                }
+
                             case 3:
-                                screenChanged = screenChanged || (screenPage == highPage && addr >= 0xc000 && addr < 0xdb00);
-                                if (highPage == 5) {
+                                screenChanged = screenChanged || (screenPage == highPage && addr >= HIGH_PAGE && addr < 0xdb00);
+                                if (highPage == 2) {
+                                    memory[addr - PAGE_SIZE] = value;
+                                } else if (highPage == 5) {
                                     memory[addr - 0x8000] = value;
                                 }
                                 break;
