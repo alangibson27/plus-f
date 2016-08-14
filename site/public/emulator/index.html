@@ -34,14 +34,7 @@
 
 
 
-<p>The Plus-F Emulator is a program that emulates a ZX Spectrum, with the following features:</p>
-
-<ul>
-<li>Emulates a 48k Spectrum</li>
-<li>Loads from TAP, Z80 and TZX files (TAP is the most reliable)</li>
-<li>No sound support</li>
-<li>Emulation timing is not 100% accurate with respect to a &ldquo;real&rdquo; Spectrum</li>
-</ul>
+<p>The Plus-F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&rsquo;t expect programs which generate &ldquo;rainbow&rdquo; effects to work properly.</p>
 
 <h2 id="so-where-is-the-symbol-shift-key:11cce0584e53f34ef8f2f9d832f5cf58">So where is the symbol shift key?</h2>
 
@@ -54,7 +47,7 @@
 <h3 id="file-menu:11cce0584e53f34ef8f2f9d832f5cf58">File menu</h3>
 
 <ul>
-<li><p>Open: Open a TAP, Z80 or TZX file.</p>
+<li><p>Open: Open a TAP, TZX or Z80 file.</p>
 
 <p>Z80 files will start automatically. To load from a TAP or TZX file, type LOAD &ldquo;&rdquo; (key J then symbol shift+P twice) in
 Spectrum BASIC, and then choose Play from the Tape menu.</p></li>
@@ -66,6 +59,16 @@ Spectrum BASIC, and then choose Play from the Tape menu.</p></li>
 
 <ul>
 <li>Reset: Reset the Emulator (just like pulling the plug out and putting it back in again).</li>
+<li>Host Joystick: Select this option to emulate a Sinclair 1 joystick through the keyboard. Controls are not redefinable and are fixed to the conventional ones below:
+
+<ul>
+<li>Q: Up</li>
+<li>A: Down</li>
+<li>O: Left</li>
+<li>P: Right</li>
+<li>M: Fire</li>
+</ul></li>
+<li>Model: Choose the model of Spectrum to emulate, either 48k or +2. Changing the model will reset the Emulator.</li>
 <li>Speed: Choose the speed the Emulator runs at:
 
 <ul>
@@ -96,5 +99,5 @@ green to indicate when the tape is playing.</p>
 
 
 </div>
-</body>
+<script data-no-instant>document.write('<script src="/livereload.js?mindelay=10"></' + 'script>')</script></body>
 </html>
