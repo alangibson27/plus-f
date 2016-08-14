@@ -3,7 +3,7 @@ package com.socialthingy.plusf.spectrum;
 import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
-import com.socialthingy.plusf.spectrum.input.KempstonJoystick;
+import com.socialthingy.plusf.spectrum.input.JavaFXJoystick;
 import com.socialthingy.plusf.spectrum.remote.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -26,7 +26,6 @@ import static com.socialthingy.plusf.spectrum.UIBuilder.buildUI;
 import static com.socialthingy.plusf.spectrum.UIBuilder.installStatusLabelUpdater;
 import static com.socialthingy.plusf.spectrum.UIBuilder.registerMenuItem;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
-import static com.socialthingy.plusf.spectrum.remote.GuestState.ABSENT;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXGuest extends Application {
@@ -38,7 +37,7 @@ public class JavaFXGuest extends Application {
     private MenuItem disconnectItem;
     private Optional<NetworkPeer<EmulatorState, GuestState>> guestRelay = Optional.empty();
     private final int[] memory = new int[0x10000];
-    private final KempstonJoystick kempstonJoystick = new KempstonJoystick();
+    private final JavaFXJoystick javaFXJoystick = new JavaFXJoystick();
     private EmulatorState lastHostData;
     private final AtomicLong timestamper = new AtomicLong(0);
     private DatagramSocket socket;
@@ -90,7 +89,7 @@ public class JavaFXGuest extends Application {
 
                 if (count % 5 == 0) {
                     guestRelay.ifPresent(g ->
-                            g.sendDataToPartner(new GuestState(0x1f, ABSENT, kempstonJoystick.getPortValue()))
+                        g.sendDataToPartner(new GuestState(GuestStateType.JOYSTICK_STATE.ordinal(), javaFXJoystick.serialise()))
                     );
                 }
 
@@ -110,10 +109,12 @@ public class JavaFXGuest extends Application {
     }
 
     private void handleKeypress(final KeyEvent ke) {
-        kempstonJoystick.handle(ke);
-        guestRelay.ifPresent(g ->
-            g.sendDataToPartner(new GuestState(0x1f, ABSENT, kempstonJoystick.getPortValue()))
-        );
+        javaFXJoystick.handle(ke);
+        if (ke.isConsumed()) {
+            guestRelay.ifPresent(g ->
+                g.sendDataToPartner(new GuestState(GuestStateType.JOYSTICK_STATE.ordinal(), javaFXJoystick.serialise()))
+            );
+        }
     }
 
     private MenuBar getMenuBar() {

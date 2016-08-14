@@ -8,7 +8,7 @@ import javafx.util.{Pair => JPair}
 class GuestStateSpec extends FlatSpec with Matchers {
 
   "GuestState" should "serialise and deserialise correctly" in {
-    val input = new GuestState(1, 2, 3)
+    val input = new GuestState(1, 2)
 
     val bytesOut = new ByteArrayOutputStream
     GuestState.serialise(new JPair(input, bytesOut))
@@ -17,9 +17,8 @@ class GuestStateSpec extends FlatSpec with Matchers {
     val bytesIn = new ByteArrayInputStream(serialisedForm)
     val output = GuestState.deserialise(bytesIn)
 
-    output.getPort shouldBe input.getPort
-    output.getAccumulator shouldBe input.getAccumulator
-    output.getValue shouldBe input.getValue
+    output.getEventType shouldBe input.getEventType
+    output.getEventValue shouldBe input.getEventValue
   }
 
 }
