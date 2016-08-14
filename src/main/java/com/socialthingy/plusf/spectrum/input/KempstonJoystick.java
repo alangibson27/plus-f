@@ -40,6 +40,7 @@ public class KempstonJoystick implements EventHandler<KeyEvent> {
     public void handle(final KeyEvent event) {
         final Button pressed = buttonKeyAssignments.get(event.getCode());
         if (pressed != null) {
+            event.consume();
             if (event.getEventType() == KeyEvent.KEY_PRESSED) {
                 buttonsActive.add(pressed);
             } else if (event.getEventType() == KeyEvent.KEY_RELEASED) {

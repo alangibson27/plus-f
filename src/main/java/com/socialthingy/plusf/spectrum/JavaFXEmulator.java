@@ -8,15 +8,19 @@ import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.Icons;
 import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
 import com.socialthingy.plusf.spectrum.input.JavaFXKeyboard;
+import com.socialthingy.plusf.spectrum.input.KempstonJoystick;
+import com.socialthingy.plusf.spectrum.input.KeyEventDelegate;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
-import com.socialthingy.plusf.spectrum.io.SinglePortIO;
+import com.socialthingy.plusf.spectrum.io.SettableIOPort;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.remote.*;
 import com.socialthingy.plusf.tape.*;
+import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -78,7 +82,10 @@ public class JavaFXEmulator extends Application {
     private MenuItem rewindTapeToStartItem;
     private Optional<NetworkPeer<GuestState, EmulatorState>> hostRelay = Optional.empty();
     private DatagramSocket socket;
-    private SinglePortIO guestKempstonJoystick;
+    private SettableIOPort guestKempstonJoystick;
+    private HostKempstonJoystick hostKempstonJoystick;
+    private KeyEventDelegate keyboardDelegate;
+    private BooleanProperty hostKempstonJoystickEnabled;
     private TapePlayer tapePlayer;
 
     private Stage primaryStage;
@@ -122,6 +129,8 @@ public class JavaFXEmulator extends Application {
         ioMux = new IOMultiplexer();
         memory = Memory.configure(currentModel);
         keyboard = new JavaFXKeyboard();
+        hostKempstonJoystick = new HostKempstonJoystick();
+        keyboardDelegate = new KeyEventDelegate(keyboard, hostKempstonJoystick);
         ula = new ULA(display, keyboard, tapePlayer, memory);
         computer = new Computer(
             new Processor(memory, ioMux),
@@ -130,13 +139,12 @@ public class JavaFXEmulator extends Application {
             currentModel,
             metricRegistry
         );
-        guestKempstonJoystick = new SinglePortIO(0x1f);
+        guestKempstonJoystick = new SettableIOPort(0x1f);
 
         ioMux.register(0xfe, ula);
         if (currentModel.ramPageCount > 1) {
             ioMux.register(0xfd, ula);
         }
-        ioMux.register(0x1f, guestKempstonJoystick);
     }
 
     @Override
@@ -167,8 +175,9 @@ public class JavaFXEmulator extends Application {
                 e.consume();
             }
         });
-        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboard.handle(e));
-        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboard.handle(e));
+
+        primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> keyboardDelegate.handle(e));
+        primaryStage.addEventHandler(KeyEvent.KEY_RELEASED, e -> keyboardDelegate.handle(e));
 
         final MenuBar menuBar = getMenuBar();
         final HBox tapeControls = TapeControls.getTapeControls(
@@ -247,6 +256,14 @@ public class JavaFXEmulator extends Application {
         final Menu computerMenu = new Menu("Computer");
         registerMenuItem(computerMenu, "Reset", Optional.of(R), this::resetComputer);
 
+        final CheckMenuItem kempstonItem = registerCheckMenuItem(
+            computerMenu,
+            "Kempston joystick emulation",
+            Optional.of(K),
+            ae -> selectCorrectJoystick()
+        );
+        hostKempstonJoystickEnabled = kempstonItem.selectedProperty();
+
         final Menu modelSubMenu = new Menu("Model");
         final ToggleGroup modelGroup = new ToggleGroup();
         for (Model availableModel: Model.values()) {
@@ -303,6 +320,16 @@ public class JavaFXEmulator extends Application {
         return menuBar;
     }
 
+    private void selectCorrectJoystick() {
+        if (hostRelay.isPresent()) {
+            ioMux.register(0x1f, guestKempstonJoystick);
+        } else if (hostKempstonJoystickEnabled.get()) {
+            ioMux.register(0x1f, hostKempstonJoystick);
+        } else {
+            ioMux.unregister(0x1f);
+        }
+    }
+
     private void playTape(final Event ae) {
         tapePlayer.play();
     }
@@ -328,7 +355,10 @@ public class JavaFXEmulator extends Application {
                         computerAddress,
                         "Connecting to guest ... please wait",
                         "Connecting to Guest",
-                        addr -> hostRelay = relayTo(addr)
+                        addr -> {
+                            hostRelay = relayTo(addr);
+                            selectCorrectJoystick();
+                        }
                 );
             } catch (SocketException e) {
                 ErrorDialog.show(
@@ -391,6 +421,7 @@ public class JavaFXEmulator extends Application {
             hostRelay = Optional.empty();
             easyConnectItem.setDisable(false);
             disconnectItem.setDisable(true);
+            selectCorrectJoystick();
         });
     }
 
@@ -555,6 +586,27 @@ public class JavaFXEmulator extends Application {
                     timer.stop();
                 }
             } while (speed == EmulatorSpeed.TURBO);
+        }
+    }
+
+    private class HostKempstonJoystick extends KempstonJoystick implements IO {
+        @Override
+        public void handle(final KeyEvent event) {
+            if (hostKempstonJoystickEnabled.get()) {
+                super.handle(event);
+            }
+        }
+
+        @Override
+        public int read(int port, int accumulator) {
+            if (port == 0x1f) {
+                return getPortValue();
+            }
+            return 0;
+        }
+
+        @Override
+        public void write(int port, int accumulator, int value) {
         }
     }
 }

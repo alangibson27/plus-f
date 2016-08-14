@@ -2,11 +2,11 @@ package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.z80.IO;
 
-public class SinglePortIO implements IO {
+public class SettableIOPort implements IO {
     private final int port;
     private int value = 0;
 
-    public SinglePortIO(final int port) {
+    public SettableIOPort(final int port) {
         this.port = port;
     }
 
@@ -15,11 +15,11 @@ public class SinglePortIO implements IO {
     }
 
     @Override
-    public int read(int port, int accumulator) {
+    public int read(final int port, final int accumulator) {
         return port == this.port ? value : 0;
     }
 
     @Override
-    public void write(int port, int accumulator, int value) {
+    public void write(final int port, final int accumulator, final int value) {
     }
 }

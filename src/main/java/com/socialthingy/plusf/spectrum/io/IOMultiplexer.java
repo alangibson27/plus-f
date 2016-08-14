@@ -9,6 +9,10 @@ public class IOMultiplexer implements IO {
         devices[port] = device;
     }
 
+    public void unregister(final int port) {
+        devices[port] = null;
+    }
+
     @Override
     public int read(int port, int accumulator) {
         if (devices[port] != null) {

@@ -7,10 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -56,6 +53,21 @@ public class UIBuilder {
         item.setOnAction(action);
         accelerator.ifPresent(a ->
             item.setAccelerator(new KeyCodeCombination(a, KeyCombination.ALT_DOWN))
+        );
+        menu.getItems().add(item);
+        return item;
+    }
+
+    public static CheckMenuItem registerCheckMenuItem(
+        final Menu menu,
+        final String name,
+        final Optional<KeyCode> accelerator,
+        final EventHandler<ActionEvent> action
+    ) {
+        final CheckMenuItem item = new CheckMenuItem(name);
+        item.setOnAction(action);
+        accelerator.ifPresent(a ->
+                item.setAccelerator(new KeyCodeCombination(a, KeyCombination.ALT_DOWN))
         );
         menu.getItems().add(item);
         return item;
