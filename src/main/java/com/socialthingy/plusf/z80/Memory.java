@@ -51,6 +51,7 @@ public class Memory {
         currentModel = model;
 
         copyPageIntoMemory(addressableMemory, romPages[0], ROM_PAGE);
+        memoryProtectionEnabled = true;
         return addressableMemory;
     }
 
@@ -128,9 +129,6 @@ public class Memory {
     }
 
     public static void set(final int[] memory, final int addr, final int value) {
-        if (addr >= 15616 && addr < 16384) {
-            System.out.println("Break!");
-        }
         final int page = addr >> 14;
         if (!memoryProtectionEnabled || page > 0) {
             if (memory[addr] != value) {
