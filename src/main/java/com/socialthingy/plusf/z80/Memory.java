@@ -67,10 +67,7 @@ public class Memory {
 
     public static void setRomPage(final int[] memory, final int newRomPage) {
         if (romPage != newRomPage) {
-            copyMemoryIntoPage(memory, swapPage, 0);
-            copyPageIntoMemory(memory, romPages[newRomPage], 0);
-            copyPageIntoPage(swapPage, romPages[romPage]);
-
+            copyPageIntoMemory(memory, romPages[newRomPage], ROM_PAGE);
             romPage = newRomPage;
         }
     }
