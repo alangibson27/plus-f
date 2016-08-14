@@ -406,7 +406,7 @@ public class JavaFXEmulator extends Application {
     }
 
     private void receiveGuestInput(final GuestState guestState) {
-        if (guestState.getEventValue() == GuestStateType.JOYSTICK_STATE.ordinal()) {
+        if (guestState.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
             guestJoystick.deserialise(guestState.getEventValue());
         }
     }

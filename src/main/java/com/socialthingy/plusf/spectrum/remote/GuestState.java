@@ -37,7 +37,8 @@ public class GuestState {
 
     public static GuestState deserialise(final InputStream in) {
         try {
-            return new GuestState(in.read(), in.read());
+            final GuestState gs = new GuestState(in.read(), in.read());
+            return gs;
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

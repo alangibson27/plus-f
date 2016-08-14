@@ -81,7 +81,7 @@ public class JavaFXGuest extends Application {
                     System.arraycopy(lastHostData.getMemory(), 0x4000, memory, 0x4000, 0x1b00);
                     Platform.runLater(() -> {
                         display.setBorderLines(lastHostData.getBorderLines());
-                        display.render(memory, lastHostData.isFlashActive(), true);
+                        display.renderMemory(memory, lastHostData.isFlashActive());
                         display.refreshScreen();
                         display.refreshBorder();
                     });
