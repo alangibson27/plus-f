@@ -2,19 +2,33 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Plus-F</title>
-    <link>http://localhost:1313/</link>
+    <link>http://replace-this-with-your-hugo-site.com/</link>
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 30 May 2016 11:47:26 +0100</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 14 Aug 2016 22:55:26 +0100</lastBuildDate>
+    <atom:link href="http://replace-this-with-your-hugo-site.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Version 0.6</title>
+      <link>http://replace-this-with-your-hugo-site.com/release-notes/0.6/</link>
+      <pubDate>Sun, 14 Aug 2016 22:55:26 +0100</pubDate>
+      
+      <guid>http://replace-this-with-your-hugo-site.com/release-notes/0.6/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Implemented TAP and TZX support&lt;/li&gt;
+&lt;li&gt;Added support for +2&lt;/li&gt;
+&lt;li&gt;Fixed some processor emulation bugs (there are still others in there)&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Version 0.5</title>
-      <link>http://localhost:1313/release-notes/0.5/</link>
+      <link>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</link>
       <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
       
-      <guid>http://localhost:1313/release-notes/0.5/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Initial public release&lt;/li&gt;
 &lt;li&gt;Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack
@@ -30,10 +44,10 @@ or tape loading errors!)
     
     <item>
       <title>About</title>
-      <link>http://localhost:1313/about/</link>
+      <link>http://replace-this-with-your-hugo-site.com/about/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/about/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/about/</guid>
       <description>&lt;p&gt;Do you remember Match Day II?&lt;/p&gt;
 
 &lt;p&gt;Long before FIFA, Pro Evolution Soccer or any of the others, Match Day II managed to succinctly capture the essence of
@@ -52,10 +66,10 @@ and I were to play Match Day II against each other once more.&lt;/p&gt;
     
     <item>
       <title>Connect</title>
-      <link>http://localhost:1313/connect/</link>
+      <link>http://replace-this-with-your-hugo-site.com/connect/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/connect/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/connect/</guid>
       <description>
 
 &lt;p&gt;Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
@@ -129,10 +143,10 @@ overall quality of the connection:&lt;/p&gt;
     
     <item>
       <title>Download</title>
-      <link>http://localhost:1313/download/</link>
+      <link>http://replace-this-with-your-hugo-site.com/download/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/download/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/download/</guid>
       <description>
 
 &lt;h2 id=&#34;download-java-first:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download Java first&lt;/h2&gt;
@@ -156,7 +170,7 @@ redistribution of their copyrighted material but retain that copyright.
 
 &lt;h2 id=&#34;release-notes:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Release Notes&lt;/h2&gt;
 
-&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://localhost:1313/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://replace-this-with-your-hugo-site.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;licensing:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Licensing&lt;/h2&gt;
 
@@ -190,10 +204,10 @@ SOFTWARE.&lt;/p&gt;
     
     <item>
       <title>Games</title>
-      <link>http://localhost:1313/games/</link>
+      <link>http://replace-this-with-your-hugo-site.com/games/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/games/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/games/</guid>
       <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
 Z80, TAP and TZX, all of which Plus-F can load. TAP files are at present the most reliable, although you should be able
 to use a lot of Z80 and TZX files as well.&lt;/p&gt;
@@ -212,10 +226,10 @@ for full details on which publishers and developers have granted free distributi
     
     <item>
       <title>The Emulator</title>
-      <link>http://localhost:1313/emulator/</link>
+      <link>http://replace-this-with-your-hugo-site.com/emulator/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/emulator/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/emulator/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&amp;rsquo;t expect programs which generate &amp;ldquo;rainbow&amp;rdquo; effects to work properly.&lt;/p&gt;
@@ -285,10 +299,10 @@ green to indicate when the tape is playing.&lt;/p&gt;
     
     <item>
       <title>The Guest</title>
-      <link>http://localhost:1313/guest/</link>
+      <link>http://replace-this-with-your-hugo-site.com/guest/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://localhost:1313/guest/</guid>
+      <guid>http://replace-this-with-your-hugo-site.com/guest/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Guest is a program that receives screen updates from a Plus-F Emulator across a network, and sends back

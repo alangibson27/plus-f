@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/</loc>
+    <lastmod>2016-08-14T22:55:26+01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/release-notes/0.6/</loc>
+    <lastmod>2016-08-14T22:55:26+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</loc>
+    <lastmod>2016-05-30T11:47:26+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/about/</loc>
+    <lastmod>2016-05-24T22:31:58+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/connect/</loc>
+    <lastmod>2016-05-24T22:31:58+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/download/</loc>
+    <lastmod>2016-05-24T22:31:58+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/games/</loc>
+    <lastmod>2016-05-24T22:31:58+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/emulator/</loc>
+    <lastmod>2016-05-24T22:31:58+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://replace-this-with-your-hugo-site.com/guest/</loc>
+    <lastmod>2016-05-24T22:31:58+01:00</lastmod>
+  </url>
+  
+</urlset>
