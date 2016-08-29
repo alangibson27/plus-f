@@ -20,8 +20,6 @@ import com.socialthingy.plusf.z80.Processor;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -73,6 +71,8 @@ public class JavaFXEmulator extends Application {
     private ULA ula;
     private Computer computer;
     private int[] memory;
+    private int cycleLimit = 0;
+    private int currentCycle = 0;
     private MenuItem easyConnectItem;
     private MenuItem disconnectItem;
     private MenuItem playTapeItem;
@@ -162,11 +162,18 @@ public class JavaFXEmulator extends Application {
         this.primaryStage = primaryStage;
         newComputer();
 
-        final Iterator<String> params = getParameters().getRaw().iterator();
-        params.next();
-        if (params.hasNext()) {
-            final int borderColour = computer.loadSnapshot(new File(params.next()));
+        final Map<String, String> params = getParameters().getNamed();
+        if (params.containsKey("snapshot")) {
+            final int borderColour = computer.loadSnapshot(new File(params.get("snapshot")));
             display.setBorder(borderColour);
+        }
+
+        if (params.containsKey("limit-cycles")) {
+            try {
+                cycleLimit = Integer.parseInt(params.getOrDefault("limit-cycles", "0"));
+            } catch (NumberFormatException nfe) {
+                cycleLimit = 0;
+            }
         }
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
@@ -548,7 +555,7 @@ public class JavaFXEmulator extends Application {
     private class SingleCycle implements Runnable {
         private boolean flashActive = false;
         private int flashCycleCount = 0x10;
-        private boolean updateDisplay = true;
+        private int updateDisplay = 0;
         private long lastDisplayUpdate = 0;
 
         private boolean shouldUpdateDisplay() {
@@ -560,6 +567,10 @@ public class JavaFXEmulator extends Application {
             final Timer.Context timer = displayRefreshTimer.time();
             do {
                 try {
+                    if (cycleLimit > 0 && currentCycle > cycleLimit) {
+                        System.exit(0);
+                    }
+
                     if (shouldUpdateDisplay()) {
                         display.redrawBorder();
                         final boolean screenRefreshRequired = display.render(memory, flashActive, flashCycleCount == 0x10);
@@ -577,9 +588,10 @@ public class JavaFXEmulator extends Application {
                             lastDisplayUpdate = System.currentTimeMillis();
                         });
                     }
-                    updateDisplay = !updateDisplay;
+                    updateDisplay++;
                     computer.singleCycle();
                     flashCycleCount--;
+                    currentCycle++;
                     if (flashCycleCount < 0) {
                         flashCycleCount = 0x10;
                         flashActive = !flashActive;
