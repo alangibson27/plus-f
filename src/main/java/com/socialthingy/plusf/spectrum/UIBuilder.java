@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum;
 
-import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
+import com.socialthingy.plusf.spectrum.display.UnsafeJavaFXDoubleSizeDisplay;
 import com.socialthingy.plusf.spectrum.remote.NetworkPeer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -26,7 +26,7 @@ public class UIBuilder {
 
     public static Pane buildUI(
         final Stage primaryStage,
-        final JavaFXDoubleSizeDisplay display,
+        final UnsafeJavaFXDoubleSizeDisplay display,
         final Node statusArea,
         final MenuBar menuBar
     ) {

@@ -1,21 +1,21 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.spectrum.TapePlayer;
-import com.socialthingy.plusf.spectrum.display.Display;
+import com.socialthingy.plusf.spectrum.display.UnsafeDisplay;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
 
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
     private final Keyboard keyboard;
-    private final Display display;
+    private final UnsafeDisplay display;
     private final int[] memory;
 
     private boolean pagingDisabled = false;
     private int earBit;
     private int currentCycleTstates;
 
-    public ULA(final Display display, final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
+    public ULA(final UnsafeDisplay display, final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
         this.display = display;
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
