@@ -1,7 +1,9 @@
 package com.socialthingy.plusf.z80;
 
+import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.operations.*;
+import sun.misc.Unsafe;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -36,6 +38,7 @@ public class Processor {
     private int cyclesUntilBreak = -1;
     private Set<Integer> breakpoints = new HashSet<>();
     private Set<Range> rangeBreakpoints = new HashSet<>();
+    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -317,8 +320,8 @@ public class Processor {
                 return im1ResponseOp;
             } else {
                 final int jumpBase = Word.from(0xff, iReg.get());
-                final int jumpLow = memory[jumpBase];
-                final int jumpHigh = memory[(jumpBase + 1) & 0xffff];
+                final int jumpLow = unsafe.getInt(memory, 16L + ((jumpBase) * 4));
+                final int jumpHigh = unsafe.getInt(memory, 16L + (((jumpBase + 1) & 0xffff) * 4));
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
@@ -361,7 +364,7 @@ public class Processor {
 
     public int fetchNextOpcode() {
         incrementR();
-        return memory[pcReg.getAndInc()];
+        return unsafe.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
     }
 
     private void incrementR() {
@@ -370,7 +373,7 @@ public class Processor {
     }
 
     public int fetchNextByte() {
-        return memory[pcReg.getAndInc()];
+        return unsafe.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
     }
 
     public int getInterruptMode() {
@@ -382,7 +385,7 @@ public class Processor {
     }
 
     public int fetchRelative(final int offset) {
-        return memory[(pcReg.get() + offset) & 0xffff];
+        return unsafe.getInt(memory, 16L + (((pcReg.get() + offset) & 0xffff) * 4));
     }
 
     public void pushByte(final int value) {
@@ -390,7 +393,7 @@ public class Processor {
     }
 
     public int popByte() {
-        return memory[spReg.getAndInc()];
+        return unsafe.getInt(memory, 16L + ((spReg.getAndInc()) * 4));
     }
 
     public void setIff(final int iff, final boolean value) {

@@ -20,7 +20,7 @@ public class OpRrd extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int[] memoryNibbles = Bitwise.nibbles(memory[address]);
+        final int[] memoryNibbles = Bitwise.nibbles(unsafe.getInt(memory, 16L + ((address) * 4)));
         final int[] accumulatorNibbles = Bitwise.nibbles(accumulator.get());
 
         Memory.set(memory, address, (accumulatorNibbles[1] << 4) + memoryNibbles[0]);

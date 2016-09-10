@@ -17,7 +17,7 @@ public class OpOrIndexedIndirect extends OrOperation {
 
     @Override
     public int execute() {
-        or(memory[indexRegister.withOffset(processor.fetchNextByte())]);
+        or(unsafe.getInt(memory, 16L + ((indexRegister.withOffset(processor.fetchNextByte())) * 4)));
         return 19;
     }
 

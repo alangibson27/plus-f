@@ -48,18 +48,18 @@ class DisplaySpec extends FlatSpec with Matchers {
     pixels(1) shouldBe Color.BLACK
   }
 
-  class TestDisplay extends DisplayPixelUpdate {
-    val display = new Display(16, 16)
+  class TestDisplay {
+    val display = new Display(16, 16) {
+      override def setPixel(x: Int, y: Int, colour: Color): Unit = {
+        pixels((y * 192) + x) = colour
+      }
+    }
     val borderLines = Array.ofDim[Int](1)
     val memory = Array.ofDim[Int](0x10000)
     val pixels = Array.ofDim[Color](256 * 192)
 
     def refresh(memory: Array[Int], flashActive: Boolean): Unit = {
-      display.draw(memory, flashActive, this)
-    }
-
-    override def update(x: Int, y: Int, colour: Color): Unit = {
-      pixels((y * 192) + x) = colour
+      display.draw(memory, flashActive)
     }
   }
 

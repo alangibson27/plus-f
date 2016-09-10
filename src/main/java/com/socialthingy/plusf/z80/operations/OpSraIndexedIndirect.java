@@ -19,7 +19,7 @@ public class OpSraIndexedIndirect extends SraOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        Memory.set(memory, address, shift(memory[address]));
+        Memory.set(memory, address, shift(unsafe.getInt(memory, 16L + ((address) * 4))));
         return 23;
     }
 }

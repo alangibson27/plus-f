@@ -67,7 +67,7 @@ public class JavaFXDoubleSizeDisplay extends Display {
     }
 
     public void renderMemory(final int[] memory, final boolean flashActive) {
-        super.draw(memory, flashActive, this::setPixel);
+        super.draw(memory, flashActive);
         scale();
     }
 
@@ -79,7 +79,8 @@ public class JavaFXDoubleSizeDisplay extends Display {
         borderWriter.setPixels(0, 0, 1, DISPLAY_HEIGHT, PixelFormat.getIntArgbInstance(), borderLines, 0, 1);
     }
 
-    private void setPixel(final int x, final int y, final Color color) {
+    @Override
+    protected void setPixel(final int x, final int y, final Color color) {
         unsafe.putInt(sourcePixels, 16L + (sourcePixelAt(x, y) * 4), color.getRGB());
     }
 

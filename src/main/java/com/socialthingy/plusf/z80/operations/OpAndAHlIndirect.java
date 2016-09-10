@@ -15,7 +15,7 @@ public class OpAndAHlIndirect extends AndOperation {
 
     @Override
     public int execute() {
-        and(memory[hlReg.get()]);
+        and(unsafe.getInt(memory, 16L + (hlReg.get() * 4)));
         return 7;
     }
 

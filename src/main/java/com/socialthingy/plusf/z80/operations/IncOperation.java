@@ -1,13 +1,16 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
+import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
+import sun.misc.Unsafe;
 
 abstract class IncOperation implements Operation {
 
     private final FlagsRegister flagsRegister;
+    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     protected IncOperation(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();

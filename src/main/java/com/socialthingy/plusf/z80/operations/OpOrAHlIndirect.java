@@ -15,7 +15,7 @@ public class OpOrAHlIndirect extends OrOperation {
 
     @Override
     public int execute() {
-        or(memory[hlReg.get()]);
+        or(unsafe.getInt(memory, 16L + ((hlReg.get()) * 4)));
         return 7;
     }
 

@@ -20,7 +20,7 @@ public class OpIncIndexedIndirect extends IncOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchNextByte());
-        final int result = increment(memory[address]);
+        final int result = increment(unsafe.getInt(memory, 16L + (address * 4)));
         Memory.set(memory, address, result);
         return 23;
     }
