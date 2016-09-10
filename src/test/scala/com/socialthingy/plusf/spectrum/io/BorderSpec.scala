@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.io
 
 import com.socialthingy.plusf.spectrum.TapePlayer
-import com.socialthingy.plusf.spectrum.display.{Display, UnsafeDisplay}
+import com.socialthingy.plusf.spectrum.display.Display
 import com.socialthingy.plusf.spectrum.display.Display.{BOTTOM_BORDER_HEIGHT, TOP_BORDER_HEIGHT}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, Inspectors, Matchers}
@@ -87,7 +87,7 @@ class BorderSpec extends FlatSpec with Matchers with Inspectors with MockitoSuga
   type SpectrumColourId = Int
   trait TestComputer {
     val BLACK: SpectrumColourId = 0
-    val display = new UnsafeDisplay(TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT)
+    val display = new Display(TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT)
     val ula = new ULA(display, new Keyboard(), new TapePlayer(), Array.ofDim[Int](0x10000))
 
     def atClockCycle(clockCycle: Int)(state: => Unit) = {
