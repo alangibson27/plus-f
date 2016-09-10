@@ -18,7 +18,7 @@ public class OpDecHlIndirect extends DecOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int result = decrement(memory[address]);
+        final int result = decrement(unsafe.getInt(memory, 16L + (address * 4)));
         Memory.set(memory, address, result);
         return 11;
     }

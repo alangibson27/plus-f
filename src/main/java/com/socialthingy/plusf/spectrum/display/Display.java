@@ -1,5 +1,9 @@
 package com.socialthingy.plusf.spectrum.display;
 
+import com.socialthingy.plusf.util.UnsafeUtil;
+import sun.misc.Unsafe;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +18,12 @@ public class Display {
 
     private final SpectrumColour[] colours = new SpectrumColour[0x100];
     private final List<int[]> borderChanges = new ArrayList<>();
-    private int[][] pixelAddresses = new int[192][];
-    private int[][] colourAddresses = new int[192][];
     private int initialBorderColour;
     private final int visibleDisplayStart;
     private final int visibleDisplayEnd;
     protected final int[] borderLines;
+
+    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public Display(final int topVisibleBorder, final int bottomVisibleBorder) {
         final int displayHeight = topVisibleBorder + SCREEN_HEIGHT + bottomVisibleBorder;
@@ -37,21 +41,19 @@ public class Display {
                 }
             }
         }
-
-        for (int y = 0; y < 192; y++) {
-            final int lineAddress = getLineAddress(y);
-            final int colourAddress = 0X5800 + (0X20 * (y / 8));
-            pixelAddresses[y] = new int[32];
-            colourAddresses[y] = new int[32];
-
-            for (int x = 0; x < 32; x++) {
-                pixelAddresses[y][x] = lineAddress + x;
-                colourAddresses[y][x] = colourAddress + x;
-            }
-        }
     }
 
-    private int getLineAddress(final int y) {
+    private int pixelAddress(final int x, final int y) {
+        return lineAddress(y) + x;
+    }
+
+    private int colourAddress(final int x, final int y) {
+        return 0x5800 + x + (0x20 * (y >> 3));
+    }
+
+    public void renderMemory(final int[] memory, final boolean flashActive) {}
+
+    private int lineAddress(final int y) {
         final int hi = y & 0b00111000;
         final int lo = y & 0b00000111;
         final int line = (hi >> 3) | (lo << 3);
@@ -68,31 +70,36 @@ public class Display {
         return addressBase + (line * 32);
     }
 
-    protected void draw(final int[] memory, final boolean flashActive, final DisplayPixelUpdate updateFunction) {
+    protected void draw(final int[] memory, final boolean flashActive) {
         for (int y = 0; y < 192; y++) {
             for (int x = 0; x < 32; x++) {
-                final SpectrumColour colour = colours[memory[colourAddresses[y][x]]];
+                final int colourVal = unsafe.getInt(memory, 16L + (colourAddress(x, y) * 4));
+                final SpectrumColour colour = colours[colourVal];
 
+                final int pixelAddress = pixelAddress(x, y);
+                final int memoryVal = unsafe.getInt(memory, 16L + (pixelAddress * 4));
+                int displayX = (x * 8) + 7;
                 for (int bit = 0; bit < 8; bit++) {
-                    final int pixelAddress = pixelAddresses[y][x];
-                    final int displayX = (x * 8) + (7 - bit);
-                    if ((memory[pixelAddress] & (1 << bit)) > 0) {
-                        updateFunction.update(
+                    if ((memoryVal & (1 << bit)) > 0) {
+                        setPixel(
                             displayX,
                             y,
                             flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk()
                         );
                     } else {
-                        updateFunction.update(
+                        setPixel(
                             displayX,
                             y,
                             flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper()
                         );
                     }
+                    displayX--;
                 }
             }
         }
     }
+
+    protected void setPixel(final int x, final int y, final Color color) {}
 
     public void setBorder(final int spectrumColour) {
         this.initialBorderColour = 0xff000000 | dullColour(spectrumColour);

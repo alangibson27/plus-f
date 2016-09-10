@@ -53,7 +53,7 @@ public class JavaFXGuest extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
-        buildUI(primaryStage, display, statusLabel, getMenuBar());
+//        buildUI(primaryStage, display, statusLabel, getMenuBar());
 
         final Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> guestRelay);
         primaryStage.setOnCloseRequest(we -> {

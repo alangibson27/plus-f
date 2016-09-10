@@ -18,7 +18,7 @@ public class OpIncHlIndirect extends IncOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int result = increment(memory[address]);
+        final int result = increment(unsafe.getInt(memory, 16L + (address * 4)));
         Memory.set(memory, address, result);
         return 11;
     }

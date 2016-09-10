@@ -1,6 +1,8 @@
 package com.socialthingy.plusf.z80;
 
 import com.socialthingy.plusf.spectrum.Model;
+import com.socialthingy.plusf.util.UnsafeUtil;
+import sun.misc.Unsafe;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +33,8 @@ public class Memory {
     private static int midPage;
     private static int highPage;
 
+    private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
+
     public static int[] configure(final Model model) throws IOException {
         final int[] addressableMemory = new int[0x10000];
         romPages = new int[model.romFileNames.length][];
@@ -55,7 +59,7 @@ public class Memory {
         return addressableMemory;
     }
 
-    private static final int[] readRom(final String romFileName) throws IOException {
+    private static int[] readRom(final String romFileName) throws IOException {
         try (final InputStream is = Memory.class.getResourceAsStream(romFileName)) {
             final int[] rom = new int[PAGE_SIZE];
             int i = 0;
@@ -131,8 +135,10 @@ public class Memory {
     public static void set(final int[] memory, final int addr, final int value) {
         final int page = addr >> 14;
         if (!memoryProtectionEnabled || page > 0) {
-            if (memory[addr] != value) {
-                memory[addr] = value;
+            final long offset = 16L + (addr * 4);
+            final int prevValue = unsafe.getInt(memory, offset);
+            if (prevValue != value) {
+                unsafe.putInt(memory, offset, value);
 
                 switch (currentModel) {
                     case _48K:
@@ -144,21 +150,21 @@ public class Memory {
                             case 1:
                                 screenChanged = screenChanged || (screenPage == 5 && addr >= PAGE_SIZE && addr < 0x5b00);
                                 if (highPage == 5) {
-                                    memory[addr + 0x8000] = value;
+                                    unsafe.putInt(memory, 16L + ((addr + 0x8000) * 4), value);
                                 }
                                 break;
 
                             case 2:
                                 if (highPage == 2) {
-                                    memory[addr + PAGE_SIZE] = value;
+                                    unsafe.putInt(memory, 16L + ((addr + PAGE_SIZE) * 4), value);
                                 }
 
                             case 3:
                                 screenChanged = screenChanged || (screenPage == highPage && addr >= HIGH_PAGE && addr < 0xdb00);
                                 if (highPage == 2) {
-                                    memory[addr - PAGE_SIZE] = value;
+                                    unsafe.putInt(memory, 16L + ((addr - PAGE_SIZE) * 4), value);
                                 } else if (highPage == 5) {
-                                    memory[addr - 0x8000] = value;
+                                    unsafe.putInt(memory, 16L + ((addr - 0x8000) * 4), value);
                                 }
                                 break;
                         }

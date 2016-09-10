@@ -18,7 +18,7 @@ public class OpRlHlIndirect extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int result = rlValue(memory[address]);
+        final int result = rlValue(unsafe.getInt(memory, 16L + ((address) * 4)));
         setSignZeroAndParity(result);
         Memory.set(memory, address, result);
         return 15;

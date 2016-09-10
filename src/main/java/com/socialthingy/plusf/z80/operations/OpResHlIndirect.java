@@ -20,7 +20,7 @@ public class OpResHlIndirect extends BitModificationOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        Memory.set(memory, address, reset(memory[address]));
+        Memory.set(memory, address, reset(unsafe.getInt(memory, 16L + ((address) * 4))));
         return 15;
     }
 

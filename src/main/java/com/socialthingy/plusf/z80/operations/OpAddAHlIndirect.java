@@ -17,7 +17,7 @@ public class OpAddAHlIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        add(memory[hlReg.get()]);
+        add(unsafe.getInt(memory, 16L + (hlReg.get() * 4)));
         return 7;
     }
 

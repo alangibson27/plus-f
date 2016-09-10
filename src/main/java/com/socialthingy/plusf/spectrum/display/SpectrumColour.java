@@ -19,7 +19,9 @@ public class SpectrumColour {
 
     private boolean flash;
     private Color ink;
+    private int inkRgb;
     private Color paper;
+    private int paperRgb;
 
     public static int dullColour(final int index) {
         return SPECTRUM_COLOUR_MASKS[index] & DULL_COLOUR_MASK;
@@ -28,7 +30,9 @@ public class SpectrumColour {
     public SpectrumColour(final int flash, final int bright, final int paper, final int ink) {
         this.flash = flash == 1;
         this.ink = toColour(bright == 1, ink);
+        this.inkRgb = this.ink.getRGB();
         this.paper = toColour(bright == 1, paper);
+        this.paperRgb = this.paper.getRGB();
     }
 
     public boolean isFlash() {
@@ -41,6 +45,14 @@ public class SpectrumColour {
 
     public Color getPaper() {
         return paper;
+    }
+
+    public int getInkRgb() {
+        return inkRgb;
+    }
+
+    public int getPaperRgb() {
+        return paperRgb;
     }
 
     private Color toColour(final boolean bright, final int value) {

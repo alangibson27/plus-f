@@ -17,7 +17,7 @@ public class OpAndIndexedIndirect extends AndOperation {
 
     @Override
     public int execute() {
-        and(memory[indexRegister.withOffset(processor.fetchNextByte())]);
+        and(unsafe.getInt(memory, 16L + (indexRegister.withOffset(processor.fetchNextByte()) * 4)));
         return 19;
     }
 

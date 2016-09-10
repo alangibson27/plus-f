@@ -19,7 +19,7 @@ public class OpBitHlIndirect extends BitOperation {
 
     @Override
     public int execute() {
-        checkBit(memory[hlReg.get()]);
+        checkBit(unsafe.getInt(memory, 16L + (hlReg.get() * 4)));
         return 12;
     }
 

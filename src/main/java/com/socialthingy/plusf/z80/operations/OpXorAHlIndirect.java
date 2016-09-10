@@ -15,7 +15,7 @@ public class OpXorAHlIndirect extends XorOperation {
 
     @Override
     public int execute() {
-        xor(memory[hlReg.get()]);
+        xor(unsafe.getInt(memory, 16L + ((hlReg.get()) * 4)));
         return 7;
     }
 

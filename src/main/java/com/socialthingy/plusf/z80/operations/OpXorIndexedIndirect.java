@@ -17,7 +17,7 @@ public class OpXorIndexedIndirect extends XorOperation {
 
     @Override
     public int execute() {
-        xor(memory[indexRegister.withOffset(processor.fetchNextByte())]);
+        xor(unsafe.getInt(memory, 16L + ((indexRegister.withOffset(processor.fetchNextByte())) * 4)));
         return 19;
     }
 

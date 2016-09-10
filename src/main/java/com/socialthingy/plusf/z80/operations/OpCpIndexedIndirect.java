@@ -17,7 +17,7 @@ public class OpCpIndexedIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        sub(memory[indexRegister.withOffset(processor.fetchNextByte())], false);
+        sub(unsafe.getInt(memory, 16L + (indexRegister.withOffset(processor.fetchNextByte()) * 4)), false);
         return 19;
     }
 

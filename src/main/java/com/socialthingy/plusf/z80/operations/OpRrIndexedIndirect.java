@@ -20,7 +20,7 @@ public class OpRrIndexedIndirect extends RotateOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        final int result = rrValue(memory[address]);
+        final int result = rrValue(unsafe.getInt(memory, 16L + ((address) * 4)));
         setSignZeroAndParity(result);
         Memory.set(memory, address, result);
         return 23;
