@@ -1,11 +1,11 @@
 package com.socialthingy.plusf.z80;
 
 import com.socialthingy.plusf.spectrum.Model;
+import com.socialthingy.plusf.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 
 public class Memory {
 
@@ -33,16 +33,7 @@ public class Memory {
     private static int midPage;
     private static int highPage;
 
-    private static Unsafe unsafe;
-    static {
-        try {
-            final Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
-            unsafeConstructor.setAccessible(true);
-            unsafe = unsafeConstructor.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public static int[] configure(final Model model) throws IOException {
         final int[] addressableMemory = new int[0x10000];

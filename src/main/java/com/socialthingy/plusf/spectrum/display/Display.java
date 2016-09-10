@@ -1,8 +1,8 @@
 package com.socialthingy.plusf.spectrum.display;
 
+import com.socialthingy.plusf.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,17 +22,9 @@ public class Display {
     private final int visibleDisplayEnd;
     protected final int[] borderLines;
 
-    protected Unsafe unsafe;
+    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public Display(final int topVisibleBorder, final int bottomVisibleBorder) {
-        try {
-            Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
-            unsafeConstructor.setAccessible(true);
-            unsafe = unsafeConstructor.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         final int displayHeight = topVisibleBorder + SCREEN_HEIGHT + bottomVisibleBorder;
         this.borderLines = new int[displayHeight];
         this.visibleDisplayStart = TOP_BORDER_HEIGHT - topVisibleBorder;
