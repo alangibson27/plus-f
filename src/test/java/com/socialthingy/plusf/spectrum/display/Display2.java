@@ -9,7 +9,7 @@ import java.util.List;
 
 import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 
-public class Display implements Renderer {
+public abstract class Display2 implements Renderer {
     public static final int SCREEN_WIDTH = 256;
     public static final int SCREEN_HEIGHT = 192;
 
@@ -25,7 +25,7 @@ public class Display implements Renderer {
 
     protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-    public Display(final int topVisibleBorder, final int bottomVisibleBorder) {
+    public Display2(final int topVisibleBorder, final int bottomVisibleBorder) {
         final int displayHeight = topVisibleBorder + SCREEN_HEIGHT + bottomVisibleBorder;
         this.borderLines = new int[displayHeight];
         this.visibleDisplayStart = TOP_BORDER_HEIGHT - topVisibleBorder;
@@ -138,10 +138,6 @@ public class Display implements Renderer {
 
     public int[] getBorderLines() {
         return borderLines;
-    }
-
-    @Override
-    public void renderMemory(int[] memory, boolean flashActive) {
     }
 }
 
