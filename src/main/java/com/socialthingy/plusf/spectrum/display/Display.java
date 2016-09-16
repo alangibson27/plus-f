@@ -54,7 +54,7 @@ public class Display implements Renderer {
     private int lineAddress(final int y) {
         final int hi = y & 0b00111000;
         final int lo = y & 0b00000111;
-        return ((y >> 6) * 0x800) + ((hi >> 3) | (lo << 3) * 32);
+        return 0x4000 + ((y >> 6) * 0x800) + (((hi >> 3) | (lo << 3)) * 32);
     }
 
     protected void draw(final int[] memory, final boolean flashActive) {
