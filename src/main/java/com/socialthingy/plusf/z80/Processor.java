@@ -8,7 +8,14 @@ import sun.misc.Unsafe;
 import java.io.PrintStream;
 import java.util.*;
 
+import static java.lang.Boolean.valueOf;
+import static sun.misc.Unsafe.ARRAY_OBJECT_BASE_OFFSET;
+import static sun.misc.Unsafe.ARRAY_OBJECT_INDEX_SCALE;
+
 public class Processor {
+    private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
+    private static final boolean DEBUG_ENABLED = valueOf(System.getProperty("debugger", "false"));
+
     private final Map<String, Register> registers = new HashMap<>();
     private final int[] memory;
     private final Operation[] operations;
@@ -38,7 +45,6 @@ public class Processor {
     private int cyclesUntilBreak = -1;
     private Set<Integer> breakpoints = new HashSet<>();
     private Set<Range> rangeBreakpoints = new HashSet<>();
-    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public Processor(final int[] memory, final IO io) {
         this.memory = memory;
@@ -152,23 +158,25 @@ public class Processor {
             throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
         }
 
-        if (breakpoints.contains(pc)) {
-            cyclesUntilBreak = 0;
-        }
+        if (DEBUG_ENABLED) {
+            if (breakpoints.contains(pc)) {
+                cyclesUntilBreak = 0;
+            }
 
-        if (!rangeBreakpoints.isEmpty() && cyclesUntilBreak != 0) {
-            for (Range range: rangeBreakpoints) {
-                if (!range.contains(lastPc) && range.contains(pc)) {
-                    cyclesUntilBreak = 0;
-                    break;
+            if (!rangeBreakpoints.isEmpty() && cyclesUntilBreak != 0) {
+                for (Range range : rangeBreakpoints) {
+                    if (!range.contains(lastPc) && range.contains(pc)) {
+                        cyclesUntilBreak = 0;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (cyclesUntilBreak == 0) {
-            debugConsole(pc, op);
-        } else if (cyclesUntilBreak > 0) {
-            cyclesUntilBreak--;
+            if (cyclesUntilBreak == 0) {
+                debugConsole(pc, op);
+            } else if (cyclesUntilBreak > 0) {
+                cyclesUntilBreak--;
+            }
         }
 
         this.lastOp = op;
@@ -305,23 +313,23 @@ public class Processor {
     }
 
     private Operation fetch() {
-        final Optional<InterruptRequest> interrupt = Optional.ofNullable(interruptRequests.peekFirst());
+        final InterruptRequest interrupt = interruptRequests.peekFirst();
 
-        if (iffs[0] && interrupt.isPresent()) {
+        if (iffs[0] && interrupt != null) {
             incrementR();
             if (halting) {
                 pcReg.getAndInc();
                 halting = false;
             }
             setIffState(false);
-            interrupt.get().getDevice().acknowledge();
+            interrupt.getDevice().acknowledge();
 
             if (interruptMode == 1) {
                 return im1ResponseOp;
             } else {
                 final int jumpBase = Word.from(0xff, iReg.get());
-                final int jumpLow = unsafe.getInt(memory, 16L + ((jumpBase) * 4));
-                final int jumpHigh = unsafe.getInt(memory, 16L + (((jumpBase + 1) & 0xffff) * 4));
+                final int jumpLow = UNSAFE.getInt(memory, 16L + ((jumpBase) * 4));
+                final int jumpHigh = UNSAFE.getInt(memory, 16L + (((jumpBase + 1) & 0xffff) * 4));
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
@@ -357,14 +365,14 @@ public class Processor {
                     }
 
                 default:
-                    return operations[opCode];
+                    return (Operation) UNSAFE.getObject(operations, (long) ARRAY_OBJECT_BASE_OFFSET + (ARRAY_OBJECT_INDEX_SCALE * opCode));
             }
         }
     }
 
     public int fetchNextOpcode() {
         incrementR();
-        return unsafe.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
+        return UNSAFE.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
     }
 
     private void incrementR() {
@@ -373,7 +381,7 @@ public class Processor {
     }
 
     public int fetchNextByte() {
-        return unsafe.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
+        return UNSAFE.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
     }
 
     public int getInterruptMode() {
@@ -385,7 +393,7 @@ public class Processor {
     }
 
     public int fetchRelative(final int offset) {
-        return unsafe.getInt(memory, 16L + (((pcReg.get() + offset) & 0xffff) * 4));
+        return UNSAFE.getInt(memory, 16L + (((pcReg.get() + offset) & 0xffff) * 4));
     }
 
     public void pushByte(final int value) {
@@ -393,7 +401,7 @@ public class Processor {
     }
 
     public int popByte() {
-        return unsafe.getInt(memory, 16L + ((spReg.getAndInc()) * 4));
+        return UNSAFE.getInt(memory, 16L + ((spReg.getAndInc()) * 4));
     }
 
     public void setIff(final int iff, final boolean value) {

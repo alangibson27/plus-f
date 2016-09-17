@@ -66,8 +66,8 @@ public class Display implements Renderer {
                 final int pixelAddress = pixelAddress(x, y);
                 final int memoryVal = unsafe.getInt(memory, 16L + (pixelAddress * 4));
                 int displayX = (x * 8) + 7;
-                for (int bit = 0; bit < 8; bit++) {
-                    if ((memoryVal & (1 << bit)) > 0) {
+                for (int bit = 1; bit < 256; bit <<= 1) {
+                    if ((memoryVal & bit) > 0) {
                         setPixel(
                             displayX,
                             y,

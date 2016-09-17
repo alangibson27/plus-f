@@ -17,6 +17,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,7 +32,11 @@ public class UIBuilder {
         final Node statusArea,
         final MenuBar menuBar
     ) {
-        primaryStage.getIcons().add(new Image(UIBuilder.class.getResourceAsStream("/plus-f.png")));
+        try (InputStream iconStream = UIBuilder.class.getResourceAsStream("/plus-f.png")) {
+            primaryStage.getIcons().add(new Image(iconStream));
+        } catch (IOException ex) {
+            // NOP.
+        }
 
         BorderPane root = new BorderPane();
         root.setCenter(display.getDisplay());

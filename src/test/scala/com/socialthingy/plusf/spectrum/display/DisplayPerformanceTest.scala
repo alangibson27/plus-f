@@ -1,8 +1,10 @@
 package com.socialthingy.plusf.spectrum.display
 
+import com.socialthingy.plusf.Timing
+
 import scala.util.Random.nextInt
 
-object DisplayPerformanceTest extends App {
+object DisplayPerformanceTest extends App with Timing {
 
   val displays: List[(Renderer, String)] = List(
     (new JavaFXDoubleSizeDisplay(), "JavaFXDoubleSizeDisplay"),
@@ -35,11 +37,5 @@ object DisplayPerformanceTest extends App {
       }
 
       println(timeTaken)
-  }
-
-  private def timed(timesToRun: Int)(code: => Unit): Long = {
-    val startTime = System.currentTimeMillis
-    (0 until timesToRun) foreach { _ => code }
-    System.currentTimeMillis - startTime
   }
 }
