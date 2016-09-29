@@ -18,7 +18,7 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
 
         final int[] memory = new int[0x10000];
         for (int i = 0x4000; i < 0x5b00; i++) {
-            memory[i] = buf.getInt();
+            memory[i] = buf.get() & 0xff;
         }
 
         final int[] borderLines = new int[BORDER_LINE_COUNT];
@@ -26,7 +26,7 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
             borderLines[i] = buf.getInt();
         }
 
-        return new EmulatorState(memory, borderLines, buf.getInt() != 0);
+        return new EmulatorState(memory, borderLines, buf.get() != 0);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
         final EmulatorState state = (EmulatorState) obj;
         final int[] memory = state.getMemory();
         for (int i = 0x4000; i < 0x5b00; i++) {
-            out.putInt(memory[i], BIG_ENDIAN);
+            out.putByte((byte) memory[i]);
         }
 
         final int[] borderLines = state.getBorderLines();
@@ -42,6 +42,6 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
             out.putInt(borderLines[i], BIG_ENDIAN);
         }
 
-        out.putInt(state.isFlashActive() ? 1 : 0, BIG_ENDIAN);
+        out.putByte(state.isFlashActive() ? (byte) 1 : 0);
     }
 }
