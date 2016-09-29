@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.spectrum.remote;
+package com.socialthingy.plusf.spectrum.network;
 
 import javafx.util.Pair;
 

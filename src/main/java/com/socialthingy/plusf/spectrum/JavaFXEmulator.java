@@ -3,24 +3,28 @@ package com.socialthingy.plusf.spectrum;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.codahale.metrics.Timer;
-import com.socialthingy.plusf.spectrum.dialog.CancelableProgressDialog;
-import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.display.Icons;
 import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.input.JavaFXJoystick;
 import com.socialthingy.plusf.spectrum.input.JavaFXKeyboard;
-import com.socialthingy.plusf.spectrum.joystick.*;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.spectrum.remote.*;
-import com.socialthingy.plusf.tape.*;
+import com.socialthingy.plusf.spectrum.joystick.Joystick;
+import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
+import com.socialthingy.plusf.spectrum.joystick.SinclairJoystickInterface;
+import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
+import com.socialthingy.plusf.spectrum.network.EmulatorState;
+import com.socialthingy.plusf.spectrum.network.GuestState;
+import com.socialthingy.plusf.spectrum.network.GuestStateType;
+import com.socialthingy.plusf.tape.Tape;
+import com.socialthingy.plusf.tape.TapeException;
+import com.socialthingy.plusf.tape.TapeFileReader;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.geometry.HPos;
@@ -29,22 +33,26 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.DatagramSocket;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.socialthingy.plusf.spectrum.UIBuilder.*;
+import static com.socialthingy.plusf.spectrum.UIBuilder.buildUI;
+import static com.socialthingy.plusf.spectrum.UIBuilder.installStatusLabelUpdater;
+import static com.socialthingy.plusf.spectrum.UIBuilder.registerMenuItem;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
 import static com.socialthingy.plusf.spectrum.display.Icons.iconFrom;
 import static javafx.scene.input.KeyCode.*;
@@ -53,7 +61,6 @@ public class JavaFXEmulator extends Application {
     private static final String PREF_LAST_SNAPSHOT_DIRECTORY = "last-snapshot-directory";
     private static final String PREF_MODEL = "initial-model";
     private static final String DISPLAY_REFRESH_TIMER_NAME = "display.refresh";
-    private static final int LOCAL_PORT = Settings.COMPUTER_PORT;
 
     private final Timer displayRefreshTimer;
     private final MetricRegistry metricRegistry;
@@ -78,8 +85,7 @@ public class JavaFXEmulator extends Application {
     private MenuItem playTapeItem;
     private MenuItem stopTapeItem;
     private MenuItem rewindTapeToStartItem;
-    private Optional<NetworkPeer<GuestState, EmulatorState>> hostRelay = Optional.empty();
-    private DatagramSocket socket;
+    private EmulatorPeerAdapter hostPeer = new EmulatorPeerAdapter(this::receiveGuestInput);
     private TapePlayer tapePlayer;
 
     private JavaFXKeyboard keyboard;
@@ -228,10 +234,10 @@ public class JavaFXEmulator extends Application {
 
         buildUI(primaryStage, display, statusPane, menuBar);
 
-        final java.util.Timer statusBarTimer = installStatusLabelUpdater(statusLabel, () -> hostRelay);
+        final java.util.Timer statusBarTimer = installStatusLabelUpdater(statusLabel, hostPeer);
         primaryStage.setOnCloseRequest(we -> {
             statusBarTimer.cancel();
-            hostRelay.ifPresent(h -> h.disconnect());
+            hostPeer.shutdown();
             cycleLoop.cancel(true);
             cycleTimer.shutdownNow();
         });
@@ -244,10 +250,7 @@ public class JavaFXEmulator extends Application {
     @Override
     public void stop() {
         System.out.println("Closing");
-        if (socket != null && !socket.isClosed()) {
-            socket.close();
-        }
-        CancelableProgressDialog.shutdown();
+        hostPeer.shutdown();
     }
 
     private MenuBar getMenuBar() {
@@ -351,47 +354,7 @@ public class JavaFXEmulator extends Application {
 
     private void easyConnectToGuest(final ActionEvent ae) {
         final Optional<String> codename = getCodename("guest");
-        codename.ifPresent(cn -> {
-            try {
-                final Task<SocketAddress> computerAddress = new EmulatorConnectionSetup(getSocket(), cn);
-                CancelableProgressDialog.show(
-                        computerAddress,
-                        "Connecting to guest ... please wait",
-                        "Connecting to Guest",
-                        addr -> {
-                            hostRelay = relayTo(addr);
-                            kempstonJoystickInterface.connect(guestJoystick);
-                        }
-                );
-            } catch (SocketException e) {
-                ErrorDialog.show(
-                        "Connection Error",
-                        "Unable to connect to guest. Please try again later.",
-                        Optional.of(e)
-                );
-            }
-        });
-    }
-
-    private Optional<NetworkPeer<GuestState, EmulatorState>> relayTo(final SocketAddress sa) {
-        try {
-            easyConnectItem.setDisable(true);
-            disconnectItem.setDisable(false);
-
-            return Optional.of(
-                    new NetworkPeer<>(
-                            this::receiveGuestInput,
-                            EmulatorState::serialise,
-                            GuestState::deserialise,
-                            timestamper::getAndIncrement,
-                            getSocket(),
-                            sa
-                    )
-            );
-        } catch (SocketException ex) {
-            ex.printStackTrace();
-            return Optional.empty();
-        }
+        codename.ifPresent(cn -> hostPeer.connect(cn));
     }
 
     private void changeSpeed() {
@@ -403,15 +366,6 @@ public class JavaFXEmulator extends Application {
         }
     }
 
-    private DatagramSocket getSocket() throws SocketException {
-        if (this.socket == null) {
-            socket = new DatagramSocket(LOCAL_PORT);
-            socket.setSoTimeout(30000);
-        }
-
-        return this.socket;
-    }
-
     private void receiveGuestInput(final GuestState guestState) {
         if (guestState.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
             guestJoystick.deserialise(guestState.getEventValue());
@@ -419,13 +373,7 @@ public class JavaFXEmulator extends Application {
     }
 
     private void disconnectFromGuest(final ActionEvent ae) {
-        hostRelay.ifPresent(r -> {
-            r.disconnect();
-            hostRelay = Optional.empty();
-            easyConnectItem.setDisable(false);
-            disconnectItem.setDisable(true);
-            kempstonJoystickInterface.disconnectIfConnected(guestJoystick);
-        });
+        hostPeer.disconnect();
     }
 
     private void resetComputer(final ActionEvent actionEvent) {
@@ -574,10 +522,8 @@ public class JavaFXEmulator extends Application {
                     if (shouldUpdateDisplay()) {
                         display.redrawBorder();
                         final boolean screenRefreshRequired = display.render(memory, flashActive, flashCycleCount == 0x10);
-                        if (speed == EmulatorSpeed.NORMAL) {
-                            hostRelay.ifPresent(h -> {
-                                h.sendDataToPartner(new EmulatorState(memory, display.getBorderLines(), flashActive));
-                            });
+                        if (speed == EmulatorSpeed.NORMAL && hostPeer.isConnected()) {
+                            hostPeer.send(new EmulatorState(memory, display.getBorderLines(), flashActive));
                         }
 
                         Platform.runLater(() -> {

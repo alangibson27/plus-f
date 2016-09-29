@@ -3,7 +3,6 @@ package com.socialthingy.plusf.spectrum;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Settings {
