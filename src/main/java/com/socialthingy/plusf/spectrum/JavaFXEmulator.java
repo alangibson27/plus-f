@@ -263,8 +263,9 @@ public class JavaFXEmulator extends Application {
 
         final Menu networkMenu = new Menu("Network");
         easyConnectItem = registerMenuItem(networkMenu, "Connect to guest", Optional.of(C), this::easyConnectToGuest);
+        easyConnectItem.disableProperty().bind(hostPeer.connectedProperty());
         disconnectItem = registerMenuItem(networkMenu, "Disconnect from guest", Optional.of(D), this::disconnectFromGuest);
-        disconnectItem.setDisable(true);
+        disconnectItem.disableProperty().bind(hostPeer.connectedProperty().not());
 
         final CheckMenuItem hostJoystickEnabledMenuItem = new CheckMenuItem("Enable Host Joystick");
         hostJoystickEnabledProperty = hostJoystickEnabledMenuItem.selectedProperty();

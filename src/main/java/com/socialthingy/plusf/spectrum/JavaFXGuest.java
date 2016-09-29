@@ -110,8 +110,9 @@ public class JavaFXGuest extends Application {
 
         final Menu networkMenu = new Menu("Network");
         easyConnectItem = registerMenuItem(networkMenu, "Connect to computer", Optional.of(C), this::easyConnectToComputer);
+        easyConnectItem.disableProperty().bind(guestPeer.connectedProperty());
         disconnectItem = registerMenuItem(networkMenu, "Disconnect from computer", Optional.of(D), this::disconnectFromComputer);
-        disconnectItem.setDisable(true);
+        disconnectItem.disableProperty().bind(guestPeer.connectedProperty().not());
 
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(networkMenu);

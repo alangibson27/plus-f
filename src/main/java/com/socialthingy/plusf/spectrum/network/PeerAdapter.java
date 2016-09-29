@@ -5,6 +5,8 @@ import akka.actor.ActorSystem;
 import com.socialthingy.plusf.p2p.*;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressIndicator;
@@ -31,7 +33,7 @@ public class PeerAdapter<T> implements Callbacks {
     private final ActorRef peer;
     private final Consumer<T> receiver;
     private Optional<Alert> connectionProgress = Optional.empty();
-    private boolean connected;
+    private SimpleBooleanProperty connected = new SimpleBooleanProperty(false);
 
     private double avgLatency;
     private int outOfOrder;
@@ -56,6 +58,10 @@ public class PeerAdapter<T> implements Callbacks {
     }
 
     public boolean isConnected() {
+        return connected.getValue();
+    }
+
+    public BooleanProperty connectedProperty() {
         return connected;
     }
 
@@ -67,7 +73,7 @@ public class PeerAdapter<T> implements Callbacks {
         alert.setGraphic(new ProgressIndicator(-1.0));
 
         alert.setOnCloseRequest(de -> {
-            if (!connected) {
+            if (!connected.get()) {
                 peer.tell(Close$.MODULE$, noSender());
             }
         });
@@ -78,7 +84,7 @@ public class PeerAdapter<T> implements Callbacks {
     }
 
     public void disconnect() {
-        connected = false;
+        connected.set(false);
         peer.tell(Close$.MODULE$, noSender());
     }
 
@@ -109,7 +115,7 @@ public class PeerAdapter<T> implements Callbacks {
 
     @Override
     public void connectedToPeer() {
-        connected = true;
+        connected.set(true);
         withConnectionDialog(cp -> {
             cp.setHeaderText("Connected to peer");
             cp.close();
@@ -129,7 +135,7 @@ public class PeerAdapter<T> implements Callbacks {
 
     @Override
     public void closed() {
-        connected = false;
+        connected.set(false);
     }
 
     @Override
