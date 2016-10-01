@@ -25,6 +25,7 @@ public class Processor {
     private final Operation[] ddCbOperations;
     private final Operation[] fdOperations;
     private final Operation[] fdCbOperations;
+
     private final Nop nop = new Nop();
     private boolean enableIff = false;
     private boolean halting = false;
@@ -316,7 +317,7 @@ public class Processor {
         final InterruptRequest interrupt = interruptRequests.peekFirst();
 
         if (iffs[0] && interrupt != null) {
-            incrementR();
+            incrementR(1);
             if (halting) {
                 pcReg.getAndInc();
                 halting = false;
@@ -333,51 +334,69 @@ public class Processor {
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
-            int opCode = fetchNextOpcode();
-            switch (opCode) {
-                case 0xcb:
-                    return cbOperations[fetchNextOpcode()];
-
-                case 0xed:
-                    final Operation op = edOperations[fetchNextOpcode()];
-                    if (op == null) {
-                        return nop;
-                    } else {
-                        return op;
-                    }
-
-                case 0xdd:
-                    opCode = fetchNextOpcode();
-                    if (opCode == 0xcb) {
-                        fetchNextByte();
-                        return ddCbOperations[fetchNextByte()];
-                    } else {
-                        return ddOperations[opCode];
-                    }
-
-                case 0xfd:
-                    opCode = fetchNextOpcode();
-                    if (opCode == 0xcb) {
-                        fetchNextByte();
-                        return fdCbOperations[fetchNextByte()];
-                    } else {
-                        return fdOperations[opCode];
-                    }
-
-                default:
-                    return (Operation) UNSAFE.getObject(operations, (long) ARRAY_OBJECT_BASE_OFFSET + (ARRAY_OBJECT_INDEX_SCALE * opCode));
-            }
+            return fetchFromMemory(pcReg.get());
         }
     }
 
-    public int fetchNextOpcode() {
-        incrementR();
-        return UNSAFE.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
+    private Operation fetchFromMemory(final int startPc) {
+        int pc = startPc;
+        final int opCode1 = fromMemory(pc++);
+        Operation op;
+        int refreshes = 2;
+        switch (opCode1) {
+            case 0xcb:
+                op = fromOpTable(cbOperations, fromMemory(pc++));
+                break;
+
+            case 0xed:
+                op = fromOpTable(edOperations, fromMemory(pc++));
+                if (op == null) {
+                    op = nop;
+                }
+                break;
+
+            case 0xdd:
+                final int opCode2 = fromMemory(pc++);
+                if (opCode2 == 0xcb) {
+                    pc++;
+                    op = fromOpTable(ddCbOperations, fromMemory(pc++));
+                } else {
+                    op = fromOpTable(ddOperations, opCode2);
+                }
+                break;
+
+            case 0xfd:
+                final int opCode3 = fromMemory(pc++);
+                if (opCode3 == 0xcb) {
+                    pc++;
+                    op = fromOpTable(fdCbOperations, fromMemory(pc++));
+                } else {
+                    op = fromOpTable(fdOperations, opCode3);
+                }
+                break;
+
+            default:
+                op = fromOpTable(operations, opCode1);
+                refreshes = 1;
+                break;
+        }
+
+        incrementR(refreshes);
+        pcReg.set(pc);
+        return op;
     }
 
-    private void incrementR() {
+    private int fromMemory(final int addr) {
+        return UNSAFE.getInt(memory, 16L + addr * 4);
+    }
+
+    private Operation fromOpTable(final Operation[] opTable, final int index) {
+        return (Operation) UNSAFE.getObject(opTable, (long) ARRAY_OBJECT_BASE_OFFSET + (ARRAY_OBJECT_INDEX_SCALE * index));
+    }
+
+    private void incrementR(final int amount) {
         final int rValue = rReg.get();
-        rReg.set((rValue & 0b10000000) | ((rValue + 1) & 0b01111111));
+        rReg.set((rValue & 0b10000000) | ((rValue + amount) & 0b01111111));
     }
 
     public int fetchNextByte() {
