@@ -2,7 +2,7 @@ package com.socialthingy.plusf.z80;
 
 public class ByteRegister implements Register {
 
-    private int value;
+    protected int value;
     private String name;
 
     ByteRegister(final String name) {

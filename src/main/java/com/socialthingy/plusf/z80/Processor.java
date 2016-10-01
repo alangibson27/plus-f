@@ -32,7 +32,7 @@ public class Processor {
     private boolean iffs[] = new boolean[2];
     private int interruptMode = 1;
     private Deque<InterruptRequest> interruptRequests = new LinkedList<>();
-    private final ByteRegister rReg = new ByteRegister("r");
+    private final RRegister rReg = new RRegister();
     private final ByteRegister iReg = new ByteRegister("i");
     private final WordRegister pcReg = new WordRegister("pc");
     private final WordRegister spReg = new WordRegister("sp");
@@ -317,7 +317,7 @@ public class Processor {
         final InterruptRequest interrupt = interruptRequests.peekFirst();
 
         if (iffs[0] && interrupt != null) {
-            incrementR(1);
+            rReg.increment(1);
             if (halting) {
                 pcReg.getAndInc();
                 halting = false;
@@ -381,7 +381,7 @@ public class Processor {
                 break;
         }
 
-        incrementR(refreshes);
+        rReg.increment(refreshes);
         pcReg.set(pc);
         return op;
     }
@@ -392,11 +392,6 @@ public class Processor {
 
     private Operation fromOpTable(final Operation[] opTable, final int index) {
         return (Operation) UNSAFE.getObject(opTable, (long) ARRAY_OBJECT_BASE_OFFSET + (ARRAY_OBJECT_INDEX_SCALE * index));
-    }
-
-    private void incrementR(final int amount) {
-        final int rValue = rReg.get();
-        rReg.set((rValue & 0b10000000) | ((rValue + amount) & 0b01111111));
     }
 
     public int fetchNextByte() {
@@ -509,12 +504,12 @@ public class Processor {
         private final int start;
         private final int end;
 
-        public Range(final int start, final int end) {
+        Range(final int start, final int end) {
             this.start = start;
             this.end = end;
         }
 
-        public boolean contains(final int address) {
+        boolean contains(final int address) {
             return address >= start && address <= end;
         }
     }

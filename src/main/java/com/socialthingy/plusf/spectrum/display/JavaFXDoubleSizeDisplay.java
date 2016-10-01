@@ -72,11 +72,11 @@ public class JavaFXDoubleSizeDisplay extends Display {
     }
 
     public void refreshScreen() {
-        screenWriter.setPixels(0, 0, scaledWidth, scaledHeight, PixelFormat.getIntArgbInstance(), targetPixels, 0, scaledWidth);
+        screenWriter.setPixels(0, 0, scaledWidth, scaledHeight, PixelFormat.getIntArgbPreInstance(), targetPixels, 0, scaledWidth);
     }
 
     public void refreshBorder() {
-        borderWriter.setPixels(0, 0, 1, DISPLAY_HEIGHT, PixelFormat.getIntArgbInstance(), borderLines, 0, 1);
+        borderWriter.setPixels(0, 0, 1, DISPLAY_HEIGHT, PixelFormat.getIntArgbPreInstance(), borderLines, 0, 1);
     }
 
     @Override
