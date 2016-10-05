@@ -41,6 +41,7 @@ public class TapePlayer implements Iterator<Boolean> {
 
     public void ejectTape() {
         stop();
+        currentBlock = null;
         blocks = null;
         blockIdx = -1;
         loopStart = -1;

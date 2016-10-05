@@ -13,6 +13,7 @@ public class ULA implements IO {
 
     private boolean pagingDisabled = false;
     private int earBit;
+    private int tapeCyclesAdvanced;
     private int currentCycleTstates;
 
     public ULA(final Display display, final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
@@ -25,6 +26,10 @@ public class ULA implements IO {
     @Override
     public int read(int port, int accumulator) {
         if (port == 0xfe) {
+            if (tapeCyclesAdvanced > 0) {
+                earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
+                tapeCyclesAdvanced = 0;
+            }
             return keyboard.readKeyboard(accumulator) | earBit;
         }
         return 0;
@@ -55,7 +60,7 @@ public class ULA implements IO {
     public void advanceCycle(final int tstates) {
         currentCycleTstates += tstates;
         if (tapePlayer.playingProperty().get()) {
-            earBit = tapePlayer.skip(tstates) ? 1 << 6 : 0;
+            tapeCyclesAdvanced += tstates;
         }
     }
 }
