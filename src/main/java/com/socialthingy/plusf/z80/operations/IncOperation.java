@@ -7,6 +7,8 @@ import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import sun.misc.Unsafe;
 
+import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
+
 abstract class IncOperation implements Operation {
 
     private final FlagsRegister flagsRegister;
@@ -17,15 +19,16 @@ abstract class IncOperation implements Operation {
     }
 
     protected int increment(final int initialValue) {
-        final int[] result = Bitwise.add(initialValue, 1);
+        final int result = Bitwise.add(initialValue, 1);
+        final int answer = result & 0xff;
 
         flagsRegister.set(FlagsRegister.Flag.P, initialValue == 0x7f);
-        flagsRegister.set(FlagsRegister.Flag.S, (byte) result[0] < 0);
-        flagsRegister.set(FlagsRegister.Flag.Z, result[0] == 0);
-        flagsRegister.set(FlagsRegister.Flag.H, result[1] == 1);
+        flagsRegister.set(FlagsRegister.Flag.S, (byte) answer < 0);
+        flagsRegister.set(FlagsRegister.Flag.Z, answer == 0);
+        flagsRegister.set(FlagsRegister.Flag.H, (result & HALF_CARRY_BIT) != 0);
         flagsRegister.set(FlagsRegister.Flag.N, false);
-        flagsRegister.setUndocumentedFlagsFromValue(result[0]);
+        flagsRegister.setUndocumentedFlagsFromValue(answer);
 
-        return result[0];
+        return answer;
     }
 }

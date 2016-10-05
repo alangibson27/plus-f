@@ -6,6 +6,9 @@ import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
+import static com.socialthingy.plusf.util.Bitwise.FULL_CARRY_BIT;
+import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
+
 public class OpAdcHl16Reg implements Operation {
     private final FlagsRegister flagsRegister;
     private final Register hlReg;
@@ -21,17 +24,18 @@ public class OpAdcHl16Reg implements Operation {
     public int execute() {
         final int hlValue = hlReg.get();
         final int carry = flagsRegister.get(FlagsRegister.Flag.C) ? 1 : 0;
-        final int[] result = Bitwise.addWord(hlValue, sourceReg.get() + carry);
+        final int result = Bitwise.addWord(hlValue, sourceReg.get() + carry);
+        final int answer = result & 0xffff;
 
-        flagsRegister.set(FlagsRegister.Flag.S, (result[0] & 0x8000) > 0);
-        flagsRegister.set(FlagsRegister.Flag.Z, result[0] == 0);
-        flagsRegister.set(FlagsRegister.Flag.H, result[1] == 1);
-        flagsRegister.set(FlagsRegister.Flag.P, ((short) hlValue < 0) != ((short) result[0] < 0));
+        flagsRegister.set(FlagsRegister.Flag.S, (answer & 0x8000) > 0);
+        flagsRegister.set(FlagsRegister.Flag.Z, answer == 0);
+        flagsRegister.set(FlagsRegister.Flag.H, (result & HALF_CARRY_BIT) != 0);
+        flagsRegister.set(FlagsRegister.Flag.P, ((short) hlValue < 0) != ((short) answer < 0));
         flagsRegister.set(FlagsRegister.Flag.N, false);
-        flagsRegister.set(FlagsRegister.Flag.C, result[2] == 1);
-        flagsRegister.setUndocumentedFlagsFromValue(result[0] >> 8);
+        flagsRegister.set(FlagsRegister.Flag.C, (result & FULL_CARRY_BIT) != 0);
+        flagsRegister.setUndocumentedFlagsFromValue(answer >> 8);
 
-        hlReg.set(result[0]);
+        hlReg.set(answer);
         return 15;
     }
 

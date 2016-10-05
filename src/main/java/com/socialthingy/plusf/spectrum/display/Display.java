@@ -17,7 +17,7 @@ public class Display implements Renderer {
     public static final int BOTTOM_BORDER_HEIGHT = 56;
 
     private final SpectrumColour[] colours = new SpectrumColour[0x100];
-    private final List<int[]> borderChanges = new ArrayList<>();
+    private final List<Long> borderChanges = new ArrayList<>();
     private int initialBorderColour;
     private final int visibleDisplayStart;
     private final int visibleDisplayEnd;
@@ -93,32 +93,32 @@ public class Display implements Renderer {
     }
 
     public void changeBorder(int currentCycleTstates, int value) {
-        borderChanges.add(new int[] {currentCycleTstates, value & 0b111});
+        borderChanges.add(((long) currentCycleTstates << 32) | (value & 0b111));
     }
 
     public void redrawBorder() {
         if (!borderChanges.isEmpty()) {
-            final int[] firstChange = borderChanges.get(0);
-            for (int j = 0; j < firstChange[0] / 224; j++) {
+            final long firstChange = borderChanges.get(0);
+            for (int j = 0; j < (firstChange >> 32) / 224; j++) {
                 setBorderLine(j, initialBorderColour);
             }
 
             for (int i = 0; i < borderChanges.size() - 1; i++) {
-                final int[] change1 = borderChanges.get(i);
-                final int[] change2 = borderChanges.get(i + 1);
+                final long change1 = borderChanges.get(i);
+                final long change2 = borderChanges.get(i + 1);
 
-                final int blockStart = change1[0] / 224;
-                final int blockEnd = change2[0] / 224;
+                final int blockStart = (int) (change1 >> 32) / 224;
+                final int blockEnd = (int) (change2 >> 32) / 224;
 
-                final int colour = 0xff000000 | dullColour(change1[1]);
+                final int colour = 0xff000000 | dullColour((int) change1);
                 for (int j = blockStart; j < blockEnd; j++) {
                     setBorderLine(j, colour);
                 }
             }
 
-            final int[] finalChange = borderChanges.get(borderChanges.size() - 1);
-            final int colour = 0xff000000 | dullColour(finalChange[1]);
-            for (int j = finalChange[0] / 224; j < borderLines.length; j++) {
+            final long finalChange = borderChanges.get(borderChanges.size() - 1);
+            final int colour = 0xff000000 | dullColour((int) finalChange);
+            for (int j = (int) (finalChange >> 32) / 224; j < borderLines.length; j++) {
                 setBorderLine(j, colour);
             }
             initialBorderColour = colour;

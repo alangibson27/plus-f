@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.util.Bitwise;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
@@ -20,11 +19,10 @@ public class OpRld extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int[] memoryNibbles = Bitwise.nibbles(unsafe.getInt(memory, 16L + ((address) * 4)));
-        final int[] accumulatorNibbles = Bitwise.nibbles(accumulator.get());
+        final int memoryValue = unsafe.getInt(memory, 16L + ((address) * 4));
 
-        Memory.set(memory, address, (memoryNibbles[1] << 4) + accumulatorNibbles[1]);
-        accumulator.set((accumulatorNibbles[0] << 4) + memoryNibbles[0]);
+        Memory.set(memory, address, (lowNibble(memoryValue) << 4) + lowNibble(accumulator.get()));
+        accumulator.set((highNibble(accumulator.get()) << 4) + highNibble(memoryValue));
 
         setSignZeroAndParity(accumulator.get());
         flagsRegister.set(FlagsRegister.Flag.H, false);

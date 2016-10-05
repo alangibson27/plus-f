@@ -61,4 +61,12 @@ abstract class RotateOperation implements Operation {
         flagsRegister.setUndocumentedFlagsFromValue(result);
         return result;
     }
+
+    protected int lowNibble(final int value) {
+        return value & 0b1111;
+    }
+
+    protected int highNibble(final int value) {
+        return (value & 0b11110000) >> 4;
+    }
 }

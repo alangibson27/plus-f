@@ -9,6 +9,9 @@ import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 import sun.misc.Unsafe;
 
+import static com.socialthingy.plusf.util.Bitwise.FULL_CARRY_BIT;
+import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
+
 abstract class ArithmeticOperation implements Operation {
     protected final Register accumulator;
     protected final FlagsRegister flagsRegister;
@@ -30,11 +33,12 @@ abstract class ArithmeticOperation implements Operation {
             value = value + 1;
         }
 
-        final int[] result = Bitwise.add(accumulator.get(), value);
-        accumulator.set(result[0]);
+        final int result = Bitwise.add(accumulator.get(), value);
+        final int answer = result & 0xff;
+        accumulator.set(answer);
         flagsRegister.set(Flag.N, false);
         setCommonFlags(signedAccumulator, result);
-        flagsRegister.setUndocumentedFlagsFromValue(result[0]);
+        flagsRegister.setUndocumentedFlagsFromValue(answer);
     }
 
     protected int sub(int value, final boolean setUndocumentedFlagsFromResult) {
@@ -44,23 +48,24 @@ abstract class ArithmeticOperation implements Operation {
             value = value + 1;
         }
 
-        final int[] result = Bitwise.sub(accumulator.get(), value);
+        final int result = Bitwise.sub(accumulator.get(), value);
+        final int answer = result & 0xff;
         flagsRegister.set(Flag.N, true);
         setCommonFlags(signedAccumulator, result);
         if (setUndocumentedFlagsFromResult) {
-            flagsRegister.setUndocumentedFlagsFromValue(result[0]);
+            flagsRegister.setUndocumentedFlagsFromValue(answer);
         } else {
             flagsRegister.setUndocumentedFlagsFromValue(value);
         }
-        return result[0];
+        return answer;
     }
 
-    protected void setCommonFlags(final byte signedAccumulator, final int[] result) {
-        final byte signedResult = (byte) result[0];
+    protected void setCommonFlags(final byte signedAccumulator, final int result) {
+        final byte signedResult = (byte) (result & 0xff);
         flagsRegister.set(Flag.S, signedResult < 0);
-        flagsRegister.set(Flag.Z, result[0] == 0);
-        flagsRegister.set(Flag.H, result[1] == 1);
+        flagsRegister.set(Flag.Z, (result & 0xff) == 0);
+        flagsRegister.set(Flag.H, (result & HALF_CARRY_BIT) != 0);
         flagsRegister.set(Flag.P, (signedAccumulator < 0) != (signedResult < 0));
-        flagsRegister.set(Flag.C, result[2] == 1);
+        flagsRegister.set(Flag.C, (result & FULL_CARRY_BIT) != 0);
     }
 }

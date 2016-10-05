@@ -20,11 +20,10 @@ public class OpRrd extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int[] memoryNibbles = Bitwise.nibbles(unsafe.getInt(memory, 16L + ((address) * 4)));
-        final int[] accumulatorNibbles = Bitwise.nibbles(accumulator.get());
+        final int memoryValue = unsafe.getInt(memory, 16L + ((address) * 4));
 
-        Memory.set(memory, address, (accumulatorNibbles[1] << 4) + memoryNibbles[0]);
-        accumulator.set((accumulatorNibbles[0] << 4) + memoryNibbles[1]);
+        Memory.set(memory, address, (lowNibble(accumulator.get()) << 4) + highNibble(memoryValue));
+        accumulator.set((highNibble(accumulator.get()) << 4) + lowNibble(memoryValue));
 
         setSignZeroAndParity(accumulator.get());
         flagsRegister.set(FlagsRegister.Flag.H, false);
