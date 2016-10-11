@@ -1,15 +1,15 @@
 package com.socialthingy.plusf.spectrum.display;
 
+import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 
-public class Display implements Renderer {
+public class Screen {
     public static final int SCREEN_WIDTH = 256;
     public static final int SCREEN_HEIGHT = 192;
 
@@ -22,12 +22,14 @@ public class Display implements Renderer {
     private final int visibleDisplayStart;
     private final int visibleDisplayEnd;
     protected final int[] borderLines;
+    private final int[] displayBytes;
 
     protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-    public Display(final int topVisibleBorder, final int bottomVisibleBorder) {
+    public Screen(final ULA ula, final int topVisibleBorder, final int bottomVisibleBorder) {
         final int displayHeight = topVisibleBorder + SCREEN_HEIGHT + bottomVisibleBorder;
         this.borderLines = new int[displayHeight];
+        this.displayBytes = new int[SCREEN_WIDTH * SCREEN_HEIGHT];
         this.visibleDisplayStart = TOP_BORDER_HEIGHT - topVisibleBorder;
         this.visibleDisplayEnd = TOP_BORDER_HEIGHT + SCREEN_HEIGHT + bottomVisibleBorder;
 
@@ -57,7 +59,7 @@ public class Display implements Renderer {
         return 0x4000 + ((y >> 6) * 0x800) + (((hi >> 3) | (lo << 3)) * 32);
     }
 
-    protected void draw(final int[] memory, final boolean flashActive) {
+    public int[] draw(final int[] memory, final boolean flashActive) {
         for (int y = 0; y < 192; y++) {
             for (int x = 0; x < 32; x++) {
                 final int colourVal = unsafe.getInt(memory, 16L + (colourAddress(x, y) * 4));
@@ -84,16 +86,24 @@ public class Display implements Renderer {
                 }
             }
         }
+
+        return displayBytes;
     }
 
-    protected void setPixel(final int x, final int y, final Color color) {}
+    private void setPixel(final int x, final int y, final int color) {
+        unsafe.putInt(displayBytes, 16L + ((x + (y * SCREEN_WIDTH)) * 4), color);
+    }
 
-    public void setBorder(final int spectrumColour) {
-        this.initialBorderColour = 0xff000000 | dullColour(spectrumColour);
+    public void setInitalBorderColour(final int colour) {
+        this.initialBorderColour = colour;
     }
 
     public void changeBorder(int currentCycleTstates, int value) {
         borderChanges.add(((long) currentCycleTstates << 32) | (value & 0b111));
+    }
+
+    public int getInitialBorderColour() {
+        return initialBorderColour;
     }
 
     public void redrawBorder() {
@@ -138,10 +148,6 @@ public class Display implements Renderer {
 
     public int[] getBorderLines() {
         return borderLines;
-    }
-
-    @Override
-    public void renderMemory(int[] memory, boolean flashActive) {
     }
 }
 

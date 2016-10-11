@@ -27,11 +27,6 @@ public class Processor {
     private final Operation[] fdCbOperations;
 
     private final Nop nop = new Nop();
-    private boolean enableIff = false;
-    private boolean halting = false;
-    private boolean iffs[] = new boolean[2];
-    private int interruptMode = 1;
-    private Deque<InterruptRequest> interruptRequests = new LinkedList<>();
     private final RRegister rReg = new RRegister();
     private final ByteRegister iReg = new ByteRegister("i");
     private final WordRegister pcReg = new WordRegister("pc");
@@ -39,6 +34,12 @@ public class Processor {
     private final FlagsRegister fReg = new FlagsRegister();
     private final OpRst im1ResponseOp;
     private final OpRst nmiResponseOp;
+
+    private boolean enableIff = false;
+    private boolean halting = false;
+    private boolean iffs[] = new boolean[2];
+    private int interruptMode = 1;
+    private Deque<InterruptRequest> interruptRequests = new LinkedList<>();
     private int lastTime;
     private Operation lastOp;
     private int lastPc;
@@ -494,6 +495,17 @@ public class Processor {
         for (Register reg: registers.values()) {
             reg.set(0);
         }
+
+        enableIff = false;
+        halting = false;
+        iffs[0] = false;
+        iffs[1] = false;
+        interruptMode = 1;
+        interruptRequests.clear();
+        lastTime = 0;
+        lastOp = null;
+        lastPc = 0;
+        cyclesUntilBreak = -1;
     }
 
     public void startDebugging() {

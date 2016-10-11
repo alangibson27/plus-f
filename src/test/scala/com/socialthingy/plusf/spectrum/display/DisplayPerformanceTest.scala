@@ -5,10 +5,9 @@ import com.socialthingy.plusf.Timing
 import scala.util.Random.nextInt
 
 object DisplayPerformanceTest extends App with Timing {
-
+/*
   val displays: List[(Renderer, String)] = List(
-    (new JavaFXDoubleSizeDisplay(), "JavaFXDoubleSizeDisplay"),
-    (new JavaFXDoubleSizeDisplay2(), "JavaFXDoubleSizeDisplay2")
+    (new JavaFXDoubleSizeDisplay(), "JavaFXDoubleSizeDisplay")
   )
 
   val repetitions = 1000
@@ -38,4 +37,5 @@ object DisplayPerformanceTest extends App with Timing {
 
       println(timeTaken)
   }
+  */
 }

@@ -30,13 +30,11 @@ public class Memory {
 
     private static int romPage;
     private static int screenPage;
-    private static int midPage;
     private static int highPage;
 
     private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-    public static int[] configure(final Model model) throws IOException {
-        final int[] addressableMemory = new int[0x10000];
+    public static void configure(final int[] addressableMemory, final Model model) throws IOException {
         romPages = new int[model.romFileNames.length][];
         int pageIdx = 0;
         for (String romFileName: model.romFileNames) {
@@ -50,13 +48,11 @@ public class Memory {
 
         romPage = 0;
         screenPage = model.screenPage;
-        midPage = model.midPage;
         highPage = model.highPage;
         currentModel = model;
 
         copyPageIntoMemory(addressableMemory, romPages[0], ROM_PAGE);
         memoryProtectionEnabled = true;
-        return addressableMemory;
     }
 
     private static int[] readRom(final String romFileName) throws IOException {

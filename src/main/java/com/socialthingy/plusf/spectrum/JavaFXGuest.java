@@ -1,5 +1,7 @@
 package com.socialthingy.plusf.spectrum;
 
+class JavaFXGuest {}
+/*
 import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
 import com.socialthingy.plusf.spectrum.input.JavaFXJoystick;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
@@ -138,4 +140,4 @@ public class JavaFXGuest extends Application {
         }
     }
 }
-
+*/

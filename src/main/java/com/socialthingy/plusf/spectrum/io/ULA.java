@@ -1,23 +1,27 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.spectrum.TapePlayer;
-import com.socialthingy.plusf.spectrum.display.Display;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
     private final Keyboard keyboard;
-    private final Display display;
     private final int[] memory;
 
     private boolean pagingDisabled = false;
     private int earBit;
     private int tapeCyclesAdvanced;
     private int currentCycleTstates;
+    private boolean flashActive = false;
+    private int cyclesUntilFlashChange = 16;
+    private int borderColour;
+    private List<Long> borderChanges = new ArrayList<>();
 
-    public ULA(final Display display, final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
-        this.display = display;
+    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.memory = memory;
@@ -38,7 +42,8 @@ public class ULA implements IO {
     @Override
     public void write(int port, int accumulator, int value) {
         if (port == 0xfe) {
-            display.changeBorder(currentCycleTstates, value);
+            borderColour = value & 0b111;
+            borderChanges.add(((long) currentCycleTstates << 32) | borderColour);
         }
 
         if (port == 0xfd && accumulator == 0x7f && !pagingDisabled) {
@@ -53,14 +58,49 @@ public class ULA implements IO {
         }
     }
 
+    public void setBorderColour(final int borderColour) {
+        this.borderColour = borderColour & 0b111;
+        borderChanges.clear();
+        borderChanges.add((long) borderColour);
+    }
+
+    public List<Long> getBorderChanges() {
+        return borderChanges;
+    }
+
     public void newCycle() {
+        borderChanges.clear();
+        borderChanges.add((long) borderColour);
+        cyclesUntilFlashChange--;
+        if (cyclesUntilFlashChange == 0) {
+            cyclesUntilFlashChange = 16;
+            flashActive = !flashActive;
+        }
         currentCycleTstates = 0;
+    }
+
+    public boolean flashStatusChanged() {
+        return cyclesUntilFlashChange == 16;
+    }
+
+    public boolean flashActive() {
+        return flashActive;
     }
 
     public void advanceCycle(final int tstates) {
         currentCycleTstates += tstates;
-        if (tapePlayer.playingProperty().get()) {
+        if (tapePlayer.isPlaying()) {
             tapeCyclesAdvanced += tstates;
         }
+    }
+
+    public void reset() {
+        borderChanges.clear();
+        pagingDisabled = false;
+        earBit = 0;
+        tapeCyclesAdvanced = 0;
+        currentCycleTstates = 0;
+        flashActive = false;
+        cyclesUntilFlashChange = 16;
     }
 }

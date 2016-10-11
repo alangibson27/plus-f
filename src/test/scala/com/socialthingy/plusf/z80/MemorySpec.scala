@@ -7,7 +7,8 @@ class MemorySpec extends WordSpec with Matchers {
 
   "+2 memory" when {
     "configured" should {
-      val addressableMemory = Memory.configure(Model.PLUS_2)
+      val addressableMemory = Array.ofDim[Int](0x10000)
+      Memory.configure(addressableMemory, Model.PLUS_2)
 
       "have the editor ROM in slot 0" in {
         addressableMemory(0x0000) shouldBe 0xf3
@@ -218,6 +219,7 @@ class MemorySpec extends WordSpec with Matchers {
   }
 
   trait ConfiguredMemory {
-    val addressableMemory = Memory.configure(Model.PLUS_2)
+    val addressableMemory = Array.ofDim[Int](0x10000)
+    Memory.configure(addressableMemory, Model.PLUS_2)
   }
 }

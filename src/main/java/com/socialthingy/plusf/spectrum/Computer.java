@@ -110,4 +110,7 @@ public class Computer implements InterruptingDevice {
     @Override
     public void acknowledge() {
     }
+
+    public void reset() {
+    }
 }

@@ -3,14 +3,15 @@ package com.socialthingy.plusf.spectrum;
 import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.replist.SkippableIterator;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
-import org.controlsfx.control.Notifications;
 
+import javax.swing.*;
 import java.time.Duration;
 import java.util.*;
 
 public class TapePlayer implements Iterator<Boolean> {
+    private final ButtonModel playButtonModel;
+    private final ButtonModel stopButtonModel;
+    private final ButtonModel rewindToStartButtonModel;
     private int blockIdx = 0;
     private final SignalState signalState = new SignalState(false);
     private SkippableIterator<Boolean> currentBlock = null;
@@ -18,36 +19,42 @@ public class TapePlayer implements Iterator<Boolean> {
     private int loopCount = 0;
 
     private TapeBlock[] blocks = null;
-    private SimpleBooleanProperty isPlaying = new SimpleBooleanProperty(false);
-    private SimpleBooleanProperty playAvailable = new SimpleBooleanProperty(false);
-    private SimpleBooleanProperty stopAvailable = new SimpleBooleanProperty(false);
-    private SimpleBooleanProperty seekAvailable = new SimpleBooleanProperty(false);
 
-    public SimpleBooleanProperty playAvailableProperty() {
-        return playAvailable;
+    public TapePlayer() {
+        this.playButtonModel = new JToggleButton.ToggleButtonModel();
+        this.stopButtonModel = new DefaultButtonModel();
+        this.rewindToStartButtonModel = new DefaultButtonModel();
+
+        rewindToStartButtonModel.addActionListener(action -> {
+            try {
+                rewindToStart();
+            } catch (TapeException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public SimpleBooleanProperty stopAvailableProperty() {
-        return stopAvailable;
+    public ButtonModel getPlayButtonModel() {
+        return playButtonModel;
     }
 
-    public SimpleBooleanProperty seekAvailableProperty() {
-        return seekAvailable;
+    public ButtonModel getStopButtonModel() {
+        return stopButtonModel;
     }
 
-    public SimpleBooleanProperty playingProperty() {
-        return isPlaying;
+    public ButtonModel getRewindToStartButtonModel() {
+        return rewindToStartButtonModel;
     }
 
     public void ejectTape() {
-        stop();
         currentBlock = null;
         blocks = null;
         blockIdx = -1;
         loopStart = -1;
-        playAvailable.set(false);
-        stopAvailable.set(false);
-        seekAvailable.set(false);
+        playButtonModel.setSelected(false);
+        playButtonModel.setEnabled(false);
+        stopButtonModel.setEnabled(false);
+        rewindToStartButtonModel.setEnabled(false);
     }
 
     public void setTape(final Tape tape) throws TapeException {
@@ -58,45 +65,31 @@ public class TapePlayer implements Iterator<Boolean> {
         blocks[blocks.length - 1] = new PauseBlock(Duration.ofMillis(1));
         this.blocks = blocks;
         this.currentBlock = nextBlock();
-        playAvailable.set(true);
-        stopAvailable.set(false);
-        seekAvailable.set(false);
-    }
-
-    public void stop() {
-        if (blocks != null) {
-            isPlaying.set(false);
-            playAvailable.set(true);
-            stopAvailable.set(false);
-            seekAvailable.set(true);
-        }
+        playButtonModel.setEnabled(true);
+        stopButtonModel.setEnabled(true);
+        rewindToStartButtonModel.setEnabled(true);
     }
 
     public void play() {
         if (blocks != null) {
             signalState.set(false);
-            isPlaying.set(true);
-            playAvailable.set(false);
-            stopAvailable.set(true);
-            seekAvailable.set(true);
         }
     }
 
     public void rewindToStart() throws TapeException {
         if (blocks != null) {
-            Notifications.create().title("Tape").text("Tape has been rewound to start").showInformation();
-            isPlaying.set(false);
             blockIdx = -1;
             currentBlock = nextBlock();
-            playAvailable.set(true);
-            stopAvailable.set(false);
-            seekAvailable.set(true);
         }
+    }
+
+    public boolean isPlaying() {
+        return playButtonModel.isSelected();
     }
 
     @Override
     public boolean hasNext() {
-        if (!isPlaying.get()) {
+        if (!isPlaying()) {
             return false;
         } else if (currentBlock != null) {
             if (currentBlock.hasNext()) {
@@ -106,15 +99,13 @@ public class TapePlayer implements Iterator<Boolean> {
                 return hasNext();
             }
         } else {
-            Platform.runLater(() -> Notifications.create().title("Tape").text("End of tape reached").showInformation());
-            stop();
             return false;
         }
     }
 
     @Override
     public Boolean next() {
-        if (!isPlaying.get() || currentBlock == null) {
+        if (!isPlaying() || currentBlock == null) {
             throw new NoSuchElementException("Tape stopped");
         } else {
             final Iterator<Boolean> block = currentBlock;
@@ -153,7 +144,7 @@ public class TapePlayer implements Iterator<Boolean> {
 
         final TapeBlock nextBlock = blocks[blockIdx];
         if (nextBlock instanceof PauseBlock && ((PauseBlock) nextBlock).shouldStopTape()) {
-            stop();
+            playButtonModel.setSelected(false);
             return nextBlock();
         }
 

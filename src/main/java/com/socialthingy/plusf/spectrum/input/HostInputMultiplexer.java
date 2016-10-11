@@ -1,16 +1,16 @@
 package com.socialthingy.plusf.spectrum.input;
 
-import javafx.event.EventHandler;
-import javafx.scene.input.KeyEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class HostInputMultiplexer implements EventHandler<KeyEvent> {
-    private final EventHandler<KeyEvent> keyboardHandler;
-    private final EventHandler<KeyEvent> joystickHandler;
+public class HostInputMultiplexer implements KeyListener {
+    private final KeyListener keyboardHandler;
+    private final KeyListener joystickHandler;
     private boolean joystickActive;
 
     public HostInputMultiplexer(
-        final EventHandler<KeyEvent> keyboardHandler,
-        final EventHandler<KeyEvent> joystickHandler
+        final KeyListener keyboardHandler,
+        final KeyListener joystickHandler
     ) {
         this.keyboardHandler = keyboardHandler;
         this.joystickHandler = joystickHandler;
@@ -25,13 +25,35 @@ public class HostInputMultiplexer implements EventHandler<KeyEvent> {
     }
 
     @Override
-    public void handle(final KeyEvent event) {
+    public void keyTyped(final KeyEvent e) {
         if (joystickActive) {
-            joystickHandler.handle(event);
+            joystickHandler.keyTyped(e);
         }
 
-        if (!event.isConsumed()) {
-            keyboardHandler.handle(event);
+        if (!e.isConsumed()) {
+            keyboardHandler.keyTyped(e);
+        }
+    }
+
+    @Override
+    public void keyPressed(final KeyEvent e) {
+        if (joystickActive) {
+            joystickHandler.keyPressed(e);
+        }
+
+        if (!e.isConsumed()) {
+            keyboardHandler.keyPressed(e);
+        }
+    }
+
+    @Override
+    public void keyReleased(final KeyEvent e) {
+        if (joystickActive) {
+            joystickHandler.keyReleased(e);
+        }
+
+        if (!e.isConsumed()) {
+            keyboardHandler.keyReleased(e);
         }
     }
 }

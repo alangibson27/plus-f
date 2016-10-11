@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 object ProcessorPerformanceTest extends App with Timing {
 
   val memory = Array.ofDim[Int](0x10000)
-  Memory.configure(Model._48K)
+  Memory.configure(memory, Model._48K)
   val rom = getClass.getResourceAsStream("/48.rom")
   readMemory(rom, memory)
 

@@ -1,9 +1,11 @@
 package com.socialthingy.plusf.spectrum;
 
+class JavaFXEmulator {}
+/*
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SlidingTimeWindowReservoir;
 import com.codahale.metrics.Timer;
-import com.socialthingy.plusf.spectrum.display.Icons;
+import com.socialthingy.plusf.spectrum.ui.Icons;
 import com.socialthingy.plusf.spectrum.display.JavaFXDoubleSizeDisplay;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.input.JavaFXJoystick;
@@ -54,7 +56,7 @@ import static com.socialthingy.plusf.spectrum.UIBuilder.buildUI;
 import static com.socialthingy.plusf.spectrum.UIBuilder.installStatusLabelUpdater;
 import static com.socialthingy.plusf.spectrum.UIBuilder.registerMenuItem;
 import static com.socialthingy.plusf.spectrum.dialog.CodenameDialog.getCodename;
-import static com.socialthingy.plusf.spectrum.display.Icons.iconFrom;
+import static com.socialthingy.plusf.spectrum.ui.Icons.iconFrom;
 import static javafx.scene.input.KeyCode.*;
 
 public class JavaFXEmulator extends Application {
@@ -551,3 +553,4 @@ public class JavaFXEmulator extends Application {
     }
 }
 
+*/
