@@ -80,7 +80,7 @@ public class SwingEmulator {
             new MetricRegistry()
         );
 
-        final Screen screen = new Screen(ula, TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT);
+        final Screen screen = new Screen(TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT);
         display = new SwingDoubleSizeDisplay(screen, memory, ula);
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
@@ -212,7 +212,8 @@ public class SwingEmulator {
             computer.singleCycle();
             if (shouldRepaint()) {
                 lastRepaint = System.currentTimeMillis();
-                display.updateFromHardware();
+                display.updateScreen();
+                display.updateBorder(currentSpeed == EmulatorSpeed.TURBO);
                 SwingUtilities.invokeLater(display::repaint);
             }
         } while (currentSpeed == EmulatorSpeed.TURBO);

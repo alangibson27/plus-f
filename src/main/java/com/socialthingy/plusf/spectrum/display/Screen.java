@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum.display;
 
-import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
@@ -26,7 +25,7 @@ public class Screen {
 
     protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-    public Screen(final ULA ula, final int topVisibleBorder, final int bottomVisibleBorder) {
+    public Screen(final int topVisibleBorder, final int bottomVisibleBorder) {
         final int displayHeight = topVisibleBorder + SCREEN_HEIGHT + bottomVisibleBorder;
         this.borderLines = new int[displayHeight];
         this.displayBytes = new int[SCREEN_WIDTH * SCREEN_HEIGHT];

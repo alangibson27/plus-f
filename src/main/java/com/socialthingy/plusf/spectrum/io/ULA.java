@@ -20,6 +20,7 @@ public class ULA implements IO {
     private int cyclesUntilFlashChange = 16;
     private int borderColour;
     private List<Long> borderChanges = new ArrayList<>();
+    private int unchangedBorderCycles = 0;
 
     public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
         this.keyboard = keyboard;
@@ -42,8 +43,12 @@ public class ULA implements IO {
     @Override
     public void write(int port, int accumulator, int value) {
         if (port == 0xfe) {
-            borderColour = value & 0b111;
-            borderChanges.add(((long) currentCycleTstates << 32) | borderColour);
+            final int newBorderColour = value & 0b111;
+            if (borderColour != newBorderColour) {
+                unchangedBorderCycles = 0;
+                borderColour = newBorderColour;
+                borderChanges.add(((long) currentCycleTstates << 32) | borderColour);
+            }
         }
 
         if (port == 0xfd && accumulator == 0x7f && !pagingDisabled) {
@@ -69,6 +74,9 @@ public class ULA implements IO {
     }
 
     public void newCycle() {
+        if (borderChanges.size() == 1) {
+            unchangedBorderCycles++;
+        }
         borderChanges.clear();
         borderChanges.add((long) borderColour);
         cyclesUntilFlashChange--;
@@ -77,6 +85,10 @@ public class ULA implements IO {
             flashActive = !flashActive;
         }
         currentCycleTstates = 0;
+    }
+
+    public boolean borderNeedsRedrawing() {
+        return unchangedBorderCycles < 2;
     }
 
     public boolean flashStatusChanged() {
@@ -96,6 +108,7 @@ public class ULA implements IO {
 
     public void reset() {
         borderChanges.clear();
+        unchangedBorderCycles = 0;
         pagingDisabled = false;
         earBit = 0;
         tapeCyclesAdvanced = 0;

@@ -9,6 +9,7 @@ import sun.misc.Unsafe;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.*;
 
 import static com.socialthingy.plusf.spectrum.display.Screen.*;
@@ -40,6 +41,8 @@ public class SwingDoubleSizeDisplay extends JComponent {
     private final BufferedImage borderImage;
     private final BufferedImage image;
     private final ULA ula;
+    private final int[] imageDataBuffer;
+    private final int[] borderImageDataBuffer;
 
     public SwingDoubleSizeDisplay(final Screen screen, final int[] memory, final ULA ula) {
         this.memory = memory;
@@ -49,41 +52,47 @@ public class SwingDoubleSizeDisplay extends JComponent {
         this.scaledHeight = SCREEN_HEIGHT * SCALE;
 
         this.targetPixels = new int[scaledWidth * scaledHeight * SCALE];
-        this.image = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB_PRE);
-        this.borderImage = new BufferedImage(1, borderPixels.length, BufferedImage.TYPE_INT_ARGB_PRE);
+        this.image = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB);
+        this.imageDataBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        this.borderImage = new BufferedImage(1, borderPixels.length, BufferedImage.TYPE_INT_ARGB);
+        this.borderImageDataBuffer = ((DataBufferInt) borderImage.getRaster().getDataBuffer()).getData();
     }
 
     public Screen getScreen() {
         return screen;
     }
 
-    public void updateFromHardware() {
+    public void updateScreen() {
         if (Memory.screenChanged() || ula.flashStatusChanged()) {
             Memory.markScreenDrawn();
             renderMemory(Memory.getScreenBytes(memory), ula.flashActive());
-            image.setRGB(0, 0, scaledWidth, scaledHeight, targetPixels, 0, scaledWidth);
+            System.arraycopy(targetPixels, 0, imageDataBuffer, 0, imageDataBuffer.length);
         }
+    }
 
-        final Iterator<Long> it = ula.getBorderChanges().iterator();
-        long change = it.next();
-        int colour = dullColour((int) change);
-        int topLine = ((int) (change >> 32)) / TSTATES_PER_LINE;
-        while (it.hasNext()) {
-            change = it.next();
-            int bottomLine = ((int) (change >> 32)) / TSTATES_PER_LINE;
-            if (bottomLine > borderPixels.length) {
-                bottomLine = borderPixels.length;
+    public void updateBorder(final boolean force) {
+        if (force || ula.borderNeedsRedrawing()) {
+            final Iterator<Long> it = ula.getBorderChanges().iterator();
+            long change = it.next();
+            int colour = dullColour((int) change);
+            int topLine = ((int) (change >> 32)) / TSTATES_PER_LINE;
+            while (it.hasNext()) {
+                change = it.next();
+                int bottomLine = ((int) (change >> 32)) / TSTATES_PER_LINE;
+                if (bottomLine > borderPixels.length) {
+                    bottomLine = borderPixels.length;
+                }
+                for (int i = topLine; i < bottomLine; i++) {
+                    borderPixels[i] = colour;
+                }
+                colour = dullColour((int) change);
+                topLine = bottomLine;
             }
-            for (int i = topLine; i < bottomLine; i++) {
+            for (int i = topLine; i < borderPixels.length; i++) {
                 borderPixels[i] = colour;
             }
-            colour = dullColour((int) change);
-            topLine = bottomLine;
+            System.arraycopy(borderPixels, 0, borderImageDataBuffer, 0, borderImageDataBuffer.length);
         }
-        for (int i = topLine; i < borderPixels.length; i++) {
-            borderPixels[i] = colour;
-        }
-        borderImage.setRGB(0, 0, 1, borderPixels.length, borderPixels, 0, 1);
     }
 
     @Override
