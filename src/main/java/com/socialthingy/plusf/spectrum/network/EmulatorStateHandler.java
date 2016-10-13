@@ -6,8 +6,9 @@ import com.socialthingy.plusf.p2p.Deserialiser;
 import com.socialthingy.plusf.p2p.Serialiser;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.socialthingy.plusf.spectrum.network.EmulatorState.BORDER_LINE_COUNT;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 
 public class EmulatorStateHandler implements Serialiser, Deserialiser {
@@ -20,13 +21,12 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
         for (int i = 0x4000; i < 0x5b00; i++) {
             memory[i] = buf.get() & 0xff;
         }
-
-        final int[] borderLines = new int[BORDER_LINE_COUNT];
-        for (int i = 0; i < BORDER_LINE_COUNT; i++) {
-            borderLines[i] = buf.getInt();
+        final boolean isFlashActive = buf.get() != 0;
+        final List<Long> borderChanges = new ArrayList<>();
+        while (buf.hasRemaining()) {
+            borderChanges.add(buf.getLong());
         }
-
-        return new EmulatorState(memory, borderLines, buf.get() != 0);
+        return new EmulatorState(memory, borderChanges, isFlashActive);
     }
 
     @Override
@@ -37,11 +37,10 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
             out.putByte((byte) memory[i]);
         }
 
-        final int[] borderLines = state.getBorderLines();
-        for (int i = 0; i < BORDER_LINE_COUNT; i++) {
-            out.putInt(borderLines[i], BIG_ENDIAN);
-        }
-
         out.putByte(state.isFlashActive() ? (byte) 1 : 0);
+
+        for (Long borderChange: state.getBorderChanges()) {
+            out.putLong(borderChange, BIG_ENDIAN);
+        }
     }
 }

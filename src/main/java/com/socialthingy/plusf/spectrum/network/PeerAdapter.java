@@ -4,18 +4,16 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import com.socialthingy.plusf.p2p.*;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
+import javax.swing.*;
+import java.awt.*;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +22,6 @@ import java.util.function.Consumer;
 import static akka.actor.ActorRef.noSender;
 import static com.socialthingy.plusf.spectrum.Settings.DISCOVERY_HOST;
 import static com.socialthingy.plusf.spectrum.Settings.DISCOVERY_PORT;
-import static javafx.scene.control.Alert.AlertType.INFORMATION;
 
 public class PeerAdapter<T> implements Callbacks {
     private static final InetSocketAddress DISCOVERY_ADDR = new InetSocketAddress(DISCOVERY_HOST, DISCOVERY_PORT);
@@ -32,7 +29,7 @@ public class PeerAdapter<T> implements Callbacks {
 
     private final ActorRef peer;
     private final Consumer<T> receiver;
-    private Optional<Alert> connectionProgress = Optional.empty();
+    private Optional<ProgressMonitor> connectionProgress = Optional.empty();
     private SimpleBooleanProperty connected = new SimpleBooleanProperty(false);
 
     private double avgLatency;
@@ -66,20 +63,17 @@ public class PeerAdapter<T> implements Callbacks {
     }
 
     public void connect(final String sessionId) {
-        final Alert alert = new Alert(INFORMATION);
-        alert.getButtonTypes().setAll(ButtonType.CANCEL);
-        alert.setHeaderText("Please wait ...");
-        alert.setTitle("Connecting to Peer");
-        alert.setGraphic(new ProgressIndicator(-1.0));
+        final ProgressMonitor progressMonitor = new ProgressMonitor(
+                null,
+                "Connecting to Peer",
+                "Please wait ...",
+                0,
+                4
+        );
+        progressMonitor.setMillisToDecideToPopup(10);
+        progressMonitor.setMillisToPopup(0);
 
-        alert.setOnCloseRequest(de -> {
-            if (!connected.get()) {
-                peer.tell(Close$.MODULE$, noSender());
-            }
-        });
-        alert.show();
-
-        connectionProgress = Optional.of(alert);
+        connectionProgress = Optional.of(progressMonitor);
         peer.tell(Register.apply(sessionId), noSender());
     }
 
@@ -110,27 +104,36 @@ public class PeerAdapter<T> implements Callbacks {
 
     @Override
     public void waitingForPeer() {
-        withConnectionDialog(cp -> cp.setHeaderText("Waiting for peer ..."));
+        withConnectionDialog(cp -> {
+            cp.setNote("Waiting for peer ...");
+            cp.setProgress(3);
+        });
     }
 
     @Override
     public void connectedToPeer() {
         connected.set(true);
         withConnectionDialog(cp -> {
-            cp.setHeaderText("Connected to peer");
-            cp.close();
+            cp.setNote("Connected to peer");
+            cp.setProgress(4);
             connectionProgress = Optional.empty();
         });
     }
 
     @Override
     public void discovering() {
-        withConnectionDialog(cp -> cp.setHeaderText("Contacting discovery service ..."));
+        withConnectionDialog(cp -> {
+            cp.setNote("Contacting discovery service ...");
+            cp.setProgress(2);
+        });
     }
 
     @Override
     public void initialising() {
-        withConnectionDialog(cp -> cp.setHeaderText("Initialising peer ..."));
+        withConnectionDialog(cp -> {
+            cp.setNote("Initialising peer ...");
+            cp.setProgress(1);
+        });
     }
 
     @Override
@@ -146,13 +149,13 @@ public class PeerAdapter<T> implements Callbacks {
 
     @Override
     public void discoveryTimeout() {
-        withConnectionDialog(Alert::close);
+        withConnectionDialog(cp -> cp.close());
         connectionProgress = Optional.empty();
         ErrorDialog.show("Connection Timeout", "Peer discovery timed out. Try again later.", Optional.empty());
     }
 
-    private void withConnectionDialog(final Consumer<Alert> action) {
-        connectionProgress.ifPresent(cp -> Platform.runLater(() -> action.accept(cp)));
+    private void withConnectionDialog(final Consumer<ProgressMonitor> action) {
+        connectionProgress.ifPresent(cp -> EventQueue.invokeLater(() -> action.accept(cp)));
     }
 
     public double getAverageLatency() {

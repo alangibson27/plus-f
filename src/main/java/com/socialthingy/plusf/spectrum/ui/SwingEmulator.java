@@ -6,8 +6,12 @@ import com.socialthingy.plusf.spectrum.display.Screen;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.ULA;
+import com.socialthingy.plusf.spectrum.joystick.Joystick;
 import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
 import com.socialthingy.plusf.spectrum.joystick.SinclairJoystickInterface;
+import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
+import com.socialthingy.plusf.spectrum.network.EmulatorState;
+import com.socialthingy.plusf.spectrum.network.GuestStateType;
 import com.socialthingy.plusf.tape.Tape;
 import com.socialthingy.plusf.tape.TapeException;
 import com.socialthingy.plusf.tape.TapeFileReader;
@@ -26,6 +30,7 @@ import static com.socialthingy.plusf.spectrum.UserPreferences.LAST_LOAD_DIRECTOR
 import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
 import static com.socialthingy.plusf.spectrum.display.Screen.BOTTOM_BORDER_HEIGHT;
 import static com.socialthingy.plusf.spectrum.display.Screen.TOP_BORDER_HEIGHT;
+import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 
 public class SwingEmulator {
     private final Computer computer;
@@ -37,6 +42,7 @@ public class SwingEmulator {
     private final KempstonJoystickInterface kempstonJoystickInterface;
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final HostInputMultiplexer hostInputMultiplexer;
+    private final EmulatorPeerAdapter peer;
     private Model currentModel;
     private final SwingKeyboard keyboard;
     private final ScheduledThreadPoolExecutor cycleScheduler;
@@ -47,6 +53,7 @@ public class SwingEmulator {
     private final ULA ula;
     private final Processor processor;
     private long lastRepaint;
+    private final Joystick guestJoystick;
 
     public SwingEmulator() throws IOException {
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
@@ -59,11 +66,12 @@ public class SwingEmulator {
         tapePlayer = new TapePlayer();
         ula = new ULA(keyboard, tapePlayer, memory);
         hostJoystick = new SwingJoystick();
+        guestJoystick = new Joystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
         sinclair1JoystickInterface = new SinclairJoystickInterface(keyboard);
         hostInputMultiplexer = new HostInputMultiplexer(keyboard, hostJoystick);
         hostInputMultiplexer.deactivateJoystick();
-//        kempstonJoystickInterface.connect(guestJoystick);
+        kempstonJoystickInterface.connect(guestJoystick);
         sinclair1JoystickInterface.connect(hostJoystick);
 
         ioMux.register(0xfe, ula);
@@ -80,12 +88,18 @@ public class SwingEmulator {
             new MetricRegistry()
         );
 
+        peer = new EmulatorPeerAdapter(gs -> {
+            if (gs.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
+                guestJoystick.deserialise(gs.getEventValue());
+            }
+        });
+
         final Screen screen = new Screen(TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT);
         display = new SwingDoubleSizeDisplay(screen, memory, ula);
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
 
-        mainWindow = new JFrame("Plus-F");
+        mainWindow = new JFrame("+F Spectrum Emulator");
         initialiseUI();
     }
 
@@ -163,6 +177,20 @@ public class SwingEmulator {
 
         menuBar.add(tapeMenu);
 
+        final JMenu networkMenu = new JMenu("Network");
+        final JMenuItem connectItem = menuItemFor("Connect", this::connect, Optional.of(KeyEvent.VK_C));
+        networkMenu.add(connectItem);
+        final JMenuItem disconnectItem = menuItemFor("Disconnect", this::disconnect, Optional.of(KeyEvent.VK_D));
+        networkMenu.add(disconnectItem);
+        menuBar.add(networkMenu);
+
+        connectItem.setEnabled(true);
+        disconnectItem.setEnabled(false);
+        peer.connectedProperty().addListener((observable, oldValue, newValue) -> {
+            connectItem.setEnabled(!newValue);
+            disconnectItem.setEnabled(newValue);
+        });
+
         final TapeControls tapeControls = new TapeControls(tapePlayer);
         final JPanel statusBar = new JPanel(new GridLayout(1, 3));
         speedIndicator.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -180,18 +208,26 @@ public class SwingEmulator {
         mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    private JMenuItem menuItemFor(final String name, final ActionListener action, final Optional<Integer> accelerator) {
-        final JMenuItem loadItem = new JMenuItem(name);
-        loadItem.addActionListener(action);
-        accelerator.ifPresent(acc ->
-            loadItem.setAccelerator(KeyStroke.getKeyStroke(acc, InputEvent.ALT_MASK))
-        );
-        return loadItem;
-    }
-
     public void run() throws IOException {
         mainWindow.setVisible(true);
         setSpeed(EmulatorSpeed.NORMAL);
+    }
+
+    private void connect(final ActionEvent e) {
+        final String codename = JOptionPane.showInputDialog(
+                mainWindow,
+                "Enter codename of the Guest",
+                "Connect to Guest",
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (codename != null) {
+            peer.connect(codename);
+        }
+    }
+
+    private void disconnect(final ActionEvent e) {
+        peer.disconnect();
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
@@ -210,6 +246,11 @@ public class SwingEmulator {
     private void singleCycle() {
         do {
             computer.singleCycle();
+            if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL) {
+                final int[] screenBytes = Memory.getScreenBytes(memory);
+                peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));
+            }
+
             if (shouldRepaint()) {
                 lastRepaint = System.currentTimeMillis();
                 display.updateScreen();

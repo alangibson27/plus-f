@@ -1,19 +1,15 @@
 package com.socialthingy.plusf.spectrum.network;
 
-import static com.socialthingy.plusf.spectrum.display.Screen.BOTTOM_BORDER_HEIGHT;
-import static com.socialthingy.plusf.spectrum.display.Screen.SCREEN_HEIGHT;
-import static com.socialthingy.plusf.spectrum.display.Screen.TOP_BORDER_HEIGHT;
+import java.util.List;
 
 public class EmulatorState {
-    public static final int BORDER_LINE_COUNT = TOP_BORDER_HEIGHT + SCREEN_HEIGHT + BOTTOM_BORDER_HEIGHT;
-
     private int[] memory;
-    private int[] borderLines;
+    private List<Long> borderChanges;
     private boolean flashActive;
 
-    public EmulatorState(final int[] memory, final int[] borderLines, final boolean flashActive) {
+    public EmulatorState(final int[] memory, final List<Long> borderChanges, final boolean flashActive) {
         this.memory = memory;
-        this.borderLines = borderLines;
+        this.borderChanges = borderChanges;
         this.flashActive = flashActive;
     }
 
@@ -21,8 +17,8 @@ public class EmulatorState {
         return memory;
     }
 
-    public int[] getBorderLines() {
-        return borderLines;
+    public List<Long> getBorderChanges() {
+        return borderChanges;
     }
 
     public boolean isFlashActive() {
