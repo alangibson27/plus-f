@@ -194,7 +194,9 @@ public class SwingEmulator {
         final TapeControls tapeControls = new TapeControls(tapePlayer);
         final JPanel statusBar = new JPanel(new GridLayout(1, 3));
         speedIndicator.setHorizontalAlignment(SwingConstants.TRAILING);
-        statusBar.add(new JPanel());
+        statusBar.add(
+            new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
+        );
         statusBar.add(tapeControls);
         statusBar.add(speedIndicator);
 
@@ -222,7 +224,7 @@ public class SwingEmulator {
         );
 
         if (codename != null) {
-            peer.connect(codename);
+            peer.connect(mainWindow, codename);
         }
     }
 

@@ -2,17 +2,14 @@ package com.socialthingy.plusf.spectrum.network;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.dispatch.OnSuccess;
 import com.socialthingy.plusf.p2p.*;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import scala.concurrent.Await;
+import com.socialthingy.plusf.spectrum.ui.ProgressDialog;
+import javafx.beans.property.*;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
-import javax.swing.*;
 import java.awt.*;
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -29,12 +26,11 @@ public class PeerAdapter<T> implements Callbacks {
 
     private final ActorRef peer;
     private final Consumer<T> receiver;
-    private Optional<ProgressMonitor> connectionProgress = Optional.empty();
-    private SimpleBooleanProperty connected = new SimpleBooleanProperty(false);
+    private Optional<ProgressDialog> connectionProgress = Optional.empty();
+    private final SimpleBooleanProperty connected = new SimpleBooleanProperty(false);
+    private final ObjectProperty<Statistics> statistics = new SimpleObjectProperty<>(Statistics.apply(0, 0, 0, 0.0));
+    private final LongProperty timeSinceLastReceived = new SimpleLongProperty(0);
 
-    private double avgLatency;
-    private int outOfOrder;
-    private double avgSize;
     private long lastReceivedTime = 0;
 
     public PeerAdapter(
@@ -52,6 +48,12 @@ public class PeerAdapter<T> implements Callbacks {
                 actorSystem
         );
         this.receiver = receiver;
+        actorSystem.scheduler().schedule(
+            FiniteDuration.Zero(),
+            FiniteDuration.apply(10, TimeUnit.SECONDS),
+            this::updateStatistics,
+            actorSystem.dispatcher()
+        );
     }
 
     public boolean isConnected() {
@@ -62,16 +64,13 @@ public class PeerAdapter<T> implements Callbacks {
         return connected;
     }
 
-    public void connect(final String sessionId) {
-        final ProgressMonitor progressMonitor = new ProgressMonitor(
-                null,
+    public void connect(final Window parent, final String sessionId) {
+        final ProgressDialog progressMonitor = new ProgressDialog(
+                parent,
                 "Connecting to Peer",
-                "Please wait ...",
-                0,
-                4
+                this::disconnect
         );
-        progressMonitor.setMillisToDecideToPopup(10);
-        progressMonitor.setMillisToPopup(0);
+        progressMonitor.setVisible(true);
 
         connectionProgress = Optional.of(progressMonitor);
         peer.tell(Register.apply(sessionId), noSender());
@@ -83,14 +82,15 @@ public class PeerAdapter<T> implements Callbacks {
     }
 
     public void updateStatistics() {
-        final Future<Object> finished = akka.pattern.Patterns.ask(peer, GetStatistics$.MODULE$, 10000);
-        try {
-            final Statistics result = (Statistics) Await.result(finished, new FiniteDuration(1, TimeUnit.SECONDS));
-            avgLatency = result.avgLatency();
-            avgSize = result.avgSize();
-            outOfOrder = result.outOfOrder();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (connected.get()) {
+            final Future<Object> finished = akka.pattern.Patterns.ask(peer, GetStatistics$.MODULE$, 10000);
+            finished.onSuccess(new OnSuccess<Object>() {
+                @Override
+                public void onSuccess(final Object result) throws Throwable {
+                    statistics.set((Statistics) result);
+                    timeSinceLastReceived.set(System.currentTimeMillis() - lastReceivedTime);
+                }
+            }, actorSystem.dispatcher());
         }
     }
 
@@ -105,8 +105,7 @@ public class PeerAdapter<T> implements Callbacks {
     @Override
     public void waitingForPeer() {
         withConnectionDialog(cp -> {
-            cp.setNote("Waiting for peer ...");
-            cp.setProgress(3);
+            cp.setMessage("Waiting for peer ...");
         });
     }
 
@@ -114,26 +113,20 @@ public class PeerAdapter<T> implements Callbacks {
     public void connectedToPeer() {
         connected.set(true);
         withConnectionDialog(cp -> {
-            cp.setNote("Connected to peer");
-            cp.setProgress(4);
+            cp.setMessage("Connected to peer");
+            cp.close();
             connectionProgress = Optional.empty();
         });
     }
 
     @Override
     public void discovering() {
-        withConnectionDialog(cp -> {
-            cp.setNote("Contacting discovery service ...");
-            cp.setProgress(2);
-        });
+        withConnectionDialog(cp -> cp.setMessage("Contacting discovery service ..."));
     }
 
     @Override
     public void initialising() {
-        withConnectionDialog(cp -> {
-            cp.setNote("Initialising peer ...");
-            cp.setProgress(1);
-        });
+        withConnectionDialog(cp -> cp.setMessage("Initialising peer ..."));
     }
 
     @Override
@@ -149,34 +142,20 @@ public class PeerAdapter<T> implements Callbacks {
 
     @Override
     public void discoveryTimeout() {
-        withConnectionDialog(cp -> cp.close());
+        withConnectionDialog(ProgressDialog::close);
         connectionProgress = Optional.empty();
         ErrorDialog.show("Connection Timeout", "Peer discovery timed out. Try again later.", Optional.empty());
     }
 
-    private void withConnectionDialog(final Consumer<ProgressMonitor> action) {
+    private void withConnectionDialog(final Consumer<ProgressDialog> action) {
         connectionProgress.ifPresent(cp -> EventQueue.invokeLater(() -> action.accept(cp)));
     }
 
-    public double getAverageLatency() {
-        return avgLatency;
+    public ObjectProperty<Statistics> statistics() {
+        return statistics;
     }
 
-    public int getOutOfOrderPacketCount() {
-        return outOfOrder;
-    }
-
-    public double getAveragePacketSize() {
-        return avgSize;
-    }
-
-    public Paint getConnectionHealth() {
-        if (avgLatency > 40.0) {
-            return Color.ORANGE;
-        } else if (System.currentTimeMillis() - lastReceivedTime > 500) {
-            return Color.RED;
-        } else {
-            return Color.GREEN;
-        }
+    public LongProperty timeSinceLastReceived() {
+        return timeSinceLastReceived;
     }
 }

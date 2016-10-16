@@ -70,7 +70,9 @@ public class SwingGuest {
         });
 
         final JPanel statusBar = new JPanel(new GridLayout(1, 1));
-        statusBar.add(new JLabel("Not connected"));
+        statusBar.add(
+            new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
+        );
 
         mainWindow.setJMenuBar(menuBar);
         mainWindow.addKeyListener(new JoystickHandler());
@@ -96,7 +98,7 @@ public class SwingGuest {
         );
 
         if (codename != null) {
-            peer.connect(codename);
+            peer.connect(mainWindow, codename);
         }
     }
 
