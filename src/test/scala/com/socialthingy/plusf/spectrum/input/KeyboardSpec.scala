@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.spectrum.input
 
 import com.socialthingy.plusf.spectrum.TapePlayer
-import com.socialthingy.plusf.spectrum.display.Screen
 import com.socialthingy.plusf.spectrum.io.{Keyboard, ULA}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks

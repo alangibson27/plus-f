@@ -2,7 +2,8 @@ package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
 import com.socialthingy.plusf.spectrum.*;
-import com.socialthingy.plusf.spectrum.display.Screen;
+import com.socialthingy.plusf.spectrum.display.SafePixelMapper;
+import com.socialthingy.plusf.spectrum.display.UnsafePixelMapper;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.ULA;
@@ -28,25 +29,20 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static com.socialthingy.plusf.spectrum.UserPreferences.LAST_LOAD_DIRECTORY;
 import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
-import static com.socialthingy.plusf.spectrum.display.Screen.BOTTOM_BORDER_HEIGHT;
-import static com.socialthingy.plusf.spectrum.display.Screen.TOP_BORDER_HEIGHT;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 
 public class SwingEmulator {
     private final Computer computer;
     private final JFrame mainWindow;
-    private final SwingDoubleSizeDisplay display;
+    private final DisplayComponent display;
     private final int[] memory;
     private final UserPreferences prefs = new UserPreferences();
     private final TapePlayer tapePlayer;
-    private final KempstonJoystickInterface kempstonJoystickInterface;
-    private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final HostInputMultiplexer hostInputMultiplexer;
     private final EmulatorPeerAdapter peer;
     private Model currentModel;
     private final SwingKeyboard keyboard;
     private final ScheduledThreadPoolExecutor cycleScheduler;
-    private final SwingJoystick hostJoystick;
     private ScheduledFuture<?> cycleTimer;
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
@@ -65,10 +61,11 @@ public class SwingEmulator {
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
         ula = new ULA(keyboard, tapePlayer, memory);
-        hostJoystick = new SwingJoystick();
+
+        final SwingJoystick hostJoystick = new SwingJoystick();
+        final KempstonJoystickInterface kempstonJoystickInterface = new KempstonJoystickInterface();
+        final SinclairJoystickInterface sinclair1JoystickInterface = new SinclairJoystickInterface(keyboard);
         guestJoystick = new Joystick();
-        kempstonJoystickInterface = new KempstonJoystickInterface();
-        sinclair1JoystickInterface = new SinclairJoystickInterface(keyboard);
         hostInputMultiplexer = new HostInputMultiplexer(keyboard, hostJoystick);
         hostInputMultiplexer.deactivateJoystick();
         kempstonJoystickInterface.connect(guestJoystick);
@@ -94,8 +91,13 @@ public class SwingEmulator {
             }
         });
 
-        final Screen screen = new Screen(TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT);
-        display = new SwingDoubleSizeDisplay(screen, memory, ula);
+        if (System.getProperty("safeDisplay") == null) {
+            System.out.println("Using unsafe display");
+            display = new SwingDoubleSizeDisplay(new UnsafePixelMapper(), memory, ula);
+        } else {
+            System.out.println("Using safe display");
+            display = new SafeSwingDoubleSizeDisplay(new SafePixelMapper(), memory, ula);
+        }
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
 
@@ -246,20 +248,24 @@ public class SwingEmulator {
     }
 
     private void singleCycle() {
-        do {
-            computer.singleCycle();
-            if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL) {
-                final int[] screenBytes = Memory.getScreenBytes(memory);
-                peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));
-            }
+        try {
+            do {
+                computer.singleCycle();
+                if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL) {
+                    final int[] screenBytes = Memory.getScreenBytes(memory);
+                    peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));
+                }
 
-            if (shouldRepaint()) {
-                lastRepaint = System.currentTimeMillis();
-                display.updateScreen();
-                display.updateBorder(currentSpeed == EmulatorSpeed.TURBO);
-                SwingUtilities.invokeLater(display::repaint);
-            }
-        } while (currentSpeed == EmulatorSpeed.TURBO);
+                if (shouldRepaint()) {
+                    lastRepaint = System.currentTimeMillis();
+                    display.updateScreen();
+                    display.updateBorder(currentSpeed == EmulatorSpeed.TURBO);
+                    SwingUtilities.invokeLater(display::repaint);
+                }
+            } while (currentSpeed == EmulatorSpeed.TURBO);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private boolean shouldRepaint() {

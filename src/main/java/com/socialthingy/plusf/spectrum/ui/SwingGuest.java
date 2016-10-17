@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.spectrum.Model;
-import com.socialthingy.plusf.spectrum.display.Screen;
+import com.socialthingy.plusf.spectrum.display.UnsafePixelMapper;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
@@ -18,12 +18,9 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.socialthingy.plusf.spectrum.display.Screen.BOTTOM_BORDER_HEIGHT;
-import static com.socialthingy.plusf.spectrum.display.Screen.TOP_BORDER_HEIGHT;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 
 public class SwingGuest {
-
     private final JFrame mainWindow;
     private final SwingJoystick joystick;
     private final GuestPeerAdapter peer;
@@ -37,9 +34,8 @@ public class SwingGuest {
     public SwingGuest() throws IOException {
         memory = new int[0x10000];
         Memory.configure(memory, Model._48K);
-        final Screen screen = new Screen(TOP_BORDER_HEIGHT, BOTTOM_BORDER_HEIGHT);
         ula = new GuestULA();
-        display = new SwingDoubleSizeDisplay(screen, memory, ula);
+        display = new SwingDoubleSizeDisplay(new UnsafePixelMapper(), memory, ula);
         joystick = new SwingJoystick();
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
@@ -158,11 +154,11 @@ public class SwingGuest {
 }
 
 class GuestULA extends ULA {
-    public GuestULA() {
+    GuestULA() {
         super(null, null, null);
     }
 
-    public void setBorderChanges(final List<Long> borderChanges) {
+    void setBorderChanges(final List<Long> borderChanges) {
         getBorderChanges().clear();
         getBorderChanges().addAll(borderChanges);
     }

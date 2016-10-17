@@ -2,33 +2,26 @@ package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.Memory;
-import sun.misc.Unsafe;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Iterator;
 
-import static com.socialthingy.plusf.spectrum.display.PixelMapper.*;
+import static com.socialthingy.plusf.spectrum.display.UnsafePixelMapper.*;
 import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 
-public class SwingDoubleSizeDisplay extends DisplayComponent {
-    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
-
-    public SwingDoubleSizeDisplay(final PixelMapper pixelMapper, final int[] memory, final ULA ula) {
+public class SafeSwingDoubleSizeDisplay extends DisplayComponent {
+    public SafeSwingDoubleSizeDisplay(final PixelMapper pixelMapper, final int[] memory, final ULA ula) {
         super(pixelMapper, ula, memory);
     }
 
-    @Override
     public void updateScreen() {
         if (Memory.screenChanged() || ula.flashStatusChanged()) {
             Memory.markScreenDrawn();
             renderMemory(Memory.getScreenBytes(memory), ula.flashActive());
-            System.arraycopy(targetPixels, 0, imageDataBuffer, 0, imageDataBuffer.length);
         }
     }
 
-    @Override
     public void updateBorder(final boolean force) {
         if (force || ula.borderNeedsRedrawing()) {
             final Iterator<Long> it = ula.getBorderChanges().iterator();
@@ -56,6 +49,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     @Override
     protected void paintComponent(final Graphics g) {
+        image.setRGB(0, 0, SCALED_WIDTH, SCALED_HEIGHT, targetPixels, 0, SCALED_WIDTH);
         g.drawImage(borderImage, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, null);
         g.drawImage(
                 image,
@@ -67,15 +61,14 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
         );
     }
 
-    @Override
     protected void scale(final int[] sourcePixels) {
         for (int x = 0; x < SCREEN_WIDTH; x++) {
             for (int y = 0; y < SCREEN_HEIGHT; y++) {
-                final int b = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y - 1) * 4));
-                final int d = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x - 1, y) * 4));
-                final int e = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y) * 4));
-                final int f = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x + 1, y) * 4));
-                final int h = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y + 1) * 4));
+                final int b = sourcePixels[sourcePixelAt(x, y - 1)];
+                final int d = sourcePixels[sourcePixelAt(x - 1, y)];
+                final int e = sourcePixels[sourcePixelAt(x, y)];
+                final int f = sourcePixels[sourcePixelAt(x + 1, y)];
+                final int h = sourcePixels[sourcePixelAt(x, y + 1)];
 
                 final int e0;
                 final int e1;
@@ -93,10 +86,10 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
                     e3 = e;
                 }
 
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 0, 0) * 4), e0);
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 1, 0) * 4), e1);
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 0, 1) * 4), e2);
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 1, 1) * 4), e3);
+                targetPixels[targetPixelAt(x, y, 0, 0)] = e0;
+                targetPixels[targetPixelAt(x, y, 1, 0)] = e1;
+                targetPixels[targetPixelAt(x, y, 0, 1)] = e2;
+                targetPixels[targetPixelAt(x, y, 1, 1)] = e3;
             }
         }
     }
