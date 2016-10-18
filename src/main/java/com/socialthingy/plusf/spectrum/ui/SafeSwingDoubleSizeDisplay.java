@@ -43,13 +43,13 @@ public class SafeSwingDoubleSizeDisplay extends DisplayComponent {
             for (int i = topLine; i < borderPixels.length; i++) {
                 borderPixels[i] = colour;
             }
-            System.arraycopy(borderPixels, 0, borderImageDataBuffer, 0, borderImageDataBuffer.length);
         }
     }
 
     @Override
     protected void paintComponent(final Graphics g) {
         image.setRGB(0, 0, SCALED_WIDTH, SCALED_HEIGHT, targetPixels, 0, SCALED_WIDTH);
+        borderImage.setRGB(0, 0, 1, borderPixels.length, borderPixels, 0, 1);
         g.drawImage(borderImage, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, null);
         g.drawImage(
                 image,
