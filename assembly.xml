@@ -9,18 +9,16 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>plus-f.jar</include>
+		<include>emulator.exe</include>
+		<include>guest.exe</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>src/assembly</directory>
+            <directory>src/main/assembly</directory>
             <outputDirectory></outputDirectory>
             <includes>
                 <include>emulator.sh</include>
-                <include>emulator.exe</include>
-                <include>emulator.ini</include>
                 <include>guest.sh</include>
-                <include>guest.exe</include>
-                <include>guest.ini</include>
             </includes>
         </fileSet>
     </fileSets>
