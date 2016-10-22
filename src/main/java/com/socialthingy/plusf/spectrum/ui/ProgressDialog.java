@@ -14,7 +14,7 @@ public class ProgressDialog extends JDialog {
 
     public ProgressDialog(final Window parent, final String title, final Runnable onCancel) {
         super(parent, title);
-        setLocation((parent.getWidth() - WIDTH) / 2, (parent.getHeight() - HEIGHT) / 2);
+        setLocationRelativeTo(parent);
         getContentPane().setLayout(new GridBagLayout());
 
         final JProgressBar progressBar = new JProgressBar();
