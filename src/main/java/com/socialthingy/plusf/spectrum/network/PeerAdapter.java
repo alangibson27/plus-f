@@ -78,6 +78,7 @@ public class PeerAdapter<T> implements Callbacks {
 
     public void disconnect() {
         connected.set(false);
+        peer.tell(Cancel$.MODULE$, noSender());
         peer.tell(Close$.MODULE$, noSender());
     }
 
@@ -145,6 +146,10 @@ public class PeerAdapter<T> implements Callbacks {
         withConnectionDialog(ProgressDialog::close);
         connectionProgress = Optional.empty();
         ErrorDialog.show("Connection Timeout", "Peer discovery timed out. Try again later.", Optional.empty());
+    }
+
+    @Override
+    public void discoveryCancelled() {
     }
 
     private void withConnectionDialog(final Consumer<ProgressDialog> action) {
