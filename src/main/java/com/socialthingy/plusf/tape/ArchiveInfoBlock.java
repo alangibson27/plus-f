@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.util.Try;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,14 +25,14 @@ public class ArchiveInfoBlock extends TapeBlock {
         textIds.put(0xff, "Comments");
     }
 
-    private final List<String> descriptions;
+    private final List<Pair<String, String>> descriptions;
 
     public static Try<ArchiveInfoBlock> read(final InputStream tzxFile) {
         try {
-            final int length = nextWord(tzxFile);
+            nextWord(tzxFile);
             final int numStrings = nextByte(tzxFile);
 
-            final List<String> descriptions = new ArrayList<>();
+            final List<Pair<String, String>> descriptions = new ArrayList<>();
             for (int i = 0; i < numStrings; i++) {
                 descriptions.add(readString(tzxFile));
             }
@@ -42,19 +43,25 @@ public class ArchiveInfoBlock extends TapeBlock {
         }
     }
 
-    private static String readString(final InputStream tzxFile) throws IOException {
+    private static Pair<String, String> readString(final InputStream tzxFile) throws IOException {
         final int id = nextByte(tzxFile);
         final String buf = getFixedLengthString(tzxFile);
 
-        return String.format("[%s] - %s", Optional.of(textIds.get(id)).orElse("Unknown"), buf);
+        return new Pair<>(Optional.of(textIds.get(id)).orElse("Unknown"), buf);
     }
 
-    public ArchiveInfoBlock(final List<String> descriptions) {
+    public ArchiveInfoBlock(final List<Pair<String, String>> descriptions) {
         this.descriptions = descriptions;
+    }
+
+    public List<Pair<String, String>> getDescriptions() {
+        return descriptions;
     }
 
     @Override
     public String toString() {
-        return descriptions.stream().collect(joining("\n"));
+        return descriptions.stream()
+                .map(p -> String.format("[%s] - %s", p.getKey(), p.getValue()))
+                .collect(joining("\n"));
     }
 }

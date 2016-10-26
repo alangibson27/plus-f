@@ -18,18 +18,22 @@ import com.socialthingy.plusf.tape.TapeException;
 import com.socialthingy.plusf.tape.TapeFileReader;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
+import javafx.util.Pair;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import static com.socialthingy.plusf.spectrum.UserPreferences.LAST_LOAD_DIRECTORY;
 import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
+import static java.util.Optional.empty;
 
 public class SwingEmulator {
     private final Computer computer;
@@ -177,6 +181,10 @@ public class SwingEmulator {
         rewindTape.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
         tapeMenu.add(rewindTape);
 
+        final JMenuItem tapeInfo = menuItemFor("Tape Information ...", this::tapeInfo, empty());
+        tapeInfo.setModel(tapePlayer.getTapePresentModel());
+        tapeMenu.add(tapeInfo);
+
         menuBar.add(tapeMenu);
 
         final JMenu networkMenu = new JMenu("Network");
@@ -210,6 +218,39 @@ public class SwingEmulator {
         mainWindow.pack();
         mainWindow.setResizable(false);
         mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    }
+
+    private void tapeInfo(final ActionEvent actionEvent) {
+        final Tape tape = tapePlayer.getTape().get();
+        final java.util.List<Pair<String, String>> info = tape.getArchiveInfo()
+                .stream()
+                .map(p -> new Pair<>(p.getKey().replaceAll("\\s", " "), p.getValue().replaceAll("\\s", " ")))
+                .collect(Collectors.toList());
+
+        if (info.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                mainWindow,
+                "No tape information available.",
+                "Tape Information",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        } else {
+            final DefaultTableModel tableModel = new DefaultTableModel(0, 2);
+            tableModel.setColumnIdentifiers(new String[] {"Name", "Value"});
+
+            for (Pair<String, String> infoPair: info) {
+                tableModel.addRow(new Object[] {infoPair.getKey(), infoPair.getValue()});
+            }
+
+            final JTable infoTable = new JTable(tableModel);
+            infoTable.getColumnModel().getColumn(0).setMaxWidth(128);
+            JOptionPane.showMessageDialog(
+                mainWindow,
+                new JScrollPane(infoTable),
+                "Tape Information",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        }
     }
 
     public void run() throws IOException {

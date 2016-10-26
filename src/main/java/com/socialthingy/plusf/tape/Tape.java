@@ -1,5 +1,10 @@
 package com.socialthingy.plusf.tape;
 
+import javafx.util.Pair;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Tape {
@@ -17,5 +22,15 @@ public class Tape {
 
     public TapeBlock[] getBlocks() {
         return blocks;
+    }
+
+    public List<Pair<String, String>> getArchiveInfo() {
+        final List<Pair<String, String>> info = new ArrayList<>();
+        for (TapeBlock block: blocks) {
+            if (block instanceof ArchiveInfoBlock) {
+                info.addAll(((ArchiveInfoBlock) block).getDescriptions());
+            }
+        }
+        return info;
     }
 }
