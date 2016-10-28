@@ -24,6 +24,11 @@ public class GroupStartBlock extends TapeBlock {
     }
 
     @Override
+    public String getDisplayName() {
+        return description;
+    }
+
+    @Override
     public String toString() {
         return String.format("Group start: %s", description);
     }

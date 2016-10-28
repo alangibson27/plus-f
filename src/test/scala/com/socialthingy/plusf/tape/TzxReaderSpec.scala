@@ -3,8 +3,6 @@ package com.socialthingy.plusf.tape
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 
-import scala.collection.JavaConverters._
-
 class TzxReaderSpec extends FlatSpec with Matchers {
 
   "TZX reader" should "correctly identify all blocks in a standard-speed TZX file" in {
@@ -15,9 +13,9 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     val tzx = new TapeFileReader(standardSpeedFile).readTzx()
 
     // then
-    tzx.getVersion shouldBe "1.10"
+    tzx.version shouldBe "1.10"
 
-    val blocks = tzx.getBlocks
+    val blocks = tzx.blocks
     blocks should have size 2
 
     val programHeaderBlock = blocks(0)

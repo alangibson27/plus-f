@@ -3,6 +3,7 @@ package com.socialthingy.plusf.tape;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.*;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,15 +55,16 @@ public class TapeFileReader {
             while (lenLo >= 0 && lenHi >= 0) {
                 blockId++;
                 final int len = (lenHi << 8) + lenLo;
-                logger.info(String.format("Block #%d: %d bytes", blockId, len));
+                logger.fine(String.format("Block #%d: %d bytes", blockId, len));
                 VariableSpeedBlock.readTapBlock(tzxFile, len).ifSuccess(blocks::add);
 
                 lenLo = tzxFile.read();
                 lenHi = tzxFile.read();
             }
+            addSuffixBlocks(blocks);
 
             logger.info("Reached end of file");
-            return new Tape("TAP", blocks);
+            return Tape.apply("TAP", blocks);
         } finally {
             tzxFile.close();
         }
@@ -76,7 +78,7 @@ public class TapeFileReader {
             }
 
             final String version = String.format("%d.%d", tzxFile.read(), tzxFile.read());
-            logger.info(String.format("TZX version %s", version));
+            logger.fine(String.format("TZX version %s", version));
 
             final List<TapeBlock> blocks = new ArrayList<>();
             int blockType = tzxFile.read();
@@ -84,26 +86,34 @@ public class TapeFileReader {
             while (blockType != -1) {
                 blockId++;
                 final Function<InputStream, Try<? extends TapeBlock>> mapper = blockMappers.get(blockType);
-                logger.info(String.format("Reading block #%d: type %d", blockId, blockType));
+                logger.fine(String.format("Reading block #%d: type %d", blockId, blockType));
                 if (mapper == null) {
-                    logger.info("Unsupported block");
+                    logger.fine("Unsupported block");
                 } else {
                     final Try<? extends TapeBlock> block = mapper.apply(tzxFile);
                     block.ifSuccess(b -> {
                         blocks.add(b);
-                        logger.info(String.format("Block description: %s", b.toString()));
+                        logger.fine(String.format("Block description: %s", b.toString()));
                     });
                     block.ifFailure(ex -> logger.log(Level.WARNING, "Error reading block", ex));
                 }
 
                 blockType = tzxFile.read();
             }
+            addSuffixBlocks(blocks);
 
-            logger.info("Reached end of file");
-            return new Tape(version, blocks);
+            logger.fine("Reached end of file");
+            return Tape.apply(version, blocks);
         } finally {
             tzxFile.close();
         }
+    }
+
+    private void addSuffixBlocks(final List<TapeBlock> blocks) {
+        blocks.add(new GroupStartBlock("End of tape"));
+        blocks.add(new PulseSequenceBlock(SignalState.Adjustment.NO_CHANGE, new int[] {3500}));
+        blocks.add(new PauseBlock(Duration.ofMillis(1)));
+        blocks.add(new GroupEndBlock());
     }
 
     private String readText() throws IOException {

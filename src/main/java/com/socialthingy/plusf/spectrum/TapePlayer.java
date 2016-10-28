@@ -1,18 +1,19 @@
 package com.socialthingy.plusf.spectrum;
 
 import com.socialthingy.plusf.tape.*;
-import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.replist.SkippableIterator;
 
 import javax.swing.*;
-import java.time.Duration;
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class TapePlayer implements Iterator<Boolean> {
     private final ButtonModel tapePresentModel;
     private final ButtonModel playButtonModel;
     private final ButtonModel stopButtonModel;
     private final ButtonModel rewindToStartButtonModel;
+    private final ButtonModel jumpButtonModel;
     private int blockIdx = 0;
     private final SignalState signalState = new SignalState(false);
     private SkippableIterator<Boolean> currentBlock = null;
@@ -28,6 +29,7 @@ public class TapePlayer implements Iterator<Boolean> {
         this.playButtonModel = new JToggleButton.ToggleButtonModel();
         this.stopButtonModel = new DefaultButtonModel();
         this.rewindToStartButtonModel = new DefaultButtonModel();
+        this.jumpButtonModel = new DefaultButtonModel();
 
         rewindToStartButtonModel.addActionListener(action -> {
             try {
@@ -58,6 +60,10 @@ public class TapePlayer implements Iterator<Boolean> {
         return tapePresentModel;
     }
 
+    public ButtonModel getJumpButtonModel() {
+        return jumpButtonModel;
+    }
+
     public void ejectTape() {
         currentBlock = null;
         blocks = null;
@@ -65,6 +71,7 @@ public class TapePlayer implements Iterator<Boolean> {
         loopStart = -1;
         tape = null;
         tapePresentModel.setEnabled(false);
+        jumpButtonModel.setEnabled(false);
         playButtonModel.setSelected(false);
         playButtonModel.setEnabled(false);
         stopButtonModel.setEnabled(false);
@@ -74,13 +81,10 @@ public class TapePlayer implements Iterator<Boolean> {
     public void setTape(final Tape tape) throws TapeException {
         ejectTape();
         this.tape = tape;
-        final TapeBlock[] blocks = new TapeBlock[tape.getBlocks().length + 2];
-        System.arraycopy(tape.getBlocks(), 0, blocks, 0, tape.getBlocks().length);
-        blocks[blocks.length - 2] = new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {3500});
-        blocks[blocks.length - 1] = new PauseBlock(Duration.ofMillis(1));
-        this.blocks = blocks;
+        this.blocks = tape.blocks();
         this.currentBlock = nextBlock();
         tapePresentModel.setEnabled(true);
+        jumpButtonModel.setEnabled(true);
         playButtonModel.setEnabled(true);
         stopButtonModel.setEnabled(true);
         rewindToStartButtonModel.setEnabled(true);
@@ -95,6 +99,13 @@ public class TapePlayer implements Iterator<Boolean> {
     public void rewindToStart() throws TapeException {
         if (blocks != null) {
             blockIdx = -1;
+            currentBlock = nextBlock();
+        }
+    }
+
+    public void jumpToBlock(final int idx) throws TapeException {
+        if (blocks != null && idx < blocks.length) {
+            blockIdx = idx - 1;
             currentBlock = nextBlock();
         }
     }
@@ -153,7 +164,6 @@ public class TapePlayer implements Iterator<Boolean> {
         }
 
         blockIdx++;
-        final TapeBlock[] blocks = this.blocks;
         if (blockIdx >= blocks.length || blockIdx < 0) {
             return null;
         }
@@ -185,5 +195,4 @@ public class TapePlayer implements Iterator<Boolean> {
 
         return nextBlock.getBitList(signalState).iterator();
     }
-
 }

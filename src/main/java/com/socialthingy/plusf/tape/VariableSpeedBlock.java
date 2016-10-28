@@ -102,12 +102,12 @@ public class VariableSpeedBlock extends TapeBlock {
         this.onePulseLength = onePulseLength;
         this.pilotToneLength = pilotToneLength;
         this.finalByteBitsUsed = finalByteBitsUsed;
-        this.description = "turbo";
+        this.description = "Turbo";
     }
 
     public VariableSpeedBlock(final Duration pauseLength, final int[] data) {
         this(pauseLength, data, 2168, 667, 735, 855, 1710, data[0] < 128 ? 8063 : 3223, 8);
-        this.description = "standard";
+        this.description = "Standard";
     }
 
     public Duration getPauseLength() {

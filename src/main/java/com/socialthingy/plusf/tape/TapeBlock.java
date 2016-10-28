@@ -23,6 +23,10 @@ public abstract class TapeBlock {
         return new RepList<>();
     }
 
+    public String getDisplayName() {
+        return toString();
+    }
+
     protected static int nextByte(final InputStream tzxFile) throws IOException {
         return tzxFile.read();
     }

@@ -13,6 +13,7 @@ import com.socialthingy.plusf.spectrum.joystick.SinclairJoystickInterface;
 import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestStateType;
+import com.socialthingy.plusf.tape.NavigableBlock;
 import com.socialthingy.plusf.tape.Tape;
 import com.socialthingy.plusf.tape.TapeException;
 import com.socialthingy.plusf.tape.TapeFileReader;
@@ -23,8 +24,10 @@ import javafx.util.Pair;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -185,6 +188,10 @@ public class SwingEmulator {
         tapeInfo.setModel(tapePlayer.getTapePresentModel());
         tapeMenu.add(tapeInfo);
 
+        final JMenuItem jumpToBlock = menuItemFor("Jump to Block ...", this::jumpToTapeBlock, empty());
+        jumpToBlock.setModel(tapePlayer.getJumpButtonModel());
+        tapeMenu.add(jumpToBlock);
+
         menuBar.add(tapeMenu);
 
         final JMenu networkMenu = new JMenu("Network");
@@ -222,7 +229,7 @@ public class SwingEmulator {
 
     private void tapeInfo(final ActionEvent actionEvent) {
         final Tape tape = tapePlayer.getTape().get();
-        final java.util.List<Pair<String, String>> info = tape.getArchiveInfo()
+        final List<Pair<String, String>> info = tape.archiveInfo()
                 .stream()
                 .map(p -> new Pair<>(p.getKey().replaceAll("\\s", " "), p.getValue().replaceAll("\\s", " ")))
                 .collect(Collectors.toList());
@@ -237,10 +244,7 @@ public class SwingEmulator {
         } else {
             final DefaultTableModel tableModel = new DefaultTableModel(0, 2);
             tableModel.setColumnIdentifiers(new String[] {"Name", "Value"});
-
-            for (Pair<String, String> infoPair: info) {
-                tableModel.addRow(new Object[] {infoPair.getKey(), infoPair.getValue()});
-            }
+            info.stream().map(i -> new Object[] {i.getKey(), i.getValue()}).forEach(tableModel::addRow);
 
             final JTable infoTable = new JTable(tableModel);
             infoTable.getColumnModel().getColumn(0).setMaxWidth(128);
@@ -250,6 +254,53 @@ public class SwingEmulator {
                 "Tape Information",
                 JOptionPane.INFORMATION_MESSAGE
             );
+        }
+    }
+
+    private void jumpToTapeBlock(final ActionEvent actionEvent) {
+        final Tape tape = tapePlayer.getTape().get();
+        final List<NavigableBlock> blocks = tape.navigableBlocks();
+
+        if (blocks.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    mainWindow,
+                    "Tape is empty.",
+                    "Jump to Block",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } else {
+            final DefaultListModel<NavigableBlock> listModel = new DefaultListModel<>();
+            blocks.forEach(listModel::addElement);
+
+            final JList<NavigableBlock> blockList = new JList<>(listModel);
+            blockList.setCellRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(
+                    final JList<?> list,
+                    final Object value,
+                    final int index,
+                    final boolean isSelected,
+                    final boolean cellHasFocus
+                ) {
+                    final NavigableBlock selected = (NavigableBlock) list.getModel().getElementAt(index);
+                    return super.getListCellRendererComponent(list, selected.block().getDisplayName(), index, isSelected, cellHasFocus);
+                }
+            });
+            final int result = JOptionPane.showConfirmDialog(
+                    mainWindow,
+                    new JScrollPane(blockList),
+                    "Jump to Block",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (result == JOptionPane.OK_OPTION && blockList.getSelectedValue() != null) {
+                try {
+                    tapePlayer.jumpToBlock(blockList.getSelectedValue().index());
+                } catch (TapeException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 
