@@ -63,7 +63,7 @@ public class TapeFileReader {
             }
             addSuffixBlocks(blocks);
 
-            logger.info("Reached end of file");
+            logger.fine("Reached end of file");
             return Tape.apply("TAP", blocks);
         } finally {
             tzxFile.close();

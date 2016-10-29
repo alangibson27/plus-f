@@ -10,6 +10,8 @@ import java.time.Duration;
 
 public class VariableSpeedBlock extends TapeBlock {
 
+    private static final String[] DATA_TYPES = { "Program", "Number array", "Character array", "Bytes" };
+
     public static Try<VariableSpeedBlock> readTapBlock(final InputStream tzxFile, final int dataLength) {
         try {
             final int[] data = new int[dataLength];
@@ -80,7 +82,7 @@ public class VariableSpeedBlock extends TapeBlock {
     protected final int onePulseLength;
     protected final int pilotToneLength;
     protected final int finalByteBitsUsed;
-    private String description;
+    private String speed;
 
     public VariableSpeedBlock(
         final Duration pauseLength,
@@ -102,12 +104,12 @@ public class VariableSpeedBlock extends TapeBlock {
         this.onePulseLength = onePulseLength;
         this.pilotToneLength = pilotToneLength;
         this.finalByteBitsUsed = finalByteBitsUsed;
-        this.description = "Turbo";
+        this.speed = "Turbo";
     }
 
     public VariableSpeedBlock(final Duration pauseLength, final int[] data) {
         this(pauseLength, data, 2168, 667, 735, 855, 1710, data[0] < 128 ? 8063 : 3223, 8);
-        this.description = "Standard";
+        this.speed = "Standard";
     }
 
     public Duration getPauseLength() {
@@ -119,7 +121,31 @@ public class VariableSpeedBlock extends TapeBlock {
     }
 
     @Override
-    public RepList<Boolean> getBitList(SignalState signalState) {
+    public String getDisplayName() {
+        if (data[0] == 0x00) {
+            if (data[1] < 0x04) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append(DATA_TYPES[data[1]]);
+                sb.append(": ");
+                for (int i = 2; i < 12; i++) {
+                    if (data[i] >= 0x20 && data[i] < 0x80) {
+                        sb.append((char) data[i]);
+                    }
+                }
+
+                return sb.toString().trim();
+            } else {
+                return String.format("%s speed header block", speed);
+            }
+        } else if (data[0] == 0xff) {
+            return String.format("%s speed data block", speed);
+        } else {
+            return toString();
+        }
+    }
+
+    @Override
+    public RepList<Boolean> getBitList(final SignalState signalState) {
         final RepList<Boolean> bits = new PureToneBlock(pilotPulseLength, pilotToneLength).getBitList(signalState);
         bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength}).getBitList(signalState));
         bits.append(new PureDataBlock(pauseLength, data, zeroPulseLength, onePulseLength, finalByteBitsUsed).getBitList(signalState));
@@ -128,6 +154,6 @@ public class VariableSpeedBlock extends TapeBlock {
 
     @Override
     public String toString() {
-        return String.format("%s speed block", description);
+        return String.format("%s speed block", speed);
     }
 }
