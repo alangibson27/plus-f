@@ -24,6 +24,7 @@
         <li><a href="/guest">GUEST</a></li>
         <li><a href="/connect">CONNECT</a></li>
         <li><a href="/games">GAMES</a></li>
+        <li><a href="/blog">BLOG</a></li>
         <li><a href="/about">ABOUT</a></li>
     </ul>
 </nav>
@@ -39,7 +40,7 @@ The player running the Emulator has full control of the keyboard, and sends a co
 a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
 sent back to the Emulator.</p>
 
-<h3 id="is-it-really-possible:94545177397886f3162838504e334017">Is it really possible?</h3>
+<h3 id="is-it-really-possible">Is it really possible?</h3>
 
 <p>Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
 responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
@@ -47,19 +48,20 @@ the Guest&rsquo;s copy of the display to jump or jerk a little.</p>
 
 <ul>
 <li>Emulator running on Windows 10, connected to the internet wirelessly via a non-fibre connection</li>
-<li>Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot</li>
+<li>Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot
+<br /></li>
 </ul>
 
 <p>If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
 should be acceptable.</p>
 
-<h3 id="who-should-run-the-emulator:94545177397886f3162838504e334017">Who should run the Emulator?</h3>
+<h3 id="who-should-run-the-emulator">Who should run the Emulator?</h3>
 
 <p>Generally, because the Emulator has to send much more data to the Guest than the Guest does back to the Emulator, the
 player with the better network upload speeds should run the Emulator. If both players are connected to the same
 router, it probably doesn&rsquo;t matter which is which, but over the Internet this does become significant.</p>
 
-<h3 id="firewalls-and-network-connectivity:94545177397886f3162838504e334017">Firewalls and network connectivity</h3>
+<h3 id="firewalls-and-network-connectivity">Firewalls and network connectivity</h3>
 
 <p>In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
 the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
@@ -70,7 +72,7 @@ each other.</p>
 that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&rsquo;re already familiar with
 enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.</p>
 
-<h3 id="making-a-connection:94545177397886f3162838504e334017">Making a connection</h3>
+<h3 id="making-a-connection">Making a connection</h3>
 
 <p>The Emulator and the Guest connect to one another through the Plus-F Relay Service, which allows them to discover one
 another&rsquo;s addresses. Follow these steps to get up and running:</p>

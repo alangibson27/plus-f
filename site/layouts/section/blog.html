@@ -1,0 +1,8 @@
+{{ partial "header.html" . }}
+
+{{ range .Data.Pages.ByDate }}
+<h2><a href="{{ .RelPermalink }}">{{ .Title }} ({{ .Date.Format "2-Jan-2006" }})</a></h2>
+<p>{{ .Summary }}</p>
+{{ end }}
+
+{{ partial "footer.html" . }}

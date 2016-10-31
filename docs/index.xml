@@ -2,19 +2,73 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Plus-F</title>
-    <link>http://replace-this-with-your-hugo-site.com/</link>
+    <link>http://plusf.socialthingy.com/index.xml</link>
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Sun, 14 Aug 2016 22:55:26 +0100</lastBuildDate>
-    <atom:link href="http://replace-this-with-your-hugo-site.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 31 Oct 2016 22:49:58 +0000</lastBuildDate>
+    <atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Why?</title>
+      <link>http://plusf.socialthingy.com/blog/why/</link>
+      <pubDate>Mon, 31 Oct 2016 22:49:58 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/blog/why/</guid>
+      <description>&lt;p&gt;There are plenty of perfectly adequate Spectrum emulators already freely available, so why did I feel the need to write
++F?&lt;/p&gt;
+
+&lt;p&gt;It did all start with the idea to make possible 2-player Spectrum gaming across a network - which, as far as I was
+aware at the time I started out, wasn&amp;rsquo;t possible in any other existing Spectrum emulator - but that wasn&amp;rsquo;t my only
+motivation.&lt;/p&gt;
+
+&lt;p&gt;Mainly, I wanted to learn, and to have a project of my own to sink my teeth into, experiment with, and give me a place
+to have a go at applying things that I have read or thought about. Trust me, I learned a lot, and certainly a lot more
+than I thought I might.&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s what this blog is about. I didn&amp;rsquo;t set out to write a blog as a companion to +F or its site. A blog which simply
+described a series of updates, bug fixes and new features on a project of no real significance would have been very
+dull. Instead, I&amp;rsquo;m writing all of these blog posts after the fact, with (I expect) well over 90% of the work on +F
+already complete. I&amp;rsquo;m able to put what I&amp;rsquo;ve learned into context for you, and hopefully you&amp;rsquo;ll find what I&amp;rsquo;m presenting
+to be helpful, informative and entertaining.&lt;/p&gt;
+
+&lt;p&gt;You may have noticed a theme emerging already - learning. That&amp;rsquo;s what I&amp;rsquo;ve really enjoyed about +F. In truth, I&amp;rsquo;ve
+barely actually used it for playing games. What have I learned? Obviously, an awful lot about the Z80&amp;rsquo;s instruction
+set, everything I hadn&amp;rsquo;t realised I&amp;rsquo;d forgotten about two&amp;rsquo;s complement binary, and how the innards of a Spectrum
+function, among other.&lt;/p&gt;
+
+&lt;p&gt;Beyond that, though, I&amp;rsquo;ve been fascinated by how it seems to me that the fundamental laws of software development
+apply anywhere and everywhere. Among others, and in no particular order, it&amp;rsquo;s reinforced the reasons it&amp;rsquo;s important
+to have a clear vision of what you want your project to do; why you should write tests first; why it&amp;rsquo;s really helpful
+to understand what&amp;rsquo;s happening beneath language abstractions; why prototyping is useful up-front but optimisation
+should be left to the end.&lt;/p&gt;
+
+&lt;p&gt;None of these are at all novel, and in many cases they are principles which have been common software knowledge for
+decades. In that respect, in what I do, I consider myself simply to be standing on the shoulders of the giants who
+have gone before.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Version 1.0</title>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <pubDate>Mon, 31 Oct 2016 22:55:26 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Performance improvements&lt;/li&gt;
+&lt;li&gt;UI tweaks&lt;/li&gt;
+&lt;li&gt;Revamped network connectivity&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Version 0.6</title>
-      <link>http://replace-this-with-your-hugo-site.com/release-notes/0.6/</link>
+      <link>http://plusf.socialthingy.com/release-notes/0/</link>
       <pubDate>Sun, 14 Aug 2016 22:55:26 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/release-notes/0.6/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Implemented TAP and TZX support&lt;/li&gt;
 &lt;li&gt;Added support for +2&lt;/li&gt;
@@ -25,10 +79,10 @@
     
     <item>
       <title>Version 0.5</title>
-      <link>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</link>
+      <link>http://plusf.socialthingy.com/release-notes/0/</link>
       <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/release-notes/0.5/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Initial public release&lt;/li&gt;
 &lt;li&gt;Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack
@@ -44,10 +98,10 @@ or tape loading errors!)
     
     <item>
       <title>About</title>
-      <link>http://replace-this-with-your-hugo-site.com/about/</link>
+      <link>http://plusf.socialthingy.com/about/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/about/</guid>
+      <guid>http://plusf.socialthingy.com/about/</guid>
       <description>&lt;p&gt;Do you remember Match Day II?&lt;/p&gt;
 
 &lt;p&gt;Long before FIFA, Pro Evolution Soccer or any of the others, Match Day II managed to succinctly capture the essence of
@@ -66,10 +120,10 @@ and I were to play Match Day II against each other once more.&lt;/p&gt;
     
     <item>
       <title>Connect</title>
-      <link>http://replace-this-with-your-hugo-site.com/connect/</link>
+      <link>http://plusf.socialthingy.com/connect/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/connect/</guid>
+      <guid>http://plusf.socialthingy.com/connect/</guid>
       <description>
 
 &lt;p&gt;Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
@@ -77,7 +131,7 @@ The player running the Emulator has full control of the keyboard, and sends a co
 a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
 sent back to the Emulator.&lt;/p&gt;
 
-&lt;h3 id=&#34;is-it-really-possible:94545177397886f3162838504e334017&#34;&gt;Is it really possible?&lt;/h3&gt;
+&lt;h3 id=&#34;is-it-really-possible&#34;&gt;Is it really possible?&lt;/h3&gt;
 
 &lt;p&gt;Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
 responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
@@ -85,19 +139,20 @@ the Guest&amp;rsquo;s copy of the display to jump or jerk a little.&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Emulator running on Windows 10, connected to the internet wirelessly via a non-fibre connection&lt;/li&gt;
-&lt;li&gt;Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot&lt;/li&gt;
+&lt;li&gt;Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot
+&lt;br /&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
 should be acceptable.&lt;/p&gt;
 
-&lt;h3 id=&#34;who-should-run-the-emulator:94545177397886f3162838504e334017&#34;&gt;Who should run the Emulator?&lt;/h3&gt;
+&lt;h3 id=&#34;who-should-run-the-emulator&#34;&gt;Who should run the Emulator?&lt;/h3&gt;
 
 &lt;p&gt;Generally, because the Emulator has to send much more data to the Guest than the Guest does back to the Emulator, the
 player with the better network upload speeds should run the Emulator. If both players are connected to the same
 router, it probably doesn&amp;rsquo;t matter which is which, but over the Internet this does become significant.&lt;/p&gt;
 
-&lt;h3 id=&#34;firewalls-and-network-connectivity:94545177397886f3162838504e334017&#34;&gt;Firewalls and network connectivity&lt;/h3&gt;
+&lt;h3 id=&#34;firewalls-and-network-connectivity&#34;&gt;Firewalls and network connectivity&lt;/h3&gt;
 
 &lt;p&gt;In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
 the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
@@ -108,7 +163,7 @@ each other.&lt;/p&gt;
 that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&amp;rsquo;re already familiar with
 enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.&lt;/p&gt;
 
-&lt;h3 id=&#34;making-a-connection:94545177397886f3162838504e334017&#34;&gt;Making a connection&lt;/h3&gt;
+&lt;h3 id=&#34;making-a-connection&#34;&gt;Making a connection&lt;/h3&gt;
 
 &lt;p&gt;The Emulator and the Guest connect to one another through the Plus-F Relay Service, which allows them to discover one
 another&amp;rsquo;s addresses. Follow these steps to get up and running:&lt;/p&gt;
@@ -143,18 +198,18 @@ overall quality of the connection:&lt;/p&gt;
     
     <item>
       <title>Download</title>
-      <link>http://replace-this-with-your-hugo-site.com/download/</link>
+      <link>http://plusf.socialthingy.com/download/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/download/</guid>
+      <guid>http://plusf.socialthingy.com/download/</guid>
       <description>
 
-&lt;h2 id=&#34;download-java-first:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download Java first&lt;/h2&gt;
+&lt;h2 id=&#34;download-java-first&#34;&gt;Download Java first&lt;/h2&gt;
 
 &lt;p&gt;Plus-F requires a recent version of Java 8 in order to run. You can download this for free from
 &lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2 id=&#34;download-plus-f:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Download Plus-F&lt;/h2&gt;
+&lt;h2 id=&#34;download-plus-f&#34;&gt;Download Plus-F&lt;/h2&gt;
 
 &lt;p&gt;The Emulator and the Guest are bundled together as a single package. Once the download completes, unzip it
 somewhere on your computer.&lt;/p&gt;
@@ -168,11 +223,11 @@ operate. These ROMs remain copyright of Amstrad, and Amstrad have kindly given t
 redistribution of their copyrighted material but retain that copyright.
 (Full details &lt;a href=&#34;https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ&#34;&gt;here&lt;/a&gt;.)&lt;/p&gt;
 
-&lt;h2 id=&#34;release-notes:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Release Notes&lt;/h2&gt;
+&lt;h2 id=&#34;release-notes&#34;&gt;Release Notes&lt;/h2&gt;
 
-&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://replace-this-with-your-hugo-site.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://plusf.socialthingy.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2 id=&#34;licensing:147ca6d03f222fe2ead83908bb3bcedf&#34;&gt;Licensing&lt;/h2&gt;
+&lt;h2 id=&#34;licensing&#34;&gt;Licensing&lt;/h2&gt;
 
 &lt;p&gt;Both the Emulator and the Guest are distributed under an MIT license:&lt;/p&gt;
 
@@ -204,10 +259,10 @@ SOFTWARE.&lt;/p&gt;
     
     <item>
       <title>Games</title>
-      <link>http://replace-this-with-your-hugo-site.com/games/</link>
+      <link>http://plusf.socialthingy.com/games/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/games/</guid>
+      <guid>http://plusf.socialthingy.com/games/</guid>
       <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
 Z80, TAP and TZX, all of which Plus-F can load. TAP files are at present the most reliable, although you should be able
 to use a lot of Z80 and TZX files as well.&lt;/p&gt;
@@ -226,23 +281,23 @@ for full details on which publishers and developers have granted free distributi
     
     <item>
       <title>The Emulator</title>
-      <link>http://replace-this-with-your-hugo-site.com/emulator/</link>
+      <link>http://plusf.socialthingy.com/emulator/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/emulator/</guid>
+      <guid>http://plusf.socialthingy.com/emulator/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&amp;rsquo;t expect programs which generate &amp;ldquo;rainbow&amp;rdquo; effects to work properly.&lt;/p&gt;
 
-&lt;h2 id=&#34;so-where-is-the-symbol-shift-key:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;So where is the symbol shift key?&lt;/h2&gt;
+&lt;h2 id=&#34;so-where-is-the-symbol-shift-key&#34;&gt;So where is the symbol shift key?&lt;/h2&gt;
 
 &lt;p&gt;The CTRL key is used in place of the Spectrum&amp;rsquo;s symbol shift key.&lt;/p&gt;
 
-&lt;h2 id=&#34;how-to-use-it:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;How to use it&lt;/h2&gt;
+&lt;h2 id=&#34;how-to-use-it&#34;&gt;How to use it&lt;/h2&gt;
 
 &lt;p&gt;The Emulator is controlled by the options in the menu bar at the top of the screen.&lt;/p&gt;
 
-&lt;h3 id=&#34;file-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;File menu&lt;/h3&gt;
+&lt;h3 id=&#34;file-menu&#34;&gt;File menu&lt;/h3&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Open: Open a TAP, TZX or Z80 file.&lt;/p&gt;
@@ -253,7 +308,7 @@ Spectrum BASIC, and then choose Play from the Tape menu.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Quit: Quit the Emulator.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;computer-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Computer menu&lt;/h3&gt;
+&lt;h3 id=&#34;computer-menu&#34;&gt;Computer menu&lt;/h3&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Reset: Reset the Emulator (just like pulling the plug out and putting it back in again).&lt;/li&gt;
@@ -277,7 +332,7 @@ Spectrum BASIC, and then choose Play from the Tape menu.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;tape-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Tape menu&lt;/h3&gt;
+&lt;h3 id=&#34;tape-menu&#34;&gt;Tape menu&lt;/h3&gt;
 
 &lt;p&gt;The controls on the tape menu are also displayed on buttons at the bottom of the Emulator window. The tape icon turns
 green to indicate when the tape is playing.&lt;/p&gt;
@@ -288,7 +343,7 @@ green to indicate when the tape is playing.&lt;/p&gt;
 &lt;li&gt;Rewind to Start: Rewind to the start of the current tape.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;network-menu:11cce0584e53f34ef8f2f9d832f5cf58&#34;&gt;Network menu&lt;/h3&gt;
+&lt;h3 id=&#34;network-menu&#34;&gt;Network menu&lt;/h3&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Connect to guest: Enter a connection code to pair up with a Guest for a two-player gaming session.&lt;/li&gt;
@@ -299,17 +354,17 @@ green to indicate when the tape is playing.&lt;/p&gt;
     
     <item>
       <title>The Guest</title>
-      <link>http://replace-this-with-your-hugo-site.com/guest/</link>
+      <link>http://plusf.socialthingy.com/guest/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://replace-this-with-your-hugo-site.com/guest/</guid>
+      <guid>http://plusf.socialthingy.com/guest/</guid>
       <description>
 
 &lt;p&gt;The Plus-F Guest is a program that receives screen updates from a Plus-F Emulator across a network, and sends back
 keypresses translated to Kempston joystick movements. This means that a user of the guest can participate in a
 two-player game, provided the game has Kempston joystick support (most have).&lt;/p&gt;
 
-&lt;h2 id=&#34;keyboard-controls:d7fc600d3e074e81e78248f47945b74b&#34;&gt;Keyboard Controls&lt;/h2&gt;
+&lt;h2 id=&#34;keyboard-controls&#34;&gt;Keyboard Controls&lt;/h2&gt;
 
 &lt;p&gt;At present, controls are not redefinable and are fixed to the conventional ones below:&lt;/p&gt;
 
@@ -321,17 +376,17 @@ two-player game, provided the game has Kempston joystick support (most have).&lt
 &lt;li&gt;M: Fire&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;menu-items:d7fc600d3e074e81e78248f47945b74b&#34;&gt;Menu items&lt;/h2&gt;
+&lt;h2 id=&#34;menu-items&#34;&gt;Menu items&lt;/h2&gt;
 
 &lt;p&gt;The Guest can also be controlled by the options in the menu bar at the top of the screen.&lt;/p&gt;
 
-&lt;h3 id=&#34;file-menu:d7fc600d3e074e81e78248f47945b74b&#34;&gt;File menu&lt;/h3&gt;
+&lt;h3 id=&#34;file-menu&#34;&gt;File menu&lt;/h3&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Quit: Quit the Guest&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;network-menu:d7fc600d3e074e81e78248f47945b74b&#34;&gt;Network menu&lt;/h3&gt;
+&lt;h3 id=&#34;network-menu&#34;&gt;Network menu&lt;/h3&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Connect to emulator: Enter a connection code to pair up with an Emulator for a two-player gaming session.&lt;/li&gt;
