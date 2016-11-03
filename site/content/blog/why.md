@@ -17,7 +17,7 @@ More than just that, though, it was probably inevitable I would end up trying th
 mountaineers are reputed to climb mountains "because they're there", or lovelorn teenage boys write dreadful and
 embarrassing poetry, the chances of a programming geek with a fondness for 80s gaming writing an emulator are
 rather high. (Given I'd already written a
-[Chrome plugin that uses CSS to emulate of Spectrum loading borders](https://chrome.google.com/webstore/detail/speccy-loading-borders/jakeajfeddddpglibndhjhdmlinejihf),
+[Chrome plugin that uses CSS to emulate Spectrum loading borders](https://chrome.google.com/webstore/detail/speccy-loading-borders/jakeajfeddddpglibndhjhdmlinejihf),
 it's safe to say that I've got form.)
 
 *So Mr. Nerdy-Nerdy has a warm, fuzzy feeling about his pet project*, you may be thinking. *Very good, move along.*
@@ -29,19 +29,23 @@ of an overlearned skill, something you don't necessarily have to devote much con
 You learn all manner of techniques and best practices from the people you work with, you learn your own lessons, and
 most of all you tend to adopt and fit in with the way that your team works.
 
-Combine that with time pressures and shifting requirements, and it can be easy to forget *why* you do things the way
-you do them. Best practices with some longevity are likely to provide benefits, but it's easy to develop something of a
-ritualistic mentality about the way you build software. *If we write the magic number of unit tests, make sure the size
-in bytes of our zip file is an odd number and sacrifice a chicken, we'll have a successful release.*
+Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget *why*
+you do things the way you do them. Best practices which develop some form of longevity are likely to provide benefits,
+but it's easy to slip into something of a ritualistic mentality about the way you build software. *If we write the magic
+number of unit tests, make sure the size in bytes of our zip file is an odd number and sacrifice a chicken, the Gods will
+smile upon us and our release will be successful.*
 
 With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
 wasn't subject to the formalities of software development which I've become used to in my day job. I could completely
-freely choose which ones to follow and which ones to ignore. What it made me realise, time and again, was that the
-practices which my colleagues and I seem to settling upon feel to me something like a fundamental set of
-laws of software, which apply everywhere and anywhere in the Universe. (Well, my corner of the Universe, anyway.)
+freely choose which ones to follow and which ones to ignore. It's fair to say that there was a fair amount of unwarranted
+bravado about the choices I made, an air of *I'm old enough to know what I'm doing* about my approach.
 
-And that's what prompted me to start blogging. While I do intend to take the odd diversion into
-the simultaneously mundane and fascinating details of emulation, I'll mainly be treating you to a series of stories on
-the gaffes, goofs and prat-falls that led me to realise why doing or not doing a particular thing was a good or bad idea.
+The result is the catalogue of gaffes, goofs and prat-falls you're going to read about in this blog. I will, of course,
+make the odd diversion into the simultaneously mundane and fascinating details of emulation, but what I really want to
+get across as I write is that there really *are* good reasons why we do things the way we do, and if we lose sight of that
+then we are bound to repeat the mistakes of the past.
 
-I hope you find it enjoyable.
+That does sound rather heavy, but the flip-side is to realise that there are so many signposts guiding us down the path
+to success, and it's that note of encouragement I hope you take away with you.
+
+I hope you find my writing enjoyable.
