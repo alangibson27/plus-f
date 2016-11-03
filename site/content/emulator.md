@@ -47,8 +47,10 @@ green to indicate when the tape is playing.
 * Play: Play a TAP or TZX file.
 * Stop: Stop the tape.
 * Rewind to Start: Rewind to the start of the current tape.
+* Tape Information: Shows information embedded in the tape file, if any.
+* Jump to Block: Jump to a particular block of the tape.
 
 ### Network menu
 
-* Connect to guest: Enter a connection code to pair up with a Guest for a two-player gaming session.
-* Disconnect from guest: Disconnect from a Guest to stop a two-player gaming session.
+* Connect: Enter a connection code to pair up with a Guest for a two-player gaming session.
+* Disconnect: Disconnect from a Guest to stop a two-player gaming session.

@@ -13,7 +13,7 @@ perfection.
 
 Of course, none of this was in the minds of me or my friends when we were growing up playing this Match Day II. All we
 had was this compellingly playable game, and a conviction that we must be the best people in the world at playing it.
-Time passes, people move on and circumstances change, but from time to time I couldn't help but wonder if my friends
-and I were to play Match Day II against each other once more.
+Time passes, people move on and circumstances change, but from time to time I couldn't help but wonder what would happen
+if my friends and I were to play Match Day II against each other once more.
 
 The only surprise is that it took me so long to come up with the idea of Plus-F as a way of answering that question.

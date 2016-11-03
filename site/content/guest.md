@@ -28,5 +28,5 @@ The Guest can also be controlled by the options in the menu bar at the top of th
 
 ### Network menu
 
-* Connect to emulator: Enter a connection code to pair up with an Emulator for a two-player gaming session.
-* Disconnect from emulator: Disconnect from an Emulator to stop a two-player gaming session.
+* Connect: Enter a connection code to pair up with an Emulator for a two-player gaming session.
+* Disconnect: Disconnect from an Emulator to stop a two-player gaming session.
