@@ -1,6 +1,6 @@
 +++
 draft = false
-date = "2016-11-03T21:54:07Z"
+date = "2016-11-04T20:54:07Z"
 title = "Standing on the Shoulders of Giants"
 tags = ["emulators"]
 +++
