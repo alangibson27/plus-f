@@ -6,8 +6,41 @@
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 31 Oct 2016 22:49:58 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 03 Nov 2016 21:54:07 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Standing on the Shoulders of Giants</title>
+      <link>http://plusf.socialthingy.com/blog/standing-on-the-shoulders-of-giants/</link>
+      <pubDate>Thu, 03 Nov 2016 21:54:07 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/blog/standing-on-the-shoulders-of-giants/</guid>
+      <description>&lt;p&gt;The fundamental thing an emulator does is, by definition, copy the behaviour of something else. And so it is
+with +F, which emulates a real ZX Spectrum. The catch, sadly, is that I don&amp;rsquo;t have one of those to hand, so
+without the real thing as a reference, how can I check that +F is working properly? The answer lies in the
+fantastic emulators that others have written.&lt;/p&gt;
+
+&lt;p&gt;I mainly run Linux at home, and over the years I&amp;rsquo;ve enjoyed using the &lt;a href=&#34;http://fuse-emulator.sourceforge.net/&#34;&gt;FUSE Emulator&lt;/a&gt;.
+From my time using it, I&amp;rsquo;ve developed confidence that it is a faithful emulation of a ZX Spectrum, and at
+various points in the development of +F I&amp;rsquo;ve used it as my reference. When I wasn&amp;rsquo;t sure if my Z80 emulation
+code was setting flags correctly, or I wanted to see what the behaviour of a particular block of assembly code
+was, I would run identical tests against FUSE and +F, and where +F gave a different answer, I could be confident
+that there was a bug in there which I needed to fix.&lt;/p&gt;
+
+&lt;p&gt;On top of that, FUSE also comes with a handy set of debugging tools, which I also made use of at various times -
+notably in checking I had the right behaviour for incrementing the value of the refresh register. (There was also
+another time where I poured away days of effort trying to squash a bug I&amp;rsquo;d introduced unthinkingly as a
+result of the fundamental misconception that the Spectrum ROM would never try to overwrite itself, but more
+on that later.)&lt;/p&gt;
+
+&lt;p&gt;All of this is simply to say that, without FUSE, I wouldn&amp;rsquo;t have been able to develop +F. While +F does have
+a few tweaks and twiddles that FUSE doesn&amp;rsquo;t have, it&amp;rsquo;s still inferior in many ways, and if you&amp;rsquo;re looking for a
+solid Spectrum emulator that&amp;rsquo;s packed full of features and gives you an authentic experience, try FUSE.&lt;/p&gt;
+
+&lt;p&gt;It also goes without saying that I&amp;rsquo;m deeply thankful to FUSE&amp;rsquo;s author for his work, and also very much in awe
+of it.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Why?</title>
@@ -15,37 +48,50 @@
       <pubDate>Mon, 31 Oct 2016 22:49:58 +0000</pubDate>
       
       <guid>http://plusf.socialthingy.com/blog/why/</guid>
-      <description>&lt;p&gt;There are plenty of perfectly adequate Spectrum emulators already freely available, so why did I feel the need to write
-+F?&lt;/p&gt;
+      <description>&lt;p&gt;Why did I bother writing +F? There are already plenty of fully-featured, freely-available Spectrum emulators for
+more or less any platform you care to think of. Indeed, I remember using a perfectly playable one on the Commodore
+Amiga as far back as 1994 or 1995 (ZXAM by Antonio J. Pomar Roselló), so it&amp;rsquo;s hardly a novel idea.&lt;/p&gt;
 
-&lt;p&gt;It did all start with the idea to make possible 2-player Spectrum gaming across a network - which, as far as I was
-aware at the time I started out, wasn&amp;rsquo;t possible in any other existing Spectrum emulator - but that wasn&amp;rsquo;t my only
-motivation.&lt;/p&gt;
+&lt;p&gt;I did have a little twist which I wanted to add, which at the time I started writing didn&amp;rsquo;t appear to be available
+in any other emulator, namely the ability to play games across the Internet. (It turns out that &lt;a href=&#34;http://zxm.speccy.cz/realspec/&#34;&gt;RealSpec&lt;/a&gt;
+claims to do this and more, but I haven&amp;rsquo;t tried it.)&lt;/p&gt;
 
-&lt;p&gt;Mainly, I wanted to learn, and to have a project of my own to sink my teeth into, experiment with, and give me a place
-to have a go at applying things that I have read or thought about. Trust me, I learned a lot, and certainly a lot more
-than I thought I might.&lt;/p&gt;
+&lt;p&gt;More than just that, though, it was probably inevitable I would end up trying this sooner or later. Much like
+mountaineers are reputed to climb mountains &amp;ldquo;because they&amp;rsquo;re there&amp;rdquo;, or lovelorn teenage boys write dreadful and
+embarrassing poetry, the chances of a programming geek with a fondness for 80s gaming writing an emulator are
+rather high. (Given I&amp;rsquo;d already written a
+&lt;a href=&#34;https://chrome.google.com/webstore/detail/speccy-loading-borders/jakeajfeddddpglibndhjhdmlinejihf&#34;&gt;Chrome plugin that uses CSS to emulate Spectrum loading borders&lt;/a&gt;,
+it&amp;rsquo;s safe to say that I&amp;rsquo;ve got form.)&lt;/p&gt;
 
-&lt;p&gt;That&amp;rsquo;s what this blog is about. I didn&amp;rsquo;t set out to write a blog as a companion to +F or its site. A blog which simply
-described a series of updates, bug fixes and new features on a project of no real significance would have been very
-dull. Instead, I&amp;rsquo;m writing all of these blog posts after the fact, with (I expect) well over 90% of the work on +F
-already complete. I&amp;rsquo;m able to put what I&amp;rsquo;ve learned into context for you, and hopefully you&amp;rsquo;ll find what I&amp;rsquo;m presenting
-to be helpful, informative and entertaining.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;So Mr. Nerdy-Nerdy has a warm, fuzzy feeling about his pet project&lt;/em&gt;, you may be thinking. &lt;em&gt;Very good, move along.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;You may have noticed a theme emerging already - learning. That&amp;rsquo;s what I&amp;rsquo;ve really enjoyed about +F. In truth, I&amp;rsquo;ve
-barely actually used it for playing games. What have I learned? Obviously, an awful lot about the Z80&amp;rsquo;s instruction
-set, everything I hadn&amp;rsquo;t realised I&amp;rsquo;d forgotten about two&amp;rsquo;s complement binary, and how the innards of a Spectrum
-function, among other.&lt;/p&gt;
+&lt;p&gt;And to a certain extent, you&amp;rsquo;re right. There&amp;rsquo;s nothing novel about +F and I certainly wasn&amp;rsquo;t planning to blog about
+it. Indeed, if I was just a programming geek by night, I probably wouldn&amp;rsquo;t have, but I&amp;rsquo;ve actually also been a programming
+geek by profession for the best part of two decades. When you do anything for that length of time, it becomes something
+of an overlearned skill, something you don&amp;rsquo;t necessarily have to devote much conscious thought to.
+You learn all manner of techniques and best practices from the people you work with, you learn your own lessons, and
+most of all you tend to adopt and fit in with the way that your team works.&lt;/p&gt;
 
-&lt;p&gt;Beyond that, though, I&amp;rsquo;ve been fascinated by how it seems to me that the fundamental laws of software development
-apply anywhere and everywhere. Among others, and in no particular order, it&amp;rsquo;s reinforced the reasons it&amp;rsquo;s important
-to have a clear vision of what you want your project to do; why you should write tests first; why it&amp;rsquo;s really helpful
-to understand what&amp;rsquo;s happening beneath language abstractions; why prototyping is useful up-front but optimisation
-should be left to the end.&lt;/p&gt;
+&lt;p&gt;Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget &lt;em&gt;why&lt;/em&gt;
+you do things the way you do them. Best practices which develop some form of longevity are likely to provide benefits,
+but it&amp;rsquo;s easy to slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If we write the magic
+number of unit tests, make sure the size in bytes of our zip file is an odd number and sacrifice a chicken, the Gods will
+smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;None of these are at all novel, and in many cases they are principles which have been common software knowledge for
-decades. In that respect, in what I do, I consider myself simply to be standing on the shoulders of the giants who
-have gone before.&lt;/p&gt;
+&lt;p&gt;With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
+wasn&amp;rsquo;t subject to the formalities of software development which I&amp;rsquo;ve become used to in my day job. I could completely
+freely choose which ones to follow and which ones to ignore. It&amp;rsquo;s fair to say that there was a fair amount of unwarranted
+bravado about the choices I made, an air of &lt;em&gt;I&amp;rsquo;m old enough to know what I&amp;rsquo;m doing&lt;/em&gt; about my approach.&lt;/p&gt;
+
+&lt;p&gt;The result is the catalogue of gaffes, goofs and prat-falls you&amp;rsquo;re going to read about in this blog. I will, of course,
+make the odd diversion into the simultaneously mundane and fascinating details of emulation, but what I really want to
+get across as I write is that there really &lt;em&gt;are&lt;/em&gt; good reasons why we do things the way we do, and if we lose sight of that
+then we are bound to repeat the mistakes of the past.&lt;/p&gt;
+
+&lt;p&gt;That does sound rather heavy, but the flip-side is to realise that there are so many signposts guiding us down the path
+to success, and it&amp;rsquo;s that note of encouragement I hope you take away with you.&lt;/p&gt;
+
+&lt;p&gt;I hope you find my writing enjoyable.&lt;/p&gt;
 </description>
     </item>
     
@@ -111,8 +157,8 @@ perfection.&lt;/p&gt;
 
 &lt;p&gt;Of course, none of this was in the minds of me or my friends when we were growing up playing this Match Day II. All we
 had was this compellingly playable game, and a conviction that we must be the best people in the world at playing it.
-Time passes, people move on and circumstances change, but from time to time I couldn&amp;rsquo;t help but wonder if my friends
-and I were to play Match Day II against each other once more.&lt;/p&gt;
+Time passes, people move on and circumstances change, but from time to time I couldn&amp;rsquo;t help but wonder what would happen
+if my friends and I were to play Match Day II against each other once more.&lt;/p&gt;
 
 &lt;p&gt;The only surprise is that it took me so long to come up with the idea of Plus-F as a way of answering that question.&lt;/p&gt;
 </description>
@@ -126,12 +172,35 @@ and I were to play Match Day II against each other once more.&lt;/p&gt;
       <guid>http://plusf.socialthingy.com/connect/</guid>
       <description>
 
-&lt;p&gt;Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
-The player running the Emulator has full control of the keyboard, and sends a copy of the screen to the Guest at
-a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
-sent back to the Emulator.&lt;/p&gt;
+&lt;h3 id=&#34;how-to-do-it&#34;&gt;How to do it&lt;/h3&gt;
 
-&lt;h3 id=&#34;is-it-really-possible&#34;&gt;Is it really possible?&lt;/h3&gt;
+&lt;p&gt;Network play works by player A running the Emulator and player B running the Guest. Both of these are downloaded and
+available in the same package. Here&amp;rsquo;s how it works:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Choose a code name and share this by email, instant message, text message or however you like.
+It&amp;rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
+They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Players A and B both choose the &lt;em&gt;Connect&lt;/em&gt; option from the &lt;em&gt;Network&lt;/em&gt; menu, and enter the code name in the pop-up.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;After a short while, the pop-up should disappear and the Emulator&amp;rsquo;s screen should be shared with the Guest.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;The guest can use the keys Q, A, O, P and M as a Kempston joystick controller.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Status messages below the display will show the current connection status. The colour of the message indicates the
+overall quality of the connection:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Green: The connection is good enough for games to be playable.&lt;/li&gt;
+&lt;li&gt;Yellow: The connection quality is poor, and delays may be experienced.&lt;/li&gt;
+&lt;li&gt;Red: The connection has dropped, either temporarily or permanently.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;does-it-really-work&#34;&gt;Does it really work?&lt;/h3&gt;
 
 &lt;p&gt;Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
 responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
@@ -146,12 +215,6 @@ the Guest&amp;rsquo;s copy of the display to jump or jerk a little.&lt;/p&gt;
 &lt;p&gt;If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
 should be acceptable.&lt;/p&gt;
 
-&lt;h3 id=&#34;who-should-run-the-emulator&#34;&gt;Who should run the Emulator?&lt;/h3&gt;
-
-&lt;p&gt;Generally, because the Emulator has to send much more data to the Guest than the Guest does back to the Emulator, the
-player with the better network upload speeds should run the Emulator. If both players are connected to the same
-router, it probably doesn&amp;rsquo;t matter which is which, but over the Internet this does become significant.&lt;/p&gt;
-
 &lt;h3 id=&#34;firewalls-and-network-connectivity&#34;&gt;Firewalls and network connectivity&lt;/h3&gt;
 
 &lt;p&gt;In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
@@ -162,37 +225,6 @@ each other.&lt;/p&gt;
 &lt;p&gt;Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
 that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&amp;rsquo;re already familiar with
 enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.&lt;/p&gt;
-
-&lt;h3 id=&#34;making-a-connection&#34;&gt;Making a connection&lt;/h3&gt;
-
-&lt;p&gt;The Emulator and the Guest connect to one another through the Plus-F Relay Service, which allows them to discover one
-another&amp;rsquo;s addresses. Follow these steps to get up and running:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;The player running the Emulator invokes the &lt;em&gt;Connect to guest&lt;/em&gt; item and enters a connection code.
-It&amp;rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
-They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;The player running the Emulator passes the connection code to the player running the Guest. This could be by
-email, instant message, phone, shouting across a room - whatever works.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;The player running the Guest invokes the &lt;em&gt;Connect to emulator&lt;/em&gt; item, and enters the connection code.&lt;/p&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;If the two codes match, you should now be enjoying a two-player session.&lt;/p&gt;
-
-&lt;p&gt;First, the two players need to tell each other how the Emulator and Computer can reach one another. Each player should
-invoke the &lt;em&gt;Get connection details&lt;/em&gt; item from the &lt;em&gt;Network&lt;/em&gt; menu, and send the host and port details displayed to the
-other player.&lt;/p&gt;
-
-&lt;p&gt;Status messages below the display will show the current connection status. The colour of the message indicates the
-overall quality of the connection:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Green: The connection is good enough for games to be playable.&lt;/li&gt;
-&lt;li&gt;Yellow: The connection quality is poor, and delays may be experienced.&lt;/li&gt;
-&lt;li&gt;Red: The connection has dropped, either temporarily or permanently.&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
@@ -341,13 +373,15 @@ green to indicate when the tape is playing.&lt;/p&gt;
 &lt;li&gt;Play: Play a TAP or TZX file.&lt;/li&gt;
 &lt;li&gt;Stop: Stop the tape.&lt;/li&gt;
 &lt;li&gt;Rewind to Start: Rewind to the start of the current tape.&lt;/li&gt;
+&lt;li&gt;Tape Information: Shows information embedded in the tape file, if any.&lt;/li&gt;
+&lt;li&gt;Jump to Block: Jump to a particular block of the tape.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;network-menu&#34;&gt;Network menu&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Connect to guest: Enter a connection code to pair up with a Guest for a two-player gaming session.&lt;/li&gt;
-&lt;li&gt;Disconnect from guest: Disconnect from a Guest to stop a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Connect: Enter a connection code to pair up with a Guest for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Disconnect: Disconnect from a Guest to stop a two-player gaming session.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
@@ -389,8 +423,8 @@ two-player game, provided the game has Kempston joystick support (most have).&lt
 &lt;h3 id=&#34;network-menu&#34;&gt;Network menu&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Connect to emulator: Enter a connection code to pair up with an Emulator for a two-player gaming session.&lt;/li&gt;
-&lt;li&gt;Disconnect from emulator: Disconnect from an Emulator to stop a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Connect: Enter a connection code to pair up with an Emulator for a two-player gaming session.&lt;/li&gt;
+&lt;li&gt;Disconnect: Disconnect from an Emulator to stop a two-player gaming session.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

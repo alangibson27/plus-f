@@ -35,12 +35,35 @@
 
 
 
-<p>Playing in two-player mode works by one player running the Plus-F Emulator, and the other one running the Guest.
-The player running the Emulator has full control of the keyboard, and sends a copy of the screen to the Guest at
-a rate of 25 times a second. Meanwhile, keypresses on the Guest are translated into Kempston joystick movements and
-sent back to the Emulator.</p>
+<h3 id="how-to-do-it">How to do it</h3>
 
-<h3 id="is-it-really-possible">Is it really possible?</h3>
+<p>Network play works by player A running the Emulator and player B running the Guest. Both of these are downloaded and
+available in the same package. Here&rsquo;s how it works:</p>
+
+<ol>
+<li><p>Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.</p></li>
+
+<li><p>Choose a code name and share this by email, instant message, text message or however you like.
+It&rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
+They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.</p></li>
+
+<li><p>Players A and B both choose the <em>Connect</em> option from the <em>Network</em> menu, and enter the code name in the pop-up.</p></li>
+
+<li><p>After a short while, the pop-up should disappear and the Emulator&rsquo;s screen should be shared with the Guest.</p></li>
+
+<li><p>The guest can use the keys Q, A, O, P and M as a Kempston joystick controller.</p></li>
+</ol>
+
+<p>Status messages below the display will show the current connection status. The colour of the message indicates the
+overall quality of the connection:</p>
+
+<ul>
+<li>Green: The connection is good enough for games to be playable.</li>
+<li>Yellow: The connection quality is poor, and delays may be experienced.</li>
+<li>Red: The connection has dropped, either temporarily or permanently.</li>
+</ul>
+
+<h3 id="does-it-really-work">Does it really work?</h3>
 
 <p>Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
 responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
@@ -55,12 +78,6 @@ the Guest&rsquo;s copy of the display to jump or jerk a little.</p>
 <p>If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
 should be acceptable.</p>
 
-<h3 id="who-should-run-the-emulator">Who should run the Emulator?</h3>
-
-<p>Generally, because the Emulator has to send much more data to the Guest than the Guest does back to the Emulator, the
-player with the better network upload speeds should run the Emulator. If both players are connected to the same
-router, it probably doesn&rsquo;t matter which is which, but over the Internet this does become significant.</p>
-
 <h3 id="firewalls-and-network-connectivity">Firewalls and network connectivity</h3>
 
 <p>In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
@@ -71,37 +88,6 @@ each other.</p>
 <p>Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
 that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&rsquo;re already familiar with
 enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.</p>
-
-<h3 id="making-a-connection">Making a connection</h3>
-
-<p>The Emulator and the Guest connect to one another through the Plus-F Relay Service, which allows them to discover one
-another&rsquo;s addresses. Follow these steps to get up and running:</p>
-
-<ol>
-<li><p>The player running the Emulator invokes the <em>Connect to guest</em> item and enters a connection code.
-It&rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
-They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.</p></li>
-
-<li><p>The player running the Emulator passes the connection code to the player running the Guest. This could be by
-email, instant message, phone, shouting across a room - whatever works.</p></li>
-
-<li><p>The player running the Guest invokes the <em>Connect to emulator</em> item, and enters the connection code.</p></li>
-</ol>
-
-<p>If the two codes match, you should now be enjoying a two-player session.</p>
-
-<p>First, the two players need to tell each other how the Emulator and Computer can reach one another. Each player should
-invoke the <em>Get connection details</em> item from the <em>Network</em> menu, and send the host and port details displayed to the
-other player.</p>
-
-<p>Status messages below the display will show the current connection status. The colour of the message indicates the
-overall quality of the connection:</p>
-
-<ul>
-<li>Green: The connection is good enough for games to be playable.</li>
-<li>Yellow: The connection quality is poor, and delays may be experienced.</li>
-<li>Red: The connection has dropped, either temporarily or permanently.</li>
-</ul>
 
 
 </div>

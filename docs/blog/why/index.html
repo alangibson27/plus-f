@@ -33,37 +33,50 @@
 
 <h1>Why? (31-Oct-2016)</h1>
 
-<p>There are plenty of perfectly adequate Spectrum emulators already freely available, so why did I feel the need to write
-+F?</p>
+<p>Why did I bother writing +F? There are already plenty of fully-featured, freely-available Spectrum emulators for
+more or less any platform you care to think of. Indeed, I remember using a perfectly playable one on the Commodore
+Amiga as far back as 1994 or 1995 (ZXAM by Antonio J. Pomar Roselló), so it&rsquo;s hardly a novel idea.</p>
 
-<p>It did all start with the idea to make possible 2-player Spectrum gaming across a network - which, as far as I was
-aware at the time I started out, wasn&rsquo;t possible in any other existing Spectrum emulator - but that wasn&rsquo;t my only
-motivation.</p>
+<p>I did have a little twist which I wanted to add, which at the time I started writing didn&rsquo;t appear to be available
+in any other emulator, namely the ability to play games across the Internet. (It turns out that <a href="http://zxm.speccy.cz/realspec/">RealSpec</a>
+claims to do this and more, but I haven&rsquo;t tried it.)</p>
 
-<p>Mainly, I wanted to learn, and to have a project of my own to sink my teeth into, experiment with, and give me a place
-to have a go at applying things that I have read or thought about. Trust me, I learned a lot, and certainly a lot more
-than I thought I might.</p>
+<p>More than just that, though, it was probably inevitable I would end up trying this sooner or later. Much like
+mountaineers are reputed to climb mountains &ldquo;because they&rsquo;re there&rdquo;, or lovelorn teenage boys write dreadful and
+embarrassing poetry, the chances of a programming geek with a fondness for 80s gaming writing an emulator are
+rather high. (Given I&rsquo;d already written a
+<a href="https://chrome.google.com/webstore/detail/speccy-loading-borders/jakeajfeddddpglibndhjhdmlinejihf">Chrome plugin that uses CSS to emulate Spectrum loading borders</a>,
+it&rsquo;s safe to say that I&rsquo;ve got form.)</p>
 
-<p>That&rsquo;s what this blog is about. I didn&rsquo;t set out to write a blog as a companion to +F or its site. A blog which simply
-described a series of updates, bug fixes and new features on a project of no real significance would have been very
-dull. Instead, I&rsquo;m writing all of these blog posts after the fact, with (I expect) well over 90% of the work on +F
-already complete. I&rsquo;m able to put what I&rsquo;ve learned into context for you, and hopefully you&rsquo;ll find what I&rsquo;m presenting
-to be helpful, informative and entertaining.</p>
+<p><em>So Mr. Nerdy-Nerdy has a warm, fuzzy feeling about his pet project</em>, you may be thinking. <em>Very good, move along.</em></p>
 
-<p>You may have noticed a theme emerging already - learning. That&rsquo;s what I&rsquo;ve really enjoyed about +F. In truth, I&rsquo;ve
-barely actually used it for playing games. What have I learned? Obviously, an awful lot about the Z80&rsquo;s instruction
-set, everything I hadn&rsquo;t realised I&rsquo;d forgotten about two&rsquo;s complement binary, and how the innards of a Spectrum
-function, among other.</p>
+<p>And to a certain extent, you&rsquo;re right. There&rsquo;s nothing novel about +F and I certainly wasn&rsquo;t planning to blog about
+it. Indeed, if I was just a programming geek by night, I probably wouldn&rsquo;t have, but I&rsquo;ve actually also been a programming
+geek by profession for the best part of two decades. When you do anything for that length of time, it becomes something
+of an overlearned skill, something you don&rsquo;t necessarily have to devote much conscious thought to.
+You learn all manner of techniques and best practices from the people you work with, you learn your own lessons, and
+most of all you tend to adopt and fit in with the way that your team works.</p>
 
-<p>Beyond that, though, I&rsquo;ve been fascinated by how it seems to me that the fundamental laws of software development
-apply anywhere and everywhere. Among others, and in no particular order, it&rsquo;s reinforced the reasons it&rsquo;s important
-to have a clear vision of what you want your project to do; why you should write tests first; why it&rsquo;s really helpful
-to understand what&rsquo;s happening beneath language abstractions; why prototyping is useful up-front but optimisation
-should be left to the end.</p>
+<p>Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget <em>why</em>
+you do things the way you do them. Best practices which develop some form of longevity are likely to provide benefits,
+but it&rsquo;s easy to slip into something of a ritualistic mentality about the way you build software. <em>If we write the magic
+number of unit tests, make sure the size in bytes of our zip file is an odd number and sacrifice a chicken, the Gods will
+smile upon us and our release will be successful.</em></p>
 
-<p>None of these are at all novel, and in many cases they are principles which have been common software knowledge for
-decades. In that respect, in what I do, I consider myself simply to be standing on the shoulders of the giants who
-have gone before.</p>
+<p>With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
+wasn&rsquo;t subject to the formalities of software development which I&rsquo;ve become used to in my day job. I could completely
+freely choose which ones to follow and which ones to ignore. It&rsquo;s fair to say that there was a fair amount of unwarranted
+bravado about the choices I made, an air of <em>I&rsquo;m old enough to know what I&rsquo;m doing</em> about my approach.</p>
+
+<p>The result is the catalogue of gaffes, goofs and prat-falls you&rsquo;re going to read about in this blog. I will, of course,
+make the odd diversion into the simultaneously mundane and fascinating details of emulation, but what I really want to
+get across as I write is that there really <em>are</em> good reasons why we do things the way we do, and if we lose sight of that
+then we are bound to repeat the mistakes of the past.</p>
+
+<p>That does sound rather heavy, but the flip-side is to realise that there are so many signposts guiding us down the path
+to success, and it&rsquo;s that note of encouragement I hope you take away with you.</p>
+
+<p>I hope you find my writing enjoyable.</p>
 
 
 </div>
