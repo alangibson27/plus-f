@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Plus-F</title>
+    <link>http://plusf.socialthingy.com/tags/emulators/index.xml</link>
+    <description>Recent content on Plus-F</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-gb</language>
+    <atom:link href="http://plusf.socialthingy.com/tags/emulators/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Standing on the Shoulders of Giants</title>
+      <link>http://plusf.socialthingy.com/blog/standing-on-the-shoulders-of-giants/</link>
+      <pubDate>Thu, 03 Nov 2016 21:54:07 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/blog/standing-on-the-shoulders-of-giants/</guid>
+      <description>&lt;p&gt;The fundamental thing an emulator does is, by definition, copy the behaviour of something else. And so it is
+with +F, which emulates a real ZX Spectrum. The catch, sadly, is that I don&amp;rsquo;t have one of those to hand, so
+without the real thing as a reference, how can I check that +F is working properly? The answer lies in the
+fantastic emulators that others have written.&lt;/p&gt;
+
+&lt;p&gt;I mainly run Linux at home, and over the years I&amp;rsquo;ve enjoyed using the &lt;a href=&#34;http://fuse-emulator.sourceforge.net/&#34;&gt;FUSE Emulator&lt;/a&gt;.
+From my time using it, I&amp;rsquo;ve developed confidence that it is a faithful emulation of a ZX Spectrum, and at
+various points in the development of +F I&amp;rsquo;ve used it as my reference. When I wasn&amp;rsquo;t sure if my Z80 emulation
+code was setting flags correctly, or I wanted to see what the behaviour of a particular block of assembly code
+was, I would run identical tests against FUSE and +F, and where +F gave a different answer, I could be confident
+that there was a bug in there which I needed to fix.&lt;/p&gt;
+
+&lt;p&gt;On top of that, FUSE also comes with a handy set of debugging tools, which I also made use of at various times -
+notably in checking I had the right behaviour for incrementing the value of the refresh register. (There was also
+another time where I poured away days of effort trying to squash a bug I&amp;rsquo;d introduced unthinkingly as a
+result of the fundamental misconception that the Spectrum ROM would never try to overwrite itself, but more
+on that later.)&lt;/p&gt;
+
+&lt;p&gt;All of this is simply to say that, without FUSE, I wouldn&amp;rsquo;t have been able to develop +F. While +F does have
+a few tweaks and twiddles that FUSE doesn&amp;rsquo;t have, it&amp;rsquo;s still inferior in many ways, and if you&amp;rsquo;re looking for a
+solid Spectrum emulator that&amp;rsquo;s packed full of features and gives you an authentic experience, try FUSE.&lt;/p&gt;
+
+&lt;p&gt;It also goes without saying that I&amp;rsquo;m deeply thankful to FUSE&amp;rsquo;s author for his work, and also very much in awe
+of it.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
