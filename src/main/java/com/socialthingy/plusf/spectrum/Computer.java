@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Computer implements InterruptingDevice {
+public class Computer {
 
     private static final Logger logger = Logger.getLogger(Computer.class.getName());
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
@@ -78,8 +78,7 @@ public class Computer implements InterruptingDevice {
 
     public void singleCycle() {
         currentCycleTstates = 0;
-        final InterruptRequest interrupt = new InterruptRequest(this);
-        processor.requestInterrupt(interrupt);
+        processor.requestInterrupt();
 
         final Timer.Context timer = processorExecuteTimer.time();
         ula.newCycle();
@@ -95,7 +94,7 @@ public class Computer implements InterruptingDevice {
                     logger.log(Level.WARNING, "Unrecoverable error encountered", ex);
                 } finally {
                     if (currentCycleTstates == 0) {
-                        processor.cancelInterrupt(interrupt);
+                        processor.cancelInterrupt();
                     }
                 }
 
@@ -105,10 +104,6 @@ public class Computer implements InterruptingDevice {
         } finally {
             timer.stop();
         }
-    }
-
-    @Override
-    public void acknowledge() {
     }
 
     public void reset() {

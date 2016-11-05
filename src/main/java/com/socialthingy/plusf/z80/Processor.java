@@ -39,7 +39,7 @@ public class Processor {
     private boolean halting = false;
     private boolean iffs[] = new boolean[2];
     private int interruptMode = 1;
-    private Deque<InterruptRequest> interruptRequests = new LinkedList<>();
+    private boolean interruptRequested = false;
     private int lastTime;
     private Operation lastOp;
     private int lastPc;
@@ -315,16 +315,13 @@ public class Processor {
     }
 
     private Operation fetch() {
-        final InterruptRequest interrupt = interruptRequests.peekFirst();
-
-        if (iffs[0] && interrupt != null) {
+        if (iffs[0] && interruptRequested) {
             rReg.increment(1);
             if (halting) {
                 pcReg.getAndInc();
                 halting = false;
             }
             setIffState(false);
-            interrupt.getDevice().acknowledge();
 
             if (interruptMode == 1) {
                 return im1ResponseOp;
@@ -427,14 +424,12 @@ public class Processor {
         return this.iffs[iff];
     }
 
-    public void requestInterrupt(final InterruptRequest request) {
-        if (!interruptRequests.contains(request)) {
-            interruptRequests.addLast(request);
-        }
+    public void requestInterrupt() {
+        interruptRequested = true;
     }
 
-    public void cancelInterrupt(final InterruptRequest request) {
-        interruptRequests.remove(request);
+    public void cancelInterrupt() {
+        interruptRequested = false;
     }
 
     public void nmi() {
@@ -501,7 +496,7 @@ public class Processor {
         iffs[0] = false;
         iffs[1] = false;
         interruptMode = 1;
-        interruptRequests.clear();
+        interruptRequested = false;
         lastTime = 0;
         lastOp = null;
         lastPc = 0;

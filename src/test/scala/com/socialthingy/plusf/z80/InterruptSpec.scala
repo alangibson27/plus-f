@@ -30,19 +30,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
     }
 
-    def anIm1InterruptIsGenerated: AckReceiver = {
-      val ackReceiver = new AckReceiver()
-      val request = new InterruptRequest(ackReceiver)
-      processor.requestInterrupt(request)
-      ackReceiver
-    }
-
-    def anIm2InterruptIsGenerated: AckReceiver = {
-      val interruptingDevice = new AckReceiver()
-      val request = new InterruptRequest(interruptingDevice)
-      processor.requestInterrupt(request)
-      interruptingDevice
-    }
+    def anInterruptIsGenerated: Unit = processor.requestInterrupt()
 
     def routineAt(address: Int) = new RoutineBuilder(memory, address)
     
@@ -58,14 +46,6 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       while (processor.register("pc").get() <= toAddr) {
         processor.execute()
       }
-    }
-  }
-
-  class AckReceiver extends InterruptingDevice {
-    var acknowledged = false
-
-    override def acknowledge(): Unit = {
-      acknowledged = true
     }
   }
 
@@ -294,7 +274,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     maskableInterruptsAreDisabled
     maskableInterruptModeIs(1)
-    val interruptor = anIm1InterruptIsGenerated
+    anInterruptIsGenerated
 
     nextInstructionIs(0x3c)
     nextInstructionIs(0xfb)
@@ -308,7 +288,6 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    interruptor.acknowledged shouldBe true
     registerValue("a") shouldBe 0x02
     registerValue("pc") shouldBe 0x0038
   }
@@ -323,13 +302,12 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     routineAt(0x0038).does(0x3c,         // inc a
                             0xed, 0x4d)  // reti
 
-    val interruptingDevice = anIm1InterruptIsGenerated
+    anInterruptIsGenerated
 
     // when
     executeUntilNop()
 
     // then
-    interruptingDevice.acknowledged shouldBe true
     registerValue("a") shouldBe 2
     registerValue("b") shouldBe 1
   }
@@ -354,13 +332,12 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(1)
     nextInstructionIs(0xcb, 0xc0)
 
-    val interruptingDevice = anIm1InterruptIsGenerated
+    anInterruptIsGenerated
 
     // when
     processor.execute()
 
     // then
-    interruptingDevice.acknowledged shouldBe true
     registerValue("pc") shouldBe 0x0038
     registerValue("sp") shouldBe 0xfffd
     memory(0xfffd) shouldBe 0x04
@@ -376,13 +353,12 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(1)
     nextInstructionIs(0xcb, 0xc0)
 
-    val interruptingDevice = anIm1InterruptIsGenerated
+    anInterruptIsGenerated
 
     // when
     processor.execute()
 
     // then
-    interruptingDevice.acknowledged shouldBe false
     registerValue("pc") shouldBe 0x0005
     registerValue("sp") shouldBe 0xffff
     registerValue("b") shouldBe 0x01
@@ -401,13 +377,12 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     registerContainsValue("i", 0xb0)
 
-    val interruptingDevice = anIm2InterruptIsGenerated
+    anInterruptIsGenerated
 
     // when
     processor.execute()
 
     // then
-    interruptingDevice.acknowledged shouldBe true
     registerValue("pc") shouldBe 0xbeef
     registerValue("sp") shouldBe 0xfffd
     memory(0xfffd) shouldBe 0x04
@@ -429,13 +404,12 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("i", 0xb0)
     registerContainsValue("r", 0xe1)
 
-    val interruptingDevice = anIm2InterruptIsGenerated
+    anInterruptIsGenerated
 
     // when
     processor.execute()
 
     // then
-    interruptingDevice.acknowledged shouldBe false
     registerValue("pc") shouldBe 0x0005
     registerValue("sp") shouldBe 0xffff
     registerValue("b") shouldBe 0x01
@@ -452,7 +426,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // when
     processor.nmi()
-    anIm1InterruptIsGenerated
+    anInterruptIsGenerated
     processor.execute()
 
     // then
@@ -475,7 +449,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // when
     processor.nmi()
-    anIm1InterruptIsGenerated
+    anInterruptIsGenerated
     processor.execute()
 
     // then
@@ -530,7 +504,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerValue("pc") shouldBe addressOfHalt
     lastOp.isInstanceOf[OpHalt] shouldBe true
 
-    anIm1InterruptIsGenerated
+    anInterruptIsGenerated
     processor.execute()
     lastOp = processor.execute()
 
@@ -558,7 +532,7 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerValue("pc") shouldBe addressOfHalt
     lastOp.isInstanceOf[OpHalt] shouldBe true
 
-    anIm1InterruptIsGenerated
+    anInterruptIsGenerated
     lastOp = processor.execute()
 
     // then
@@ -581,36 +555,12 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // when
     executeRange(0x0000, 0x0003)
-    val interruptingDevice = anIm1InterruptIsGenerated
+    anInterruptIsGenerated
     processor.nmi()
     executeUntilNop()
 
     // then
-    interruptingDevice.acknowledged shouldBe true
     registerValue("a") shouldBe 3
     registerValue("b") shouldBe 1
-  }
-
-  "only one interrupt request" should "be accepted from a given interrupting device" in new InterruptingMachine {
-    // given
-    maskableInterruptsAreEnabled
-    maskableInterruptModeIs(1)
-
-    val device = new InterruptingDevice {
-      override def acknowledge(): Unit = ()
-    }
-
-    val firstRequest = new InterruptRequest(device)
-    processor.requestInterrupt(firstRequest)
-
-    val secondRequest = new InterruptRequest(device)
-    processor.requestInterrupt(secondRequest)
-
-    // when
-    processor.execute()
-    processor.execute()
-
-    // then
-    registerValue("pc") shouldBe 0x0039
   }
 }
