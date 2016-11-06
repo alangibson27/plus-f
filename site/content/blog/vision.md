@@ -1,7 +1,7 @@
 +++
-draft = true
+draft = false
 title = "Seeing Clearly"
-date = "2016-11-05T23:22:33Z"
+date = "2016-11-06T22:02:33Z"
 tags = ["software development"]
 +++
 
@@ -29,8 +29,8 @@ along a little slowly at times, but the Spectrum was never known as a speed mach
 I toyed with the idea for a while before I started any code. My first thought was whether I could bolt some
 network play facilities onto an existing open-source emulator, most of which tend to be written in C or some
 similar low-level language. I rejected this thought fairly quickly as I'm a Linux user and most of my friends
-use Windows, so I'd have a whole load of cross-platform issues to wrestle with, in addition to the tricky task
-of understanding somebody else's C.
+use Windows, so I'd also have a whole load of cross-platform issues to wrestle with, once I'd got past the trickier
+task of understanding somebody else's C.
 
 So that more or less put me in the position of writing my own emulator from the ground up. It's a challenge I
 did relish, but I wasn't in any illusion about the amount of work it would need. Where to start? More
@@ -49,5 +49,24 @@ Those thoughts left we with a very clear vision of what I wanted +F to be:
 
 And there it was, the minimum viable product for +F. I didn't go as far as setting up a backlog for it or
 anything like that, but I did realise I had a clear idea of what I wanted, and I was able to use that idea
-to help me decide where to start, what to do next, and what not to bother with.
+to help me decide where to start, what to do next, and what not to bother with. That's really important,
+because even in something with a scope that seems limited, like a Spectrum emulator, there are a lot more things
+going on than you might expect, and a lot of places you could choose to put your effort.
 
+Take borders. It's possible to change the colour of the border at specific positions down the screen, and
+indeed games like [Aquaplane](http://www.worldofspectrum.org/infoseekid.cgi?id=0000227) use this to create a
+"horizon" effect that spans the full width of the screen. However, making the change at the correct position
+is intimately linked with the timing of the Spectrum's display hardware. The rules for emulating this correctly
+are [very complicated](http://www.worldofspectrum.org/faq/reference/48kreference.htm#ZXSpectrum) and would take
+an age to implement and test.
+
+For my purposes, though, because I had already established Match Day II was my priority, and because it
+doesn't do anything at all the border (it's black the whole time) it was an easy choice for me not to care
+about this at all. This sort of focus that I had because I had a vision of what I wanted +F to be saved me from
+disappearing off into the more arcane aspects of building an emulator.
+
+Now, of course there's a difference between me writing +F in my spare time and you working on a team every day
+in the face of deadlines, shifting requirements and feature creep. But I think my point stands. If you're
+somehow able to establish a clear idea of what you're building is supposed to do, you'll stand a better chance
+of directing your efforts in the right places. If you're faced with a piece of work and you can't answer the
+question *do we need this?* with a simple *yes* or *no*, it's worth figuring out why not.
