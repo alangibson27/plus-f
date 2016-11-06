@@ -6,8 +6,84 @@
     <description>Recent content in Blog-rsses on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Fri, 04 Nov 2016 20:54:07 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 06 Nov 2016 22:02:33 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Seeing Clearly</title>
+      <link>http://plusf.socialthingy.com/blog/vision/</link>
+      <pubDate>Sun, 06 Nov 2016 22:02:33 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/blog/vision/</guid>
+      <description>&lt;p&gt;Before I dive into the missteps and mishaps of +F, I&amp;rsquo;d like to start with one very important thing I did right,
+in the very early stages.&lt;/p&gt;
+
+&lt;p&gt;The original idea for +F came from the tail end of an IM conversation with an old school friend, reminiscing
+about the computer games we used to play when we were young. A particular favourite of ours was Match Day II
+(for those of you too young to remember, it was sort of like the best bits of FIFA and PES brought together in a single game,
+multiplied a hundred times) and we were at the time convinced we would be world champions at it, if such a thing
+existed. (Sadly, eSports wasn&amp;rsquo;t to emerge until a good 10 years after we were past our gaming peak, and the
+world had mistakenly moved on from Match Day II by then anyway.)&lt;/p&gt;
+
+&lt;p&gt;I can&amp;rsquo;t remember who, but one or the other of us signed off by saying &lt;em&gt;I&amp;rsquo;m sure I could still hammer you&lt;/em&gt;, and
+it put me to thinking &amp;hellip; which one of us would actually win? The simple way to solve it would be to get together
+in front of a computer, fire up an emulator (FUSE, for example) and sort it out. Sadly, at the time, we were
+on almost exactly opposite sides of the world, and it would have been a long way for either of us to fly simply
+to settle an old childhood rivalry.&lt;/p&gt;
+
+&lt;p&gt;Nonetheless, it planted an idea in my mind. Given how easy it is to make high quality video calls to faraway
+places, surely there must be no problem in sending a Spectrum screen in one direction, and joystick movements
+in another, at least in theory? Depending on the distance and quality of network connection, things might chug
+along a little slowly at times, but the Spectrum was never known as a speed machine, was it?&lt;/p&gt;
+
+&lt;p&gt;I toyed with the idea for a while before I started any code. My first thought was whether I could bolt some
+network play facilities onto an existing open-source emulator, most of which tend to be written in C or some
+similar low-level language. I rejected this thought fairly quickly as I&amp;rsquo;m a Linux user and most of my friends
+use Windows, so I&amp;rsquo;d also have a whole load of cross-platform issues to wrestle with, once I&amp;rsquo;d got past the trickier
+task of understanding somebody else&amp;rsquo;s C.&lt;/p&gt;
+
+&lt;p&gt;So that more or less put me in the position of writing my own emulator from the ground up. It&amp;rsquo;s a challenge I
+did relish, but I wasn&amp;rsquo;t in any illusion about the amount of work it would need. Where to start? More
+importantly, where to &lt;em&gt;stop&lt;/em&gt;? I only wanted to be able to play a couple of games of Match Day II, so there
+wouldn&amp;rsquo;t be any need to go overboard with whizzbang features that made no difference to the quality of gameplay.&lt;/p&gt;
+
+&lt;p&gt;Those thoughts left we with a very clear vision of what I wanted +F to be:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;An emulator that worked on (at least) Linux and Windows.&lt;/li&gt;
+&lt;li&gt;Network play capability, with a fully-fledged emulator at one end and a &amp;ldquo;dumb&amp;rdquo; console at the other.&lt;/li&gt;
+&lt;li&gt;48k model only.&lt;/li&gt;
+&lt;li&gt;Allows a full game of Match Day II to be played without crashing, even if nothing else works.&lt;/li&gt;
+&lt;li&gt;No sound.&lt;/li&gt;
+&lt;li&gt;No loading borders.&lt;/li&gt;
+&lt;li&gt;No superfluous UI features or twiddles.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And there it was, the minimum viable product for +F. I didn&amp;rsquo;t go as far as setting up a backlog for it or
+anything like that, but I did realise I had a clear idea of what I wanted, and I was able to use that idea
+to help me decide where to start, what to do next, and what not to bother with. That&amp;rsquo;s really important,
+because even in something with a scope that seems limited, like a Spectrum emulator, there are a lot more things
+going on than you might expect, and a lot of places you could choose to put your effort.&lt;/p&gt;
+
+&lt;p&gt;Take borders. It&amp;rsquo;s possible to change the colour of the border at specific positions down the screen, and
+indeed games like &lt;a href=&#34;http://www.worldofspectrum.org/infoseekid.cgi?id=0000227&#34;&gt;Aquaplane&lt;/a&gt; use this to create a
+&amp;ldquo;horizon&amp;rdquo; effect that spans the full width of the screen. However, making the change at the correct position
+is intimately linked with the timing of the Spectrum&amp;rsquo;s display hardware. The rules for emulating this correctly
+are &lt;a href=&#34;http://www.worldofspectrum.org/faq/reference/48kreference.htm#ZXSpectrum&#34;&gt;very complicated&lt;/a&gt; and would take
+an age to implement and test.&lt;/p&gt;
+
+&lt;p&gt;For my purposes, though, because I had already established Match Day II was my priority, and because it
+doesn&amp;rsquo;t do anything at all the border (it&amp;rsquo;s black the whole time) it was an easy choice for me not to care
+about this at all. This sort of focus that I had because I had a vision of what I wanted +F to be saved me from
+disappearing off into the more arcane aspects of building an emulator.&lt;/p&gt;
+
+&lt;p&gt;Now, of course there&amp;rsquo;s a difference between me writing +F in my spare time and you working on a team every day
+in the face of deadlines, shifting requirements and feature creep. But I think my point stands. If you&amp;rsquo;re
+somehow able to establish a clear idea of what you&amp;rsquo;re building is supposed to do, you&amp;rsquo;ll stand a better chance
+of directing your efforts in the right places. If you&amp;rsquo;re faced with a piece of work and you can&amp;rsquo;t answer the
+question &lt;em&gt;do we need this?&lt;/em&gt; with a simple &lt;em&gt;yes&lt;/em&gt; or &lt;em&gt;no&lt;/em&gt;, it&amp;rsquo;s worth figuring out why not.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Standing on the Shoulders of Giants</title>
