@@ -11,19 +11,19 @@
     
     <item>
       <title>Seeing Clearly</title>
-      <link>http://plusf.socialthingy.com/blog/vision/</link>
+      <link>http://plusf.socialthingy.com/blog/seeing-clearly/</link>
       <pubDate>Sun, 06 Nov 2016 22:02:33 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/blog/vision/</guid>
+      <guid>http://plusf.socialthingy.com/blog/seeing-clearly/</guid>
       <description>&lt;p&gt;Before I dive into the missteps and mishaps of +F, I&amp;rsquo;d like to start with one very important thing I did right,
 in the very early stages.&lt;/p&gt;
 
 &lt;p&gt;The original idea for +F came from the tail end of an IM conversation with an old school friend, reminiscing
 about the computer games we used to play when we were young. A particular favourite of ours was Match Day II
-(for those of you too young to remember, it was sort of like the best bits of FIFA and PES brought together in a single game,
-multiplied a hundred times) and we were at the time convinced we would be world champions at it, if such a thing
-existed. (Sadly, eSports wasn&amp;rsquo;t to emerge until a good 10 years after we were past our gaming peak, and the
-world had mistakenly moved on from Match Day II by then anyway.)&lt;/p&gt;
+(for those of you too young to remember, it was sort of like the best bits of FIFA and PES combined in a single game,
+only about a hundred times better than that) and we were at the time convinced we would be world champions at it,
+if such a competition had existed. (Sadly, eSports wasn&amp;rsquo;t to come into being until a good 10 years after we were past
+our gaming peak, and the world had mistakenly moved on from Match Day II by then anyway.)&lt;/p&gt;
 
 &lt;p&gt;I can&amp;rsquo;t remember who, but one or the other of us signed off by saying &lt;em&gt;I&amp;rsquo;m sure I could still hammer you&lt;/em&gt;, and
 it put me to thinking &amp;hellip; which one of us would actually win? The simple way to solve it would be to get together
@@ -32,7 +32,7 @@ on almost exactly opposite sides of the world, and it would have been a long way
 to settle an old childhood rivalry.&lt;/p&gt;
 
 &lt;p&gt;Nonetheless, it planted an idea in my mind. Given how easy it is to make high quality video calls to faraway
-places, surely there must be no problem in sending a Spectrum screen in one direction, and joystick movements
+places, surely there must be no problem in sending Spectrum screenshots in one direction and joystick movements
 in another, at least in theory? Depending on the distance and quality of network connection, things might chug
 along a little slowly at times, but the Spectrum was never known as a speed machine, was it?&lt;/p&gt;
 
@@ -43,11 +43,13 @@ use Windows, so I&amp;rsquo;d also have a whole load of cross-platform issues to
 task of understanding somebody else&amp;rsquo;s C.&lt;/p&gt;
 
 &lt;p&gt;So that more or less put me in the position of writing my own emulator from the ground up. It&amp;rsquo;s a challenge I
-did relish, but I wasn&amp;rsquo;t in any illusion about the amount of work it would need. Where to start? More
-importantly, where to &lt;em&gt;stop&lt;/em&gt;? I only wanted to be able to play a couple of games of Match Day II, so there
-wouldn&amp;rsquo;t be any need to go overboard with whizzbang features that made no difference to the quality of gameplay.&lt;/p&gt;
+did relish, but I wasn&amp;rsquo;t in any illusion about the amount of work it would need. Where to start?&lt;/p&gt;
 
-&lt;p&gt;Those thoughts left we with a very clear vision of what I wanted +F to be:&lt;/p&gt;
+&lt;p&gt;More importantly, where to &lt;em&gt;stop&lt;/em&gt;?&lt;/p&gt;
+
+&lt;p&gt;I only wanted to be able to play a couple of games of Match Day II, so there wouldn&amp;rsquo;t be any need to go overboard
+with whizzbang features that made no difference to the quality of gameplay. Those thoughts left me with a very clear
+vision of what I wanted +F to be:&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;An emulator that worked on (at least) Linux and Windows.&lt;/li&gt;
@@ -60,10 +62,10 @@ wouldn&amp;rsquo;t be any need to go overboard with whizzbang features that made
 &lt;/ul&gt;
 
 &lt;p&gt;And there it was, the minimum viable product for +F. I didn&amp;rsquo;t go as far as setting up a backlog for it or
-anything like that, but I did realise I had a clear idea of what I wanted, and I was able to use that idea
-to help me decide where to start, what to do next, and what not to bother with. That&amp;rsquo;s really important,
-because even in something with a scope that seems limited, like a Spectrum emulator, there are a lot more things
-going on than you might expect, and a lot of places you could choose to put your effort.&lt;/p&gt;
+anything like that, but armed with a clear idea of what I wanted, I was able to decide where to start, what to do
+next, and what not to bother with. That&amp;rsquo;s really important, because even in something with a scope that seems
+limited, like a Spectrum emulator, there are a lot more things going on than you might expect, and a lot of
+places you could choose to put your effort.&lt;/p&gt;
 
 &lt;p&gt;Take borders. It&amp;rsquo;s possible to change the colour of the border at specific positions down the screen, and
 indeed games like &lt;a href=&#34;http://www.worldofspectrum.org/infoseekid.cgi?id=0000227&#34;&gt;Aquaplane&lt;/a&gt; use this to create a
@@ -74,14 +76,32 @@ an age to implement and test.&lt;/p&gt;
 
 &lt;p&gt;For my purposes, though, because I had already established Match Day II was my priority, and because it
 doesn&amp;rsquo;t do anything at all the border (it&amp;rsquo;s black the whole time) it was an easy choice for me not to care
-about this at all. This sort of focus that I had because I had a vision of what I wanted +F to be saved me from
-disappearing off into the more arcane aspects of building an emulator.&lt;/p&gt;
+about this at all. This sort of focus that I had because of my clear vision of +F saved me from
+disappearing off into the more arcane (but no less technically interesting) aspects of building an emulator.&lt;/p&gt;
 
-&lt;p&gt;Now, of course there&amp;rsquo;s a difference between me writing +F in my spare time and you working on a team every day
-in the face of deadlines, shifting requirements and feature creep. But I think my point stands. If you&amp;rsquo;re
-somehow able to establish a clear idea of what you&amp;rsquo;re building is supposed to do, you&amp;rsquo;ll stand a better chance
-of directing your efforts in the right places. If you&amp;rsquo;re faced with a piece of work and you can&amp;rsquo;t answer the
-question &lt;em&gt;do we need this?&lt;/em&gt; with a simple &lt;em&gt;yes&lt;/em&gt; or &lt;em&gt;no&lt;/em&gt;, it&amp;rsquo;s worth figuring out why not.&lt;/p&gt;
+&lt;p&gt;How does any of this relate to what you and I do in our day jobs? Well, imagine you&amp;rsquo;re maintaining a library
+that&amp;rsquo;s going to be used by some other groups - maybe internal, maybe external, maybe a combination of both.
+Once your code has been released into the wild for the first time, you&amp;rsquo;re bound to get people coming to you and
+asking for new features. Chances are they&amp;rsquo;ll all request different things - this team wants something that
+makes it easier to integrate with Spring, that team wants support for a particular metrics framework, and that
+team over there wants a version that produces XML rather than JSON.&lt;/p&gt;
+
+&lt;p&gt;Reasonable though all these requests may be, if you say &lt;em&gt;yes&lt;/em&gt; to all of them, you&amp;rsquo;ll end up with a bloated
+library, it&amp;rsquo;ll be more involved to maintain and release, client teams will have a tougher time to upgrade,
+and in the end every encounter with your library will become a chore rather than a pleasure. You&amp;rsquo;ll also run
+the risk of losing focus on the core capabilities of your library, and you&amp;rsquo;ll spend time and effort on things
+that only a fraction of your user base will use, rather than using that time to make your code more robust,
+correct, efficient or easy to integrate with.&lt;/p&gt;
+
+&lt;p&gt;In the end, it comes down to one thing - do you have a clear idea of what the core purpose of your library is?
+Sure, you could add some code that will produce an XML form of your output, and the people who asked for it
+will doubtless be thankful (today, anyway). But should your library really be getting involved in those sort of
+serialisation issues - maybe it should be producing a logical model and leaving it up to the teams who use it
+to decide how its output appears instead?&lt;/p&gt;
+
+&lt;p&gt;Maybe adding the XML support (or whatever) &lt;em&gt;is&lt;/em&gt; absolutely the right thing to do, but that&amp;rsquo;s a question only
+you (and the rest of your team) can answer. If you&amp;rsquo;re given a requirement and you can&amp;rsquo;t answer the question
+&lt;em&gt;Do we need this?&lt;/em&gt; with a straight &lt;em&gt;yes&lt;/em&gt; or &lt;em&gt;no&lt;/em&gt;, it&amp;rsquo;s well worth your time to figure out why you can&amp;rsquo;t.&lt;/p&gt;
 </description>
     </item>
     
@@ -143,29 +163,30 @@ it&amp;rsquo;s safe to say that I&amp;rsquo;ve got form.)&lt;/p&gt;
 
 &lt;p&gt;And to a certain extent, you&amp;rsquo;re right. There&amp;rsquo;s nothing novel about +F and I certainly wasn&amp;rsquo;t planning to blog about
 it. Indeed, if I was just a programming geek by night, I probably wouldn&amp;rsquo;t have, but I&amp;rsquo;ve actually also been a programming
-geek by profession for the best part of two decades. When you do anything for that length of time, it becomes something
-of an overlearned skill, something you don&amp;rsquo;t necessarily have to devote much conscious thought to.
-You learn all manner of techniques and best practices from the people you work with, you learn your own lessons, and
-most of all you tend to adopt and fit in with the way that your team works.&lt;/p&gt;
+geek by profession for the best part of two decades. When you do anything for that length of time, you run the risk of
+it becoming an overlearned skill, something you don&amp;rsquo;t necessarily need to devote much conscious thought to.
+You learn all manner of techniques and best practices from the people you work with, you learn your own lessons, pick
+your favourites, and you&amp;rsquo;ll also probably tend to adopt and fit in with the way that your team works.&lt;/p&gt;
 
 &lt;p&gt;Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget &lt;em&gt;why&lt;/em&gt;
-you do things the way you do them. Best practices which develop some form of longevity are likely to provide benefits,
-but it&amp;rsquo;s easy to slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If we write the magic
-number of unit tests, make sure the size in bytes of our zip file is an odd number and sacrifice a chicken, the Gods will
-smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
+you do things the way you do them. Best practices only become so because they have been shown to provide benefits,
+but it&amp;rsquo;s easy to forget this and slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If we
+write the magic number of unit tests, make sure the digits of our release number don&amp;rsquo;t add up to thirteen, and sacrifice a
+chicken, the software gods will smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
 wasn&amp;rsquo;t subject to the formalities of software development which I&amp;rsquo;ve become used to in my day job. I could completely
 freely choose which ones to follow and which ones to ignore. It&amp;rsquo;s fair to say that there was a fair amount of unwarranted
-bravado about the choices I made, an air of &lt;em&gt;I&amp;rsquo;m old enough to know what I&amp;rsquo;m doing&lt;/em&gt; about my approach.&lt;/p&gt;
+bravado about the choices I made, an air of &lt;em&gt;it can&amp;rsquo;t be that complicated&lt;/em&gt; (wrong), &lt;em&gt;I do more difficult things than
+this every day&lt;/em&gt; (wrong again) and &lt;em&gt;I&amp;rsquo;m old enough to know what I&amp;rsquo;m doing&lt;/em&gt; (even more wrong) about my approach.&lt;/p&gt;
 
 &lt;p&gt;The result is the catalogue of gaffes, goofs and prat-falls you&amp;rsquo;re going to read about in this blog. I will, of course,
 make the odd diversion into the simultaneously mundane and fascinating details of emulation, but what I really want to
 get across as I write is that there really &lt;em&gt;are&lt;/em&gt; good reasons why we do things the way we do, and if we lose sight of that
 then we are bound to repeat the mistakes of the past.&lt;/p&gt;
 
-&lt;p&gt;That does sound rather heavy, but the flip-side is to realise that there are so many signposts guiding us down the path
-to success, and it&amp;rsquo;s that note of encouragement I hope you take away with you.&lt;/p&gt;
+&lt;p&gt;That does sound rather heavy and fatalistic, but the flip-side is to realise that yourself and others have already done
+the hard work of figuring out how to do software well, and it&amp;rsquo;s that note of encouragement I hope you take away with you.&lt;/p&gt;
 
 &lt;p&gt;I hope you find my writing enjoyable.&lt;/p&gt;
 </description>
