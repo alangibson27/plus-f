@@ -31,100 +31,9 @@
 <div class="content">
 
 
-
-<h1>Seeing Clearly (6-Nov-2016)</h1>
-<div><p>Before I dive into the missteps and mishaps of +F, I&rsquo;d like to start with one very important thing I did right,
-in the very early stages.</p>
-
-<p>The original idea for +F came from the tail end of an IM conversation with an old school friend, reminiscing
-about the computer games we used to play when we were young. A particular favourite of ours was Match Day II
-(for those of you too young to remember, it was sort of like the best bits of FIFA and PES combined in a single game,
-only about a hundred times better than that) and we were at the time convinced we would be world champions at it,
-if such a competition had existed. (Sadly, eSports wasn&rsquo;t to come into being until a good 10 years after we were past
-our gaming peak, and the world had mistakenly moved on from Match Day II by then anyway.)</p>
-
-<p>I can&rsquo;t remember who, but one or the other of us signed off by saying <em>I&rsquo;m sure I could still hammer you</em>, and
-it put me to thinking &hellip; which one of us would actually win? The simple way to solve it would be to get together
-in front of a computer, fire up an emulator (FUSE, for example) and sort it out. Sadly, at the time, we were
-on almost exactly opposite sides of the world, and it would have been a long way for either of us to fly simply
-to settle an old childhood rivalry.</p>
-
-<p>Nonetheless, it planted an idea in my mind. Given how easy it is to make high quality video calls to faraway
-places, surely there must be no problem in sending Spectrum screenshots in one direction and joystick movements
-in another, at least in theory? Depending on the distance and quality of network connection, things might chug
-along a little slowly at times, but the Spectrum was never known as a speed machine, was it?</p>
-
-<p>I toyed with the idea for a while before I started any code. My first thought was whether I could bolt some
-network play facilities onto an existing open-source emulator, most of which tend to be written in C or some
-similar low-level language. I rejected this thought fairly quickly as I&rsquo;m a Linux user and most of my friends
-use Windows, so I&rsquo;d also have a whole load of cross-platform issues to wrestle with, once I&rsquo;d got past the trickier
-task of understanding somebody else&rsquo;s C.</p>
-
-<p>So that more or less put me in the position of writing my own emulator from the ground up. It&rsquo;s a challenge I
-did relish, but I wasn&rsquo;t in any illusion about the amount of work it would need. Where to start?</p>
-
-<p>More importantly, where to <em>stop</em>?</p>
-
-<p>I only wanted to be able to play a couple of games of Match Day II, so there wouldn&rsquo;t be any need to go overboard
-with whizzbang features that made no difference to the quality of gameplay. Those thoughts left me with a very clear
-vision of what I wanted +F to be:</p>
-
-<ul>
-<li>An emulator that worked on (at least) Linux and Windows.</li>
-<li>Network play capability, with a fully-fledged emulator at one end and a &ldquo;dumb&rdquo; console at the other.</li>
-<li>48k model only.</li>
-<li>Allows a full game of Match Day II to be played without crashing, even if nothing else works.</li>
-<li>No sound.</li>
-<li>No loading borders.</li>
-<li>No superfluous UI features or twiddles.</li>
-</ul>
-
-<p>And there it was, the minimum viable product for +F. I didn&rsquo;t go as far as setting up a backlog for it or
-anything like that, but armed with a clear idea of what I wanted, I was able to decide where to start, what to do
-next, and what not to bother with. That&rsquo;s really important, because even in something with a scope that seems
-limited, like a Spectrum emulator, there are a lot more things going on than you might expect, and a lot of
-places you could choose to put your effort.</p>
-
-<p>Take borders. It&rsquo;s possible to change the colour of the border at specific positions down the screen, and
-indeed games like <a href="http://www.worldofspectrum.org/infoseekid.cgi?id=0000227">Aquaplane</a> use this to create a
-&ldquo;horizon&rdquo; effect that spans the full width of the screen. However, making the change at the correct position
-is intimately linked with the timing of the Spectrum&rsquo;s display hardware. The rules for emulating this correctly
-are <a href="http://www.worldofspectrum.org/faq/reference/48kreference.htm#ZXSpectrum">very complicated</a> and would take
-an age to implement and test.</p>
-
-<p>For my purposes, though, because I had already established Match Day II was my priority, and because it
-doesn&rsquo;t do anything at all the border (it&rsquo;s black the whole time) it was an easy choice for me not to care
-about this at all. This sort of focus that I had because of my clear vision of +F saved me from
-disappearing off into the more arcane (but no less technically interesting) aspects of building an emulator.</p>
-
-<p>How does any of this relate to what you and I do in our day jobs? Well, imagine you&rsquo;re maintaining a library
-that&rsquo;s going to be used by some other groups - maybe internal, maybe external, maybe a combination of both.
-Once your code has been released into the wild for the first time, you&rsquo;re bound to get people coming to you and
-asking for new features. Chances are they&rsquo;ll all request different things - this team wants something that
-makes it easier to integrate with Spring, that team wants support for a particular metrics framework, and that
-team over there wants a version that produces XML rather than JSON.</p>
-
-<p>Reasonable though all these requests may be, if you say <em>yes</em> to all of them, you&rsquo;ll end up with a bloated
-library, it&rsquo;ll be more involved to maintain and release, client teams will have a tougher time to upgrade,
-and in the end every encounter with your library will become a chore rather than a pleasure. You&rsquo;ll also run
-the risk of losing focus on the core capabilities of your library, and you&rsquo;ll spend time and effort on things
-that only a fraction of your user base will use, rather than using that time to make your code more robust,
-correct, efficient or easy to integrate with.</p>
-
-<p>In the end, it comes down to one thing - do you have a clear idea of what the core purpose of your library is?
-Sure, you could add some code that will produce an XML form of your output, and the people who asked for it
-will doubtless be thankful (today, anyway). But should your library really be getting involved in those sort of
-serialisation issues - maybe it should be producing a logical model and leaving it up to the teams who use it
-to decide how its output appears instead?</p>
-
-<p>Maybe adding the XML support (or whatever) <em>is</em> absolutely the right thing to do, but that&rsquo;s a question only
-you (and the rest of your team) can answer. If you&rsquo;re given a requirement and you can&rsquo;t answer the question
-<em>Do we need this?</em> with a straight <em>yes</em> or <em>no</em>, it&rsquo;s well worth your time to figure out why you can&rsquo;t.</p>
-</div>
-
-
 <h1>The Fundamentals are Important (13-Nov-2016)</h1>
-<div><p>The relationship between a programmer and a language is much like the relationship between the cricketer and a
+
+<p>The relationship between a programmer and a language is much like the relationship between the cricketer and a
 bat. Unless you know how to handle it properly, you&rsquo;re not going to achieve much and you could end up in a lot of pain.
 And so it was with +F, or at least the program which eventually became +F. It started off with the working title
 <em>QAOPM</em>, and was written in Python.</p>
@@ -284,8 +193,6 @@ Java sooner than I did.</p>
 
 <p>In honesty, it would have been easy to give up once I realised my best chance was to start all over again, but I did
 have one thing in my favour which was going to ease the pain considerably. I&rsquo;ll tell you about that next time.</p>
-</div>
-
 
 
 </div>

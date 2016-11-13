@@ -6,8 +6,177 @@
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Sun, 06 Nov 2016 22:02:33 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 13 Nov 2016 22:43:30 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The Fundamentals are Important</title>
+      <link>http://plusf.socialthingy.com/blog/fundamentals/</link>
+      <pubDate>Sun, 13 Nov 2016 22:43:30 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/blog/fundamentals/</guid>
+      <description>&lt;p&gt;The relationship between a programmer and a language is much like the relationship between the cricketer and a
+bat. Unless you know how to handle it properly, you&amp;rsquo;re not going to achieve much and you could end up in a lot of pain.
+And so it was with +F, or at least the program which eventually became +F. It started off with the working title
+&lt;em&gt;QAOPM&lt;/em&gt;, and was written in Python.&lt;/p&gt;
+
+&lt;p&gt;The choice of language was driven by a couple of things.&lt;/p&gt;
+
+&lt;p&gt;First, I aimed to write a cross-platform emulator. Python is readily available on both of my target platforms (Linux and
+Windows), and I planned to use the Pygame library to build the user interface. Second, I love Python&amp;rsquo;s
+&lt;a href=&#34;https://www.python.org/dev/peps/pep-0020/&#34;&gt;principles&lt;/a&gt;, its elegance and its clarity. (I know the fact that whitespace
+is syntactically relevant bothers some people, but it looks natural to me, and it&amp;rsquo;s never tripped me up.) My
+opportunities to work with this language had been limited to a few utilities and the odd simple web application,
+and I relished the chance to learn more on a project that was a bit more meaty.&lt;/p&gt;
+
+&lt;p&gt;That decision made, I set about writing +F, and four enjoyable months later (well, as enjoyable as jumping armpits-deep
+into the Z80 reference manual can be) I had a basic working version which could load a program from a snapshot file,
+emulate the Z80 and render the Spectrum display. It couldn&amp;rsquo;t accept keyboard input so you couldn&amp;rsquo;t actually do much with
+it, but I was sure that would follow in short order. All the unit tests worked, the display rendering was accurate,
+and it was time to fire it all up together for the first time and give it a shakedown.&lt;/p&gt;
+
+&lt;p&gt;And &amp;hellip; it was slow.&lt;/p&gt;
+
+&lt;p&gt;Not a little sluggish, not jerky from time to time, but truly, painfully slow. Right from the outset, I&amp;rsquo;d been sure
+that a modern PC (even my 2010-vintage laptop) would be able to handle emulation of an 8-bit computer without breaking
+sweat. After all, there&amp;rsquo;s already an &lt;a href=&#34;http://torinak.com/qaop&#34;&gt;emulator written in JavaScript&lt;/a&gt; that runs at full speed
+in a browser, so while I was expecting I&amp;rsquo;d need to make a few tweaks here and there, I had just assumed that the emulator
+would be fast enough. Not so. What was the problem?&lt;/p&gt;
+
+&lt;p&gt;Me.&lt;/p&gt;
+
+&lt;p&gt;Not Python. Definitely not Python.&lt;/p&gt;
+
+&lt;p&gt;Me.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;(At this point, I want to make perfectly clear that I&amp;rsquo;m certain that in the hands of an experienced Python programmer,
+it is possible to write an emulator with the requisite speed to be usable. If that sounds like you, I&amp;rsquo;ve left all of
+the code for the &lt;a href=&#34;https://github.com/alangibson27/qaopm&#34;&gt;Python +F on GitHub&lt;/a&gt;, and in the interests of learning how to
+become a better programmer, I&amp;rsquo;d be very happy if you had the time to take a look and could explain to me how I could
+have achieved a better outcome. I&amp;rsquo;m not having a bash at Python, I&amp;rsquo;m having a bash at me.)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve earned a living for almost two decades writing software in Java, and more recently Scala. I&amp;rsquo;ve become to an
+extent conditioned to think of software solutions in terms of interactions between objects (although obviously Scala
+opens the door to a more functional approach too), and that&amp;rsquo;s how I approached the Python predecessor of +F.&lt;/p&gt;
+
+&lt;p&gt;The processor was a class. Each Z80 operation was a class, with related operations existing in a class hierarchy. Memory was
+a class. The display was a class. Almost everything was nicely organised into classes, each with short methods which
+did strictly one thing - just the way you&amp;rsquo;d unthinkingly build almost any Java application. For all
+that I could read and write Python, though, I&amp;rsquo;d neglected the fact that an interpreted, dynamically-typed language
+behaves differently to a compiled, statically-typed language.&lt;/p&gt;
+
+&lt;p&gt;It turns out this was a really big problem for me because my code fell foul of a combination of Python&amp;rsquo;s weak spots (according to
+&lt;a href=&#34;https://wiki.python.org/moin/PythonSpeed/PerformanceTips#Loops&#34;&gt;this page&lt;/a&gt;) - lots of field dereferencing in tight, nested for-loops.
+In any other application, I may not have noticed this, but an emulator is basically just one big outer loop, which runs some
+other loops inside it on each iteration. The outermost loop runs once for each display refresh cycle (50 times a second
+in the case of the Spectrum), with each iteration running the processor&amp;rsquo;s fetch-execute cycle up to about 17000 times,
+followed by another loop which sets the colour of each of the 49152 pixels in the display. Lots of for-loops and, in
+my implementation, lots of dereferencing of fields on collaborating objects.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s a representative example of how the code for a single emulated Z80 operation (&lt;code&gt;add a, (hl)&lt;/code&gt;) looked, before I
+realised this there were going to be speed issues:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class OpAddAHlIndirect(BaseOp):
+    def __init__(self, processor, memory):
+        BaseOp.__init__(self)
+        self.processor = processor
+        self.memory = memory
+
+    def execute(self):
+        value = self.memory.peek(self.processor.get_16bit_reg(&#39;hl&#39;))
+        _add_a(self.processor, value, False)
+
+    def t_states(self):
+        return 7
+
+    def __str__(self):
+        return &#39;add a, (hl)&#39;
+
+def _add_a(processor, value, carry):
+    signed_a = to_signed(processor.main_registers[&#39;a&#39;])
+    if carry:
+        value = (value + 1) &amp;amp; 0xff
+    result, half_carry, full_carry = bitwise_add(processor.main_registers[&#39;a&#39;], value)
+    signed_result = to_signed(result)
+    processor.main_registers[&#39;a&#39;] = result
+    processor.set_condition(&#39;s&#39;, signed_result &amp;lt; 0)
+    processor.set_condition(&#39;z&#39;, result == 0)
+    processor.set_condition(&#39;h&#39;, half_carry)
+    processor.set_condition(&#39;p&#39;, (signed_a &amp;lt; 0) != (signed_result &amp;lt; 0))
+    processor.set_condition(&#39;n&#39;, False)
+    processor.set_condition(&#39;c&#39;, full_carry)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The execute method is the one that is run in the emulation loop. This single method, which could in theory be executed
+up to 17000 times every 1/50th of a second, was itself doing three expensive field dereferences per iteration, and when
+you include those done by the _add_a function it invokes, in total there are about a dozen in executing this one simple
+operation!&lt;/p&gt;
+
+&lt;p&gt;Having gone back and done the background reading I ought to have done at the start, I spent a month trying to remedy the
+problem, the outcome of which was that the code for our representative &lt;code&gt;add a, (hl)&lt;/code&gt; operation became &amp;hellip;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class OpAddAHlIndirect(BaseOp):
+    def __init__(self, processor, memory):
+        BaseOp.__init__(self)
+        self.processor = processor
+        self.memory = memory
+
+    def execute(self, processor, memory, pc):
+        value = memory[0xffff &amp;amp; processor.get_16bit_reg(&#39;hl&#39;)]
+        _add_a(processor, value, False)
+        return 7, False, pc
+
+    def __str__(self):
+        return &#39;add a, (hl)&#39;
+
+def _add_a(processor, value, carry):
+    signed_a = to_signed(processor.main_registers[&#39;a&#39;])
+    if carry:
+        value = (value + 1) &amp;amp; 0xff
+    result, half_carry, full_carry = bitwise_add(processor.main_registers[&#39;a&#39;], value)
+    signed_result = to_signed(result)
+    processor.main_registers[&#39;a&#39;] = result
+    set_condition = processor.set_condition
+    set_condition(&#39;s&#39;, signed_result &amp;lt; 0)
+    set_condition(&#39;z&#39;, result == 0)
+    set_condition(&#39;h&#39;, half_carry)
+    set_condition(&#39;p&#39;, (signed_a &amp;lt; 0) != (signed_result &amp;lt; 0))
+    set_condition(&#39;n&#39;, False)
+    set_condition(&#39;c&#39;, full_carry)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&amp;hellip; and while reducing the number of dot-dereferences (complemented with a few other recommended techniques such as
+flattening nested loops) did help a bit, it wasn&amp;rsquo;t enough to make the emulator fast enough to be viable. Suitably
+discouraged, I decided to scrap the idea of writing an emulator in Python and retreated to the safer territory of Java.&lt;/p&gt;
+
+&lt;p&gt;Where had I gone wrong?&lt;/p&gt;
+
+&lt;p&gt;I had my cricket bat, I&amp;rsquo;d carefully seasoned it with linseed oil and I&amp;rsquo;d spent my time in the nets, honing my technique.
+I&amp;rsquo;d then tried to play snooker with it.&lt;/p&gt;
+
+&lt;p&gt;I hadn&amp;rsquo;t understood the fundamentals of Python. You most certainly &lt;em&gt;can&lt;/em&gt; write Java-esque object-oriented programs with
+it, but what is cheap in Java comes with a different cost in Python. I fell into a trap
+&lt;a href=&#34;http://www.joelonsoftware.com/articles/fog0000000319.html&#34;&gt;articulately described by Joel Spolsky&lt;/a&gt;, where I didn&amp;rsquo;t
+see the details beneath an abstraction, and paid the price in terms of poor performance. (If you haven&amp;rsquo;t read that
+article yet, stop right now, read and understand it, read it again, then read some of the other articles on Joel on Software
+before coming back here. It&amp;rsquo;ll be well worth your while, trust me.)&lt;/p&gt;
+
+&lt;p&gt;I hope I won&amp;rsquo;t make this particular mistake again, but how could I have avoided this problem? I could have read some
+information about the performance characteristics of Python in advance of starting, of course. But given that I&amp;rsquo;m not
+especially taken with the idea of lots of up-front background reading when there&amp;rsquo;s code I could be writing (this may or
+may not be a character flaw, I leave that for you to judge), I think the best thing I could have done is reached a point
+where I realised my mistake a lot sooner.&lt;/p&gt;
+
+&lt;p&gt;Premature optimisation is of course a problem in itself (more on &lt;em&gt;that&lt;/em&gt; later), but a spot of up-front prototyping would have
+definitely helped. For example, I could have built a representative subset of the Z80 instruction set and performance
+tested a few simple routines, or built the display rendering logic and tested it standalone at the required frame rate.
+I&amp;rsquo;m sure that either of these would have made me either change the way I was writing my Python, or make the jump to
+Java sooner than I did.&lt;/p&gt;
+
+&lt;p&gt;In honesty, it would have been easy to give up once I realised my best chance was to start all over again, but I did
+have one thing in my favour which was going to ease the pain considerably. I&amp;rsquo;ll tell you about that next time.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Seeing Clearly</title>
@@ -134,8 +303,7 @@ a few tweaks and twiddles that FUSE doesn&amp;rsquo;t have, it&amp;rsquo;s still
 solid Spectrum emulator that&amp;rsquo;s packed full of features and gives you an authentic experience, try FUSE.&lt;/p&gt;
 
 &lt;p&gt;It also goes without saying that I&amp;rsquo;m deeply thankful to FUSE&amp;rsquo;s author for his work, and also very much in awe
-of it.&lt;/p&gt;
-</description>
+of it.&lt;/p&gt;</description>
     </item>
     
     <item>
