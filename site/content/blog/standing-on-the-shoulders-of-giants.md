@@ -8,7 +8,7 @@ tags = ["emulators"]
 The fundamental thing an emulator does is, by definition, copy the behaviour of something else. And so it is
 with +F, which emulates a real ZX Spectrum. The catch, sadly, is that I don't have one of those to hand, so
 without the real thing as a reference, how can I check that +F is working properly? The answer lies in the
-fantastic emulators that others have written.
+fantastic emulators that others have written.<!--more-->
 
 I mainly run Linux at home, and over the years I've enjoyed using the [FUSE Emulator](http://fuse-emulator.sourceforge.net/).
 From my time using it, I've developed confidence that it is a faithful emulation of a ZX Spectrum, and at
