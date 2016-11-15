@@ -28,11 +28,16 @@ public class Joystick extends Observable {
     }
 
     public void deserialise(final int serialised) {
+        final Set<Control> previousControls = new HashSet<>(activeControls);
         activeControls.clear();
         for (Control available: Control.values()) {
             if ((available.kempstonValue & serialised) > 0) {
                 activeControls.add(available);
             }
+        }
+        if (!activeControls.equals(previousControls)) {
+            setChanged();
+            notifyObservers();
         }
     }
 }

@@ -57,6 +57,9 @@ public class SwingEmulator {
     private final Processor processor;
     private long lastRepaint;
     private final Joystick guestJoystick;
+    private final KempstonJoystickInterface kempstonJoystickInterface;
+    private final SinclairJoystickInterface sinclair1JoystickInterface;
+    private final SwingJoystick hostJoystick;
 
     public SwingEmulator() throws IOException {
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
@@ -69,9 +72,9 @@ public class SwingEmulator {
         tapePlayer = new TapePlayer();
         ula = new ULA(keyboard, tapePlayer, memory);
 
-        final SwingJoystick hostJoystick = new SwingJoystick();
-        final KempstonJoystickInterface kempstonJoystickInterface = new KempstonJoystickInterface();
-        final SinclairJoystickInterface sinclair1JoystickInterface = new SinclairJoystickInterface(keyboard);
+        hostJoystick = new SwingJoystick();
+        kempstonJoystickInterface = new KempstonJoystickInterface();
+        sinclair1JoystickInterface = new SinclairJoystickInterface(keyboard);
         guestJoystick = new Joystick();
         hostInputMultiplexer = new HostInputMultiplexer(keyboard, hostJoystick);
         hostInputMultiplexer.deactivateJoystick();
@@ -122,15 +125,71 @@ public class SwingEmulator {
         final JMenu computerMenu = new JMenu("Computer");
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
 
-        final JCheckBoxMenuItem hostJoystickItem = new JCheckBoxMenuItem("Enable Host Joystick");
-        hostJoystickItem.addActionListener(action -> {
-            if (hostJoystickItem.isSelected()) {
-                hostInputMultiplexer.activateJoystick();
-            } else {
-                hostInputMultiplexer.deactivateJoystick();
-            }
+        final ButtonGroup hostJoystickButtonGroup = new ButtonGroup();
+        final ButtonGroup guestJoystickButtonGroup = new ButtonGroup();
+
+        final JMenu hostJoystickMenu = new JMenu("Host Joystick");
+        final JMenuItem noHostJoystick = new JRadioButtonMenuItem("None", true);
+        hostJoystickButtonGroup.add(noHostJoystick);
+        final JMenuItem kempstonHostJoystick = new JRadioButtonMenuItem("Kempston", false);
+        hostJoystickButtonGroup.add(kempstonHostJoystick);
+        final JMenuItem sinclairHostJoystick = new JRadioButtonMenuItem("Sinclair", false);
+        hostJoystickButtonGroup.add(sinclairHostJoystick);
+        hostJoystickMenu.add(noHostJoystick);
+        hostJoystickMenu.add(kempstonHostJoystick);
+        hostJoystickMenu.add(sinclairHostJoystick);
+        computerMenu.add(hostJoystickMenu);
+
+        final JMenu guestJoystickMenu = new JMenu("Guest Joystick");
+        final JMenuItem kempstonGuestJoystick = new JRadioButtonMenuItem("Kempston", true);
+        guestJoystickButtonGroup.add(kempstonGuestJoystick);
+        final JMenuItem sinclairGuestJoystick = new JRadioButtonMenuItem("Sinclair", false);
+        guestJoystickButtonGroup.add(sinclairGuestJoystick);
+        guestJoystickMenu.add(kempstonGuestJoystick);
+        guestJoystickMenu.add(sinclairGuestJoystick);
+        computerMenu.add(guestJoystickMenu);
+
+        noHostJoystick.addActionListener(event -> {
+            hostInputMultiplexer.deactivateJoystick();
+            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
+            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
         });
-        computerMenu.add(hostJoystickItem);
+        kempstonHostJoystick.addActionListener(event -> {
+            hostInputMultiplexer.activateJoystick();
+            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
+            if (kempstonJoystickInterface.isConnected(guestJoystick)) {
+                guestJoystickButtonGroup.setSelected(sinclairGuestJoystick.getModel(), true);
+                sinclair1JoystickInterface.connect(guestJoystick);
+            }
+            kempstonJoystickInterface.connect(hostJoystick);
+        });
+        sinclairHostJoystick.addActionListener(event -> {
+            hostInputMultiplexer.activateJoystick();
+            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
+            if (sinclair1JoystickInterface.isConnected(guestJoystick)) {
+                guestJoystickButtonGroup.setSelected(kempstonGuestJoystick.getModel(), true);
+                kempstonJoystickInterface.connect(guestJoystick);
+            }
+            sinclair1JoystickInterface.connect(hostJoystick);
+        });
+
+
+        kempstonGuestJoystick.addActionListener(event -> {
+            sinclair1JoystickInterface.disconnectIfConnected(guestJoystick);
+            if (kempstonJoystickInterface.isConnected(hostJoystick)) {
+                hostJoystickButtonGroup.setSelected(sinclairHostJoystick.getModel(), true);
+                sinclair1JoystickInterface.connect(hostJoystick);
+            }
+            kempstonJoystickInterface.connect(guestJoystick);
+        });
+        sinclairGuestJoystick.addActionListener(event -> {
+            kempstonJoystickInterface.disconnectIfConnected(guestJoystick);
+            if (sinclair1JoystickInterface.isConnected(hostJoystick)) {
+                hostJoystickButtonGroup.setSelected(kempstonHostJoystick.getModel(), true);
+                kempstonJoystickInterface.connect(hostJoystick);
+            }
+            sinclair1JoystickInterface.connect(guestJoystick);
+        });
 
         final JMenu modelMenu = new JMenu("Model");
         final ButtonGroup modelButtonGroup = new ButtonGroup();
