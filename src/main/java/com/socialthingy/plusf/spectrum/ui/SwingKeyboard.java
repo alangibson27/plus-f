@@ -69,7 +69,7 @@ public class SwingKeyboard extends Keyboard implements KeyListener {
         addConvenienceKey(VK_COLON, VK_CONTROL, VK_Z);
         addConvenienceKey(VK_SLASH, VK_CONTROL, VK_V);
         addConvenienceKey(VK_MINUS, VK_CONTROL, VK_J);
-        addConvenienceKey(VK_PLUS, VK_CONTROL, VK_K);
+        addConvenienceKey(VK_ADD, VK_CONTROL, VK_K);
         addConvenienceKey(VK_EQUALS, VK_CONTROL, VK_L);
         addConvenienceKey(VK_SEMICOLON, VK_CONTROL, VK_O);
         addConvenienceKey(VK_AT, VK_CONTROL, VK_2);

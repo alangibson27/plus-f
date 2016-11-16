@@ -38,10 +38,9 @@ import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 import static java.util.Optional.empty;
 
-public class SwingEmulator {
+public class SwingEmulator extends JFrame {
     private final Computer computer;
-    private final JFrame mainWindow;
-    private final DisplayComponent display;
+    protected final DisplayComponent display;
     private final int[] memory;
     private final UserPreferences prefs = new UserPreferences();
     private final TapePlayer tapePlayer;
@@ -111,7 +110,7 @@ public class SwingEmulator {
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
 
-        mainWindow = new JFrame("+F Spectrum Emulator");
+        setTitle("+F Spectrum Emulator");
         initialiseUI();
     }
 
@@ -131,9 +130,11 @@ public class SwingEmulator {
         final JMenu hostJoystickMenu = new JMenu("Host Joystick");
         final JMenuItem noHostJoystick = new JRadioButtonMenuItem("None", true);
         hostJoystickButtonGroup.add(noHostJoystick);
+        noHostJoystick.setName("HostJoystickNone");
         final JMenuItem kempstonHostJoystick = new JRadioButtonMenuItem("Kempston", false);
         hostJoystickButtonGroup.add(kempstonHostJoystick);
         final JMenuItem sinclairHostJoystick = new JRadioButtonMenuItem("Sinclair", false);
+        sinclairHostJoystick.setName("HostJoystickSinclair");
         hostJoystickButtonGroup.add(sinclairHostJoystick);
         hostJoystickMenu.add(noHostJoystick);
         hostJoystickMenu.add(kempstonHostJoystick);
@@ -276,14 +277,14 @@ public class SwingEmulator {
         statusBar.add(tapeControls);
         statusBar.add(speedIndicator);
 
-        mainWindow.setJMenuBar(menuBar);
-        mainWindow.addKeyListener(hostInputMultiplexer);
-        mainWindow.getContentPane().setLayout(new BoxLayout(mainWindow.getContentPane(), BoxLayout.Y_AXIS));
-        mainWindow.getContentPane().add(display);
-        mainWindow.getContentPane().add(statusBar);
-        mainWindow.pack();
-        mainWindow.setResizable(false);
-        mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setJMenuBar(menuBar);
+        addKeyListener(hostInputMultiplexer);
+        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        getContentPane().add(display);
+        getContentPane().add(statusBar);
+        pack();
+        setResizable(false);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     private void tapeInfo(final ActionEvent actionEvent) {
@@ -295,7 +296,7 @@ public class SwingEmulator {
 
         if (info.isEmpty()) {
             JOptionPane.showMessageDialog(
-                mainWindow,
+                this,
                 "No tape information available.",
                 "Tape Information",
                 JOptionPane.INFORMATION_MESSAGE
@@ -308,7 +309,7 @@ public class SwingEmulator {
             final JTable infoTable = new JTable(tableModel);
             infoTable.getColumnModel().getColumn(0).setMaxWidth(128);
             JOptionPane.showMessageDialog(
-                mainWindow,
+                this,
                 new JScrollPane(infoTable),
                 "Tape Information",
                 JOptionPane.INFORMATION_MESSAGE
@@ -322,7 +323,7 @@ public class SwingEmulator {
 
         if (blocks.isEmpty()) {
             JOptionPane.showMessageDialog(
-                    mainWindow,
+                    this,
                     "Tape is empty.",
                     "Jump to Block",
                     JOptionPane.INFORMATION_MESSAGE
@@ -346,7 +347,7 @@ public class SwingEmulator {
                 }
             });
             final int result = JOptionPane.showConfirmDialog(
-                    mainWindow,
+                    this,
                     new JScrollPane(blockList),
                     "Jump to Block",
                     JOptionPane.OK_CANCEL_OPTION,
@@ -364,20 +365,26 @@ public class SwingEmulator {
     }
 
     public void run() throws IOException {
-        mainWindow.setVisible(true);
+        setVisible(true);
         setSpeed(EmulatorSpeed.NORMAL);
+    }
+
+    public void stop() {
+        cycleTimer.cancel(true);
+        setVisible(false);
+        dispose();
     }
 
     private void connect(final ActionEvent e) {
         final String codename = JOptionPane.showInputDialog(
-                mainWindow,
+                this,
                 "Enter codename of the Guest",
                 "Connect to Guest",
                 JOptionPane.QUESTION_MESSAGE
         );
 
         if (codename != null) {
-            peer.connect(mainWindow, codename);
+            peer.connect(this, codename);
         }
     }
 
@@ -430,14 +437,14 @@ public class SwingEmulator {
                 chooser.setCurrentDirectory(new File(prefs.get(LAST_LOAD_DIRECTORY)));
             }
 
-            final int result = chooser.showOpenDialog(mainWindow);
+            final int result = chooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 try {
                     detectAndLoad(chooser.getSelectedFile());
                     prefs.set(LAST_LOAD_DIRECTORY, chooser.getSelectedFile().getAbsolutePath());
                 } catch (TapeException | IOException ex) {
                     JOptionPane.showMessageDialog(
-                        mainWindow,
+                        this,
                         String.format("An error occurred while loading the file file:\n%s", ex.getMessage()),
                         "Loading Error",
                         JOptionPane.ERROR_MESSAGE
@@ -469,7 +476,7 @@ public class SwingEmulator {
     private void changeModel(final Model newModel) {
         whilePaused(() -> {
             final int result = JOptionPane.showConfirmDialog(
-                mainWindow,
+                this,
                 "This will reset the computer. Do you want to continue?",
                 String.format("Change to %s", newModel.displayName),
                 JOptionPane.YES_NO_OPTION,
@@ -487,7 +494,7 @@ public class SwingEmulator {
     private void reset(final ActionEvent e) {
         whilePaused(() -> {
             final int result = JOptionPane.showConfirmDialog(
-               mainWindow,
+               this,
                "Do you want to reset the computer?",
                "Reset",
                JOptionPane.YES_NO_OPTION,
@@ -500,7 +507,7 @@ public class SwingEmulator {
         });
     }
 
-    private void resetComputer() {
+    protected void resetComputer() {
         try {
             Memory.configure(memory, Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name())));
             computer.reset();

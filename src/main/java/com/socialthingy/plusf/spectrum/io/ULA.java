@@ -88,7 +88,7 @@ public class ULA implements IO {
     }
 
     public boolean borderNeedsRedrawing() {
-        return unchangedBorderCycles < 2;
+        return unchangedBorderCycles < 2 && !borderChanges.isEmpty();
     }
 
     public boolean flashStatusChanged() {
