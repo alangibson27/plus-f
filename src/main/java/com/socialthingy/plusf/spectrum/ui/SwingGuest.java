@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.spectrum.ui;
 
+import akka.actor.ActorSystem;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.display.UnsafePixelMapper;
 import com.socialthingy.plusf.spectrum.io.ULA;
@@ -30,17 +31,18 @@ public class SwingGuest {
     private final int[] memory;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
+    private final ActorSystem actorSystem = ActorSystem.apply();
 
     public SwingGuest() throws IOException {
         memory = new int[0x10000];
         Memory.configure(memory, Model._48K);
         ula = new GuestULA();
-        display = new SwingDoubleSizeDisplay(new UnsafePixelMapper(), memory, ula);
+        display = new SwingDoubleSizeDisplay(new UnsafePixelMapper());
         joystick = new SwingJoystick();
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         mainWindow = new JFrame("+F Spectrum Guest");
-        peer = new GuestPeerAdapter(hostData -> lastHostData = hostData);
+        peer = new GuestPeerAdapter(actorSystem, hostData -> lastHostData = hostData);
 
         initialiseUI();
     }
@@ -107,8 +109,8 @@ public class SwingGuest {
             System.arraycopy(lastHostData.getMemory(), 0x4000, memory, 0x4000, 0x1b00);
             ula.setBorderChanges(lastHostData.getBorderChanges());
             EventQueue.invokeLater(() -> {
-                display.updateScreen();
-                display.updateBorder(true);
+                display.updateScreen(memory, ula);
+                display.updateBorder(ula, true);
                 display.repaint();
             });
         }

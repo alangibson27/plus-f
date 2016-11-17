@@ -3,7 +3,6 @@ package com.socialthingy.plusf.spectrum.ui
 import java.util
 
 import com.socialthingy.plusf.spectrum.display.{PixelMapper, SpectrumColour}
-import com.socialthingy.plusf.spectrum.io.ULA
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, GivenWhenThen, Inspectors, Matchers}
@@ -31,8 +30,8 @@ class DisplayComponentTest
       source(0xbfff) = black
 
       When("the display is rendered")
-      val ctr = displayComponent.getConstructor(classOf[PixelMapper], classOf[Array[Int]], classOf[ULA])
-      val display = ctr.newInstance(mock[PixelMapper], Array.ofDim[Int](0x10000), mock[ULA])
+      val ctr = displayComponent.getConstructor(classOf[PixelMapper])
+      val display = ctr.newInstance(mock[PixelMapper])
 
       display.scale(source)
 

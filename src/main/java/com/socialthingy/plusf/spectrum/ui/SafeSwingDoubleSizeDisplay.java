@@ -11,18 +11,18 @@ import static com.socialthingy.plusf.spectrum.display.UnsafePixelMapper.*;
 import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 
 public class SafeSwingDoubleSizeDisplay extends DisplayComponent {
-    public SafeSwingDoubleSizeDisplay(final PixelMapper pixelMapper, final int[] memory, final ULA ula) {
-        super(pixelMapper, ula, memory);
+    public SafeSwingDoubleSizeDisplay(final PixelMapper pixelMapper) {
+        super(pixelMapper);
     }
 
-    public void updateScreen() {
+    public void updateScreen(final int[] memory, final ULA ula) {
         if (Memory.screenChanged() || ula.flashStatusChanged()) {
             Memory.markScreenDrawn();
             renderMemory(Memory.getScreenBytes(memory), ula.flashActive());
         }
     }
 
-    public void updateBorder(final boolean force) {
+    public void updateBorder(final ULA ula, final boolean force) {
         if (force || ula.borderNeedsRedrawing()) {
             final Iterator<Long> it = ula.getBorderChanges().iterator();
             long change = it.next();

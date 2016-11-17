@@ -53,19 +53,14 @@ abstract class DisplayComponent extends JComponent {
 
     protected final int[] targetPixels;
     protected final int[] borderPixels = new int[TOP_BORDER_HEIGHT + SCREEN_HEIGHT + BOTTOM_BORDER_HEIGHT];
-    protected final int[] memory;
     protected final BufferedImage borderImage;
     protected final BufferedImage image;
-    protected final ULA ula;
     protected final int[] imageDataBuffer;
     protected final int[] borderImageDataBuffer;
     private final PixelMapper pixelMapper;
 
-    DisplayComponent(final PixelMapper pixelMapper, final ULA ula, final int[] memory) {
+    DisplayComponent(final PixelMapper pixelMapper) {
         this.pixelMapper = pixelMapper;
-        this.ula = ula;
-        this.memory = memory;
-
         this.targetPixels = new int[SCALED_WIDTH * SCALED_HEIGHT];
         this.image = new BufferedImage(SCALED_WIDTH, SCALED_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         this.imageDataBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -92,7 +87,7 @@ abstract class DisplayComponent extends JComponent {
         scale(pixelMapper.getPixels(memory, flashActive));
     }
 
-    public abstract void updateScreen();
-    public abstract void updateBorder(boolean force);
+    public abstract void updateScreen(int[] memory, ULA ula);
+    public abstract void updateBorder(ULA ula, boolean force);
     protected abstract void scale(int[] sourcePixels);
 }

@@ -2,6 +2,7 @@ package com.socialthingy.plusf.spectrum.network;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Terminated;
 import akka.dispatch.OnSuccess;
 import com.socialthingy.plusf.p2p.*;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
@@ -22,8 +23,8 @@ import static com.socialthingy.plusf.spectrum.Settings.DISCOVERY_PORT;
 
 public class PeerAdapter<T> implements Callbacks {
     private static final InetSocketAddress DISCOVERY_ADDR = new InetSocketAddress(DISCOVERY_HOST, DISCOVERY_PORT);
-    private static final ActorSystem actorSystem = ActorSystem.apply();
 
+    private final ActorSystem actorSystem;
     private final ActorRef peer;
     private final Consumer<T> receiver;
     private Optional<ProgressDialog> connectionProgress = Optional.empty();
@@ -34,11 +35,13 @@ public class PeerAdapter<T> implements Callbacks {
     private long lastReceivedTime = 0;
 
     public PeerAdapter(
+        final ActorSystem actorSystem,
         final Consumer<T> receiver,
         final int port,
         final Serialiser serialiser,
         final Deserialiser deserialiser
     ) {
+        this.actorSystem = actorSystem;
         this.peer = Peer$.MODULE$.apply(
                 new InetSocketAddress(port),
                 DISCOVERY_ADDR,
@@ -99,8 +102,8 @@ public class PeerAdapter<T> implements Callbacks {
         peer.tell(RawData.apply(data), noSender());
     }
 
-    public void shutdown() {
-        actorSystem.terminate();
+    public Future<Terminated> shutdown() {
+        return actorSystem.terminate();
     }
 
     @Override

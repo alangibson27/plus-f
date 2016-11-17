@@ -1,9 +1,8 @@
 package com.socialthingy.plusf.spectrum.ui;
 
+import akka.actor.ActorSystem;
 import com.codahale.metrics.MetricRegistry;
 import com.socialthingy.plusf.spectrum.*;
-import com.socialthingy.plusf.spectrum.display.SafePixelMapper;
-import com.socialthingy.plusf.spectrum.display.UnsafePixelMapper;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.ULA;
@@ -26,7 +25,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
@@ -40,7 +42,7 @@ import static java.util.Optional.empty;
 
 public class SwingEmulator extends JFrame {
     private final Computer computer;
-    protected final DisplayComponent display;
+    private final DisplayComponent display;
     private final int[] memory;
     private final UserPreferences prefs = new UserPreferences();
     private final TapePlayer tapePlayer;
@@ -59,17 +61,27 @@ public class SwingEmulator extends JFrame {
     private final KempstonJoystickInterface kempstonJoystickInterface;
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
+    private final ActorSystem actorSystem = ActorSystem.apply();
 
     public SwingEmulator() throws IOException {
+        this(new int[0x10000], DisplayFactory.create());
+    }
+
+    protected SwingEmulator(final int[] suppliedMemory, final DisplayComponent suppliedDisplay) throws IOException {
+        if (suppliedMemory.length != 0x10000) {
+            throw new IllegalArgumentException("Memory must be exactly 0x10000 in size.");
+        }
+        this.memory = suppliedMemory;
+        this.display = suppliedDisplay;
+
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        memory = new int[0x10000];
-        Memory.configure(memory, currentModel);
+        Memory.configure(this.memory, currentModel);
 
         final IOMultiplexer ioMux = new IOMultiplexer();
-        processor = new Processor(memory, ioMux);
+        processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, memory);
+        ula = new ULA(keyboard, tapePlayer, this.memory);
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -78,7 +90,6 @@ public class SwingEmulator extends JFrame {
         hostInputMultiplexer = new HostInputMultiplexer(keyboard, hostJoystick);
         hostInputMultiplexer.deactivateJoystick();
         kempstonJoystickInterface.connect(guestJoystick);
-        sinclair1JoystickInterface.connect(hostJoystick);
 
         ioMux.register(0xfe, ula);
         if (currentModel.ramPageCount > 1) {
@@ -89,24 +100,17 @@ public class SwingEmulator extends JFrame {
         computer = new Computer(
             processor,
             ula,
-            memory,
+            this.memory,
             Model._48K,
             new MetricRegistry()
         );
 
-        peer = new EmulatorPeerAdapter(gs -> {
+        peer = new EmulatorPeerAdapter(actorSystem, gs -> {
             if (gs.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
                 guestJoystick.deserialise(gs.getEventValue());
             }
         });
 
-        if (System.getProperty("safeDisplay") == null) {
-            System.out.println("Using unsafe display");
-            display = new SwingDoubleSizeDisplay(new UnsafePixelMapper(), memory, ula);
-        } else {
-            System.out.println("Using safe display");
-            display = new SafeSwingDoubleSizeDisplay(new SafePixelMapper(), memory, ula);
-        }
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
 
@@ -123,74 +127,7 @@ public class SwingEmulator extends JFrame {
 
         final JMenu computerMenu = new JMenu("Computer");
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
-
-        final ButtonGroup hostJoystickButtonGroup = new ButtonGroup();
-        final ButtonGroup guestJoystickButtonGroup = new ButtonGroup();
-
-        final JMenu hostJoystickMenu = new JMenu("Host Joystick");
-        final JMenuItem noHostJoystick = new JRadioButtonMenuItem("None", true);
-        hostJoystickButtonGroup.add(noHostJoystick);
-        noHostJoystick.setName("HostJoystickNone");
-        final JMenuItem kempstonHostJoystick = new JRadioButtonMenuItem("Kempston", false);
-        hostJoystickButtonGroup.add(kempstonHostJoystick);
-        final JMenuItem sinclairHostJoystick = new JRadioButtonMenuItem("Sinclair", false);
-        sinclairHostJoystick.setName("HostJoystickSinclair");
-        hostJoystickButtonGroup.add(sinclairHostJoystick);
-        hostJoystickMenu.add(noHostJoystick);
-        hostJoystickMenu.add(kempstonHostJoystick);
-        hostJoystickMenu.add(sinclairHostJoystick);
-        computerMenu.add(hostJoystickMenu);
-
-        final JMenu guestJoystickMenu = new JMenu("Guest Joystick");
-        final JMenuItem kempstonGuestJoystick = new JRadioButtonMenuItem("Kempston", true);
-        guestJoystickButtonGroup.add(kempstonGuestJoystick);
-        final JMenuItem sinclairGuestJoystick = new JRadioButtonMenuItem("Sinclair", false);
-        guestJoystickButtonGroup.add(sinclairGuestJoystick);
-        guestJoystickMenu.add(kempstonGuestJoystick);
-        guestJoystickMenu.add(sinclairGuestJoystick);
-        computerMenu.add(guestJoystickMenu);
-
-        noHostJoystick.addActionListener(event -> {
-            hostInputMultiplexer.deactivateJoystick();
-            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
-            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
-        });
-        kempstonHostJoystick.addActionListener(event -> {
-            hostInputMultiplexer.activateJoystick();
-            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
-            if (kempstonJoystickInterface.isConnected(guestJoystick)) {
-                guestJoystickButtonGroup.setSelected(sinclairGuestJoystick.getModel(), true);
-                sinclair1JoystickInterface.connect(guestJoystick);
-            }
-            kempstonJoystickInterface.connect(hostJoystick);
-        });
-        sinclairHostJoystick.addActionListener(event -> {
-            hostInputMultiplexer.activateJoystick();
-            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
-            if (sinclair1JoystickInterface.isConnected(guestJoystick)) {
-                guestJoystickButtonGroup.setSelected(kempstonGuestJoystick.getModel(), true);
-                kempstonJoystickInterface.connect(guestJoystick);
-            }
-            sinclair1JoystickInterface.connect(hostJoystick);
-        });
-
-
-        kempstonGuestJoystick.addActionListener(event -> {
-            sinclair1JoystickInterface.disconnectIfConnected(guestJoystick);
-            if (kempstonJoystickInterface.isConnected(hostJoystick)) {
-                hostJoystickButtonGroup.setSelected(sinclairHostJoystick.getModel(), true);
-                sinclair1JoystickInterface.connect(hostJoystick);
-            }
-            kempstonJoystickInterface.connect(guestJoystick);
-        });
-        sinclairGuestJoystick.addActionListener(event -> {
-            kempstonJoystickInterface.disconnectIfConnected(guestJoystick);
-            if (sinclair1JoystickInterface.isConnected(hostJoystick)) {
-                hostJoystickButtonGroup.setSelected(kempstonHostJoystick.getModel(), true);
-                kempstonJoystickInterface.connect(hostJoystick);
-            }
-            sinclair1JoystickInterface.connect(guestJoystick);
-        });
+        addJoystickMenus(computerMenu);
 
         final JMenu modelMenu = new JMenu("Model");
         final ButtonGroup modelButtonGroup = new ButtonGroup();
@@ -287,6 +224,81 @@ public class SwingEmulator extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
+    private JMenuItem joystickItem(final boolean host, final ButtonGroup group, final String type, final boolean selected) {
+        final JMenuItem item = new JRadioButtonMenuItem(type, selected);
+        item.setName((host ? "Host" : "Guest") + "Joystick" + type);
+        group.add(item);
+        return item;
+    }
+
+    private void addJoystickMenus(final JMenu computerMenu) {
+        final ButtonGroup hostJoystickButtonGroup = new ButtonGroup();
+        final ButtonGroup guestJoystickButtonGroup = new ButtonGroup();
+
+        final JMenu hostJoystickMenu = new JMenu("Host Joystick");
+        computerMenu.add(hostJoystickMenu);
+
+        final JMenuItem noHostJoystick = joystickItem(true, hostJoystickButtonGroup, "None", true);
+        hostJoystickMenu.add(noHostJoystick);
+        final JMenuItem kempstonHostJoystick = joystickItem(true, hostJoystickButtonGroup, "Kempston", false);
+        hostJoystickMenu.add(kempstonHostJoystick);
+        final JMenuItem sinclairHostJoystick = joystickItem(true, hostJoystickButtonGroup, "Sinclair", false);
+        hostJoystickMenu.add(sinclairHostJoystick);
+
+        final JMenu guestJoystickMenu = new JMenu("Guest Joystick");
+        computerMenu.add(guestJoystickMenu);
+
+        final JMenuItem kempstonGuestJoystick = joystickItem(false, guestJoystickButtonGroup, "Kempston", true);
+        guestJoystickMenu.add(kempstonGuestJoystick);
+        final JMenuItem sinclairGuestJoystick = joystickItem(false, guestJoystickButtonGroup, "Sinclair", true);
+        guestJoystickMenu.add(sinclairGuestJoystick);
+
+        noHostJoystick.addActionListener(event -> {
+            hostInputMultiplexer.deactivateJoystick();
+            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
+            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
+        });
+
+        kempstonHostJoystick.addActionListener(event -> {
+            hostInputMultiplexer.activateJoystick();
+            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
+            if (kempstonJoystickInterface.isConnected(guestJoystick)) {
+                guestJoystickButtonGroup.setSelected(sinclairGuestJoystick.getModel(), true);
+                sinclair1JoystickInterface.connect(guestJoystick);
+            }
+            kempstonJoystickInterface.connect(hostJoystick);
+        });
+
+        sinclairHostJoystick.addActionListener(event -> {
+            hostInputMultiplexer.activateJoystick();
+            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
+            if (sinclair1JoystickInterface.isConnected(guestJoystick)) {
+                guestJoystickButtonGroup.setSelected(kempstonGuestJoystick.getModel(), true);
+                kempstonJoystickInterface.connect(guestJoystick);
+            }
+            sinclair1JoystickInterface.connect(hostJoystick);
+        });
+
+
+        kempstonGuestJoystick.addActionListener(event -> {
+            sinclair1JoystickInterface.disconnectIfConnected(guestJoystick);
+            if (kempstonJoystickInterface.isConnected(hostJoystick)) {
+                hostJoystickButtonGroup.setSelected(sinclairHostJoystick.getModel(), true);
+                sinclair1JoystickInterface.connect(hostJoystick);
+            }
+            kempstonJoystickInterface.connect(guestJoystick);
+        });
+
+        sinclairGuestJoystick.addActionListener(event -> {
+            kempstonJoystickInterface.disconnectIfConnected(guestJoystick);
+            if (sinclair1JoystickInterface.isConnected(hostJoystick)) {
+                hostJoystickButtonGroup.setSelected(kempstonHostJoystick.getModel(), true);
+                kempstonJoystickInterface.connect(hostJoystick);
+            }
+            sinclair1JoystickInterface.connect(guestJoystick);
+        });
+    }
+
     private void tapeInfo(final ActionEvent actionEvent) {
         final Tape tape = tapePlayer.getTape().get();
         final List<Pair<String, String>> info = tape.archiveInfo()
@@ -370,7 +382,10 @@ public class SwingEmulator extends JFrame {
     }
 
     public void stop() {
-        cycleTimer.cancel(true);
+        if (cycleTimer != null) {
+            cycleTimer.cancel(true);
+        }
+        peer.shutdown();
         setVisible(false);
         dispose();
     }
@@ -416,8 +431,8 @@ public class SwingEmulator extends JFrame {
 
                 if (shouldRepaint()) {
                     lastRepaint = System.currentTimeMillis();
-                    display.updateScreen();
-                    display.updateBorder(currentSpeed == EmulatorSpeed.TURBO);
+                    display.updateScreen(memory, ula);
+                    display.updateBorder(ula, currentSpeed == EmulatorSpeed.TURBO);
                     SwingUtilities.invokeLater(display::repaint);
                 }
             } while (currentSpeed == EmulatorSpeed.TURBO);

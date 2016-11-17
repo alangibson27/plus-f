@@ -15,12 +15,12 @@ import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 public class SwingDoubleSizeDisplay extends DisplayComponent {
     private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-    public SwingDoubleSizeDisplay(final PixelMapper pixelMapper, final int[] memory, final ULA ula) {
-        super(pixelMapper, ula, memory);
+    public SwingDoubleSizeDisplay(final PixelMapper pixelMapper) {
+        super(pixelMapper);
     }
 
     @Override
-    public void updateScreen() {
+    public void updateScreen(final int[] memory, final ULA ula) {
         if (Memory.screenChanged() || ula.flashStatusChanged()) {
             Memory.markScreenDrawn();
             renderMemory(Memory.getScreenBytes(memory), ula.flashActive());
@@ -29,7 +29,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
     }
 
     @Override
-    public void updateBorder(final boolean force) {
+    public void updateBorder(final ULA ula, final boolean force) {
         if (force || ula.borderNeedsRedrawing()) {
             final Iterator<Long> it = ula.getBorderChanges().iterator();
             long change = it.next();
