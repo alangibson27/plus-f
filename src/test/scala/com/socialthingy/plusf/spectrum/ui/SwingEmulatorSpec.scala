@@ -35,6 +35,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
   }
 
   after {
+    fixture.menuItem(s"HostJoystickNone").click()
     emulator.resetComputer()
     Thread.sleep(1000)
   }
