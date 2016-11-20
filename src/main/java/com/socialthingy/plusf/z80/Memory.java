@@ -34,7 +34,7 @@ public class Memory {
 
     private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-    public static void configure(final int[] addressableMemory, final Model model) throws IOException {
+    public static void configure(final int[] addressableMemory, final Model model) {
         romPages = new int[model.romFileNames.length][];
         int pageIdx = 0;
         for (String romFileName: model.romFileNames) {
@@ -55,7 +55,7 @@ public class Memory {
         memoryProtectionEnabled = true;
     }
 
-    private static int[] readRom(final String romFileName) throws IOException {
+    private static int[] readRom(final String romFileName) {
         try (final InputStream is = Memory.class.getResourceAsStream(romFileName)) {
             final int[] rom = new int[PAGE_SIZE];
             int i = 0;
@@ -63,6 +63,8 @@ public class Memory {
                 rom[i++] = next;
             }
             return rom;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

@@ -13,7 +13,6 @@ import com.socialthingy.plusf.z80.Memory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 
-public class SwingGuest {
+public class Guest implements Runnable {
     private final JFrame mainWindow;
     private final SwingJoystick joystick;
     private final GuestPeerAdapter peer;
@@ -33,7 +32,7 @@ public class SwingGuest {
     private final ScheduledThreadPoolExecutor cycleScheduler;
     private final ActorSystem actorSystem = ActorSystem.apply();
 
-    public SwingGuest() throws IOException {
+    public Guest() {
         memory = new int[0x10000];
         Memory.configure(memory, Model._48K);
         ula = new GuestULA();
@@ -82,7 +81,7 @@ public class SwingGuest {
         mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    public void start() {
+    public void run() {
         mainWindow.setVisible(true);
         cycleScheduler.scheduleAtFixedRate(this::refresh, 0, 20, TimeUnit.MILLISECONDS);
     }
@@ -125,11 +124,6 @@ public class SwingGuest {
     private void quit(final ActionEvent e) {
         peer.shutdown();
         System.exit(0);
-    }
-
-    public static void main(final String ... args) throws IOException {
-        final SwingGuest guest = new SwingGuest();
-        guest.start();
     }
 
     private class JoystickHandler implements KeyListener {

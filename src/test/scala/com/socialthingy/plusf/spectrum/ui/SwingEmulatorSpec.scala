@@ -18,7 +18,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   val memory = Array.ofDim[Int](0x10000)
   val display = new SwingDoubleSizeDisplay(new UnsafePixelMapper)
-  var emulator: SwingEmulator = null
+  var emulator: Emulator = null
   var fixture: FrameFixture = null
 
   override def afterAll(): Unit = {
@@ -27,7 +27,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   before {
     if (emulator == null) {
-      emulator = new SwingEmulator(memory, display)
+      emulator = new Emulator(memory, display)
       fixture = new FrameFixture(emulator)
       emulator.run()
       Thread.sleep(1000)

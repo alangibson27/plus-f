@@ -40,7 +40,7 @@ import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 import static java.util.Optional.empty;
 
-public class SwingEmulator extends JFrame {
+public class Emulator extends JFrame implements Runnable {
     private final Computer computer;
     private final DisplayComponent display;
     private final int[] memory;
@@ -63,11 +63,11 @@ public class SwingEmulator extends JFrame {
     private final SwingJoystick hostJoystick;
     private final ActorSystem actorSystem = ActorSystem.apply();
 
-    public SwingEmulator() throws IOException {
+    public Emulator() {
         this(new int[0x10000], DisplayFactory.create());
     }
 
-    protected SwingEmulator(final int[] suppliedMemory, final DisplayComponent suppliedDisplay) throws IOException {
+    protected Emulator(final int[] suppliedMemory, final DisplayComponent suppliedDisplay) {
         if (suppliedMemory.length != 0x10000) {
             throw new IllegalArgumentException("Memory must be exactly 0x10000 in size.");
         }
@@ -376,7 +376,7 @@ public class SwingEmulator extends JFrame {
         }
     }
 
-    public void run() throws IOException {
+    public void run() {
         setVisible(true);
         setSpeed(EmulatorSpeed.NORMAL);
     }
@@ -523,18 +523,14 @@ public class SwingEmulator extends JFrame {
     }
 
     protected void resetComputer() {
-        try {
-            Memory.configure(memory, Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name())));
-            computer.reset();
-            processor.reset();
-            ula.reset();
-            tapePlayer.ejectTape();
-            keyboard.reset();
-            cycleTimer.cancel(false);
-            setSpeed(EmulatorSpeed.NORMAL);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Memory.configure(memory, Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name())));
+        computer.reset();
+        processor.reset();
+        ula.reset();
+        tapePlayer.ejectTape();
+        keyboard.reset();
+        cycleTimer.cancel(false);
+        setSpeed(EmulatorSpeed.NORMAL);
     }
 
     private void quit(final ActionEvent e) {
@@ -550,10 +546,5 @@ public class SwingEmulator extends JFrame {
         } finally {
             setSpeed(currentSpeed);
         }
-    }
-
-    public static void main(final String ... args) throws IOException {
-        final SwingEmulator emulator = new SwingEmulator();
-        emulator.run();
     }
 }
