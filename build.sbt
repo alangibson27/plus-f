@@ -19,6 +19,7 @@ lazy val root = (project in file("."))
     organization := "com.socialthingy",
     version := "1.0",
     name := "Plus-F",
+    packageName in Universal := "Plus-F",
     jdkPackagerBasename := "Plus-F",
     jdkAppIcon := Some(file("src/main/assembly/plus-f.ico")),
     jdkPackagerType := "exe",
