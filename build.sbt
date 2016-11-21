@@ -13,12 +13,17 @@ val testDependencies = Seq(
 )
 
 lazy val root = (project in file("."))
-  .enablePlugins(JavaAppPackaging, UniversalPlugin)
+  .enablePlugins(JavaAppPackaging, UniversalPlugin, JDKPackagerPlugin)
   .settings(
     scalaVersion := "2.12.0",
     organization := "com.socialthingy",
     version := "1.0",
-    name := "plus-f",
+    name := "Plus-F",
+    jdkPackagerBasename := "Plus-F",
+    jdkAppIcon := Some(file("src/main/assembly/plus-f.ico")),
+    jdkPackagerType := "exe",
+    jdkPackagerToolkit := SwingToolkit,
+    parallelExecution in Test := false,
     libraryDependencies ++= mainDependencies,
     libraryDependencies ++= testDependencies
   )
