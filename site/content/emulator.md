@@ -26,12 +26,13 @@ The Emulator is controlled by the options in the menu bar at the top of the scre
 ### Computer menu
 
 * Reset: Reset the Emulator (just like pulling the plug out and putting it back in again).
-* Host Joystick: Select this option to emulate a Sinclair 1 joystick through the keyboard. Controls are not redefinable and are fixed to the conventional ones below:
+* Host Joystick: Select this option to emulate either a Kempston or Sinclair joystick through the keyboard. Controls are not redefinable and are fixed to the conventional ones below:
     * Q: Up
     * A: Down
     * O: Left
     * P: Right
     * M: Fire
+* Guest Joystick: Choose whether the Guest uses a Kemptson or Sinclair joystick.
 * Model: Choose the model of Spectrum to emulate, either 48k or +2. Changing the model will reset the Emulator.
 * Speed: Choose the speed the Emulator runs at:
     * Normal: The same speed as a real Spectrum.

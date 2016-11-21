@@ -4,19 +4,17 @@ draft = false
 title = "Download"
 +++
 
-## Download Java first
 
-Plus-F requires a recent version of Java 8 in order to run. You can download this for free from
-[www.java.com](http://www.java.com).
+## Available packages
 
-## Download Plus-F
+* [64-bit Windows Installer] (http://download.socialthingy.com/Plus-F-1.0.exe)
+ * This is the simplest way to get up and running on a compatible Windows system.
+* [Universal Zip Package] (http://download.socialthingy.com/Plus-F.zip)
+ * This download is suitable for all operating systems. You'll need to install
+   a recent version of Java 8 separately, in order to run. You can download this
+   for free from [www.java.com] (http://www.java.com)
 
-The Emulator and the Guest are bundled together as a single package. Once the download completes, unzip it
-somewhere on your computer.
-
-* [Click here to download the latest version of Plus-F] (http://download.socialthingy.com/plus-f.zip)
-
-The package contains images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
+Both these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
 operate. These ROMs remain copyright of Amstrad, and Amstrad have kindly given their permission for the 
 redistribution of their copyrighted material but retain that copyright.
 (Full details [here](https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ).)
