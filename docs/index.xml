@@ -501,21 +501,24 @@ enabling multi-player games on your computer, the process you need to follow for
       <guid>http://plusf.socialthingy.com/download/</guid>
       <description>
 
-&lt;h2 id=&#34;download-java-first&#34;&gt;Download Java first&lt;/h2&gt;
-
-&lt;p&gt;Plus-F requires a recent version of Java 8 in order to run. You can download this for free from
-&lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;download-plus-f&#34;&gt;Download Plus-F&lt;/h2&gt;
-
-&lt;p&gt;The Emulator and the Guest are bundled together as a single package. Once the download completes, unzip it
-somewhere on your computer.&lt;/p&gt;
+&lt;h2 id=&#34;available-packages&#34;&gt;Available packages&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/plus-f.zip&#34;&gt;Click here to download the latest version of Plus-F&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F-1.0.exe&#34;&gt;64-bit Windows Installer&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This is the simplest way to get up and running on a compatible Windows system.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.zip&#34;&gt;Universal Zip Package&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;This download is suitable for all operating systems. You&amp;rsquo;ll need to install
+a recent version of Java 8 separately, in order to run. You can download this
+for free from &lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;The package contains images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
+&lt;p&gt;Both these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
 operate. These ROMs remain copyright of Amstrad, and Amstrad have kindly given their permission for the
 redistribution of their copyrighted material but retain that copyright.
 (Full details &lt;a href=&#34;https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ&#34;&gt;here&lt;/a&gt;.)&lt;/p&gt;
@@ -609,7 +612,7 @@ Spectrum BASIC, and then choose Play from the Tape menu.&lt;/p&gt;&lt;/li&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Reset: Reset the Emulator (just like pulling the plug out and putting it back in again).&lt;/li&gt;
-&lt;li&gt;Host Joystick: Select this option to emulate a Sinclair 1 joystick through the keyboard. Controls are not redefinable and are fixed to the conventional ones below:
+&lt;li&gt;Host Joystick: Select this option to emulate either a Kempston or Sinclair joystick through the keyboard. Controls are not redefinable and are fixed to the conventional ones below:
 
 &lt;ul&gt;
 &lt;li&gt;Q: Up&lt;/li&gt;
@@ -618,6 +621,7 @@ Spectrum BASIC, and then choose Play from the Tape menu.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;P: Right&lt;/li&gt;
 &lt;li&gt;M: Fire&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Guest Joystick: Choose whether the Guest uses a Kemptson or Sinclair joystick.&lt;/li&gt;
 &lt;li&gt;Model: Choose the model of Spectrum to emulate, either 48k or +2. Changing the model will reset the Emulator.&lt;/li&gt;
 &lt;li&gt;Speed: Choose the speed the Emulator runs at:
 
