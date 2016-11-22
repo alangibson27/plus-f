@@ -17,7 +17,7 @@ lazy val root = (project in file("."))
   .settings(
     scalaVersion := "2.12.0",
     organization := "com.socialthingy",
-    version := "1.0",
+    version := "1.1",
     name := "Plus-F",
     packageName in Universal := "Plus-F",
     jdkPackagerBasename := "Plus-F",
