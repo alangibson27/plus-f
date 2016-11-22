@@ -1,6 +1,6 @@
 {{ partial "header.html" . }}
 
-{{ range .Data.Pages.ByDate }}
+{{ range .Data.Pages.ByDate.Reverse }}
 <h1>{{ .Title }} ({{ .Date.Format "2-Jan-2006" }})</h1>
 <div>{{ .Content }}</div>
 

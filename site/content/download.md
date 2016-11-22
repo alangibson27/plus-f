@@ -21,11 +21,11 @@ redistribution of their copyrighted material but retain that copyright.
 
 ## Release Notes
 
-You can read the release notes for the Emulator and Guest [here](/release-notes).
+You can read the release notes for Plus-F [here](/release-notes).
 
 ## Licensing
 
-Both the Emulator and the Guest are distributed under an MIT license:
+Plus-F is distributed under an MIT license:
 
 ---
 MIT License
