@@ -6,8 +6,22 @@
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Sun, 13 Nov 2016 22:43:30 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 22 Nov 2016 22:27:26 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Version 1.1</title>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <pubDate>Tue, 22 Nov 2016 22:27:26 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Single launcher for Emulator and Guest&lt;/li&gt;
+&lt;li&gt;UI tweaks&lt;/li&gt;
+&lt;li&gt;Windows 64-bit Installer and Universal Zip downloads&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>The Fundamentals are Important</title>
@@ -525,11 +539,11 @@ redistribution of their copyrighted material but retain that copyright.
 
 &lt;h2 id=&#34;release-notes&#34;&gt;Release Notes&lt;/h2&gt;
 
-&lt;p&gt;You can read the release notes for the Emulator and Guest &lt;a href=&#34;http://plusf.socialthingy.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can read the release notes for Plus-F &lt;a href=&#34;http://plusf.socialthingy.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;licensing&#34;&gt;Licensing&lt;/h2&gt;
 
-&lt;p&gt;Both the Emulator and the Guest are distributed under an MIT license:&lt;/p&gt;
+&lt;p&gt;Plus-F is distributed under an MIT license:&lt;/p&gt;
 
 &lt;hr /&gt;
 

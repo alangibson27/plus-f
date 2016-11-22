@@ -6,8 +6,22 @@
     <description>Recent content in Release-notes-rsses on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 31 Oct 2016 22:55:26 +0100</lastBuildDate>
+    <lastBuildDate>Tue, 22 Nov 2016 22:27:26 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Version 1.1</title>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <pubDate>Tue, 22 Nov 2016 22:27:26 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Single launcher for Emulator and Guest&lt;/li&gt;
+&lt;li&gt;UI tweaks&lt;/li&gt;
+&lt;li&gt;Windows 64-bit Installer and Universal Zip downloads&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Version 1.0</title>
