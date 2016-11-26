@@ -14,8 +14,14 @@ packageName in Universal := pkgName
 
 jdkPackagerBasename := pkgName 
 
-jdkAppIcon := Some(file("src/main/assembly/plus-f.ico"))
+/*lazy val iconGlob = sys.props("os.name").toLowerCase match {
+  case os if os.contains("mac") ⇒ "*.icns"
+  case os if os.contains("win") ⇒ "*.ico"
+  case _ ⇒ "*.png"
+}
 
+jdkAppIcon :=  (sourceDirectory.value ** iconGlob).getPaths.headOption.map(file)
+*/
 jdkPackagerType := "exe"
 
 jdkPackagerToolkit := SwingToolkit
