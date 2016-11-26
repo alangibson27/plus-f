@@ -7,7 +7,7 @@ title = "Download"
 
 ## Available packages
 
-* [64-bit Windows Installer] (http://download.socialthingy.com/Plus-F-1.0.exe)
+* [64-bit Windows Installer] (http://download.socialthingy.com/Plus-F.exe)
  * This is the simplest way to get up and running on a compatible Windows system.
 * [Universal Zip Package] (http://download.socialthingy.com/Plus-F.zip)
  * This download is suitable for all operating systems. You'll need to install

@@ -8,6 +8,8 @@ val testDependencies = Seq(
 
 lazy val pkgName = "Plus-F"
 
+name := pkgName
+
 packageName in Universal := pkgName
 
 jdkPackagerBasename := pkgName 
@@ -22,7 +24,7 @@ parallelExecution in Test := false
 
 mappings in upload := Seq(
   (target.value / "universal" / s"$pkgName.zip", s"$pkgName.zip"),
-  (target.value / "jdkPackager" / s"$pkgName-${version.value}.exe", s"$pkgName.exe")
+  (target.value / "universal" / "jdkpackager" / "bundles" / s"$pkgName-${version.value}.exe", s"$pkgName.exe")
 ).map{i => println(i); i}.filter(_._1.exists())
 
 host in upload := "download.socialthingy.com.s3.amazonaws.com"
