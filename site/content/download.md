@@ -13,6 +13,8 @@ title = "Download"
  * This download is suitable for all operating systems. You'll need to install
    a recent version of Java 8 separately, in order to run. You can download this
    for free from [www.java.com] (http://www.java.com)
+* [Debian Package] (http://download.socialthingy.com/Plus-F.deb)
+ * Prebuilt package for Ubuntu and other Debian-based Linux distributions.
 
 Both these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
 operate. These ROMs remain copyright of Amstrad, and Amstrad have kindly given their permission for the 

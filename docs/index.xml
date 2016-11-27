@@ -530,6 +530,11 @@ enabling multi-player games on your computer, the process you need to follow for
 a recent version of Java 8 separately, in order to run. You can download this
 for free from &lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.deb&#34;&gt;Debian Package&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Prebuilt package for Ubuntu and other Debian-based Linux distributions.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Both these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to

@@ -11,30 +11,38 @@ lazy val pkgName = "Plus-F"
 name := pkgName
 
 packageName in Universal := pkgName
+maintainer in Linux := "Alan Gibson <alangibson27@gmail.com>"
+packageSummary in Linux := "ZX Spectrum Emulator with Network Play Capability"
+packageDescription in Linux := "ZX Spectrum Emulator with Network Play Capability"
 
-jdkPackagerBasename := pkgName 
+rpmVendor := "socialthingy.com"
+rpmUrl := Some("http://plus-f.socialthingy.com")
+rpmLicense := Some("MIT")
 
-/*lazy val iconGlob = sys.props("os.name").toLowerCase match {
-  case os if os.contains("mac") ⇒ "*.icns"
-  case os if os.contains("win") ⇒ "*.ico"
-  case _ ⇒ "*.png"
-}
-
-jdkAppIcon :=  (sourceDirectory.value ** iconGlob).getPaths.headOption.map(file)
-*/
+jdkPackagerBasename := pkgName
 jdkPackagerType := "exe"
-
 jdkPackagerToolkit := SwingToolkit
 
 parallelExecution in Test := false
 
-mappings in upload := Seq(
-  (target.value / "universal" / s"$pkgName.zip", s"$pkgName.zip"),
-  (target.value / "universal" / "jdkpackager" / "bundles" / s"$pkgName-${version.value}.exe", s"$pkgName.exe")
-).map{i => println(i); i}.filter(_._1.exists())
+mappings in upload := {
+  (target.value ** ("*.zip" || "*.exe" || "*.deb")).get.map{x => println(x); x}.map {
+    case exe if exe.getName.endsWith("exe") => (exe, "Plus-F.exe")
+    case deb if deb.getName.endsWith("deb") => (deb, "Plus-F.deb")
+    case zip if zip.getName.endsWith("zip") => (zip, "Plus-F.zip")
+  }
+}
 
 host in upload := "download.socialthingy.com.s3.amazonaws.com"
 
 progress in upload := true
 
 libraryDependencies ++= testDependencies
+
+lazy val buildZip = taskKey[File]("creates universal zip file")
+lazy val buildDebian = taskKey[File]("creates Debian file")
+lazy val buildWindows = taskKey[File]("creates Windows installer")
+
+buildZip := (packageBin in Universal).value
+buildWindows := (packageBin in JDKPackager).value
+buildDebian := (packageBin in Debian).value

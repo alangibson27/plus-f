@@ -23,7 +23,7 @@ lazy val discovery = project.in(file("discovery"))
 	.enablePlugins(UniversalPlugin, JavaAppPackaging)
 	.settings(commonSettings)
 
-addCommandAlias("dist-universal", ";clean;test;plus-f/universal:packageBin;plus-f/s3-upload")
+addCommandAlias("dist-non-windows", ";clean;test;plus-f/buildZip;plus-f/buildDebian;plus-f/s3-upload")
 
-addCommandAlias("dist-windows", ";clean;test;plus-f/jdkPackager:packageBin;plus-f/s3-upload")
+addCommandAlias("dist-windows", ";clean;test;plus-f/buildWindows;plus-f/s3-upload")
 

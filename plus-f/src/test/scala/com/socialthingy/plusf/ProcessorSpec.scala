@@ -5,7 +5,7 @@ import com.socialthingy.plusf.z80.{ByteRegister, IO, Memory, Processor}
 import org.mockito.Matchers._
 import org.mockito.Mockito.{verify, when => mockitoWhen}
 import org.mockito.{Matchers => MockitoMatchers}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
 
 import scala.util.Random
@@ -42,7 +42,7 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
     }
 
     def nextInstructionIs(opCode: Int*): Unit = {
-      opCode foreach(pokeAtIp(_))
+      opCode foreach pokeAtIp
     }
 
     def registerContainsValue(register: String, value: Int): Unit = {
