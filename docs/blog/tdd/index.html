@@ -1,0 +1,161 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1">
+    <meta name="description" content="ZX Spectrum Emulator with Network Play Capability">
+    <meta property="og:image" content="http://plus-f.socialthingy.com/plus-f.png">
+    <title>Plus-F</title>
+    <link rel="stylesheet" href="/css/plusf.css">
+    <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="header">
+    <div class="content">
+        <img class="logo" src="/plus-f.png"/>
+        <h1 class="title">Plus-F</h1>
+        <span>ZX Spectrum Emulator with Network Play Capability</span>
+    </div>
+</div>
+<nav class="nav">
+    <ul>
+        <li><a href="/">HOME</a></li>
+        <li><a href="/download">DOWNLOAD</a></li>
+        <li><a href="/emulator">EMULATOR</a></li>
+        <li><a href="/guest">GUEST</a></li>
+        <li><a href="/connect">CONNECT</a></li>
+        <li><a href="/games">GAMES</a></li>
+        <li><a href="/blog">BLOG</a></li>
+        <li><a href="/about">ABOUT</a></li>
+    </ul>
+</nav>
+<div class="content">
+
+
+<h1>If You Only Do One Thing (28-Nov-2016)</h1>
+
+<p>Over the two decades that I&rsquo;ve been in software, there have been all number of innovations, techniques, tools,
+tricks and plain fads which purport to help you build applications better - model-driven code generation, unit testing,
+documenting everything, documenting nothing, pair programming, SOAP, REST, microservice architectures to name a few.
+I can understand why most of them (with the exception of SOAP, which is an abomination) could be thought to deliver
+some sort of benefit, but for me there&rsquo;s one which stands above all the others: Test-Driven Development.</p>
+
+<p>In honesty, I came to the TDD party pretty late. Of course, I&rsquo;d known about unit testing and automated testing for a
+long time, but I&rsquo;d never seen it actually work. What tended to happen was that a conscientious newcomer to the team
+would write some tests for existing code, and then they&rsquo;d be maintained for some period of time before falling into
+(for want of a better word) disrepair, spending as much time failing as passing, and eventually being deleted or ignored.
+When I first came into a TDD environment it opened my eyes to how to do automated testing effectively, and when I look
+back to the Before-TDD era, I see nothing but missed opportunities to do things better.</p>
+
+<p>I&rsquo;ve done TDD with JUnit, ScalaTest, PyTest, Nose and Cucumber, and it works well with any and all of them. It&rsquo;s not
+my place to tell you which tools you should use - just pick one that you like and run with it. Even if you&rsquo;re still
+writing programs in COBOL for mainframes, there are options out there. TDD is the important bit, not the tools.</p>
+
+<p>I don&rsquo;t think I would have attempted Plus-F if I didn&rsquo;t know about TDD. A processor is basically a large collection of
+small behaviours which, although individually simple, combine together into a single ball of near-indecipherable state.
+The only way to tackle it was one operation at a time, verifying each one did what the <a href="http://www.z80.info/zip/z80cpu_um.pdf">Z80 User Manual</a>
+said it would, and moving on to the next. Dull, yes, but also entirely necessary. Being (at its heart) a program that
+runs programs, I shuddered at the thought of having to debug problems in games (specifically Match Day II, of course)
+without having some confidence that the individual processor operations themselves were doing what they should. As it
+is, having taken the TDD approach, the major problems that I&rsquo;ve found (there are plenty of minor problems but I don&rsquo;t
+care so much about them) have been reasonably obvious and easy to debug.</p>
+
+<p>By now, you may have read about the <a href="../fundamentals">thwarted attempt to write Plus-F in Python</a>. I&rsquo;ll confess that
+the thought of having to start again from scratch did make me think twice about what I was doing, but what pushed me on
+was that I had one thing in my favour - a good set of tests for all of the processor emulation. And, given that I hadn&rsquo;t
+got much beyond that part, that meant I had a good set of tests for more or less everything that I needed to rewrite.
+Admittedly, those tests were in <a href="https://nose.readthedocs.io/en/latest/">Nose in Python</a>, but picking up on something
+else I&rsquo;d learned over the last year or two, a typical test looked like this:</p>
+
+<pre><code class="language-python">def test_and_a_with_other_reg_giving_zero_result(self):
+    # given
+    self.given_register_contains_value('a', 0b10101010)
+    self.given_register_contains_value('b', 0b01010101)
+
+    self.given_next_instruction_is(0xa0)
+
+    # when
+    self.processor.execute()
+
+    # then
+    self.assert_register('a').equals(0b00000000)
+    self.assert_register('b').equals(0b01010101)
+
+    self.assert_flag('s').is_reset()
+    self.assert_flag('z').is_set()
+    self.assert_flag('h').is_set()
+    self.assert_flag('p').is_set()
+    self.assert_flag('n').is_reset()
+    self.assert_flag('c').is_reset()
+</code></pre>
+
+<p>In other words, it read sort of like a mini-DSL. A bit of judicious search-and-replace meant that I could port tests
+like these easily to an equivalent in ScalaTest like this:</p>
+
+<pre><code class="language-scala">&quot;and &lt;reg&gt;&quot; should &quot;calculate a zero result when a and &lt;reg&gt; have no shared bits&quot; in new Machine {
+  // given
+  registerContainsValue(&quot;a&quot;, binary(&quot;10101010&quot;))
+  registerContainsValue(&quot;b&quot;, binary(&quot;01010101&quot;))
+
+  nextInstructionIs(0xa0)
+
+  // when
+  processor.execute()
+
+  // then
+  registerValue(&quot;a&quot;) shouldBe binary(&quot;00000000&quot;)
+  registerValue(&quot;b&quot;) shouldBe binary(&quot;01010101&quot;)
+
+  flag(&quot;s&quot;).value shouldBe false
+  flag(&quot;z&quot;).value shouldBe true
+  flag(&quot;h&quot;).value shouldBe true
+  flag(&quot;p&quot;).value shouldBe true
+  flag(&quot;n&quot;).value shouldBe false
+  flag(&quot;c&quot;).value shouldBe false
+  flag(&quot;f3&quot;).value shouldBe false
+  flag(&quot;f5&quot;).value shouldBe false
+}
+</code></pre>
+
+<p>And in doing so, I had a full set of tests available from the outset against which I could code the Java version of
+Plus-F. I won&rsquo;t lie by saying that the process of porting to Java was a mere operation in handle-turning, but neither
+was it complicated. (It was boring.)</p>
+
+<p>So where&rsquo;s the advertised gaffe that I normally end my articles with?</p>
+
+<p>Well, processor emulation isn&rsquo;t the only complex thing I had to tackle when writing Plus-F. It turns out that, for all
+that it was slow and infuriating, and that I spent a large part of my formative years dreading seeing the message
+<code>R Tape loading error, 0:1</code>, it&rsquo;s actually pretty fiddly to supply the correct input to the Spectrum&rsquo;s tape loading
+routines. The main supported format is TZX, which is <a href="http://www.worldofspectrum.org/TZXformat.html">remarkably well documented</a>,
+but as anyone who has read a few specs knows, what looks straightforward on paper isn&rsquo;t always easy to turn into working
+code.</p>
+
+<p>This is exactly the sort of thing that TDD was made for. However, by this stage, I had a lot of Plus-F working and I&rsquo;d
+become a bit cavalier in my attitude again. (My unfortunate dalliance with Python was by this stage some six months
+prior. How quickly we forget.) Certain that I was only a few commits away from a fully-working application, I pinned
+my ears back and frenziedly wrote the TZX-handling routines with only a smattering of tests. Most of it worked, granted,
+but it was a laughably inefficient (the screen refresh rate slowed noticeably when a tape was being played) first stab
+at it. It desperately needed knocking into shape, as do many first attempts.</p>
+
+<p>And that&rsquo;s where the problem began. Inefficient as it may have been, the first TZX routine did actually work acceptably
+well. But because I didn&rsquo;t have a thorough set of tests which allowed me to make changes and still verify that each bit
+worked, any time I did something that made it run faster, I also introduced a bug somewhere else. In a bit to stop the
+endless to-and-fro of fixing one bug and introducing another, I resorted to cobbling together a &ldquo;regression test&rdquo; based
+on <a href="https://github.com/alangibson27/plus-f/blob/master/plus-f/src/test/java/com/socialthingy/plusf/tape/ReferenceVariableSpeedBlock.java">this class from the original, inefficient, implementation</a>
+and testing all of my fixes with respect to that.</p>
+
+<p>It was a large enough piece of wallpaper to cover the many cracks, but has no other redeeming features to speak of.</p>
+
+<p>Thankfully, I haven&rsquo;t had to touch the TZX-handling routines much of late, but I dread the day that I have to. I think
+it&rsquo;s pretty clear to see, when comparing <a href="https://github.com/alangibson27/plus-f/tree/master/plus-f/src/main/java/com/socialthingy/plusf/tape">its code</a>
+with the <a href="https://github.com/alangibson27/plus-f/tree/master/plus-f/src/main/java/com/socialthingy/plusf/z80">Z80 emulation code that was developed with a TDD approach</a>,
+that not building it by TDD has caused a lot of problems there needn&rsquo;t have been.</p>
+
+<p>The lesson? It&rsquo;s all too easy to consider brushing TDD aside in an effort to do something faster, but it&rsquo;s just cutting
+a corner, no matter how much you try to rationalise it. Code is usually more complex than you think it will be, you will
+need to go back and fix things, and the time you don&rsquo;t spend up-front writing tests is multiplied times over after the
+fact.</p>
+
+
+</div>
+</body>
+</html>
