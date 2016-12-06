@@ -15,6 +15,7 @@ import net.jpountz.lz4.LZ4Factory
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
 
 case class Register(sessionId: String)
 case object Cancel
@@ -134,16 +135,28 @@ class Peer(bindAddress: InetSocketAddress,
 
   when(Connected) {
     case Event(Udp.Received(content, remote), _) =>
-      val data = WrappedData(decompress(content), deserialiser)
-      latencies.update(System.currentTimeMillis - data.systemTime)
-      sizes.update(content.size / 1024)
-      meter.mark()
-      if (data.timestamp > lastReceivedTimestamp) {
-        lastReceivedTimestamp = data.timestamp
-        callbacks.data(data.content)
-      } else {
-        outOfOrder = outOfOrder + 1
+      Try {
+        WrappedData(decompress(content), deserialiser)
+      } match {
+        case Success(data) =>
+          latencies.update(System.currentTimeMillis - data.systemTime)
+          sizes.update(content.size / 1024)
+          meter.mark()
+          if (data.timestamp > lastReceivedTimestamp) {
+            lastReceivedTimestamp = data.timestamp
+            callbacks.data(data.content)
+          } else {
+            outOfOrder = outOfOrder + 1
+          }
+
+        case Failure(ex) =>
+          log.error(
+            ex,
+            "Unable to decode received message {}",
+            content.map(x => Integer.toHexString(x)).mkString(" ")
+          )
       }
+
       stay()
 
     case Event(GetStatistics, _) =>
