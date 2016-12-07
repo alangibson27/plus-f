@@ -71,6 +71,7 @@ public class Guest implements Runnable {
             new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
         );
 
+        mainWindow.setIconImage(Icons.windowIcon);
         mainWindow.setJMenuBar(menuBar);
         mainWindow.addKeyListener(new JoystickHandler());
         mainWindow.getContentPane().setLayout(new BoxLayout(mainWindow.getContentPane(), BoxLayout.Y_AXIS));

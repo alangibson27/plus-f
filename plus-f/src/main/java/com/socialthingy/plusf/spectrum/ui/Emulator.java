@@ -44,7 +44,7 @@ public class Emulator extends JFrame implements Runnable {
     private final Computer computer;
     private final DisplayComponent display;
     private final int[] memory;
-    private final UserPreferences prefs = new UserPreferences();
+    private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
     private final HostInputMultiplexer hostInputMultiplexer;
     private final EmulatorPeerAdapter peer;
@@ -64,13 +64,18 @@ public class Emulator extends JFrame implements Runnable {
     private final ActorSystem actorSystem = ActorSystem.apply();
 
     public Emulator() {
-        this(new int[0x10000], DisplayFactory.create());
+        this(new UserPreferences());
     }
 
-    protected Emulator(final int[] suppliedMemory, final DisplayComponent suppliedDisplay) {
+    public Emulator(final UserPreferences prefs) {
+        this(prefs, new int[0x10000], DisplayFactory.create());
+    }
+
+    protected Emulator(final UserPreferences prefs, final int[] suppliedMemory, final DisplayComponent suppliedDisplay) {
         if (suppliedMemory.length != 0x10000) {
             throw new IllegalArgumentException("Memory must be exactly 0x10000 in size.");
         }
+        this.prefs = prefs;
         this.memory = suppliedMemory;
         this.display = suppliedDisplay;
 
@@ -119,6 +124,8 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void initialiseUI() {
+        setIconImage(Icons.windowIcon);
+
         final JMenuBar menuBar = new JMenuBar();
         final JMenu fileMenu = new JMenu("File");
         fileMenu.add(menuItemFor("Load", this::load, Optional.of(KeyEvent.VK_L)));

@@ -4,6 +4,8 @@ import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent._
 import javax.swing.JRadioButtonMenuItem
 
+import com.socialthingy.plusf.spectrum.UserPreferences
+import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
 import com.socialthingy.plusf.spectrum.display.UnsafePixelMapper
 import com.socialthingy.plusf.spectrum.ui.DisplayComponent.targetPixelAt
 import org.fest.swing.core.KeyPressInfo
@@ -20,6 +22,11 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
   val display = new SwingDoubleSizeDisplay(new UnsafePixelMapper)
   var emulator: Emulator = null
   var fixture: FrameFixture = null
+  val prefs = {
+    val p = new UserPreferences()
+    p.set(MODEL, "PLUS_2")
+    p
+  }
 
   override def afterAll(): Unit = {
     emulator.stop()
@@ -27,7 +34,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   before {
     if (emulator == null) {
-      emulator = new Emulator(memory, display)
+      emulator = new Emulator(prefs, memory, display)
       fixture = new FrameFixture(emulator)
       emulator.run()
       Thread.sleep(1000)
@@ -123,14 +130,14 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   implicit class EmulatorOps(e: FrameFixture) {
     def enter48kBasic(): Unit = {
-      Thread.sleep(2000)
+      Thread.sleep(3000)
       e.pressAndReleaseKey(KeyEvent.VK_UP)
       e.pressAndReleaseKey(VK_ENTER)
       Thread.sleep(2000)
     }
 
     def enter128kBasic(): Unit = {
-      Thread.sleep(2000)
+      Thread.sleep(3000)
       e.pressAndReleaseKey(KeyEvent.VK_DOWN)
       e.pressAndReleaseKey(VK_ENTER)
       Thread.sleep(1000)

@@ -42,6 +42,7 @@ public class PlusF extends JFrame {
         final Rectangle bounds = getGraphicsConfiguration().getBounds();
         setLocation((bounds.width - getWidth()) / 2, (bounds.height - getHeight()) / 2);
         setTitle("Plus-F");
+        setIconImage(Icons.windowIcon);
     }
 
     private void go() {

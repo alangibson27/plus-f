@@ -11,9 +11,14 @@ public class UserPreferences {
     public static final String MODEL = "initial-model";
 
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
-    private final Properties prefs = new Properties();
+    private final Properties prefs;
+
+    public UserPreferences(final Properties source) {
+        prefs = source;
+    }
 
     public UserPreferences() {
+        prefs = new Properties();
         if (prefsFile.exists()) {
             try (final FileReader fr = new FileReader(prefsFile)) {
                 prefs.load(fr);
