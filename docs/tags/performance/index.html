@@ -24,7 +24,7 @@
         <li><a href="/guest">GUEST</a></li>
         <li><a href="/connect">CONNECT</a></li>
         <li><a href="/games">GAMES</a></li>
-        <li><a href="/blog">BLOG</a></li>
+        <li><a href="/blog">VANITY PUBLISHING</a></li>
         <li><a href="/about">ABOUT</a></li>
     </ul>
 </nav>
@@ -127,7 +127,7 @@ def _add_a(processor, value, carry):
 
 <p>The execute method is the one that is run in the emulation loop. This single method, which could in theory be executed
 up to 17000 times every 1/50th of a second, was itself doing three expensive field dereferences per iteration, and when
-you include those done by the _add_a function it invokes, in total there are about a dozen in executing this one simple
+you include those done by the <code>_add_a</code> function it invokes, in total there are about a dozen in executing this one simple
 operation!</p>
 
 <p>Having gone back and done the background reading I ought to have done at the start, I spent a month trying to remedy the

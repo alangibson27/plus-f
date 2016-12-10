@@ -100,7 +100,7 @@ def _add_a(processor, value, carry):
 
 The execute method is the one that is run in the emulation loop. This single method, which could in theory be executed
 up to 17000 times every 1/50th of a second, was itself doing three expensive field dereferences per iteration, and when
-you include those done by the _add_a function it invokes, in total there are about a dozen in executing this one simple
+you include those done by the `_add_a` function it invokes, in total there are about a dozen in executing this one simple
 operation!
 
 Having gone back and done the background reading I ought to have done at the start, I spent a month trying to remedy the

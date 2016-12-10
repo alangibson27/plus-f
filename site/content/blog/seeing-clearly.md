@@ -28,9 +28,9 @@ along a little slowly at times, but the Spectrum was never known as a speed mach
 
 I toyed with the idea for a while before I started any code. My first thought was whether I could bolt some
 network play facilities onto an existing open-source emulator, most of which tend to be written in C or some
-similar low-level language. I rejected this thought fairly quickly as I'm a Linux user and most of my friends
-use Windows, so I'd also have a whole load of cross-platform issues to wrestle with, once I'd got past the trickier
-task of understanding somebody else's C.
+similar low-level language. I rejected this idea primarily because I thought trying to understand someone
+else's C code would be beyond me, but also because I wanted the emulator to be usable across Linux and
+Windows, and a language with simpler cross-platform support would be a better option.
 
 So that more or less put me in the position of writing my own emulator from the ground up. It's a challenge I
 did relish, but I wasn't in any illusion about the amount of work it would need. Where to start?
