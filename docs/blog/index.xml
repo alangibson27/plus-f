@@ -6,8 +6,98 @@
     <description>Recent content in Blog-rsses on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Mon, 28 Nov 2016 23:25:34 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 13 Dec 2016 21:24:44 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Going Too Quickly, Working Too Hard</title>
+      <link>http://plusf.socialthingy.com/blog/optimisation/</link>
+      <pubDate>Tue, 13 Dec 2016 21:24:44 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/blog/optimisation/</guid>
+      <description>&lt;p&gt;The just-about-holding-together addition of tape loading emulation I told you about
+&lt;a href=&#34;../if-you-only-do-one-thing&#34;&gt;last time&lt;/a&gt; was the last but one of the major bits
+of Plus-F. Having reached this milestone, I decided to take some time out and enjoy
+playing a game or two of Match Day II before doing any more work on it. My work
+may have stopped, but it turns out my computer was working as hard as ever.&lt;/p&gt;
+
+&lt;p&gt;The user experience was fairly good, at first glance, with the emulation running
+without crashes and at full speed. Indeed, I&amp;rsquo;d even had time to add a &amp;ldquo;turbo&amp;rdquo; mode
+which would run the emulation as fast as possible, designed to remove the boredom
+of waiting for tapes to load (although this does give a somewhat less authentic
+experience and you should hang your head in shame if you do use it). The problem
+was that when I had Plus-F running for more than a couple of minutes, the fan on
+my laptop would whoosh up to full speed, and stay there more or less until Plus-F
+stopped. A quick check with &lt;code&gt;top&lt;/code&gt; confirmed that Plus-F was using a whole core of
+the laptop&amp;rsquo;s dual-core processor.&lt;/p&gt;
+
+&lt;p&gt;By any measure, that&amp;rsquo;s too much for a Spectrum emulator running on modern hardware.
+The &lt;a href=&#34;../standing-on-the-shoulders-of-giants&#34;&gt;FUSE&lt;/a&gt; emulator written in C uses only
+a few percent of the available CPU capacity on the same computer and OS, and while
+I wasn&amp;rsquo;t expecting to achieve that level of performance from a Java application
+(a deliberate trade-off of raw performance for fewer cross-platform difficulties),
+I was still surprised it was quite so processor-hungry. But why?&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ll spare you the blow-by-blow details, except to say that a few profiling
+sessions using &lt;a href=&#34;https://github.com/RichardWarburton/honest-profiler/wiki&#34;&gt;honest-profiler&lt;/a&gt;
+showed that the problem lay in the rendering of the display. The antiquated display
+hardware of the Spectrum was efficient both in terms of memory and execution time
+(while also giving us the famous &lt;a href=&#34;http://speccyholic.tumblr.com/post/89194660510/the-spectrums-secret-weapon&#34;&gt;attribute clash&lt;/a&gt;)
+but does make it slightly convoluted to generate a pixel-based RGB bitmap. Somewhere
+in that display emulation were a few methods in particular that appeared to be hogging
+the CPU unexpectedly. The surprising thing is that these methods did little else
+apart from looking up various mappings between Spectrum display co-ordinates and
+the corresponding window co-ordinates. Thinking ahead, I&amp;rsquo;d decided to pre-compute
+these calculations and store the results in an array, since they&amp;rsquo;d be needed on
+every single display refresh, so I couldn&amp;rsquo;t see why these would be slow.&lt;/p&gt;
+
+&lt;p&gt;And there was my mistake.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;d assumed that array lookups are less expensive than repeated method calls, but
+that wasn&amp;rsquo;t actually the case for the calculations that I had precomputed. When
+you include bounds checking and whatever else is involved in array access, it
+actually turned out to be &lt;em&gt;more&lt;/em&gt; expensive than recalculating the co-ordinates on
+every call. In trying to outsmart the JVM with some optimisations of my own, I&amp;rsquo;d
+actually worked against it and stopped it from doing its own, more effective, optimisations
+to the code.&lt;/p&gt;
+
+&lt;p&gt;For the JVM is very clever indeed. (It does this sort of thing all day, every day, so
+it ought to be an expert, I suppose.) Based on the methods it sees being executed
+as your program runs, it can choose to compile and inline them as it sees fit. Inlining
+in particular tends to work best where methods are short, with the upshot that
+&lt;a href=&#34;https://techblug.wordpress.com/2013/08/19/java-jit-compiler-inlining/&#34;&gt;adding method calls can make your code run faster&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Of course, when it comes to Java code, you could argue that you&amp;rsquo;re better to start
+off with code that composes lots of calls to small methods anyway, and you&amp;rsquo;d be
+right. If nothing else, it means that your code is easier to reason about and test,
+but as an added bonus you&amp;rsquo;re also staying out of the JVM&amp;rsquo;s way and letting it do
+what it&amp;rsquo;s best at.&lt;/p&gt;
+
+&lt;p&gt;The mistake I made is one which has been known for a long time, and which &lt;a href=&#34;https://shreevatsa.wordpress.com/2008/05/16/premature-optimization-is-the-root-of-all-evil/&#34;&gt;Knuth&lt;/a&gt;
+popularised with his statement &lt;em&gt;premature optimisation is the root of all evil&lt;/em&gt;.
+Software may have moved on in many ways since he said that in 1974, but to me the
+problem of premature optimisation is more human than technological, and I&amp;rsquo;d be suprised
+if we were that much less susceptible to it now than we were then. In my case,
+with no evidence to support me, I assumed that certain operations were going to
+be costly, and wrote bad code based on that faulty assumption.&lt;/p&gt;
+
+&lt;p&gt;How could I have avoided this?&lt;/p&gt;
+
+&lt;p&gt;It&amp;rsquo;s a tricky balance. On the one hand, in my original Python implementation of
+Plus-F, by doing no profiling or performance testing until the very end, &lt;a href=&#34;../fundamentals&#34;&gt;I ended
+up wasting time on an implementation that would never have been fit for purpose&lt;/a&gt;. Clearly, I could have done with paying a bit more attention to
+performance up-front in that case. In the case of the Java version of Plus-F, by
+fixating on performance too early (probably a consequence of having been burned
+a little by the fact the first attempt at Plus-F was so slow), I ended up with an
+inefficient application.&lt;/p&gt;
+
+&lt;p&gt;I think it all boils down to gathering evidence and acting upon that. Where you
+have requirements that a program should exhibit a certain level of performance
+(in my case not needing an entire CPU core in order to emulate a computerised beermat
+from the 1980s), it&amp;rsquo;s important to test for this, just like you would test whether
+it behaves correctly or not, and to bake this testing into your development cycle
+if you can.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>If You Only Do One Thing</title>
