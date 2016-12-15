@@ -16,7 +16,7 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     tzx.version shouldBe "1.10"
 
     val blocks = tzx.blocks
-    blocks should have size 6
+    blocks should have size 7
 
     val programHeaderBlock = blocks(0)
     programHeaderBlock shouldBe a[VariableSpeedBlock]
@@ -40,12 +40,14 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     tzx.version shouldBe "1.10"
 
     val blocks = tzx.blocks
-    blocks should have size 6
+    blocks should have size 7
 
     blocks(2) shouldBe a[GroupStartBlock]
     blocks(3) shouldBe a[PulseSequenceBlock]
     blocks(4) shouldBe a[PauseBlock]
-    blocks(5) shouldBe a[GroupEndBlock]
+    blocks(5) shouldBe a[PauseBlock]
+    blocks(5).asInstanceOf[PauseBlock].shouldStopTape shouldBe true
+    blocks(6) shouldBe a[GroupEndBlock]
   }
 
   it should "reject a file with a malformed header" in {

@@ -113,6 +113,7 @@ public class TapeFileReader {
         blocks.add(new GroupStartBlock("End of tape"));
         blocks.add(new PulseSequenceBlock(SignalState.Adjustment.NO_CHANGE, new int[] {3500}));
         blocks.add(new PauseBlock(Duration.ofMillis(1)));
+        blocks.add(new PauseBlock(Duration.ZERO));
         blocks.add(new GroupEndBlock());
     }
 
