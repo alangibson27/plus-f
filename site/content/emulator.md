@@ -4,7 +4,7 @@ draft = false
 title = "The Emulator"
 +++
 
-The Plus-F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don't expect programs which generate "rainbow" effects to work properly.
+The +F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don't expect programs which generate "rainbow" effects to work properly.
 
 ## So where is the symbol shift key?
 

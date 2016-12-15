@@ -4,7 +4,7 @@ draft = false
 title = "The Guest"
 +++
 
-The Plus-F Guest is a program that receives screen updates from a Plus-F Emulator across a network, and sends back
+The +F Guest is a program that receives screen updates from a +F Emulator across a network, and sends back
 keypresses translated to Kempston joystick movements. This means that a user of the guest can participate in a
 two-player game, provided the game has Kempston joystick support (most have).
 

@@ -13,7 +13,7 @@ available in the same package. Here's how it works:
 
 2. Choose a code name and share this by email, instant message, text message or however you like.
    It's not especially important what this code is, and you can use the same one over and over again if you like.
-   They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.
+   They are only retained until the connection has been made, at which point the +F Relay Service forgets it again.
 
 3. Players A and B both choose the *Connect* option from the *Network* menu, and enter the code name in the pop-up.
 
@@ -42,11 +42,11 @@ should be acceptable.
 
 ### Firewalls and network connectivity
 
-In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
+In order to keep network play as responsive as possible, +F uses direct communication between the Emulator and
 the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
 provider's security settings, you may need to change some firewall rules so that the Emulator and Guest can reach
 each other.
 
 Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
 that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you're already familiar with
-enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.
+enabling multi-player games on your computer, the process you need to follow for +F will be similar to that.

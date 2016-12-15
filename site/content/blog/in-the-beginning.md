@@ -1,5 +1,5 @@
 +++
-title = "Why?"
+title = "In The Beginning"
 draft = false
 date = "2016-10-31T22:49:58Z"
 tags = ["development"]
@@ -31,9 +31,9 @@ your favourites, and you'll also probably tend to adopt and fit in with the way 
 
 Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget *why*
 you do things the way you do them. Best practices only become so because they have been shown to provide benefits,
-but it's easy to forget this and slip into something of a ritualistic mentality about the way you build software. *If we
-write the magic number of unit tests, make sure the digits of our release number don't add up to thirteen, and sacrifice a
-chicken, the software gods will smile upon us and our release will be successful.*
+but it's easy to forget this and slip into something of a ritualistic mentality about the way you build software. *If our
+code coverage metrics hit the magic number, we make sure the digits of our release number don't add up to thirteen, and
+we sacrifice a chicken, the software gods will smile upon us and our release will be successful.*
 
 With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
 wasn't subject to the formalities of software development which I've become used to in my day job. I could completely

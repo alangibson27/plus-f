@@ -16,4 +16,4 @@ had was this compellingly playable game, and a conviction that we must be the be
 Time passes, people move on and circumstances change, but from time to time I couldn't help but wonder what would happen
 if my friends and I were to play Match Day II against each other once more.
 
-The only surprise is that it took me so long to come up with the idea of Plus-F as a way of answering that question.
+The only surprise is that it took me so long to come up with the idea of +F as a way of answering that question.

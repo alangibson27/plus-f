@@ -24,7 +24,7 @@ I've done TDD with JUnit, ScalaTest, PyTest, Nose and Cucumber, and it works wel
 think the choice of tools is especially important - just pick the ones that work for you and use them. Even if you're
 still writing programs in COBOL for mainframes, I'm sure there are options out there.
 
-I don't think I would have attempted Plus-F if I wasn't already doing TDD in my day job. A processor is basically a
+I don't think I would have attempted +F if I wasn't already doing TDD in my day job. A processor is basically a
 large collection of instructions which all operate on the same global state. Those instructions can then be combined in
 an infinite number of permutations, where the state of a single bit in a single register can cause execution to take a
 completely different path. Butterflies flap their wings at every step along the way.
@@ -38,7 +38,7 @@ to the next. Dull, yes, but it's the only way I could see of gaining any tractio
 approach, the major problems which stopped programs from working outright have been reasonably rare, obvious and easy to
 debug and fix.
 
-By now, you may have read about my [valiant but doomed attempt to write Plus-F in Python](../fundamentals). I'll confess that
+By now, you may have read about my [valiant but doomed attempt to write +F in Python](../fundamentals). I'll confess that
 the thought of having to start again from scratch did make me think twice about what I was doing, but the choice was made
 easier by the one thing I had in my favour - a good set of tests for all of the processor emulation. And, given that I
 hadn't got much beyond that part (aside from a prototype display that showed just how slow the emulator was), that meant
@@ -99,14 +99,14 @@ like these easily to an equivalent in ScalaTest like this:
 ```
 
 All I then had to do was write the implementation of the DSL (easy enough), and then I had a full set of tests
-available from the outset, against which I could code the Java version of Plus-F. Class-by-class, I converted
+available from the outset, against which I could code the Java version of +F. Class-by-class, I converted
 the tests and then wrote the code to pass them, and in little over a month I was back to the same point I'd reached in
 Python without too much effort. Full-on TDD to the rescue!
 
 Of course, it would be out of character if the faint glimmer of success I saw in the distance wasn't subsequently
 extinguished by an act of stupidity, laziness, or (in this case) both.
 
-Processor emulation isn't the only complex thing I had to tackle when writing Plus-F. Tape loading was another
+Processor emulation isn't the only complex thing I had to tackle when writing +F. Tape loading was another
 tricky area, and emulating it properly is surprisingly fiddly. There's a [remarkably well-documented specification]
 (http://www.worldofspectrum.org/TZXformat.html) of the TZX emulated tape format, and in theory all that's required is
 to turn the contents of a TZX file into a stream of 0s and 1s which can be fed bit-by-bit into the emulated Spectrum.
@@ -115,7 +115,7 @@ routine doesn't work. Either the input signal won't be recognised at all, or you
 `R Tape Loading Error, 0:1` error message that haunted the childhood of me and many others of my generation.
 
 Intricate and nuanced, but well-documented ... this is exactly the sort of thing that TDD was made for. However, by this
-stage, I had a lot of Plus-F working and I'd become a bit cavalier in my attitude again. (My unfortunate dalliance with
+stage, I had a lot of +F working and I'd become a bit cavalier in my attitude again. (My unfortunate dalliance with
 Python was by this stage some six months in the past. How quickly the mind forgets.) Certain that I was only a few commits
 away from a fully-working application, I pinned my ears back and frenziedly wrote the TZX-handling routines, supported by
 only a smattering of tests.
@@ -129,14 +129,14 @@ That's where the problems *really* began. Inefficient as it may have been, the f
 But because I didn't have a thorough set of tests which allowed me to make changes and still verify that each part worked,
 any time I did something that made it run faster, I also introduced a bug somewhere else. In a bid to stop the incessant
 cycle of fixing one bug only to introduce another, I resorted to cobbling together a "regression test" based
-on [this class from the original, inefficient, implementation](https://github.com/alangibson27/plus-f/blob/master/plus-f/src/test/java/com/socialthingy/plusf/tape/ReferenceVariableSpeedBlock.java)
+on [this class from the original, inefficient, implementation](https://github.com/alangibson27/+F/blob/master/+F/src/test/java/com/socialthingy/plusf/tape/ReferenceVariableSpeedBlock.java)
 and testing all of my potential improvements with respect to that.
 
 It helped, but was nothing more than a length of wallpaper to cover up the cracks in my approach. It's still there.
 
 Thankfully, I haven't had to touch the TZX-handling routines much of late, but I dread the day that I have to. I think
-it's pretty clear to see, when comparing [its code](https://github.com/alangibson27/plus-f/tree/master/plus-f/src/main/java/com/socialthingy/plusf/tape)
-with the [Z80 emulation code that was developed with a TDD approach](https://github.com/alangibson27/plus-f/tree/master/plus-f/src/main/java/com/socialthingy/plusf/z80),
+it's pretty clear to see, when comparing [its code](https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/tape)
+with the [Z80 emulation code that was developed with a TDD approach](https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/z80),
 that not building it by TDD has caused a lot of problems there needn't have been.
 
 The lesson? It's all too easy to consider brushing TDD aside in an effort to get to where you want to be more quickly,

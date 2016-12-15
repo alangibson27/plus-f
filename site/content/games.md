@@ -5,7 +5,7 @@ title = "Games"
 +++
 
 Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
-Z80, TAP and TZX, all of which Plus-F can load. TAP files are at present the most reliable, although you should be able
+Z80, TAP and TZX, all of which +F can load. TAP files are at present the most reliable, although you should be able
 to use a lot of Z80 and TZX files as well.
 
 One of the most authoritative sources for Spectrum games the [World of Spectrum Archive](http://www.worldofspectrum.org/archive.html),

@@ -7,13 +7,13 @@ title = "Download"
 
 ## Available packages
 
-* [64-bit Windows Installer] (http://download.socialthingy.com/Plus-F.exe)
+* [64-bit Windows Installer] (http://download.socialthingy.com/+F.exe)
  * This is the simplest way to get up and running on a compatible Windows system.
-* [Universal Zip Package] (http://download.socialthingy.com/Plus-F.zip)
+* [Universal Zip Package] (http://download.socialthingy.com/+F.zip)
  * This download is suitable for all operating systems. You'll need to install
    a recent version of Java 8 separately, in order to run. You can download this
    for free from [www.java.com] (http://www.java.com)
-* [Debian Package] (http://download.socialthingy.com/Plus-F.deb)
+* [Debian Package] (http://download.socialthingy.com/+F.deb)
  * Prebuilt package for Ubuntu and other Debian-based Linux distributions.
 
 Both these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
@@ -23,11 +23,11 @@ redistribution of their copyrighted material but retain that copyright.
 
 ## Release Notes
 
-You can read the release notes for Plus-F [here](/release-notes).
+You can read the release notes for +F [here](/release-notes).
 
 ## Licensing
 
-Plus-F is distributed under an MIT license:
++F is distributed under an MIT license:
 
 ---
 MIT License

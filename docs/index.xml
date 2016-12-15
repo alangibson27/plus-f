@@ -17,7 +17,7 @@
       <guid>http://plusf.socialthingy.com/blog/optimisation/</guid>
       <description>&lt;p&gt;The just-about-holding-together addition of tape loading emulation I told you about
 &lt;a href=&#34;../if-you-only-do-one-thing&#34;&gt;last time&lt;/a&gt; was the last but one of the major bits
-of Plus-F. Having reached this milestone, I decided to take some time out and enjoy
+of +F. Having reached this milestone, I decided to take some time out and enjoy
 playing a game or two of Match Day II before doing any more work on it. My work
 may have stopped, but it turns out my computer was working as hard as ever.&lt;/p&gt;
 
@@ -26,9 +26,9 @@ without crashes and at full speed. Indeed, I&amp;rsquo;d even had time to add a 
 which would run the emulation as fast as possible, designed to remove the boredom
 of waiting for tapes to load (although this does give a somewhat less authentic
 experience and you should hang your head in shame if you do use it). The problem
-was that when I had Plus-F running for more than a couple of minutes, the fan on
-my laptop would whoosh up to full speed, and stay there more or less until Plus-F
-stopped. A quick check with &lt;code&gt;top&lt;/code&gt; confirmed that Plus-F was using a whole core of
+was that when I had +F running for more than a couple of minutes, the fan on
+my laptop would whoosh up to full speed, and stay there more or less until +F
+stopped. A quick check with &lt;code&gt;top&lt;/code&gt; confirmed that +F was using a whole core of
 the laptop&amp;rsquo;s dual-core processor.&lt;/p&gt;
 
 &lt;p&gt;By any measure, that&amp;rsquo;s too much for a Spectrum emulator running on modern hardware.
@@ -76,7 +76,7 @@ what it&amp;rsquo;s best at.&lt;/p&gt;
 &lt;p&gt;The mistake I made is one which has been known for a long time, and which &lt;a href=&#34;https://shreevatsa.wordpress.com/2008/05/16/premature-optimization-is-the-root-of-all-evil/&#34;&gt;Knuth&lt;/a&gt;
 popularised with his statement &lt;em&gt;premature optimisation is the root of all evil&lt;/em&gt;.
 Software may have moved on in many ways since he said that in 1974, but to me the
-problem of premature optimisation is more human than technological, and I&amp;rsquo;d be suprised
+problem of premature optimisation is more human than technological, and I&amp;rsquo;d be surprised
 if we were that much less susceptible to it now than we were then. In my case,
 with no evidence to support me, I assumed that certain operations were going to
 be costly, and wrote bad code based on that faulty assumption.&lt;/p&gt;
@@ -84,11 +84,11 @@ be costly, and wrote bad code based on that faulty assumption.&lt;/p&gt;
 &lt;p&gt;How could I have avoided this?&lt;/p&gt;
 
 &lt;p&gt;It&amp;rsquo;s a tricky balance. On the one hand, in my original Python implementation of
-Plus-F, by doing no profiling or performance testing until the very end, &lt;a href=&#34;../fundamentals&#34;&gt;I ended
++F, by doing no profiling or performance testing until the very end, &lt;a href=&#34;../fundamentals&#34;&gt;I ended
 up wasting time on an implementation that would never have been fit for purpose&lt;/a&gt;. Clearly, I could have done with paying a bit more attention to
-performance up-front in that case. In the case of the Java version of Plus-F, by
+performance up-front in that case. In the case of the Java version of +F, by
 fixating on performance too early (probably a consequence of having been burned
-a little by the fact the first attempt at Plus-F was so slow), I ended up with an
+a little by the fact the first attempt at +F was so slow), I ended up with an
 inefficient application.&lt;/p&gt;
 
 &lt;p&gt;I think it all boils down to gathering evidence and acting upon that. Where you
@@ -125,7 +125,7 @@ better software.&lt;/p&gt;
 think the choice of tools is especially important - just pick the ones that work for you and use them. Even if you&amp;rsquo;re
 still writing programs in COBOL for mainframes, I&amp;rsquo;m sure there are options out there.&lt;/p&gt;
 
-&lt;p&gt;I don&amp;rsquo;t think I would have attempted Plus-F if I wasn&amp;rsquo;t already doing TDD in my day job. A processor is basically a
+&lt;p&gt;I don&amp;rsquo;t think I would have attempted +F if I wasn&amp;rsquo;t already doing TDD in my day job. A processor is basically a
 large collection of instructions which all operate on the same global state. Those instructions can then be combined in
 an infinite number of permutations, where the state of a single bit in a single register can cause execution to take a
 completely different path. Butterflies flap their wings at every step along the way.&lt;/p&gt;
@@ -139,7 +139,7 @@ to the next. Dull, yes, but it&amp;rsquo;s the only way I could see of gaining a
 approach, the major problems which stopped programs from working outright have been reasonably rare, obvious and easy to
 debug and fix.&lt;/p&gt;
 
-&lt;p&gt;By now, you may have read about my &lt;a href=&#34;../fundamentals&#34;&gt;valiant but doomed attempt to write Plus-F in Python&lt;/a&gt;. I&amp;rsquo;ll confess that
+&lt;p&gt;By now, you may have read about my &lt;a href=&#34;../fundamentals&#34;&gt;valiant but doomed attempt to write +F in Python&lt;/a&gt;. I&amp;rsquo;ll confess that
 the thought of having to start again from scratch did make me think twice about what I was doing, but the choice was made
 easier by the one thing I had in my favour - a good set of tests for all of the processor emulation. And, given that I
 hadn&amp;rsquo;t got much beyond that part (aside from a prototype display that showed just how slow the emulator was), that meant
@@ -198,14 +198,14 @@ like these easily to an equivalent in ScalaTest like this:&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;All I then had to do was write the implementation of the DSL (easy enough), and then I had a full set of tests
-available from the outset, against which I could code the Java version of Plus-F. Class-by-class, I converted
+available from the outset, against which I could code the Java version of +F. Class-by-class, I converted
 the tests and then wrote the code to pass them, and in little over a month I was back to the same point I&amp;rsquo;d reached in
 Python without too much effort. Full-on TDD to the rescue!&lt;/p&gt;
 
 &lt;p&gt;Of course, it would be out of character if the faint glimmer of success I saw in the distance wasn&amp;rsquo;t subsequently
 extinguished by an act of stupidity, laziness, or (in this case) both.&lt;/p&gt;
 
-&lt;p&gt;Processor emulation isn&amp;rsquo;t the only complex thing I had to tackle when writing Plus-F. Tape loading was another
+&lt;p&gt;Processor emulation isn&amp;rsquo;t the only complex thing I had to tackle when writing +F. Tape loading was another
 tricky area, and emulating it properly is surprisingly fiddly. There&amp;rsquo;s a &lt;a href=&#34;http://www.worldofspectrum.org/TZXformat.html&#34;&gt;remarkably well-documented specification&lt;/a&gt; of the TZX emulated tape format, and in theory all that&amp;rsquo;s required is
 to turn the contents of a TZX file into a stream of 0s and 1s which can be fed bit-by-bit into the emulated Spectrum.
 The catch is that the timings and high/low state of the input really have to be precise, or the ROM&amp;rsquo;s tape loading
@@ -213,7 +213,7 @@ routine doesn&amp;rsquo;t work. Either the input signal won&amp;rsquo;t be recog
 &lt;code&gt;R Tape Loading Error, 0:1&lt;/code&gt; error message that haunted the childhood of me and many others of my generation.&lt;/p&gt;
 
 &lt;p&gt;Intricate and nuanced, but well-documented &amp;hellip; this is exactly the sort of thing that TDD was made for. However, by this
-stage, I had a lot of Plus-F working and I&amp;rsquo;d become a bit cavalier in my attitude again. (My unfortunate dalliance with
+stage, I had a lot of +F working and I&amp;rsquo;d become a bit cavalier in my attitude again. (My unfortunate dalliance with
 Python was by this stage some six months in the past. How quickly the mind forgets.) Certain that I was only a few commits
 away from a fully-working application, I pinned my ears back and frenziedly wrote the TZX-handling routines, supported by
 only a smattering of tests.&lt;/p&gt;
@@ -227,14 +227,14 @@ rewrite it piece-by-piece so that it skipped along more efficiently.&lt;/p&gt;
 But because I didn&amp;rsquo;t have a thorough set of tests which allowed me to make changes and still verify that each part worked,
 any time I did something that made it run faster, I also introduced a bug somewhere else. In a bid to stop the incessant
 cycle of fixing one bug only to introduce another, I resorted to cobbling together a &amp;ldquo;regression test&amp;rdquo; based
-on &lt;a href=&#34;https://github.com/alangibson27/plus-f/blob/master/plus-f/src/test/java/com/socialthingy/plusf/tape/ReferenceVariableSpeedBlock.java&#34;&gt;this class from the original, inefficient, implementation&lt;/a&gt;
+on &lt;a href=&#34;https://github.com/alangibson27/+F/blob/master/+F/src/test/java/com/socialthingy/plusf/tape/ReferenceVariableSpeedBlock.java&#34;&gt;this class from the original, inefficient, implementation&lt;/a&gt;
 and testing all of my potential improvements with respect to that.&lt;/p&gt;
 
 &lt;p&gt;It helped, but was nothing more than a length of wallpaper to cover up the cracks in my approach. It&amp;rsquo;s still there.&lt;/p&gt;
 
 &lt;p&gt;Thankfully, I haven&amp;rsquo;t had to touch the TZX-handling routines much of late, but I dread the day that I have to. I think
-it&amp;rsquo;s pretty clear to see, when comparing &lt;a href=&#34;https://github.com/alangibson27/plus-f/tree/master/plus-f/src/main/java/com/socialthingy/plusf/tape&#34;&gt;its code&lt;/a&gt;
-with the &lt;a href=&#34;https://github.com/alangibson27/plus-f/tree/master/plus-f/src/main/java/com/socialthingy/plusf/z80&#34;&gt;Z80 emulation code that was developed with a TDD approach&lt;/a&gt;,
+it&amp;rsquo;s pretty clear to see, when comparing &lt;a href=&#34;https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/tape&#34;&gt;its code&lt;/a&gt;
+with the &lt;a href=&#34;https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/z80&#34;&gt;Z80 emulation code that was developed with a TDD approach&lt;/a&gt;,
 that not building it by TDD has caused a lot of problems there needn&amp;rsquo;t have been.&lt;/p&gt;
 
 &lt;p&gt;The lesson? It&amp;rsquo;s all too easy to consider brushing TDD aside in an effort to get to where you want to be more quickly,
@@ -555,11 +555,11 @@ of it.&lt;/p&gt;</description>
     </item>
     
     <item>
-      <title>Why?</title>
-      <link>http://plusf.socialthingy.com/blog/why/</link>
+      <title>In The Beginning</title>
+      <link>http://plusf.socialthingy.com/blog/in-the-beginning/</link>
       <pubDate>Mon, 31 Oct 2016 22:49:58 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/blog/why/</guid>
+      <guid>http://plusf.socialthingy.com/blog/in-the-beginning/</guid>
       <description>&lt;p&gt;Why did I bother writing +F? There are already plenty of fully-featured, freely-available Spectrum emulators for
 more or less any platform you care to think of. Indeed, I remember using a perfectly playable one on the Commodore
 Amiga as far back as 1994 or 1995 (ZXAM by Antonio J. Pomar Roselló), so it&amp;rsquo;s hardly a novel idea.&lt;/p&gt;
@@ -586,9 +586,9 @@ your favourites, and you&amp;rsquo;ll also probably tend to adopt and fit in wit
 
 &lt;p&gt;Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget &lt;em&gt;why&lt;/em&gt;
 you do things the way you do them. Best practices only become so because they have been shown to provide benefits,
-but it&amp;rsquo;s easy to forget this and slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If we
-write the magic number of unit tests, make sure the digits of our release number don&amp;rsquo;t add up to thirteen, and sacrifice a
-chicken, the software gods will smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
+but it&amp;rsquo;s easy to forget this and slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If our
+code coverage metrics hit the magic number, we make sure the digits of our release number don&amp;rsquo;t add up to thirteen, and
+we sacrifice a chicken, the software gods will smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
 wasn&amp;rsquo;t subject to the formalities of software development which I&amp;rsquo;ve become used to in my day job. I could completely
@@ -673,7 +673,7 @@ had was this compellingly playable game, and a conviction that we must be the be
 Time passes, people move on and circumstances change, but from time to time I couldn&amp;rsquo;t help but wonder what would happen
 if my friends and I were to play Match Day II against each other once more.&lt;/p&gt;
 
-&lt;p&gt;The only surprise is that it took me so long to come up with the idea of Plus-F as a way of answering that question.&lt;/p&gt;
+&lt;p&gt;The only surprise is that it took me so long to come up with the idea of +F as a way of answering that question.&lt;/p&gt;
 </description>
     </item>
     
@@ -695,7 +695,7 @@ available in the same package. Here&amp;rsquo;s how it works:&lt;/p&gt;
 
 &lt;li&gt;&lt;p&gt;Choose a code name and share this by email, instant message, text message or however you like.
 It&amp;rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
-They are only retained until the connection has been made, at which point the Plus-F Relay Service forgets it again.&lt;/p&gt;&lt;/li&gt;
+They are only retained until the connection has been made, at which point the +F Relay Service forgets it again.&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;Players A and B both choose the &lt;em&gt;Connect&lt;/em&gt; option from the &lt;em&gt;Network&lt;/em&gt; menu, and enter the code name in the pop-up.&lt;/p&gt;&lt;/li&gt;
 
@@ -730,14 +730,14 @@ should be acceptable.&lt;/p&gt;
 
 &lt;h3 id=&#34;firewalls-and-network-connectivity&#34;&gt;Firewalls and network connectivity&lt;/h3&gt;
 
-&lt;p&gt;In order to keep network play as responsive as possible, Plus-F uses direct communication between the Emulator and
+&lt;p&gt;In order to keep network play as responsive as possible, +F uses direct communication between the Emulator and
 the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
 provider&amp;rsquo;s security settings, you may need to change some firewall rules so that the Emulator and Guest can reach
 each other.&lt;/p&gt;
 
 &lt;p&gt;Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
 that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&amp;rsquo;re already familiar with
-enabling multi-player games on your computer, the process you need to follow for Plus-F will be similar to that.&lt;/p&gt;
+enabling multi-player games on your computer, the process you need to follow for +F will be similar to that.&lt;/p&gt;
 </description>
     </item>
     
@@ -752,19 +752,19 @@ enabling multi-player games on your computer, the process you need to follow for
 &lt;h2 id=&#34;available-packages&#34;&gt;Available packages&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.exe&#34;&gt;64-bit Windows Installer&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/+F.exe&#34;&gt;64-bit Windows Installer&lt;/a&gt;
 
 &lt;ul&gt;
 &lt;li&gt;This is the simplest way to get up and running on a compatible Windows system.&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.zip&#34;&gt;Universal Zip Package&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/+F.zip&#34;&gt;Universal Zip Package&lt;/a&gt;
 
 &lt;ul&gt;
 &lt;li&gt;This download is suitable for all operating systems. You&amp;rsquo;ll need to install
 a recent version of Java 8 separately, in order to run. You can download this
 for free from &lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.deb&#34;&gt;Debian Package&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/+F.deb&#34;&gt;Debian Package&lt;/a&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Prebuilt package for Ubuntu and other Debian-based Linux distributions.&lt;/li&gt;
@@ -778,11 +778,11 @@ redistribution of their copyrighted material but retain that copyright.
 
 &lt;h2 id=&#34;release-notes&#34;&gt;Release Notes&lt;/h2&gt;
 
-&lt;p&gt;You can read the release notes for Plus-F &lt;a href=&#34;http://plusf.socialthingy.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;You can read the release notes for +F &lt;a href=&#34;http://plusf.socialthingy.com/release-notes&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;licensing&#34;&gt;Licensing&lt;/h2&gt;
 
-&lt;p&gt;Plus-F is distributed under an MIT license:&lt;/p&gt;
+&lt;p&gt;+F is distributed under an MIT license:&lt;/p&gt;
 
 &lt;hr /&gt;
 
@@ -817,7 +817,7 @@ SOFTWARE.&lt;/p&gt;
       
       <guid>http://plusf.socialthingy.com/games/</guid>
       <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
-Z80, TAP and TZX, all of which Plus-F can load. TAP files are at present the most reliable, although you should be able
+Z80, TAP and TZX, all of which +F can load. TAP files are at present the most reliable, although you should be able
 to use a lot of Z80 and TZX files as well.&lt;/p&gt;
 
 &lt;p&gt;One of the most authoritative sources for Spectrum games the &lt;a href=&#34;http://www.worldofspectrum.org/archive.html&#34;&gt;World of Spectrum Archive&lt;/a&gt;,
@@ -840,7 +840,7 @@ for full details on which publishers and developers have granted free distributi
       <guid>http://plusf.socialthingy.com/emulator/</guid>
       <description>
 
-&lt;p&gt;The Plus-F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&amp;rsquo;t expect programs which generate &amp;ldquo;rainbow&amp;rdquo; effects to work properly.&lt;/p&gt;
+&lt;p&gt;The +F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&amp;rsquo;t expect programs which generate &amp;ldquo;rainbow&amp;rdquo; effects to work properly.&lt;/p&gt;
 
 &lt;h2 id=&#34;so-where-is-the-symbol-shift-key&#34;&gt;So where is the symbol shift key?&lt;/h2&gt;
 

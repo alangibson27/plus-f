@@ -9,11 +9,11 @@
     <atom:link href="http://plusf.socialthingy.com/tags/development/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Why?</title>
-      <link>http://plusf.socialthingy.com/blog/why/</link>
+      <title>In The Beginning</title>
+      <link>http://plusf.socialthingy.com/blog/in-the-beginning/</link>
       <pubDate>Mon, 31 Oct 2016 22:49:58 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/blog/why/</guid>
+      <guid>http://plusf.socialthingy.com/blog/in-the-beginning/</guid>
       <description>&lt;p&gt;Why did I bother writing +F? There are already plenty of fully-featured, freely-available Spectrum emulators for
 more or less any platform you care to think of. Indeed, I remember using a perfectly playable one on the Commodore
 Amiga as far back as 1994 or 1995 (ZXAM by Antonio J. Pomar Roselló), so it&amp;rsquo;s hardly a novel idea.&lt;/p&gt;
@@ -40,9 +40,9 @@ your favourites, and you&amp;rsquo;ll also probably tend to adopt and fit in wit
 
 &lt;p&gt;Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget &lt;em&gt;why&lt;/em&gt;
 you do things the way you do them. Best practices only become so because they have been shown to provide benefits,
-but it&amp;rsquo;s easy to forget this and slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If we
-write the magic number of unit tests, make sure the digits of our release number don&amp;rsquo;t add up to thirteen, and sacrifice a
-chicken, the software gods will smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
+but it&amp;rsquo;s easy to forget this and slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If our
+code coverage metrics hit the magic number, we make sure the digits of our release number don&amp;rsquo;t add up to thirteen, and
+we sacrifice a chicken, the software gods will smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
 wasn&amp;rsquo;t subject to the formalities of software development which I&amp;rsquo;ve become used to in my day job. I could completely

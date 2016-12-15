@@ -6,7 +6,7 @@ tags = ["software development", "performance"]
 +++
 The just-about-holding-together addition of tape loading emulation I told you about
 [last time](../if-you-only-do-one-thing) was the last but one of the major bits
-of Plus-F. Having reached this milestone, I decided to take some time out and enjoy
+of +F. Having reached this milestone, I decided to take some time out and enjoy
 playing a game or two of Match Day II before doing any more work on it. My work
 may have stopped, but it turns out my computer was working as hard as ever.<!--more-->
 
@@ -15,9 +15,9 @@ without crashes and at full speed. Indeed, I'd even had time to add a "turbo" mo
 which would run the emulation as fast as possible, designed to remove the boredom
 of waiting for tapes to load (although this does give a somewhat less authentic
 experience and you should hang your head in shame if you do use it). The problem
-was that when I had Plus-F running for more than a couple of minutes, the fan on
-my laptop would whoosh up to full speed, and stay there more or less until Plus-F
-stopped. A quick check with `top` confirmed that Plus-F was using a whole core of
+was that when I had +F running for more than a couple of minutes, the fan on
+my laptop would whoosh up to full speed, and stay there more or less until +F
+stopped. A quick check with `top` confirmed that +F was using a whole core of
 the laptop's dual-core processor.
 
 By any measure, that's too much for a Spectrum emulator running on modern hardware.
@@ -65,7 +65,7 @@ what it's best at.
 The mistake I made is one which has been known for a long time, and which [Knuth](https://shreevatsa.wordpress.com/2008/05/16/premature-optimization-is-the-root-of-all-evil/)
 popularised with his statement *premature optimisation is the root of all evil*.
 Software may have moved on in many ways since he said that in 1974, but to me the
-problem of premature optimisation is more human than technological, and I'd be suprised
+problem of premature optimisation is more human than technological, and I'd be surprised
 if we were that much less susceptible to it now than we were then. In my case,
 with no evidence to support me, I assumed that certain operations were going to
 be costly, and wrote bad code based on that faulty assumption.
@@ -73,12 +73,12 @@ be costly, and wrote bad code based on that faulty assumption.
 How could I have avoided this?
 
 It's a tricky balance. On the one hand, in my original Python implementation of
-Plus-F, by doing no profiling or performance testing until the very end, [I ended
++F, by doing no profiling or performance testing until the very end, [I ended
 up wasting time on an implementation that would never have been fit for purpose]
 (../fundamentals). Clearly, I could have done with paying a bit more attention to
-performance up-front in that case. In the case of the Java version of Plus-F, by
+performance up-front in that case. In the case of the Java version of +F, by
 fixating on performance too early (probably a consequence of having been burned
-a little by the fact the first attempt at Plus-F was so slow), I ended up with an
+a little by the fact the first attempt at +F was so slow), I ended up with an
 inefficient application.
 
 I think it all boils down to gathering evidence and acting upon that. Where you
