@@ -7,6 +7,8 @@ import com.socialthingy.plusf.z80.Memory;
 import sun.misc.Unsafe;
 
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.*;
 
 import static com.socialthingy.plusf.spectrum.display.PixelMapper.*;
@@ -15,8 +17,40 @@ import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 public class SwingDoubleSizeDisplay extends DisplayComponent {
     private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
+    private static final double INNER_OUTER_RATIO = 1.125;
+    private static final double WIDTH_HEIGHT_RATIO = 576.0 / 432.0;
+
+    private Dimension innerSize = new Dimension(SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE);
+    private Dimension outerSize = new Dimension(
+        (int) (innerSize.width * INNER_OUTER_RATIO),
+        (int) (innerSize.height * INNER_OUTER_RATIO)
+    );
+
+    private Point outerTopLeft = new Point(0, 0);
+    private Point innerTopLeft = new Point((outerSize.width - innerSize.width) / 2, (outerSize.height - innerSize.height) / 2);
+
+    private int roundTo2(final double value) {
+        return ((int) (value / 2)) * 2;
+    }
+
     public SwingDoubleSizeDisplay(final PixelMapper pixelMapper) {
         super(pixelMapper);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(final ComponentEvent e) {
+                final Dimension newSize = new Dimension(getSize().width, getSize().height - 16);
+                outerSize = new Dimension(roundTo2(newSize.height * WIDTH_HEIGHT_RATIO), roundTo2(newSize.height));
+                innerSize = new Dimension(
+                    roundTo2(outerSize.width / INNER_OUTER_RATIO),
+                    roundTo2(outerSize.height/ INNER_OUTER_RATIO)
+                );
+                outerTopLeft = new Point((newSize.width - outerSize.width) / 2, (newSize.height - outerSize.height) / 2);
+                innerTopLeft = new Point(
+                    outerTopLeft.x + ((outerSize.width - innerSize.width) / 2),
+                    outerTopLeft.y + ((outerSize.height - innerSize.height) / 2)
+                );
+            }
+        });
     }
 
     @Override
@@ -56,13 +90,13 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     @Override
     protected void paintComponent(final Graphics g) {
-        g.drawImage(borderImage, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, null);
+        g.drawImage(borderImage, outerTopLeft.x, outerTopLeft.y, outerSize.width, outerSize.height, null);
         g.drawImage(
                 image,
-                BORDER * SCALE,
-                BORDER * SCALE,
-                SCREEN_WIDTH * SCALE,
-                SCREEN_HEIGHT * SCALE,
+                innerTopLeft.x,
+                innerTopLeft.y,
+                innerSize.width,
+                innerSize.height,
                 null
         );
     }

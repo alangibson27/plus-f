@@ -24,6 +24,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,6 +40,9 @@ import java.util.stream.Collectors;
 import static com.socialthingy.plusf.spectrum.UserPreferences.LAST_LOAD_DIRECTORY;
 import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.CENTER;
+import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.util.Optional.empty;
 
 public class Emulator extends JFrame implements Runnable {
@@ -134,6 +139,18 @@ public class Emulator extends JFrame implements Runnable {
 
         final JMenu computerMenu = new JMenu("Computer");
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
+
+        final JCheckBoxMenuItem fullScreenMenuItem = new JCheckBoxMenuItem("Full Screen");
+        fullScreenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.ALT_MASK));
+        fullScreenMenuItem.addActionListener(e -> {
+            if (fullScreenMenuItem.isSelected()) {
+                getGraphicsConfiguration().getDevice().setFullScreenWindow(this);
+            } else {
+                getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+            }
+        });
+        computerMenu.add(fullScreenMenuItem);
+
         addJoystickMenus(computerMenu);
 
         final JMenu modelMenu = new JMenu("Model");
@@ -223,9 +240,16 @@ public class Emulator extends JFrame implements Runnable {
 
         setJMenuBar(menuBar);
         addKeyListener(hostInputMultiplexer);
-        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        getContentPane().add(display);
-        getContentPane().add(statusBar);
+        final Insets insets = new Insets(1, 1, 1, 1);
+        getContentPane().setLayout(new GridBagLayout());
+        getContentPane().add(
+            display,
+            new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, CENTER, BOTH, insets, 0, 0)
+        );
+        getContentPane().add(
+            statusBar,
+            new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets, 0, 0)
+        );
         pack();
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
