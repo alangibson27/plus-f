@@ -105,27 +105,16 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
     protected void scale(final int[] sourcePixels) {
         for (int x = 0; x < SCREEN_WIDTH; x++) {
             for (int y = 0; y < SCREEN_HEIGHT; y++) {
-                final int b = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y - 1) * 4));
-                final int d = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x - 1, y) * 4));
-                final int e = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y) * 4));
-                final int f = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x + 1, y) * 4));
-                final int h = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y + 1) * 4));
+                final int a = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y - 1) * 4));
+                final int c = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x - 1, y) * 4));
+                final int p = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y) * 4));
+                final int b = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x + 1, y) * 4));
+                final int d = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y + 1) * 4));
 
-                final int e0;
-                final int e1;
-                final int e2;
-                final int e3;
-                if (b != h && d != f) {
-                    e0 = d == b ? d : e;
-                    e1 = b == f ? f : e;
-                    e2 = d == h ? d : e;
-                    e3 = h == f ? f : e;
-                } else {
-                    e0 = e;
-                    e1 = e;
-                    e2 = e;
-                    e3 = e;
-                }
+                final int e0 = (c == a && c != d && a != b) ? a : p;
+                final int e1 = (a == b && a != c && b != d) ? b : p;
+                final int e2 = (d == c && d != b && c != a) ? c : p;
+                final int e3 = (b == d && b != a && d != c) ? d : p;
 
                 unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 0, 0) * 4), e0);
                 unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 1, 0) * 4), e1);
