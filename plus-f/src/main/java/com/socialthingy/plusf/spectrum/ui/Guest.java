@@ -2,7 +2,6 @@ package com.socialthingy.plusf.spectrum.ui;
 
 import akka.actor.ActorSystem;
 import com.socialthingy.plusf.spectrum.Model;
-import com.socialthingy.plusf.spectrum.display.UnsafePixelMapper;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
@@ -19,38 +18,55 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.CENTER;
+import static java.awt.GridBagConstraints.HORIZONTAL;
 
-public class Guest implements Runnable {
-    private final JFrame mainWindow;
+public class Guest extends JFrame implements Runnable {
     private final SwingJoystick joystick;
     private final GuestPeerAdapter peer;
-    private final SwingDoubleSizeDisplay display;
+    private final DisplayComponent display;
     private final GuestULA ula;
     private EmulatorState lastHostData;
     private final int[] memory;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
-    private final ActorSystem actorSystem = ActorSystem.apply();
 
     public Guest() {
         memory = new int[0x10000];
         Memory.configure(memory, Model._48K);
         ula = new GuestULA();
-        display = new SwingDoubleSizeDisplay(new UnsafePixelMapper());
+        display = DisplayFactory.create();
         joystick = new SwingJoystick();
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
-        mainWindow = new JFrame("+F Spectrum Guest");
+        setTitle("+F Spectrum Guest");
+        final ActorSystem actorSystem = ActorSystem.apply();
         peer = new GuestPeerAdapter(actorSystem, hostData -> lastHostData = hostData);
 
         initialiseUI();
     }
 
     private void initialiseUI() {
+        setIconImage(Icons.windowIcon);
+
         final JMenuBar menuBar = new JMenuBar();
         final JMenu fileMenu = new JMenu("File");
         fileMenu.add(menuItemFor("Quit", this::quit, Optional.of(KeyEvent.VK_Q)));
         menuBar.add(fileMenu);
+
+        final JMenu displayMenu = new JMenu("Display");
+        final JCheckBoxMenuItem fullScreenMenuItem = new JCheckBoxMenuItem("Full Screen");
+        fullScreenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.ALT_MASK));
+        fullScreenMenuItem.addActionListener(e -> {
+            if (fullScreenMenuItem.isSelected()) {
+                getGraphicsConfiguration().getDevice().setFullScreenWindow(this);
+            } else {
+                getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+            }
+        });
+        displayMenu.add(fullScreenMenuItem);
+        menuBar.add(displayMenu);
 
         final JMenu networkMenu = new JMenu("Network");
         final JMenuItem connectItem = menuItemFor("Connect", this::connect, Optional.of(KeyEvent.VK_C));
@@ -71,32 +87,39 @@ public class Guest implements Runnable {
             new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
         );
 
-        mainWindow.setIconImage(Icons.windowIcon);
-        mainWindow.setJMenuBar(menuBar);
-        mainWindow.addKeyListener(new JoystickHandler());
-        mainWindow.getContentPane().setLayout(new BoxLayout(mainWindow.getContentPane(), BoxLayout.Y_AXIS));
-        mainWindow.getContentPane().add(display);
-        mainWindow.getContentPane().add(statusBar);
-        mainWindow.pack();
-        mainWindow.setResizable(false);
-        mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setJMenuBar(menuBar);
+        addKeyListener(new JoystickHandler());
+
+        final Insets insets = new Insets(1, 1, 1, 1);
+        getContentPane().setLayout(new GridBagLayout());
+        getContentPane().add(
+            display,
+            new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, CENTER, BOTH, insets, 0, 0)
+        );
+        getContentPane().add(
+            statusBar,
+            new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets, 0, 0)
+        );
+        pack();
+        setResizable(false);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     public void run() {
-        mainWindow.setVisible(true);
+        setVisible(true);
         cycleScheduler.scheduleAtFixedRate(this::refresh, 0, 20, TimeUnit.MILLISECONDS);
     }
 
     private void connect(final ActionEvent e) {
         final String codename = JOptionPane.showInputDialog(
-                mainWindow,
-                "Enter codename of the Emulator",
-                "Connect to Emulator",
-                JOptionPane.QUESTION_MESSAGE
+            this,
+            "Enter codename of the Emulator",
+            "Connect to Emulator",
+            JOptionPane.QUESTION_MESSAGE
         );
 
         if (codename != null) {
-            peer.connect(mainWindow, codename);
+            peer.connect(this, codename);
         }
     }
 
