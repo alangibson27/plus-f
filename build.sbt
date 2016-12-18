@@ -10,7 +10,7 @@ lazy val commonDependencies = Seq(
 lazy val commonSettings = Seq(
 	scalaVersion := "2.12.0",
 	organization := "com.socialthingy",
-	version := "1.1",
+	version := "1.2",
 	libraryDependencies ++= commonDependencies
 )
 
