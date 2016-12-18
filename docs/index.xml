@@ -6,8 +6,21 @@
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Tue, 13 Dec 2016 21:24:44 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 18 Dec 2016 22:27:26 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Version 1.2</title>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <pubDate>Sun, 18 Dec 2016 22:27:26 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Added full-screen mode and rendering tweaks.&lt;/li&gt;
+&lt;li&gt;Minor bugfix to tape loading.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Going Too Quickly, Working Too Hard</title>
@@ -752,19 +765,19 @@ enabling multi-player games on your computer, the process you need to follow for
 &lt;h2 id=&#34;available-packages&#34;&gt;Available packages&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/+F.exe&#34;&gt;64-bit Windows Installer&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.exe&#34;&gt;64-bit Windows Installer&lt;/a&gt;
 
 &lt;ul&gt;
 &lt;li&gt;This is the simplest way to get up and running on a compatible Windows system.&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/+F.zip&#34;&gt;Universal Zip Package&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.zip&#34;&gt;Universal Zip Package&lt;/a&gt;
 
 &lt;ul&gt;
 &lt;li&gt;This download is suitable for all operating systems. You&amp;rsquo;ll need to install
 a recent version of Java 8 separately, in order to run. You can download this
 for free from &lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/+F.deb&#34;&gt;Debian Package&lt;/a&gt;
+&lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.deb&#34;&gt;Debian Package&lt;/a&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Prebuilt package for Ubuntu and other Debian-based Linux distributions.&lt;/li&gt;
@@ -829,82 +842,6 @@ others have not, and it is their right to do so. As such, please be considerate 
 and refer to the information &lt;a href=&#34;http://www.worldofspectrum.org/permits&#34;&gt;here&lt;/a&gt;,
 &lt;a href=&#34;http://www.worldofspectrum.org/permits/publishers.html&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;http://www.worldofspectrum.org/permits/individuals.html&#34;&gt;here&lt;/a&gt;
 for full details on which publishers and developers have granted free distribution rights.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>The Emulator</title>
-      <link>http://plusf.socialthingy.com/emulator/</link>
-      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
-      
-      <guid>http://plusf.socialthingy.com/emulator/</guid>
-      <description>
-
-&lt;p&gt;The +F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&amp;rsquo;t expect programs which generate &amp;ldquo;rainbow&amp;rdquo; effects to work properly.&lt;/p&gt;
-
-&lt;h2 id=&#34;so-where-is-the-symbol-shift-key&#34;&gt;So where is the symbol shift key?&lt;/h2&gt;
-
-&lt;p&gt;The CTRL key is used in place of the Spectrum&amp;rsquo;s symbol shift key.&lt;/p&gt;
-
-&lt;h2 id=&#34;how-to-use-it&#34;&gt;How to use it&lt;/h2&gt;
-
-&lt;p&gt;The Emulator is controlled by the options in the menu bar at the top of the screen.&lt;/p&gt;
-
-&lt;h3 id=&#34;file-menu&#34;&gt;File menu&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;Open: Open a TAP, TZX or Z80 file.&lt;/p&gt;
-
-&lt;p&gt;Z80 files will start automatically. To load from a TAP or TZX file, type LOAD &amp;ldquo;&amp;rdquo; (key J then symbol shift+P twice) in
-Spectrum BASIC, and then choose Play from the Tape menu.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Quit: Quit the Emulator.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;computer-menu&#34;&gt;Computer menu&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Reset: Reset the Emulator (just like pulling the plug out and putting it back in again).&lt;/li&gt;
-&lt;li&gt;Host Joystick: Select this option to emulate either a Kempston or Sinclair joystick through the keyboard. Controls are not redefinable and are fixed to the conventional ones below:
-
-&lt;ul&gt;
-&lt;li&gt;Q: Up&lt;/li&gt;
-&lt;li&gt;A: Down&lt;/li&gt;
-&lt;li&gt;O: Left&lt;/li&gt;
-&lt;li&gt;P: Right&lt;/li&gt;
-&lt;li&gt;M: Fire&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;Guest Joystick: Choose whether the Guest uses a Kemptson or Sinclair joystick.&lt;/li&gt;
-&lt;li&gt;Model: Choose the model of Spectrum to emulate, either 48k or +2. Changing the model will reset the Emulator.&lt;/li&gt;
-&lt;li&gt;Speed: Choose the speed the Emulator runs at:
-
-&lt;ul&gt;
-&lt;li&gt;Normal: The same speed as a real Spectrum.&lt;/li&gt;
-&lt;li&gt;Fast: 1.5 times the speed of a real Spectrum.&lt;/li&gt;
-&lt;li&gt;Double: Double the speed of a real Spectrum.&lt;/li&gt;
-&lt;li&gt;Turbo: Much, much faster than a real Spectrum. Use this if you&amp;rsquo;re bored waiting for TAP or TZX files to load.&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;tape-menu&#34;&gt;Tape menu&lt;/h3&gt;
-
-&lt;p&gt;The controls on the tape menu are also displayed on buttons at the bottom of the Emulator window. The tape icon turns
-green to indicate when the tape is playing.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Play: Play a TAP or TZX file.&lt;/li&gt;
-&lt;li&gt;Stop: Stop the tape.&lt;/li&gt;
-&lt;li&gt;Rewind to Start: Rewind to the start of the current tape.&lt;/li&gt;
-&lt;li&gt;Tape Information: Shows information embedded in the tape file, if any.&lt;/li&gt;
-&lt;li&gt;Jump to Block: Jump to a particular block of the tape.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;network-menu&#34;&gt;Network menu&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Connect: Enter a connection code to pair up with a Guest for a two-player gaming session.&lt;/li&gt;
-&lt;li&gt;Disconnect: Disconnect from a Guest to stop a two-player gaming session.&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
