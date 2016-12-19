@@ -66,21 +66,9 @@ abstract class DisplayComponent extends JComponent {
         this.imageDataBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         this.borderImage = new BufferedImage(1, borderPixels.length, BufferedImage.TYPE_INT_ARGB);
         this.borderImageDataBuffer = ((DataBufferInt) borderImage.getRaster().getDataBuffer()).getData();
-    }
 
-    @Override
-    public Dimension getPreferredSize() {
-        return DISPLAY_DIMENSIONS;
-    }
-
-    @Override
-    public Dimension getMaximumSize() {
-        return DISPLAY_DIMENSIONS;
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return DISPLAY_DIMENSIONS;
+        setPreferredSize(DISPLAY_DIMENSIONS);
+        setMinimumSize(DISPLAY_DIMENSIONS);
     }
 
     protected void renderMemory(int[] memory, boolean flashActive) {

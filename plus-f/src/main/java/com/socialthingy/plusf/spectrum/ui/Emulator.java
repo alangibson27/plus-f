@@ -251,7 +251,7 @@ public class Emulator extends JFrame implements Runnable {
             new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets, 0, 0)
         );
         pack();
-        setResizable(false);
+//        setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
