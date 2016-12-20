@@ -24,7 +24,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -140,16 +139,11 @@ public class Emulator extends JFrame implements Runnable {
         final JMenu computerMenu = new JMenu("Computer");
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
 
-        final JCheckBoxMenuItem fullScreenMenuItem = new JCheckBoxMenuItem("Full Screen");
-        fullScreenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.ALT_MASK));
-        fullScreenMenuItem.addActionListener(e -> {
-            if (fullScreenMenuItem.isSelected()) {
-                getGraphicsConfiguration().getDevice().setFullScreenWindow(this);
-            } else {
-                getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
-            }
-        });
-        computerMenu.add(fullScreenMenuItem);
+        final JCheckBoxMenuItem smoothRendering = new JCheckBoxMenuItem("Smooth Display Rendering");
+        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+        smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
+        smoothRendering.doClick();
+        computerMenu.add(smoothRendering);
 
         addJoystickMenus(computerMenu);
 
@@ -251,7 +245,6 @@ public class Emulator extends JFrame implements Runnable {
             new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets, 0, 0)
         );
         pack();
-//        setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
@@ -409,6 +402,7 @@ public class Emulator extends JFrame implements Runnable {
 
     public void run() {
         setVisible(true);
+        setMinimumSize(getSize());
         setSpeed(EmulatorSpeed.NORMAL);
     }
 

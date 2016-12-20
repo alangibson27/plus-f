@@ -51,7 +51,7 @@ public class SafeSwingDoubleSizeDisplay extends DisplayComponent {
         image.setRGB(0, 0, SCALED_WIDTH, SCALED_HEIGHT, targetPixels, 0, SCALED_WIDTH);
         borderImage.setRGB(0, 0, 1, borderPixels.length, borderPixels, 0, 1);
         g.drawImage(borderImage, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, null);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, renderingHint);
         g.drawImage(
                 image,
                 BORDER * SCALE,

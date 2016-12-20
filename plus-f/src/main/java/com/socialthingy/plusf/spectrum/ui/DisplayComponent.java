@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 import static com.socialthingy.plusf.spectrum.display.UnsafePixelMapper.*;
+import static java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
 
 abstract class DisplayComponent extends JComponent {
     protected static final int BORDER = 16;
@@ -57,6 +59,7 @@ abstract class DisplayComponent extends JComponent {
     protected final BufferedImage image;
     protected final int[] imageDataBuffer;
     protected final int[] borderImageDataBuffer;
+    protected Object renderingHint = VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
     private final PixelMapper pixelMapper;
 
     DisplayComponent(final PixelMapper pixelMapper) {
@@ -73,6 +76,10 @@ abstract class DisplayComponent extends JComponent {
 
     protected void renderMemory(int[] memory, boolean flashActive) {
         scale(pixelMapper.getPixels(memory, flashActive));
+    }
+
+    public void setSmoothRendering(final boolean smoothRendering) {
+        renderingHint = smoothRendering ? VALUE_INTERPOLATION_BILINEAR : VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
     }
 
     public abstract void updateScreen(int[] memory, ULA ula);
