@@ -17,7 +17,10 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-case class Register(sessionId: String)
+object Register {
+  def apply(sessionId: String, forwardedPort: Int): Register = Register(sessionId, Some(forwardedPort))
+}
+case class Register(sessionId: String, forwardedPort: Option[Int] = None)
 case object Cancel
 case object Close
 case object GetStatistics
@@ -29,7 +32,7 @@ trait Callbacks {
   def discoveryTimeout(): Unit
   def discoveryCancelled(): Unit
   def waitingForPeer(): Unit
-  def connectedToPeer(): Unit
+  def connectedToPeer(port: Int): Unit
   def discovering(): Unit
   def initialising(): Unit
   def closed(): Unit
@@ -45,16 +48,17 @@ object Peer {
 
   val lz4 = LZ4Factory.fastestJavaInstance()
 
-  case class PeerConnection(sessionId: Option[String], socket: Option[ActorRef], peerAddress: Option[InetSocketAddress])
-  val NoConnection = PeerConnection(None, None, None)
+  case class PeerConnection(sessionId: Option[String], forwardedPort: Option[Int], socket: Option[ActorRef], peerAddress: Option[InetSocketAddress])
+  val NoConnection = PeerConnection(None, None, None, None)
 
   def apply(bindAddress: InetSocketAddress,
             discoveryServiceAddress: InetSocketAddress,
             callbacks: Callbacks,
             serialiser: Serialiser,
-            deserialiser: Deserialiser)(implicit system: ActorSystem): ActorRef = {
+            deserialiser: Deserialiser,
+            timeout: FiniteDuration = 1 minute)(implicit system: ActorSystem): ActorRef = {
     val peer = system.actorOf(
-      Props(new Peer(bindAddress, discoveryServiceAddress, callbacks, serialiser, deserialiser))
+      Props(new Peer(bindAddress, discoveryServiceAddress, callbacks, serialiser, deserialiser, timeout))
     )
     system.log.info("Binding peer {} to {}", peer.path, bindAddress)
     peer
@@ -65,7 +69,8 @@ class Peer(bindAddress: InetSocketAddress,
            discoveryServiceAddress: InetSocketAddress,
            callbacks: Callbacks,
            serialiser: Serialiser,
-           deserialiser: Deserialiser) extends FSM[State, PeerConnection] {
+           deserialiser: Deserialiser,
+           timeout: FiniteDuration) extends FSM[State, PeerConnection] {
   import Peer._
   implicit val system = context.system
   implicit val byteOrder = ByteOrder.BIG_ENDIAN
@@ -80,32 +85,36 @@ class Peer(bindAddress: InetSocketAddress,
   startWith(Uninitialised, NoConnection)
 
   when(Uninitialised) {
-    case Event(Register(sessionId), _) =>
+    case Event(Register(sessionId, fwdPort), _) =>
       callbacks.initialising()
       log.info(s"Initialising session $sessionId")
 
       activate()
-      goto(Initialising) using PeerConnection(Some(sessionId), None, None)
+      goto(Initialising) using PeerConnection(Some(sessionId), fwdPort, None, None)
   }
 
   when(Initialising) {
-    case Event(Udp.Bound(localAddress), PeerConnection(Some(sessionId), _, _)) =>
+    case Event(Udp.Bound(localAddress), PeerConnection(Some(sessionId), fwdPort, _, _)) =>
       callbacks.discovering()
       log.info(s"Contacting discovery service at $discoveryServiceAddress")
 
       val socket = sender()
-      socket ! Udp.Send(ByteString(s"JOIN|$sessionId"), discoveryServiceAddress)
-      goto(WaitingForPeer) using PeerConnection(Some(sessionId), Some(socket), None)
+      val joinCommand = fwdPort match {
+        case Some(p) => s"JOIN|$sessionId|$p"
+        case None => s"JOIN|$sessionId"
+      }
+      socket ! Udp.Send(ByteString(joinCommand), discoveryServiceAddress)
+      goto(WaitingForPeer) using PeerConnection(Some(sessionId), fwdPort, Some(socket), None)
   }
 
-  when(WaitingForPeer, 1 minute) {
-    case Event(Udp.Received(content, remote), PeerConnection(sessionId, Some(socket), _)) =>
+  when(WaitingForPeer, timeout) {
+    case Event(Udp.Received(content, remote), PeerConnection(sessionId, fwdPort, Some(socket), _)) =>
       val result = content.decodeString(UTF_8)
       result.split('|').toList match {
         case "PEER" :: peerHost :: peerPort :: Nil =>
-          callbacks.connectedToPeer()
+          callbacks.connectedToPeer(peerPort.toInt)
           log.info("Connected to peer at {}:{}", peerHost, peerPort)
-          goto(Connected) using PeerConnection(sessionId, Some(socket), Some(new InetSocketAddress(peerHost, peerPort.toInt)))
+          goto(Connected) using PeerConnection(sessionId, fwdPort, Some(socket), Some(new InetSocketAddress(peerHost, peerPort.toInt)))
 
         case "WAIT" :: Nil =>
           callbacks.waitingForPeer()
@@ -117,7 +126,7 @@ class Peer(bindAddress: InetSocketAddress,
           stay()
       }
 
-    case Event(Cancel, PeerConnection(Some(sessionId), Some(socket), _)) =>
+    case Event(Cancel, PeerConnection(Some(sessionId), fwdPort, Some(socket), _)) =>
       callbacks.discoveryCancelled()
       log.info("Discovery cancelled, closing")
 
@@ -125,7 +134,7 @@ class Peer(bindAddress: InetSocketAddress,
       socket ! Udp.Unbind
       goto(Closing) using NoConnection
 
-    case Event(StateTimeout, PeerConnection(_, Some(socket), _)) =>
+    case Event(StateTimeout, PeerConnection(_, _, Some(socket), _)) =>
       callbacks.discoveryTimeout()
       log.info("Discovery timed out, closing")
 
@@ -163,7 +172,7 @@ class Peer(bindAddress: InetSocketAddress,
       sender() ! Statistics(latencies.getSnapshot.getMedian.toInt, outOfOrder, sizes.getSnapshot.getMedian.toInt, meter.getOneMinuteRate)
       stay()
 
-    case Event(data: RawData, PeerConnection(_, Some(socket), Some(peerAddress))) =>
+    case Event(data: RawData, PeerConnection(_, _, Some(socket), Some(peerAddress))) =>
       socket ! Udp.Send(compress(data.wrap.pack(serialiser)), peerAddress)
       stay()
   }
@@ -177,7 +186,7 @@ class Peer(bindAddress: InetSocketAddress,
   }
 
   whenUnhandled {
-    case Event(Close, PeerConnection(_, Some(socket), _)) =>
+    case Event(Close, PeerConnection(_, _, Some(socket), _)) =>
       log.info("Unbinding from socket")
       socket ! Udp.Unbind
       goto(Closing) using NoConnection

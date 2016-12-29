@@ -9,15 +9,18 @@ title = "Connect"
 Network play works by player A running the Emulator and player B running the Guest. Both of these are downloaded and
 available in the same package. Here's how it works:
 
-1. Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.
+1. Players A and B both need to ensure that *port forwarding* is enabled on their router for UDP traffic, on ports 7000
+   and 7001.
 
-2. Choose a code name and share this by email, instant message, text message or however you like.
+2. Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.
+
+3. Choose a code name and share this by email, instant message, text message or however you like.
    It's not especially important what this code is, and you can use the same one over and over again if you like.
    They are only retained until the connection has been made, at which point the +F Relay Service forgets it again.
 
-3. Players A and B both choose the *Connect* option from the *Network* menu, and enter the code name in the pop-up.
+4. Players A and B both choose the *Connect* option from the *Network* menu, and enter the code name in the pop-up.
 
-4. After a short while, the pop-up should disappear and the Emulator's screen should be shared with the Guest.
+5. After a short while, the pop-up should disappear and the Emulator's screen should be shared with the Guest.
 
 5. The guest can use the keys Q, A, O, P and M as a Kempston joystick controller.
 

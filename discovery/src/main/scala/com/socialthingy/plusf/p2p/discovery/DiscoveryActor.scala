@@ -29,15 +29,10 @@ class DiscoveryActor(bindAddress: InetSocketAddress) extends Actor with ActorLog
       val data = content.decodeString(UTF_8)
       data.split('|').toList match {
         case "JOIN" :: (sessionId: String) :: Nil =>
-          connectToSession(sessionId, remote) match {
-            case None =>
-              log.info("Initiating new session with ID {} from {}", sessionId, remote)
-              socket ! Udp.Send(ByteString("WAIT"), remote)
-            case Some(initiator) =>
-              log.info("Completing new session with ID {} between {} and {}", sessionId, initiator, remote)
-              socket ! Udp.Send(peerIdentifierStringFor(initiator), remote)
-              socket ! Udp.Send(peerIdentifierStringFor(remote), initiator)
-          }
+          joinSession(socket, remote, sessionId)
+
+        case "JOIN" :: (sessionId: String) :: (port: String) :: Nil =>
+          joinSession(socket, new InetSocketAddress(remote.getAddress, port.toInt), sessionId)
 
         case "CANCEL" :: (sessionId: String) :: Nil =>
           cancelSession(sessionId, remote)
@@ -45,6 +40,18 @@ class DiscoveryActor(bindAddress: InetSocketAddress) extends Actor with ActorLog
         case _ =>
           log.error(s"Unknown request $data received from $remote")
       }
+  }
+
+  def joinSession(socket: ActorRef, remote: InetSocketAddress, sessionId: String): Unit = {
+    connectToSession(sessionId, remote) match {
+      case None =>
+        log.info("Initiating new session with ID {} from {}", sessionId, remote)
+        socket ! Udp.Send(ByteString("WAIT"), remote)
+      case Some(initiator) =>
+        log.info("Completing new session with ID {} between {} and {}", sessionId, initiator, remote)
+        socket ! Udp.Send(peerIdentifierStringFor(initiator), remote)
+        socket ! Udp.Send(peerIdentifierStringFor(remote), initiator)
+    }
   }
 
   private def peerIdentifierStringFor(addr: InetSocketAddress) =

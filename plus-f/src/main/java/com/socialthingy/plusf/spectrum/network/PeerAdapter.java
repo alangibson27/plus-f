@@ -8,6 +8,7 @@ import com.socialthingy.plusf.p2p.*;
 import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.ui.ProgressDialog;
 import javafx.beans.property.*;
+import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
@@ -48,6 +49,7 @@ public class PeerAdapter<T> implements Callbacks {
                 this,
                 serialiser,
                 deserialiser,
+                FiniteDuration.apply(1, TimeUnit.MINUTES),
                 actorSystem
         );
         this.receiver = receiver;
@@ -67,7 +69,7 @@ public class PeerAdapter<T> implements Callbacks {
         return connected;
     }
 
-    public void connect(final Window parent, final String sessionId) {
+    public void connect(final Window parent, final String sessionId, final Option<Object> forwardedPort) {
         final ProgressDialog progressMonitor = new ProgressDialog(
                 parent,
                 "Connecting to Peer",
@@ -76,7 +78,7 @@ public class PeerAdapter<T> implements Callbacks {
         progressMonitor.setVisible(true);
 
         connectionProgress = Optional.of(progressMonitor);
-        peer.tell(Register.apply(sessionId), noSender());
+        peer.tell(Register.apply(sessionId, forwardedPort), noSender());
     }
 
     public void disconnect() {
@@ -108,16 +110,14 @@ public class PeerAdapter<T> implements Callbacks {
 
     @Override
     public void waitingForPeer() {
-        withConnectionDialog(cp -> {
-            cp.setMessage("Waiting for peer ...");
-        });
+        withConnectionDialog(cp -> cp.setMessage("Waiting for peer ..."));
     }
 
     @Override
-    public void connectedToPeer() {
+    public void connectedToPeer(final int port) {
         connected.set(true);
         withConnectionDialog(cp -> {
-            cp.setMessage("Connected to peer");
+            cp.setMessage(String.format("Connected to peer on port %d", port));
             cp.close();
             connectionProgress = Optional.empty();
         });

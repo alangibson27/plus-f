@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import akka.actor.ActorSystem;
+import akka.japi.Option;
 import com.codahale.metrics.MetricRegistry;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
@@ -65,7 +66,7 @@ public class Emulator extends JFrame implements Runnable {
     private final KempstonJoystickInterface kempstonJoystickInterface;
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
-    private final ActorSystem actorSystem = ActorSystem.apply();
+    private JCheckBoxMenuItem portForwardingEnabled;
 
     public Emulator() {
         this(new UserPreferences());
@@ -114,6 +115,7 @@ public class Emulator extends JFrame implements Runnable {
             new MetricRegistry()
         );
 
+        final ActorSystem actorSystem = ActorSystem.apply();
         peer = new EmulatorPeerAdapter(actorSystem, gs -> {
             if (gs.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
                 guestJoystick.deserialise(gs.getEventValue());
@@ -214,6 +216,9 @@ public class Emulator extends JFrame implements Runnable {
         networkMenu.add(connectItem);
         final JMenuItem disconnectItem = menuItemFor("Disconnect", this::disconnect, Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);
+        portForwardingEnabled = new JCheckBoxMenuItem("Use port forwarding");
+        portForwardingEnabled.setSelected(true);
+        networkMenu.add(portForwardingEnabled);
         menuBar.add(networkMenu);
 
         connectItem.setEnabled(true);
@@ -424,7 +429,13 @@ public class Emulator extends JFrame implements Runnable {
         );
 
         if (codename != null) {
-            peer.connect(this, codename);
+            final Option<Object> port;
+            if (portForwardingEnabled.isSelected()) {
+                port = Option.some(Settings.COMPUTER_PORT);
+            } else {
+                port = Option.none();
+            }
+            peer.connect(this, codename, port.asScala());
         }
     }
 

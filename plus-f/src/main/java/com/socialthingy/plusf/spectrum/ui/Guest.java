@@ -1,7 +1,9 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import akka.actor.ActorSystem;
+import akka.japi.Option;
 import com.socialthingy.plusf.spectrum.Model;
+import com.socialthingy.plusf.spectrum.Settings;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
@@ -31,6 +33,7 @@ public class Guest extends JFrame implements Runnable {
     private final int[] memory;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
+    private JCheckBoxMenuItem portForwardingEnabled;
 
     public Guest() {
         memory = new int[0x10000];
@@ -68,6 +71,9 @@ public class Guest extends JFrame implements Runnable {
         networkMenu.add(connectItem);
         final JMenuItem disconnectItem = menuItemFor("Disconnect", this::disconnect, Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);
+        portForwardingEnabled = new JCheckBoxMenuItem("Use port forwarding");
+        portForwardingEnabled.setSelected(true);
+        networkMenu.add(portForwardingEnabled);
         menuBar.add(networkMenu);
 
         connectItem.setEnabled(true);
@@ -114,7 +120,13 @@ public class Guest extends JFrame implements Runnable {
         );
 
         if (codename != null) {
-            peer.connect(this, codename);
+            final Option<Object> port;
+            if (portForwardingEnabled.isSelected()) {
+                port = Option.some(Settings.GUEST_PORT);
+            } else {
+                port = Option.none();
+            }
+            peer.connect(this, codename, port.asScala());
         }
     }
 

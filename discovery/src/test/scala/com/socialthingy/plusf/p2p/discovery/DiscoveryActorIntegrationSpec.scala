@@ -7,7 +7,7 @@ import akka.testkit.TestKit
 import akka.util.{ByteString, ByteStringBuilder}
 import com.socialthingy.plusf.p2p._
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
 import scala.concurrent.duration._
@@ -40,14 +40,14 @@ class DiscoveryActorIntegrationSpec
     discoveryActor ! PoisonPill
   }
 
-  "two peers" should "be able to discover one another and exchange data" in withPeers { (peer1, cb1, peer2, cb2) =>
+  "two peers in direct connect mode" should "be able to discover one another and exchange data" in withPeers { (peer1, cb1, peer2, cb2) =>
     peer1 ! Register("sess123")
     peer2 ! Register("sess123")
 
     try {
       eventually {
-        verify(cb1).connectedToPeer()
-        verify(cb2).connectedToPeer()
+        verify(cb1).connectedToPeer(7082)
+        verify(cb2).connectedToPeer(7081)
       }
 
       peer1 ! RawData("hello from 1")
@@ -89,7 +89,7 @@ class DiscoveryActorIntegrationSpec
 
   "a peer" should "time out its session when nobody joins" in withPeers { (lonelyPeer, cb, _, _) =>
     lonelyPeer ! Register("sess999")
-    Thread.sleep(60000)
+    Thread.sleep(11000)
     eventually {
       verify(cb).discoveryTimeout()
     }
@@ -114,17 +114,31 @@ class DiscoveryActorIntegrationSpec
     peer1 ! Register("sess123")
 
     eventually {
-      verify(cb1).connectedToPeer()
-      verify(cb2).connectedToPeer()
+      verify(cb1).connectedToPeer(7082)
+      verify(cb2).connectedToPeer(7081)
+    }
+  }
+
+  "a peer in port forward mode" should "have its forwarded port number given to the other peer" in withPeers { (peer1, cb1, peer2, cb2) =>
+    peer1 ! Register("sess123", 9876)
+    peer2 ! Register("sess123")
+
+    try {
+      eventually {
+        verify(cb2).connectedToPeer(9876)
+      }
+    } finally {
+      peer1 ! Close
+      peer2 ! Close
     }
   }
 
   def withPeers(testCode: (ActorRef, Callbacks, ActorRef, Callbacks) => Any): Unit = {
     val cb1 = mock[Callbacks]
-    val peer1 = Peer(new InetSocketAddress("localhost", 7081), discoveryAddr, cb1, ser, deser)
+    val peer1 = Peer(new InetSocketAddress("localhost", 7081), discoveryAddr, cb1, ser, deser, 10 seconds)
 
     val cb2 = mock[Callbacks]
-    val peer2 = Peer(new InetSocketAddress("localhost", 7082), discoveryAddr, cb2, ser, deser)
+    val peer2 = Peer(new InetSocketAddress("localhost", 7082), discoveryAddr, cb2, ser, deser, 10 seconds)
 
     try {
       testCode(peer1, cb1, peer2, cb2)
