@@ -7,7 +7,7 @@ import java.net.URL;
 
 public class Settings {
     private static final Config defaultConfig = ConfigFactory.load("default");
-    private static Config config;
+    public static Config config;
 
     static {
         try {

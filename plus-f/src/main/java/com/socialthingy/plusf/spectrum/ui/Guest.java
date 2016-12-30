@@ -44,7 +44,7 @@ public class Guest extends JFrame implements Runnable {
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         setTitle("+F Spectrum Guest");
-        final ActorSystem actorSystem = ActorSystem.apply();
+        final ActorSystem actorSystem = ActorSystem.apply("GuestActorSystem", Settings.config);
         peer = new GuestPeerAdapter(actorSystem, hostData -> lastHostData = hostData);
 
         initialiseUI();

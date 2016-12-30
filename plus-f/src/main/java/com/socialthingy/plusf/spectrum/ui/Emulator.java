@@ -115,7 +115,7 @@ public class Emulator extends JFrame implements Runnable {
             new MetricRegistry()
         );
 
-        final ActorSystem actorSystem = ActorSystem.apply();
+        final ActorSystem actorSystem = ActorSystem.apply("EmulatorActorSystem", Settings.config);
         peer = new EmulatorPeerAdapter(actorSystem, gs -> {
             if (gs.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
                 guestJoystick.deserialise(gs.getEventValue());
