@@ -7,6 +7,9 @@ import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 import sun.misc.Unsafe;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpLd8RegIndexedIndirect implements Operation {
 
     private final Processor processor;
@@ -24,7 +27,7 @@ public class OpLd8RegIndexedIndirect implements Operation {
 
     @Override
     public int execute() {
-        dest.set(unsafe.getInt(memory, 16L + (indexRegister.withOffset(processor.fetchNextByte()) * 4)));
+        dest.set(unsafe.getInt(memory, BASE + (indexRegister.withOffset(processor.fetchNextByte()) * SCALE)));
         return 19;
     }
 

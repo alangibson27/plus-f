@@ -4,6 +4,9 @@ import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpSraIndexedIndirect extends SraOperation {
     private final IndexRegister indexRegister;
     private final int[] memory;
@@ -19,7 +22,7 @@ public class OpSraIndexedIndirect extends SraOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        Memory.set(memory, address, shift(unsafe.getInt(memory, 16L + ((address) * 4))));
+        Memory.set(memory, address, shift(unsafe.getInt(memory, BASE + ((address) * SCALE))));
         return 23;
     }
 }

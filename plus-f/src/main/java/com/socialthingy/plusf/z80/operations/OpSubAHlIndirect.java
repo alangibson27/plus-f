@@ -3,6 +3,9 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpSubAHlIndirect extends ArithmeticOperation {
 
     private final int[] memory;
@@ -17,7 +20,7 @@ public class OpSubAHlIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(unsafe.getInt(memory, 16L + ((hlReg.get()) * 4)), true));
+        accumulator.set(sub(unsafe.getInt(memory, BASE + ((hlReg.get()) * SCALE)), true));
         flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
         return 7;
     }

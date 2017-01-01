@@ -5,13 +5,13 @@ import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.dispatch.OnSuccess;
 import com.socialthingy.plusf.p2p.*;
-import com.socialthingy.plusf.spectrum.dialog.ErrorDialog;
 import com.socialthingy.plusf.spectrum.ui.ProgressDialog;
-import javafx.beans.property.*;
+import com.socialthingy.plusf.util.ObservedValue;
 import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
+import javax.swing.*;
 import java.awt.*;
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -29,9 +29,9 @@ public class PeerAdapter<T> implements Callbacks {
     private final ActorRef peer;
     private final Consumer<T> receiver;
     private Optional<ProgressDialog> connectionProgress = Optional.empty();
-    private final SimpleBooleanProperty connected = new SimpleBooleanProperty(false);
-    private final ObjectProperty<Statistics> statistics = new SimpleObjectProperty<>(Statistics.apply(0, 0, 0, 0.0));
-    private final LongProperty timeSinceLastReceived = new SimpleLongProperty(0);
+    private final ObservedValue<Boolean> connected = new ObservedValue<>(false);
+    private final ObservedValue<Statistics> statistics = new ObservedValue<>(Statistics.apply(0, 0, 0, 0.0));
+    private final ObservedValue<Long> timeSinceLastReceived = new ObservedValue<>(0L);
 
     private long lastReceivedTime = 0;
 
@@ -62,10 +62,10 @@ public class PeerAdapter<T> implements Callbacks {
     }
 
     public boolean isConnected() {
-        return connected.getValue();
+        return connected.get();
     }
 
-    public BooleanProperty connectedProperty() {
+    public ObservedValue<Boolean> connectedProperty() {
         return connected;
     }
 
@@ -148,7 +148,12 @@ public class PeerAdapter<T> implements Callbacks {
     public void discoveryTimeout() {
         withConnectionDialog(ProgressDialog::close);
         connectionProgress = Optional.empty();
-        ErrorDialog.show("Connection Timeout", "Peer discovery timed out. Try again later.", Optional.empty());
+        JOptionPane.showMessageDialog(
+            null,
+            "Peer discovery timed out. Try again later.",
+            "Connection Timeout",
+            JOptionPane.ERROR_MESSAGE
+        );
     }
 
     @Override
@@ -159,11 +164,11 @@ public class PeerAdapter<T> implements Callbacks {
         connectionProgress.ifPresent(cp -> EventQueue.invokeLater(() -> action.accept(cp)));
     }
 
-    public ObjectProperty<Statistics> statistics() {
+    public ObservedValue<Statistics> statistics() {
         return statistics;
     }
 
-    public LongProperty timeSinceLastReceived() {
+    public ObservedValue<Long> timeSinceLastReceived() {
         return timeSinceLastReceived;
     }
 }

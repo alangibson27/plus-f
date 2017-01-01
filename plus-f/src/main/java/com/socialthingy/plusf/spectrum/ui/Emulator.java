@@ -2,6 +2,7 @@ package com.socialthingy.plusf.spectrum.ui;
 
 import akka.actor.ActorSystem;
 import akka.japi.Option;
+import akka.japi.Pair;
 import com.codahale.metrics.MetricRegistry;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
@@ -19,7 +20,6 @@ import com.socialthingy.plusf.tape.TapeException;
 import com.socialthingy.plusf.tape.TapeFileReader;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
-import javafx.util.Pair;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -223,9 +223,9 @@ public class Emulator extends JFrame implements Runnable {
 
         connectItem.setEnabled(true);
         disconnectItem.setEnabled(false);
-        peer.connectedProperty().addListener((observable, oldValue, newValue) -> {
-            connectItem.setEnabled(!newValue);
-            disconnectItem.setEnabled(newValue);
+        peer.connectedProperty().addObserver((observable, arg) -> {
+            connectItem.setEnabled(!peer.connectedProperty().get());
+            disconnectItem.setEnabled(peer.connectedProperty().get());
         });
 
         final TapeControls tapeControls = new TapeControls(tapePlayer);
@@ -332,7 +332,7 @@ public class Emulator extends JFrame implements Runnable {
         final Tape tape = tapePlayer.getTape().get();
         final List<Pair<String, String>> info = tape.archiveInfo()
                 .stream()
-                .map(p -> new Pair<>(p.getKey().replaceAll("\\s", " "), p.getValue().replaceAll("\\s", " ")))
+                .map(p -> new Pair<>(p.first().replaceAll("\\s", " "), p.second().replaceAll("\\s", " ")))
                 .collect(Collectors.toList());
 
         if (info.isEmpty()) {
@@ -345,7 +345,7 @@ public class Emulator extends JFrame implements Runnable {
         } else {
             final DefaultTableModel tableModel = new DefaultTableModel(0, 2);
             tableModel.setColumnIdentifiers(new String[] {"Name", "Value"});
-            info.stream().map(i -> new Object[] {i.getKey(), i.getValue()}).forEach(tableModel::addRow);
+            info.stream().map(i -> new Object[] {i.first(), i.second()}).forEach(tableModel::addRow);
 
             final JTable infoTable = new JTable(tableModel);
             infoTable.getColumnModel().getColumn(0).setMaxWidth(128);

@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.tape
 
-import javafx.util.{Pair => JPair}
+import akka.japi.{Pair => JPair}
 import java.util.{List => JList}
 
 import scala.collection.JavaConverters._

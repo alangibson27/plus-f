@@ -23,6 +23,19 @@
     </item>
     
     <item>
+      <title>Version 1.3</title>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <pubDate>Sun, 18 Dec 2016 22:27:26 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Compatibility fixes for Raspberry Pi.&lt;/li&gt;
+&lt;li&gt;Support logging to file.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Going Too Quickly, Working Too Hard</title>
       <link>http://plusf.socialthingy.com/blog/optimisation/</link>
       <pubDate>Tue, 13 Dec 2016 21:24:44 +0000</pubDate>
@@ -823,28 +836,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Games</title>
-      <link>http://plusf.socialthingy.com/games/</link>
-      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
-      
-      <guid>http://plusf.socialthingy.com/games/</guid>
-      <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
-Z80, TAP and TZX, all of which +F can load. TAP files are at present the most reliable, although you should be able
-to use a lot of Z80 and TZX files as well.&lt;/p&gt;
-
-&lt;p&gt;One of the most authoritative sources for Spectrum games the &lt;a href=&#34;http://www.worldofspectrum.org/archive.html&#34;&gt;World of Spectrum Archive&lt;/a&gt;,
-which has an extensive collection of TAP and TZX files.&lt;/p&gt;
-
-&lt;p&gt;Don&amp;rsquo;t forget that the classic Spectrum games we can play today on emulators remain the result of the skills and
-dedication of the programmers who developed them. While many have granted free distribution rights for their games,
-others have not, and it is their right to do so. As such, please be considerate when downloading emulator files,
-and refer to the information &lt;a href=&#34;http://www.worldofspectrum.org/permits&#34;&gt;here&lt;/a&gt;,
-&lt;a href=&#34;http://www.worldofspectrum.org/permits/publishers.html&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;http://www.worldofspectrum.org/permits/individuals.html&#34;&gt;here&lt;/a&gt;
-for full details on which publishers and developers have granted free distribution rights.&lt;/p&gt;
 </description>
     </item>
     

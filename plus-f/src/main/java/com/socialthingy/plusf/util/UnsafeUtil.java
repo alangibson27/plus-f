@@ -7,6 +7,9 @@ import java.lang.reflect.Constructor;
 public class UnsafeUtil {
     private static Unsafe unsafe;
 
+    public static long BASE = (long) Unsafe.ARRAY_INT_BASE_OFFSET;
+    public static long SCALE = (long) Unsafe.ARRAY_INT_INDEX_SCALE;
+
     public static synchronized Unsafe getUnsafe() {
         if (unsafe == null) {
             try {

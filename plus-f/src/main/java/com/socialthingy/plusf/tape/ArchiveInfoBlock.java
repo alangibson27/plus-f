@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.tape;
 
+import akka.japi.Pair;
 import com.socialthingy.plusf.util.Try;
-import javafx.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +61,7 @@ public class ArchiveInfoBlock extends TapeBlock {
     @Override
     public String toString() {
         return descriptions.stream()
-                .map(p -> String.format("[%s] - %s", p.getKey(), p.getValue()))
+                .map(p -> String.format("[%s] - %s", p.first(), p.second()))
                 .collect(joining("\n"));
     }
 }

@@ -6,6 +6,8 @@ import com.socialthingy.plusf.z80.*;
 import sun.misc.Unsafe;
 
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 abstract class BlockOperation implements Operation {
 
@@ -40,7 +42,7 @@ abstract class BlockOperation implements Operation {
     }
 
     protected void blockTransfer() {
-        final int hlContents = unsafe.getInt(memory, 16L + (hlReg.get() * 4));
+        final int hlContents = unsafe.getInt(memory, BASE + (hlReg.get() * SCALE));
         final int undocumentedValue = (accumulator.get() + hlContents) & 0xff;
         Memory.set(memory, deReg.get(), hlContents);
         deReg.set(deReg.get() + increment);
@@ -56,7 +58,7 @@ abstract class BlockOperation implements Operation {
 
     protected int blockCompare() {
         final int hlValue = hlReg.get();
-        final int result = Bitwise.sub(accumulator.get(), unsafe.getInt(memory, 16L + (hlValue * 4)));
+        final int result = Bitwise.sub(accumulator.get(), unsafe.getInt(memory, BASE + (hlValue * SCALE)));
         hlReg.set(hlValue + increment);
         final int counter = bcReg.set(bcReg.get() - 1);
 
@@ -68,7 +70,7 @@ abstract class BlockOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, counter != 0);
         flagsRegister.set(FlagsRegister.Flag.N, true);
 
-        final int undocumentedValue = (accumulator.get() - unsafe.getInt(memory, 16L + (hlValue * 4)) - halfCarry);
+        final int undocumentedValue = (accumulator.get() - unsafe.getInt(memory, BASE + (hlValue * SCALE)) - halfCarry);
         flagsRegister.set(FlagsRegister.Flag.F3, (undocumentedValue & 0b00001000) > 0);
         flagsRegister.set(FlagsRegister.Flag.F5, (undocumentedValue & 0b00000010) > 0);
 

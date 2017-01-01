@@ -13,6 +13,7 @@ import java.util.*;
 
 import static com.socialthingy.plusf.spectrum.display.PixelMapper.*;
 import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
 
 public class SwingDoubleSizeDisplay extends DisplayComponent {
     private final Unsafe unsafe = UnsafeUtil.getUnsafe();
@@ -106,21 +107,21 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
     protected void scale(final int[] sourcePixels) {
         for (int x = 0; x < SCREEN_WIDTH; x++) {
             for (int y = 0; y < SCREEN_HEIGHT; y++) {
-                final int a = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y - 1) * 4));
-                final int c = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x - 1, y) * 4));
-                final int p = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y) * 4));
-                final int b = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x + 1, y) * 4));
-                final int d = unsafe.getInt(sourcePixels, 16L + (sourcePixelAt(x, y + 1) * 4));
+                final int a = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y - 1) * UnsafeUtil.SCALE));
+                final int c = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x - 1, y) * UnsafeUtil.SCALE));
+                final int p = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y) * UnsafeUtil.SCALE));
+                final int b = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x + 1, y) * UnsafeUtil.SCALE));
+                final int d = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y + 1) * UnsafeUtil.SCALE));
 
                 final int e0 = (c == a && c != d && a != b) ? a : p;
                 final int e1 = (a == b && a != c && b != d) ? b : p;
                 final int e2 = (d == c && d != b && c != a) ? c : p;
                 final int e3 = (b == d && b != a && d != c) ? d : p;
 
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 0, 0) * 4), e0);
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 1, 0) * 4), e1);
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 0, 1) * 4), e2);
-                unsafe.putInt(targetPixels, 16L + (targetPixelAt(x, y, 1, 1) * 4), e3);
+                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 0, 0) * UnsafeUtil.SCALE), e0);
+                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 1, 0) * UnsafeUtil.SCALE), e1);
+                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 0, 1) * UnsafeUtil.SCALE), e2);
+                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 1, 1) * UnsafeUtil.SCALE), e3);
             }
         }
     }

@@ -5,6 +5,7 @@ lazy val commonDependencies = Seq(
 	"com.typesafe.akka" %% "akka-slf4j" % "2.4.12",
 	"ch.qos.logback" % "logback-classic" % "1.1.3",
 	"net.jpountz.lz4" % "lz4" % "1.3.0",
+	"org.codehaus.janino" % "janino" % "2.7.8",
 	"org.scalatest" %% "scalatest" % "3.0.0" % "test",
 	"org.mockito" % "mockito-all" % "1.10.19" % "test"
 )
@@ -12,7 +13,7 @@ lazy val commonDependencies = Seq(
 lazy val commonSettings = Seq(
 	scalaVersion := "2.12.0",
 	organization := "com.socialthingy",
-	version := "1.2",
+	version := "1.3",
 	libraryDependencies ++= commonDependencies
 )
 

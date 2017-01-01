@@ -78,9 +78,9 @@ public class Guest extends JFrame implements Runnable {
 
         connectItem.setEnabled(true);
         disconnectItem.setEnabled(false);
-        peer.connectedProperty().addListener((observable, oldValue, newValue) -> {
-            connectItem.setEnabled(!newValue);
-            disconnectItem.setEnabled(newValue);
+        peer.connectedProperty().addObserver((observable, arg) -> {
+            connectItem.setEnabled(!peer.connectedProperty().get());
+            disconnectItem.setEnabled(peer.connectedProperty().get());
         });
 
         final JPanel statusBar = new JPanel(new GridLayout(1, 1));

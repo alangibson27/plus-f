@@ -4,6 +4,9 @@ import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpIncIndexedIndirect extends IncOperation {
 
     private final Processor processor;
@@ -20,7 +23,7 @@ public class OpIncIndexedIndirect extends IncOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchNextByte());
-        final int result = increment(unsafe.getInt(memory, 16L + (address * 4)));
+        final int result = increment(unsafe.getInt(memory, BASE + (address * SCALE)));
         Memory.set(memory, address, result);
         return 23;
     }

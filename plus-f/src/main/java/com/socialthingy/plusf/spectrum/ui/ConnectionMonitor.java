@@ -1,32 +1,30 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.p2p.Statistics;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.LongProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.socialthingy.plusf.util.ObservedValue;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ConnectionMonitor extends JPanel implements ChangeListener {
+public class ConnectionMonitor extends JPanel implements Observer {
     private final JLabel statusLabel = new JLabel("Not connected");
-    private final BooleanProperty connected;
-    private final ObjectProperty<Statistics> statistics;
-    private final LongProperty timeSinceLastReceived;
+    private final ObservedValue<Boolean> connected;
+    private final ObservedValue<Statistics> statistics;
+    private final ObservedValue<Long> timeSinceLastReceived;
 
     public ConnectionMonitor(
-            final BooleanProperty connected,
-            final ObjectProperty<Statistics> statistics,
-            final LongProperty timeSinceLastReceived
+            final ObservedValue<Boolean> connected,
+            final ObservedValue<Statistics> statistics,
+            final ObservedValue<Long> timeSinceLastReceived
     ) {
         this.connected = connected;
         this.statistics = statistics;
         this.timeSinceLastReceived = timeSinceLastReceived;
 
-        connected.addListener(this);
-        statistics.addListener(this);
+        connected.addObserver(this);
+        statistics.addObserver(this);
 
         setLayout(new BorderLayout());
         add(statusLabel, BorderLayout.CENTER);
@@ -47,7 +45,7 @@ public class ConnectionMonitor extends JPanel implements ChangeListener {
     }
 
     @Override
-    public void changed(final ObservableValue observable, final Object oldValue, final Object newValue) {
+    public void update(final Observable o, final Object arg) {
         if (connected.get()) {
             statusLabel.setForeground(colourFor(statistics.get(), timeSinceLastReceived.get()));
             statusLabel.setText(textFor(statistics.get()));

@@ -7,6 +7,9 @@ import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 import sun.misc.Unsafe;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpLd16RegAddress implements Operation {
     private final Processor processor;
     private final int[] memory;
@@ -24,8 +27,8 @@ public class OpLd16RegAddress implements Operation {
         final int source = processor.fetchNextWord();
         dest.set(
             Word.from(
-                unsafe.getInt(memory, 16L + (source * 4)),
-                unsafe.getInt(memory, 16L + (((source + 1) & 0xffff) * 4))
+                unsafe.getInt(memory, BASE + (source * SCALE)),
+                unsafe.getInt(memory, BASE + (((source + 1) & 0xffff) * SCALE))
             )
         );
         return 20;

@@ -6,6 +6,9 @@ import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import sun.misc.Unsafe;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpLdHlAddress implements Operation {
     private final Processor processor;
     private final int[] memory;
@@ -21,8 +24,8 @@ public class OpLdHlAddress implements Operation {
     @Override
     public int execute() {
         final int source = processor.fetchNextWord();
-        hlReg.setLow(unsafe.getInt(memory, 16L + ((source) * 4)));
-        hlReg.setHigh(unsafe.getInt(memory, 16L + (((source + 1) & 0xffff) * 4)));
+        hlReg.setLow(unsafe.getInt(memory, BASE + ((source) * SCALE)));
+        hlReg.setHigh(unsafe.getInt(memory, BASE + (((source + 1) & 0xffff) * SCALE)));
         return 16;
     }
 

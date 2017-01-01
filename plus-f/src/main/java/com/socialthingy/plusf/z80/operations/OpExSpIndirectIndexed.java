@@ -5,6 +5,9 @@ import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.*;
 import sun.misc.Unsafe;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpExSpIndirectIndexed implements Operation {
 
     private final Register spReg;
@@ -26,8 +29,8 @@ public class OpExSpIndirectIndexed implements Operation {
         final int spHigh = 0xffff & (spLow + 1);
         indexRegister.set(
             Word.from(
-                unsafe.getInt(memory, 16L + (spLow * 4)),
-                unsafe.getInt(memory, 16L + (spHigh * 4))
+                unsafe.getInt(memory, BASE + (spLow * SCALE)),
+                unsafe.getInt(memory, BASE + (spHigh * SCALE))
             )
         );
 

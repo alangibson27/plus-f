@@ -4,6 +4,9 @@ import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpRrIndexedIndirect extends RotateOperation {
 
     private final Processor processor;
@@ -20,7 +23,7 @@ public class OpRrIndexedIndirect extends RotateOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        final int result = rrValue(unsafe.getInt(memory, 16L + ((address) * 4)));
+        final int result = rrValue(unsafe.getInt(memory, BASE + ((address) * SCALE)));
         setSignZeroAndParity(result);
         Memory.set(memory, address, result);
         return 23;

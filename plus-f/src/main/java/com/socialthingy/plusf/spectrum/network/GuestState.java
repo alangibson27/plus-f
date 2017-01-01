@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum.network;
 
-import javafx.util.Pair;
+import akka.japi.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +24,8 @@ public class GuestState {
     }
 
     public static void serialise(final Pair<GuestState, OutputStream> stateAndStream) {
-        final GuestState state = stateAndStream.getKey();
-        final OutputStream out = stateAndStream.getValue();
+        final GuestState state = stateAndStream.first();
+        final OutputStream out = stateAndStream.second();
 
         try {
             out.write(state.eventType);

@@ -3,6 +3,9 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpBitHlIndirect extends BitOperation {
 
     private final int[] memory;
@@ -19,7 +22,7 @@ public class OpBitHlIndirect extends BitOperation {
 
     @Override
     public int execute() {
-        checkBit(unsafe.getInt(memory, 16L + (hlReg.get() * 4)));
+        checkBit(unsafe.getInt(memory, BASE + (hlReg.get() * SCALE)));
         return 12;
     }
 

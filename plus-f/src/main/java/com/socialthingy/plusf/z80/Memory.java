@@ -7,6 +7,9 @@ import sun.misc.Unsafe;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class Memory {
 
     private static final int PAGE_SIZE = 0x4000;
@@ -133,7 +136,7 @@ public class Memory {
     public static void set(final int[] memory, final int addr, final int value) {
         final int page = addr >> 14;
         if (!memoryProtectionEnabled || page > 0) {
-            final long offset = 16L + (addr * 4);
+            final long offset = BASE + (addr * SCALE);
             final int prevValue = unsafe.getInt(memory, offset);
             if (prevValue != value) {
                 unsafe.putInt(memory, offset, value);

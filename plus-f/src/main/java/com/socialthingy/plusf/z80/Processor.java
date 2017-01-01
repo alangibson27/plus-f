@@ -8,6 +8,8 @@ import sun.misc.Unsafe;
 import java.io.PrintStream;
 import java.util.*;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 import static java.lang.Boolean.valueOf;
 import static sun.misc.Unsafe.ARRAY_OBJECT_BASE_OFFSET;
 import static sun.misc.Unsafe.ARRAY_OBJECT_INDEX_SCALE;
@@ -327,8 +329,8 @@ public class Processor {
                 return im1ResponseOp;
             } else {
                 final int jumpBase = Word.from(0xff, iReg.get());
-                final int jumpLow = UNSAFE.getInt(memory, 16L + ((jumpBase) * 4));
-                final int jumpHigh = UNSAFE.getInt(memory, 16L + (((jumpBase + 1) & 0xffff) * 4));
+                final int jumpLow = UNSAFE.getInt(memory, BASE + ((jumpBase) * SCALE));
+                final int jumpHigh = UNSAFE.getInt(memory, BASE + (((jumpBase + 1) & 0xffff) * SCALE));
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
@@ -385,7 +387,7 @@ public class Processor {
     }
 
     private int fromMemory(final int addr) {
-        return UNSAFE.getInt(memory, 16L + addr * 4);
+        return UNSAFE.getInt(memory, BASE + addr * SCALE);
     }
 
     private Operation fromOpTable(final Operation[] opTable, final int index) {
@@ -393,7 +395,7 @@ public class Processor {
     }
 
     public int fetchNextByte() {
-        return UNSAFE.getInt(memory, 16L + ((pcReg.getAndInc()) * 4));
+        return UNSAFE.getInt(memory, BASE + ((pcReg.getAndInc()) * SCALE));
     }
 
     public int getInterruptMode() {
@@ -405,7 +407,7 @@ public class Processor {
     }
 
     public int fetchRelative(final int offset) {
-        return UNSAFE.getInt(memory, 16L + (((pcReg.get() + offset) & 0xffff) * 4));
+        return UNSAFE.getInt(memory, BASE + (((pcReg.get() + offset) & 0xffff) * SCALE));
     }
 
     public void pushByte(final int value) {
@@ -413,7 +415,7 @@ public class Processor {
     }
 
     public int popByte() {
-        return UNSAFE.getInt(memory, 16L + ((spReg.getAndInc()) * 4));
+        return UNSAFE.getInt(memory, BASE + ((spReg.getAndInc()) * SCALE));
     }
 
     public void setIff(final int iff, final boolean value) {

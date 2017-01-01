@@ -7,6 +7,9 @@ import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 import sun.misc.Unsafe;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpLdAAddress implements Operation {
 
     private final Processor processor;
@@ -23,7 +26,7 @@ public class OpLdAAddress implements Operation {
     @Override
     public int execute() {
         final int address = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
-        aReg.set(unsafe.getInt(memory, 16L + (address * 4)));
+        aReg.set(unsafe.getInt(memory, BASE + (address * SCALE)));
         return 13;
     }
 

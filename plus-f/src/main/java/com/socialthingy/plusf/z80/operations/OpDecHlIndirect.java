@@ -4,6 +4,9 @@ import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpDecHlIndirect extends DecOperation {
 
     private final Register hlReg;
@@ -18,7 +21,7 @@ public class OpDecHlIndirect extends DecOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int result = decrement(unsafe.getInt(memory, 16L + (address * 4)));
+        final int result = decrement(unsafe.getInt(memory, BASE + (address * SCALE)));
         Memory.set(memory, address, result);
         return 11;
     }

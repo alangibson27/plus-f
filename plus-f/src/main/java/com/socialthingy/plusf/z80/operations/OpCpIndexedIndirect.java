@@ -4,6 +4,9 @@ import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
+import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
+import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
+
 public class OpCpIndexedIndirect extends ArithmeticOperation {
 
     private final int[] memory;
@@ -17,7 +20,7 @@ public class OpCpIndexedIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        sub(unsafe.getInt(memory, 16L + (indexRegister.withOffset(processor.fetchNextByte()) * 4)), false);
+        sub(unsafe.getInt(memory, BASE + (indexRegister.withOffset(processor.fetchNextByte()) * SCALE)), false);
         return 19;
     }
 
