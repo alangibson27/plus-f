@@ -122,7 +122,11 @@ class Peer(bindAddress: InetSocketAddress,
           stay()
 
         case _ =>
-          log.info("Unrecognised message received, still waiting for peer")
+          log.error(
+            "Unrecognised message received from {} with content [{}], still waiting for peer",
+            remote.toString,
+            content.toString
+          )
           stay()
       }
 
@@ -161,8 +165,9 @@ class Peer(bindAddress: InetSocketAddress,
         case Failure(ex) =>
           log.error(
             ex,
-            "Unable to decode received message {}",
-            content.map(x => Integer.toHexString(x)).mkString(" ")
+            "Unable to decode received message [{}] from {}",
+            content.toString,
+            remote.toString
           )
       }
 
