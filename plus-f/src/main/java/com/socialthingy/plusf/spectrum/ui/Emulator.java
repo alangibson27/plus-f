@@ -20,6 +20,8 @@ import com.socialthingy.plusf.tape.TapeException;
 import com.socialthingy.plusf.tape.TapeFileReader;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -46,6 +48,8 @@ import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.util.Optional.empty;
 
 public class Emulator extends JFrame implements Runnable {
+    private final Logger log = LoggerFactory.getLogger(Emulator.class);
+
     private final Computer computer;
     private final DisplayComponent display;
     private final int[] memory;
@@ -399,7 +403,7 @@ public class Emulator extends JFrame implements Runnable {
                 try {
                     tapePlayer.jumpToBlock(blockList.getSelectedValue().index());
                 } catch (TapeException ex) {
-                    ex.printStackTrace();
+                    log.error("Unable to jump to tape block", ex);
                 }
             }
         }
@@ -473,7 +477,7 @@ public class Emulator extends JFrame implements Runnable {
                 }
             } while (currentSpeed == EmulatorSpeed.TURBO);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Unexpected error during execution cycle", ex);
         }
     }
 
@@ -500,7 +504,6 @@ public class Emulator extends JFrame implements Runnable {
                         "Loading Error",
                         JOptionPane.ERROR_MESSAGE
                     );
-                    ex.printStackTrace();
                 }
             }
         });

@@ -2,6 +2,8 @@ package com.socialthingy.plusf.spectrum;
 
 import com.socialthingy.plusf.tape.*;
 import com.socialthingy.replist.SkippableIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.util.Iterator;
@@ -9,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class TapePlayer implements Iterator<Boolean> {
+    private final Logger log = LoggerFactory.getLogger(TapePlayer.class);
     private final ButtonModel tapePresentModel;
     private final ButtonModel playButtonModel;
     private final ButtonModel stopButtonModel;
@@ -35,7 +38,7 @@ public class TapePlayer implements Iterator<Boolean> {
             try {
                 rewindToStart();
             } catch (TapeException e) {
-                e.printStackTrace();
+                log.error("Error while rewinding tape", e);
             }
         });
     }
