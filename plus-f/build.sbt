@@ -23,6 +23,8 @@ jdkPackagerBasename := pkgName
 jdkPackagerType := "exe"
 jdkPackagerToolkit := SwingToolkit
 
+javaOptions in Universal += "-Djava.net.preferIPv4Stack=true"
+
 parallelExecution in Test := false
 
 mappings in upload := {
