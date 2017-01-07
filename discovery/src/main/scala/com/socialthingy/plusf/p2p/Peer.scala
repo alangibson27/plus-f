@@ -148,6 +148,7 @@ class Peer(bindAddress: InetSocketAddress,
 
   when(Connected) {
     case Event(Udp.Received(content, remote), _) =>
+      log.info("Received message from {}", remote.toString)
       Try {
         WrappedData(decompress(content), deserialiser)
       } match {
@@ -159,6 +160,7 @@ class Peer(bindAddress: InetSocketAddress,
             lastReceivedTimestamp = data.timestamp
             callbacks.data(data.content)
           } else {
+            log.info("Message received out-of-order, this message {}, newest message {}", data.timestamp, lastReceivedTimestamp)
             outOfOrder = outOfOrder + 1
           }
 

@@ -4,6 +4,8 @@ import akka.util.ByteString;
 import akka.util.ByteStringBuilder;
 import com.socialthingy.plusf.p2p.Deserialiser;
 import com.socialthingy.plusf.p2p.Serialiser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -12,6 +14,8 @@ import java.util.List;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 
 public class EmulatorStateHandler implements Serialiser, Deserialiser {
+    private final Logger log = LoggerFactory.getLogger(EmulatorStateHandler.class);
+
     @Override
     public Object deserialise(final ByteString in) {
         final ByteBuffer buf = in.asByteBuffer();
@@ -23,8 +27,11 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
         }
         final boolean isFlashActive = buf.get() != 0;
         final List<Long> borderChanges = new ArrayList<>();
-        while (buf.hasRemaining()) {
+        while (buf.remaining() >= 4) {
             borderChanges.add(buf.getLong());
+        }
+        if (buf.hasRemaining()) {
+            log.warn("{} bytes remaining after deserialisation", buf.remaining());
         }
         return new EmulatorState(memory, borderChanges, isFlashActive);
     }
