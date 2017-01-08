@@ -22,6 +22,7 @@ rpmLicense := Some("MIT")
 jdkPackagerBasename := pkgName
 jdkPackagerType := "exe"
 jdkPackagerToolkit := SwingToolkit
+jdkPackagerJVMArgs := Seq("-Djava.net.preferIPv4Stack=true", "-Xmx768m")
 
 parallelExecution in Test := false
 
