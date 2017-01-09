@@ -1,68 +1,25 @@
 package com.socialthingy.plusf.p2p
 
-import java.net.InetSocketAddress
+import java.net.{DatagramPacket, DatagramSocket, InetAddress, InetSocketAddress}
 import java.nio.{ByteBuffer, ByteOrder}
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.{Executors, TimeUnit}
 
-import akka.actor.{ActorRef, ActorSystem, FSM, Props}
-import akka.io.{IO, Udp}
-import akka.util.ByteString
-import akka.util.ByteString.UTF_8
 import com.codahale.metrics.{Histogram, Meter, SlidingTimeWindowReservoir}
-import com.socialthingy.plusf.p2p.Peer.{PeerConnection, State}
 import net.jpountz.lz4.LZ4Factory
+import org.slf4j.LoggerFactory
 
-import scala.concurrent.duration._
-import scala.language.postfixOps
+import scala.concurrent.duration.FiniteDuration
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-object Register {
-  def apply(sessionId: String, forwardedPort: Int): Register = Register(sessionId, Some(forwardedPort))
-}
-case class Register(sessionId: String, forwardedPort: Option[Int] = None)
-case object Cancel
-case object Close
-case object GetStatistics
-case class Statistics(medianLatency: Int, outOfOrder: Int, medianSize: Int, m1Rate: Double)
-
-trait Callbacks {
-  def data(content: Any): Unit
-
-  def discoveryTimeout(): Unit
-  def discoveryCancelled(): Unit
-  def waitingForPeer(): Unit
-  def connectedToPeer(port: Int): Unit
-  def discovering(): Unit
-  def initialising(): Unit
-  def closed(): Unit
-}
-
 object Peer {
+  val lz4 = LZ4Factory.fastestJavaInstance()
+
   sealed trait State
-  case object Uninitialised extends State
-  case object Initialising extends State
+  case object Initial extends State
   case object WaitingForPeer extends State
   case object Connected extends State
   case object Closing extends State
-
-  val lz4 = LZ4Factory.fastestJavaInstance()
-
-  case class PeerConnection(sessionId: Option[String], forwardedPort: Option[Int], socket: Option[ActorRef], peerAddress: Option[InetSocketAddress])
-  val NoConnection = PeerConnection(None, None, None, None)
-
-  def apply(bindAddress: InetSocketAddress,
-            discoveryServiceAddress: InetSocketAddress,
-            callbacks: Callbacks,
-            serialiser: Serialiser,
-            deserialiser: Deserialiser,
-            timeout: FiniteDuration = 1 minute)(implicit system: ActorSystem): ActorRef = {
-    val peer = system.actorOf(
-      Props(new Peer(bindAddress, discoveryServiceAddress, callbacks, serialiser, deserialiser, timeout))
-    )
-    system.log.info("Binding peer {} to {}", peer.path, bindAddress)
-    peer
-  }
 }
 
 class Peer(bindAddress: InetSocketAddress,
@@ -70,156 +27,162 @@ class Peer(bindAddress: InetSocketAddress,
            callbacks: Callbacks,
            serialiser: Serialiser,
            deserialiser: Deserialiser,
-           timeout: FiniteDuration) extends FSM[State, PeerConnection] {
+           timeout: FiniteDuration) {
   import Peer._
-  implicit val system = context.system
-  implicit val byteOrder = ByteOrder.BIG_ENDIAN
+  type Handler = (ByteBuffer, InetAddress) => Unit
 
-  private def activate() = IO(Udp) ! Udp.Bind(self, bindAddress)
+  val log = LoggerFactory.getLogger(classOf[Peer])
+  var socket: DatagramSocket = _
+  val socketHandlerExecutor = Executors.newSingleThreadExecutor()
+  implicit val byteOrder = ByteOrder.BIG_ENDIAN
 
   val latencies = new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES))
   val sizes = new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES))
   val meter = new Meter()
   var outOfOrder = 0
 
-  startWith(Uninitialised, NoConnection)
+  var peerConnection: Option[InetSocketAddress] = None
 
-  when(Uninitialised) {
-    case Event(Register(sessionId, fwdPort), _) =>
-      callbacks.initialising()
-      log.info(s"Initialising session $sessionId")
+  val states = Map[State, Handler](
+    Initial -> doNothing _,
+    WaitingForPeer -> waitForResponse _,
+    Connected -> connectedToPeer _
+  )
 
-      activate()
-      goto(Initialising) using PeerConnection(Some(sessionId), fwdPort, None, None)
-  }
-
-  when(Initialising) {
-    case Event(Udp.Bound(localAddress), PeerConnection(Some(sessionId), fwdPort, _, _)) =>
-      callbacks.discovering()
-      log.info(s"Contacting discovery service at $discoveryServiceAddress")
-
-      val socket = sender()
-      val joinCommand = fwdPort match {
-        case Some(p) => s"JOIN|$sessionId|$p"
-        case None => s"JOIN|$sessionId"
-      }
-      socket ! Udp.Send(ByteString(joinCommand), discoveryServiceAddress)
-      goto(WaitingForPeer) using PeerConnection(Some(sessionId), fwdPort, Some(socket), None)
-  }
-
-  when(WaitingForPeer, timeout) {
-    case Event(Udp.Received(content, remote), PeerConnection(sessionId, fwdPort, Some(socket), _)) =>
-      val result = content.decodeString(UTF_8)
-      result.split('|').toList match {
-        case "PEER" :: peerHost :: peerPort :: Nil =>
-          callbacks.connectedToPeer(peerPort.toInt)
-          log.info("Connected to peer at {}:{}", peerHost, peerPort)
-          goto(Connected) using PeerConnection(sessionId, fwdPort, Some(socket), Some(new InetSocketAddress(peerHost, peerPort.toInt)))
-
-        case "WAIT" :: Nil =>
-          callbacks.waitingForPeer()
-          log.info("Waiting for peer to join")
-          stay()
-
-        case _ =>
-          log.error(
-            "Unrecognised message received from {} with content [{}], still waiting for peer",
-            remote.toString,
-            content.toString
-          )
-          stay()
-      }
-
-    case Event(Cancel, PeerConnection(Some(sessionId), fwdPort, Some(socket), _)) =>
-      callbacks.discoveryCancelled()
-      log.info("Discovery cancelled, closing")
-
-      socket ! Udp.Send(ByteString(s"CANCEL|$sessionId"), discoveryServiceAddress)
-      socket ! Udp.Unbind
-      goto(Closing) using NoConnection
-
-    case Event(StateTimeout, PeerConnection(_, _, Some(socket), _)) =>
-      callbacks.discoveryTimeout()
-      log.info("Discovery timed out, closing")
-
-      socket ! Udp.Unbind
-      goto(Closing) using NoConnection
-  }
-
-  when(Connected) {
-    case Event(Udp.Received(content, remote), _) =>
-      Try {
-        WrappedData(decompress(content), deserialiser)
-      } match {
-        case Success(data) =>
-          latencies.update(System.currentTimeMillis - data.systemTime)
-          sizes.update(content.size / 1024)
-          meter.mark()
-          if (data.timestamp > lastReceivedTimestamp) {
-            lastReceivedTimestamp = data.timestamp
-            callbacks.data(data.content)
-          } else {
-            outOfOrder = outOfOrder + 1
-          }
-
-        case Failure(ex) =>
-          log.error(
-            ex,
-            "Unable to decode received message [{}] from {}",
-            content.toString,
-            remote.toString
-          )
-      }
-
-      stay()
-
-    case Event(GetStatistics, _) =>
-      sender() ! Statistics(latencies.getSnapshot.getMedian.toInt, outOfOrder, sizes.getSnapshot.getMedian.toInt, meter.getOneMinuteRate)
-      stay()
-
-    case Event(data: RawData, PeerConnection(_, _, Some(socket), Some(peerAddress))) =>
-      socket ! Udp.Send(compress(data.wrap.pack(serialiser)), peerAddress)
-      stay()
-  }
-
-  when(Closing) {
-    case Event(Udp.Unbound, _) =>
-      callbacks.closed()
-      log.info("Closed")
-
-      goto(Uninitialised) using NoConnection
-  }
-
-  whenUnhandled {
-    case Event(Close, PeerConnection(_, _, Some(socket), _)) =>
-      log.info("Unbinding from socket")
-      socket ! Udp.Unbind
-      goto(Closing) using NoConnection
-  }
-
-  initialize()
-
-  val currentTimestamp = new AtomicLong(0)
+  var currentState: State = Initial
   var lastReceivedTimestamp = -1L
 
-  private def compress(data: ByteString): ByteString = {
-    val compressor = lz4.fastCompressor()
-    val maxlen = compressor.maxCompressedLength(data.size)
-    val bytesOut = ByteBuffer.allocate(4 + maxlen)
-    val length = data.length
+  def doNothing(data: ByteBuffer, source: InetAddress): Unit = ()
 
-    bytesOut.putInt(0, length)
-    compressor.compress(data.asByteBuffer, 0, length, bytesOut, 4, maxlen)
-    ByteString.fromByteBuffer(bytesOut)
+  def connectedToPeer(data: ByteBuffer, source: InetAddress): Unit = {
+    Try {
+      WrappedData(decompress(data), deserialiser)
+    } match {
+      case Success(decompressed) =>
+        latencies.update(System.currentTimeMillis - decompressed.systemTime)
+        sizes.update(data.remaining() / 1024)
+        meter.mark()
+        if (decompressed.timestamp > lastReceivedTimestamp) {
+          lastReceivedTimestamp = decompressed.timestamp
+          callbacks.data(decompressed.content)
+        } else {
+          outOfOrder = outOfOrder + 1
+        }
+
+      case Failure(ex) =>
+        log.error(
+          s"Unable to decode received message ${data.toString} from ${source.toString}",
+          ex
+        )
+    }
   }
 
-  private def decompress(compressed: ByteString): ByteString = {
+  def waitForResponse(data: ByteBuffer, source: InetAddress): Unit = {
+    val result = new String(data.array(), data.position(), data.remaining(), "UTF-8")
+    result.split('|').toList match {
+      case "PEER" :: peerHost :: peerPort :: Nil =>
+        callbacks.connectedToPeer(peerPort.toInt)
+        log.info(s"Connected to peer at $peerHost:$peerPort")
+        currentState = Connected
+        peerConnection = Some(new InetSocketAddress(peerHost, peerPort.toInt))
+
+      case "WAIT" :: Nil =>
+        callbacks.waitingForPeer()
+        log.info("Waiting for peer to join")
+
+      case _ =>
+        log.error(
+          s"Unrecognised message received from ${source.toString} with content [${data.toString}], still waiting for peer"
+        )
+    }
+
+  }
+
+  def startIfRequired(): Unit = {
+    if (socket == null || socket.isClosed) {
+      socket = new DatagramSocket(bindAddress)
+
+      socketHandlerExecutor.submit(new Runnable {
+        def run() = {
+          val receivedPacket = new DatagramPacket(Array.ofDim[Byte](16384), 16384)
+          while (!socket.isClosed) {
+            try {
+              socket.receive(receivedPacket)
+              log.debug("Received packet of size {} from {}", receivedPacket.getLength, receivedPacket.getAddress.toString)
+              states(currentState)(
+                ByteBuffer.wrap(receivedPacket.getData, receivedPacket.getOffset, receivedPacket.getLength),
+                receivedPacket.getAddress
+              )
+            } catch {
+              case NonFatal(e) =>
+                log.error("Failure in receive loop", e)
+            }
+          }
+        }
+      })
+    }
+  }
+
+  def join(sessionId: String, fwdPort: Option[Int] = None): Unit = {
+    startIfRequired()
+
+    callbacks.discovering()
+    val joinCommand = fwdPort match {
+      case Some(p) => s"JOIN|$sessionId|$p"
+      case None => s"JOIN|$sessionId"
+    }
+
+    currentState = WaitingForPeer
+    socket.send(buildPacket(joinCommand, discoveryServiceAddress))
+  }
+
+  def send(data: RawData): Unit = (peerConnection, socket) match {
+    case (None, _) => log.error("Unable to send data, no peer connection")
+    case (_, s) if s.isClosed => log.error("Unable to send data, socket closed")
+    case (Some(conn), s) =>
+      val compressed = compress(data.wrap.pack(serialiser))
+      log.debug("Sending packet of size {} to {}", compressed.remaining(), conn.toString)
+      s.send(new DatagramPacket(compressed.array(), compressed.position(), compressed.remaining(), conn))
+  }
+
+  def statistics(): Statistics = Statistics(
+    latencies.getSnapshot.getMedian.toInt,
+    outOfOrder,
+    sizes.getSnapshot.getMedian.toInt,
+    meter.getOneMinuteRate
+  )
+
+  def close(): Unit = {
+    socket.close()
+    callbacks.closed()
+    currentState = Initial
+    peerConnection = None
+  }
+
+  def buildPacket(data: String, destination: InetSocketAddress) = {
+    val bytes = data.getBytes("UTF-8")
+    new DatagramPacket(bytes, bytes.length, destination)
+  }
+
+  def decompress(compressed: ByteBuffer): ByteBuffer = {
     val decompressor = lz4.fastDecompressor()
-    val iter = compressed.iterator
-    val decompressedLength = iter.getInt
+    val decompressedLength = compressed.getInt
     val bytesOut = ByteBuffer.allocate(decompressedLength)
 
-    decompressor.decompress(compressed.asByteBuffer, 4, bytesOut, 0, decompressedLength)
-    ByteString(bytesOut)
+    decompressor.decompress(compressed, 4, bytesOut, 0, decompressedLength)
+    bytesOut
+  }
+
+  def compress(data: ByteBuffer): ByteBuffer = {
+    val compressor = lz4.fastCompressor()
+    val maxlen = compressor.maxCompressedLength(data.position())
+    val bytesOut = ByteBuffer.allocate(4 + maxlen)
+    val length = data.position()
+
+    bytesOut.putInt(0, length)
+    compressor.compress(data, data.arrayOffset(), length, bytesOut, 4, maxlen)
+    bytesOut
   }
 }
+
+case class Statistics(medianLatency: Int, outOfOrder: Int, size: Int, oneMinuteRate: Double)
