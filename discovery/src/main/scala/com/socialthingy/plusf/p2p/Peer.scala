@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.p2p
 
-import java.net.{DatagramPacket, DatagramSocket, InetAddress, InetSocketAddress}
+import java.net._
 import java.nio.{ByteBuffer, ByteOrder}
 import java.util.concurrent.{Executors, TimeUnit}
 
@@ -13,8 +13,6 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 object Peer {
-  val lz4 = LZ4Factory.fastestJavaInstance()
-
   sealed trait State
   case object Initial extends State
   case object WaitingForPeer extends State
@@ -29,7 +27,9 @@ class Peer(bindAddress: InetSocketAddress,
            deserialiser: Deserialiser,
            timeout: FiniteDuration) {
   import Peer._
-  type Handler = (ByteBuffer, InetAddress) => Unit
+  import PacketUtils._
+
+  type Handler = (ByteBuffer, InetSocketAddress) => Unit
 
   val log = LoggerFactory.getLogger(classOf[Peer])
   var socket: DatagramSocket = _
@@ -52,9 +52,9 @@ class Peer(bindAddress: InetSocketAddress,
   var currentState: State = Initial
   var lastReceivedTimestamp = -1L
 
-  def doNothing(data: ByteBuffer, source: InetAddress): Unit = ()
+  def doNothing(data: ByteBuffer, source: InetSocketAddress): Unit = ()
 
-  def connectedToPeer(data: ByteBuffer, source: InetAddress): Unit = {
+  def connectedToPeer(data: ByteBuffer, source: InetSocketAddress): Unit = {
     Try {
       WrappedData(decompress(data), deserialiser)
     } match {
@@ -69,6 +69,13 @@ class Peer(bindAddress: InetSocketAddress,
           outOfOrder = outOfOrder + 1
         }
 
+        peerConnection foreach { x =>
+          if (!x.equals(source))
+            log.info(s"Switching peer connection from ${x.toString} to ${source.toString}")
+        }
+
+        peerConnection = Some(source)
+
       case Failure(ex) =>
         log.error(
           s"Unable to decode received message ${data.toString} from ${source.toString}",
@@ -77,7 +84,7 @@ class Peer(bindAddress: InetSocketAddress,
     }
   }
 
-  def waitForResponse(data: ByteBuffer, source: InetAddress): Unit = {
+  def waitForResponse(data: ByteBuffer, source: InetSocketAddress): Unit = {
     val result = new String(data.array(), data.position(), data.remaining(), "UTF-8")
     result.split('|').toList match {
       case "PEER" :: peerHost :: peerPort :: Nil =>
@@ -111,7 +118,7 @@ class Peer(bindAddress: InetSocketAddress,
               log.debug("Received packet of size {} from {}", receivedPacket.getLength, receivedPacket.getAddress.toString)
               states(currentState)(
                 ByteBuffer.wrap(receivedPacket.getData, receivedPacket.getOffset, receivedPacket.getLength),
-                receivedPacket.getAddress
+                receivedPacket.getSocketAddress.asInstanceOf[InetSocketAddress]
               )
             } catch {
               case NonFatal(e) =>
@@ -158,6 +165,11 @@ class Peer(bindAddress: InetSocketAddress,
     currentState = Initial
     peerConnection = None
   }
+
+}
+
+private object PacketUtils {
+  val lz4 = LZ4Factory.fastestJavaInstance()
 
   def buildPacket(data: String, destination: InetSocketAddress) = {
     val bytes = data.getBytes("UTF-8")
