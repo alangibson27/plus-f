@@ -125,6 +125,7 @@ class Peer(bindAddress: InetSocketAddress,
                 log.error("Failure in receive loop", e)
             }
           }
+          log.info("Socket closed")
         }
       })
     }
@@ -168,7 +169,7 @@ class Peer(bindAddress: InetSocketAddress,
 
 }
 
-private object PacketUtils {
+object PacketUtils {
   val lz4 = LZ4Factory.fastestJavaInstance()
 
   def buildPacket(data: String, destination: InetSocketAddress) = {
@@ -187,12 +188,14 @@ private object PacketUtils {
 
   def compress(data: ByteBuffer): ByteBuffer = {
     val compressor = lz4.fastCompressor()
-    val maxlen = compressor.maxCompressedLength(data.position())
+    val maxlen = compressor.maxCompressedLength(data.limit())
     val bytesOut = ByteBuffer.allocate(4 + maxlen)
-    val length = data.position()
+    val length = data.limit()
 
-    bytesOut.putInt(0, length)
-    compressor.compress(data, data.arrayOffset(), length, bytesOut, 4, maxlen)
+    bytesOut.putInt(length)
+    val size = compressor.compress(data, data.position(), length, bytesOut, 4, maxlen)
+    bytesOut.limit(size + 4)
+    bytesOut.position(0)
     bytesOut
   }
 }

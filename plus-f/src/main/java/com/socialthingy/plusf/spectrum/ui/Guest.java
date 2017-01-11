@@ -143,7 +143,7 @@ public class Guest extends JFrame implements Runnable {
             });
         }
 
-        if (count % 5 == 0 && peer.isConnected()) {
+        if (count % 20 == 0 && peer.isConnected()) {
             peer.send(new GuestState(GuestStateType.JOYSTICK_STATE.ordinal(), joystick.serialise()));
         }
 

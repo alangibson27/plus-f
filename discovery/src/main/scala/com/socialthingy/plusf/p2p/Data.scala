@@ -27,11 +27,12 @@ object WrappedData {
 }
 
 class WrappedData(val timestamp: Long, val systemTime: Long, val content: Any) {
-  def pack(serialiser: Serialiser) = {
+  def pack(serialiser: Serialiser): ByteBuffer = {
     val buf = ByteBuffer.allocate(32768)
     buf.putLong(timestamp)
     buf.putLong(systemTime)
     serialiser.serialise(content, buf)
+    buf.flip()
     buf
   }
 }
