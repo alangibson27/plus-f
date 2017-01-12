@@ -66,7 +66,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
     @Override
     public void updateBorder(final ULA ula, final boolean force) {
         if (force || ula.borderNeedsRedrawing()) {
-            final Iterator<Long> it = ula.getBorderChanges().iterator();
+            final Iterator<Long> it = new ArrayList<>(ula.getBorderChanges()).iterator();
             long change = it.next();
             int colour = dullColour((int) change);
             int topLine = ((int) (change >> 32)) / TSTATES_PER_LINE;

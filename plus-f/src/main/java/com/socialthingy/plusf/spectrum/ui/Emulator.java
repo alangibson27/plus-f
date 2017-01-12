@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum.ui;
 
-import akka.actor.ActorSystem;
 import akka.japi.Option;
 import akka.japi.Pair;
 import com.codahale.metrics.MetricRegistry;
@@ -119,8 +118,7 @@ public class Emulator extends JFrame implements Runnable {
             new MetricRegistry()
         );
 
-        final ActorSystem actorSystem = ActorSystem.apply("EmulatorActorSystem", Settings.config);
-        peer = new EmulatorPeerAdapter(actorSystem, gs -> {
+        peer = new EmulatorPeerAdapter(gs -> {
             if (gs.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
                 guestJoystick.deserialise(gs.getEventValue());
             }
@@ -460,14 +458,17 @@ public class Emulator extends JFrame implements Runnable {
         }
     }
 
+    private boolean sendToPeer = true;
+
     private void singleCycle() {
         try {
             do {
                 computer.singleCycle();
-                if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL) {
+                if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final int[] screenBytes = Memory.getScreenBytes(memory);
                     peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));
                 }
+                sendToPeer = !sendToPeer;
 
                 if (shouldRepaint()) {
                     lastRepaint = System.currentTimeMillis();

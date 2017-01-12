@@ -5,6 +5,7 @@ import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.z80.Memory;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import static com.socialthingy.plusf.spectrum.display.UnsafePixelMapper.*;
@@ -24,7 +25,7 @@ public class SafeSwingDoubleSizeDisplay extends DisplayComponent {
 
     public void updateBorder(final ULA ula, final boolean force) {
         if (force || ula.borderNeedsRedrawing()) {
-            final Iterator<Long> it = ula.getBorderChanges().iterator();
+            final Iterator<Long> it = new ArrayList<>(ula.getBorderChanges()).iterator();
             long change = it.next();
             int colour = dullColour((int) change);
             int topLine = ((int) (change >> 32)) / TSTATES_PER_LINE;

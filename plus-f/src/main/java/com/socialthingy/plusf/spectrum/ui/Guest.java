@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum.ui;
 
-import akka.actor.ActorSystem;
 import akka.japi.Option;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.Settings;
@@ -44,8 +43,7 @@ public class Guest extends JFrame implements Runnable {
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         setTitle("+F Spectrum Guest");
-        final ActorSystem actorSystem = ActorSystem.apply("GuestActorSystem", Settings.config);
-        peer = new GuestPeerAdapter(actorSystem, hostData -> lastHostData = hostData);
+        peer = new GuestPeerAdapter(hostData -> lastHostData = hostData);
 
         initialiseUI();
     }
@@ -145,7 +143,7 @@ public class Guest extends JFrame implements Runnable {
             });
         }
 
-        if (count % 5 == 0 && peer.isConnected()) {
+        if (count % 20 == 0 && peer.isConnected()) {
             peer.send(new GuestState(GuestStateType.JOYSTICK_STATE.ordinal(), joystick.serialise()));
         }
 
