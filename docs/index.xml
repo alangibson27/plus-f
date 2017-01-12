@@ -11,10 +11,10 @@
     
     <item>
       <title>Version 1.3</title>
-      <link>http://plusf.socialthingy.com/release-notes/1.3/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
       <pubDate>Tue, 03 Jan 2017 20:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1.3/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Compatibility fixes for Raspberry Pi.&lt;/li&gt;
 &lt;li&gt;Support logging to file.&lt;/li&gt;
@@ -24,10 +24,10 @@
     
     <item>
       <title>Version 1.2</title>
-      <link>http://plusf.socialthingy.com/release-notes/1.2/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
       <pubDate>Sun, 18 Dec 2016 22:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1.2/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Added full-screen mode and rendering tweaks.&lt;/li&gt;
 &lt;li&gt;Minor bugfix to tape loading.&lt;/li&gt;
@@ -271,10 +271,10 @@ complexity of software when it suits, but you can certainly use TDD to tame it a
     
     <item>
       <title>Version 1.1</title>
-      <link>http://plusf.socialthingy.com/release-notes/1.1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
       <pubDate>Tue, 22 Nov 2016 22:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1.1/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Single launcher for Emulator and Guest&lt;/li&gt;
 &lt;li&gt;UI tweaks&lt;/li&gt;
@@ -636,10 +636,10 @@ the hard work of figuring out how to do software well, and it&amp;rsquo;s that n
     
     <item>
       <title>Version 1.0</title>
-      <link>http://plusf.socialthingy.com/release-notes/1.0/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
       <pubDate>Mon, 31 Oct 2016 22:55:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1.0/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Performance improvements&lt;/li&gt;
 &lt;li&gt;UI tweaks&lt;/li&gt;
@@ -650,10 +650,10 @@ the hard work of figuring out how to do software well, and it&amp;rsquo;s that n
     
     <item>
       <title>Version 0.6</title>
-      <link>http://plusf.socialthingy.com/release-notes/0.6/</link>
+      <link>http://plusf.socialthingy.com/release-notes/0/</link>
       <pubDate>Sun, 14 Aug 2016 22:55:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/0.6/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Implemented TAP and TZX support&lt;/li&gt;
 &lt;li&gt;Added support for +2&lt;/li&gt;
@@ -664,10 +664,10 @@ the hard work of figuring out how to do software well, and it&amp;rsquo;s that n
     
     <item>
       <title>Version 0.5</title>
-      <link>http://plusf.socialthingy.com/release-notes/0.5/</link>
+      <link>http://plusf.socialthingy.com/release-notes/0/</link>
       <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/0.5/</guid>
+      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;Initial public release&lt;/li&gt;
 &lt;li&gt;Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack
@@ -785,6 +785,8 @@ enabling multi-player games on your computer, the process you need to follow for
 
 &lt;ul&gt;
 &lt;li&gt;This is the simplest way to get up and running on a compatible Windows system.&lt;/li&gt;
+&lt;li&gt;On Windows 10, you might see a warning from Windows SmartScreen when you run the
+installer. Just click the &amp;ldquo;More Info&amp;rdquo; text and then the &amp;ldquo;Run anyway&amp;rdquo; button.&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.zip&#34;&gt;Universal Zip Package&lt;/a&gt;
 
@@ -796,12 +798,12 @@ for free from &lt;a href=&#34;http://www.java.com&#34;&gt;www.java.com&lt;/a&gt;
 &lt;li&gt;&lt;a href=&#34;http://download.socialthingy.com/Plus-F.deb&#34;&gt;Debian Package&lt;/a&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Prebuilt package for Ubuntu and other Debian-based Linux distributions.&lt;/li&gt;
+&lt;li&gt;Prebuilt package for Ubuntu, Raspbian and other Debian-based Linux distributions.&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Both these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
-operate. These ROMs remain copyright of Amstrad, and Amstrad have kindly given their permission for the
+&lt;p&gt;All of these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for +F to
+run. These ROMs remain copyright of Amstrad, and Amstrad have kindly given their permission for the
 redistribution of their copyrighted material but retain that copyright.
 (Full details &lt;a href=&#34;https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ&#34;&gt;here&lt;/a&gt;.)&lt;/p&gt;
 
@@ -817,7 +819,7 @@ redistribution of their copyrighted material but retain that copyright.
 
 &lt;p&gt;MIT License&lt;/p&gt;
 
-&lt;p&gt;Copyright &amp;copy; 2016 Alan Gibson&lt;/p&gt;
+&lt;p&gt;Copyright &amp;copy; 2017 Alan Gibson&lt;/p&gt;
 
 &lt;p&gt;Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the &amp;ldquo;Software&amp;rdquo;), to deal

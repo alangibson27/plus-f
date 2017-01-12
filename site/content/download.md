@@ -9,15 +9,17 @@ title = "Download"
 
 * [64-bit Windows Installer] (http://download.socialthingy.com/Plus-F.exe)
  * This is the simplest way to get up and running on a compatible Windows system.
+ * On Windows 10, you might see a warning from Windows SmartScreen when you run the
+   installer. Just click the "More Info" text and then the "Run anyway" button.
 * [Universal Zip Package] (http://download.socialthingy.com/Plus-F.zip)
  * This download is suitable for all operating systems. You'll need to install
    a recent version of Java 8 separately, in order to run. You can download this
    for free from [www.java.com] (http://www.java.com)
 * [Debian Package] (http://download.socialthingy.com/Plus-F.deb)
- * Prebuilt package for Ubuntu and other Debian-based Linux distributions.
+ * Prebuilt package for Ubuntu, Raspbian and other Debian-based Linux distributions.
 
-Both these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for the Emulator to
-operate. These ROMs remain copyright of Amstrad, and Amstrad have kindly given their permission for the 
+All of these packages contain images of the 48k and +2 Spectrum ROMs, which are required in order for +F to
+run. These ROMs remain copyright of Amstrad, and Amstrad have kindly given their permission for the 
 redistribution of their copyrighted material but retain that copyright.
 (Full details [here](https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ).)
 
@@ -32,7 +34,7 @@ You can read the release notes for +F [here](/release-notes).
 ---
 MIT License
 
-Copyright (c) 2016 Alan Gibson
+Copyright (c) 2017 Alan Gibson
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
