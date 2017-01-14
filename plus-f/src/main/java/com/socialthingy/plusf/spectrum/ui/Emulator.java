@@ -69,7 +69,6 @@ public class Emulator extends JFrame implements Runnable {
     private final KempstonJoystickInterface kempstonJoystickInterface;
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
-    private JCheckBoxMenuItem portForwardingEnabled;
 
     public Emulator() {
         this(new UserPreferences());
@@ -218,9 +217,6 @@ public class Emulator extends JFrame implements Runnable {
         networkMenu.add(connectItem);
         final JMenuItem disconnectItem = menuItemFor("Disconnect", this::disconnect, Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);
-        portForwardingEnabled = new JCheckBoxMenuItem("Use port forwarding");
-        portForwardingEnabled.setSelected(true);
-        networkMenu.add(portForwardingEnabled);
         menuBar.add(networkMenu);
 
         connectItem.setEnabled(true);
@@ -423,9 +419,13 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void connect(final ActionEvent e) {
+        final JPanel connectDetailsPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        connectDetailsPanel.add(new JLabel("Enter codename of the Guest"));
+        final JCheckBox portForwardingEnabled = new JCheckBox("I have enabled port forwarding", true);
+        connectDetailsPanel.add(portForwardingEnabled);
         final String codename = JOptionPane.showInputDialog(
                 this,
-                "Enter codename of the Guest",
+                connectDetailsPanel,
                 "Connect to Guest",
                 JOptionPane.QUESTION_MESSAGE
         );

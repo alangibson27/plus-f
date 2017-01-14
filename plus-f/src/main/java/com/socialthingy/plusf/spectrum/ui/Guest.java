@@ -32,7 +32,6 @@ public class Guest extends JFrame implements Runnable {
     private final int[] memory;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
-    private JCheckBoxMenuItem portForwardingEnabled;
 
     public Guest() {
         memory = new int[0x10000];
@@ -69,9 +68,6 @@ public class Guest extends JFrame implements Runnable {
         networkMenu.add(connectItem);
         final JMenuItem disconnectItem = menuItemFor("Disconnect", this::disconnect, Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);
-        portForwardingEnabled = new JCheckBoxMenuItem("Use port forwarding");
-        portForwardingEnabled.setSelected(true);
-        networkMenu.add(portForwardingEnabled);
         menuBar.add(networkMenu);
 
         connectItem.setEnabled(true);
@@ -110,9 +106,13 @@ public class Guest extends JFrame implements Runnable {
     }
 
     private void connect(final ActionEvent e) {
+        final JPanel connectDetailsPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        connectDetailsPanel.add(new JLabel("Enter codename of the Emulator"));
+        final JCheckBox portForwardingEnabled = new JCheckBox("I have enabled port forwarding", true);
+        connectDetailsPanel.add(portForwardingEnabled);
         final String codename = JOptionPane.showInputDialog(
             this,
-            "Enter codename of the Emulator",
+            connectDetailsPanel,
             "Connect to Emulator",
             JOptionPane.QUESTION_MESSAGE
         );
