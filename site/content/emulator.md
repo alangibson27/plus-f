@@ -17,15 +17,16 @@ The Emulator is controlled by the options in the menu bar at the top of the scre
 ### File menu
 
 * Open: Open a TAP, TZX or Z80 file.
-    
+
     Z80 files will start automatically. To load from a TAP or TZX file, type LOAD "" (key J then symbol shift+P twice) in
-    Spectrum BASIC, and then choose Play from the Tape menu. 
-  
+    Spectrum BASIC, and then choose Play from the Tape menu.
+
 * Quit: Quit the Emulator.
 
 ### Computer menu
 
 * Reset: Reset the Emulator (just like pulling the plug out and putting it back in again).
+* Smooth Display Rendering: Choose this to give slightly smoother pixels when you enlarge the window.
 * Host Joystick: Select this option to emulate either a Kempston or Sinclair joystick through the keyboard. Controls are not redefinable and are fixed to the conventional ones below:
     * Q: Up
     * A: Down
@@ -55,3 +56,4 @@ green to indicate when the tape is playing.
 
 * Connect: Enter a connection code to pair up with a Guest for a two-player gaming session.
 * Disconnect: Disconnect from a Guest to stop a two-player gaming session.
+* Use Port Forwarding: Select this option if you've enabled port forwarding for ports 7000 and 7001.

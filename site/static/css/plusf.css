@@ -1,5 +1,5 @@
 body {
-    font-family: "Signika", sans-serif;
+    font-family: sans-serif;
 }
 
 a {
@@ -49,7 +49,7 @@ h1 {
     margin-right: 10px;
 }
 
-.header span{
+.header div {
     align-self: center;
     color: white;
     margin: 2px;
@@ -66,36 +66,8 @@ h1 {
     margin: 10px
 }
 
-.logo-text {
-    font-size: 80px;
-    font-family: sans-serif;
-    background: -webkit-linear-gradient(
-        315deg,
-        cyan,
-        cyan 40%,
-        green 40%,
-        green 50%,
-        yellow 50%,
-        yellow 60%,
-        red 60%,
-        red 100%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background: -moz-linear-gradient(
-        315deg,
-        cyan,
-        cyan 40%,
-        green 40%,
-        green 50%,
-        yellow 50%,
-        yellow 60%,
-        red 60%,
-        red 100%
-    );
-    -moz-background-clip: text;
-    -moz-text-fill-color: transparent;
-    align-self: center;
+.logo-noborder {
+  height: 75px;
 }
 
 .nav {
@@ -129,24 +101,6 @@ h1 {
     color: white;
 }
 
-.box-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.box-container a {
-    text-decoration: none;
-    display: flex;
-}
-
-.box {
-    text-align: center;
-    margin: 10px;
-    padding: 10px;
-    width: 150px;
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 2em;
-    color: white;
+table td {
+  padding: 15px;
 }

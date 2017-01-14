@@ -12,8 +12,10 @@
 <div class="header">
     <div class="content">
         <img class="logo" src="/plus-f.png"/>
-        <h1 class="title">Plus-F</h1>
-        <span>ZX Spectrum Emulator with Network Play Capability</span>
+        <div class="inner-logo">
+          <img class="logo-noborder" src="/plus-f-title.png"/>
+          <div>Spectrum over IP</div>
+        </div>
     </div>
 </div>
 <nav class="nav">
@@ -25,7 +27,6 @@
         <li><a href="/connect">CONNECT</a></li>
         <li><a href="/games">GAMES</a></li>
         <li><a href="/blog">VANITY PUBLISHING</a></li>
-        <li><a href="/about">ABOUT</a></li>
     </ul>
 </nav>
 <div class="content">
@@ -37,16 +38,15 @@
 
 <h3 id="how-to-do-it">How to do it</h3>
 
-<p>Network play works by player A running the Emulator and player B running the Guest. Both of these are downloaded and
-available in the same package. Here&rsquo;s how it works:</p>
+<p>Network play works by player A running the Emulator and player B running the Guest:</p>
 
 <ol>
-<li><p>Players A and B both need to ensure that <em>port forwarding</em> is enabled on their router for UDP traffic, on ports 7000
-and 7001.</p></li>
+<li><p>At least one player must to ensure that <em>port forwarding</em> is enabled on their router for UDP traffic, on ports 7000
+and 7001. If both players can forward these ports, the chance of a successful connection is improved.</p></li>
 
 <li><p>Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.</p></li>
 
-<li><p>Choose a code name and share this by email, instant message, text message or however you like.
+<li><p>Choose a code name and share this by email, instant message, text message, smoke signal, or however you choose.
 It&rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
 They are only retained until the connection has been made, at which point the +F Relay Service forgets it again.</p></li>
 
@@ -65,32 +65,6 @@ overall quality of the connection:</p>
 <li>Yellow: The connection quality is poor, and delays may be experienced.</li>
 <li>Red: The connection has dropped, either temporarily or permanently.</li>
 </ul>
-
-<h3 id="does-it-really-work">Does it really work?</h3>
-
-<p>Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
-responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
-the Guest&rsquo;s copy of the display to jump or jerk a little.</p>
-
-<ul>
-<li>Emulator running on Windows 10, connected to the internet wirelessly via a non-fibre connection</li>
-<li>Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot
-<br /></li>
-</ul>
-
-<p>If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
-should be acceptable.</p>
-
-<h3 id="firewalls-and-network-connectivity">Firewalls and network connectivity</h3>
-
-<p>In order to keep network play as responsive as possible, +F uses direct communication between the Emulator and
-the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
-provider&rsquo;s security settings, you may need to change some firewall rules so that the Emulator and Guest can reach
-each other.</p>
-
-<p>Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
-that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&rsquo;re already familiar with
-enabling multi-player games on your computer, the process you need to follow for +F will be similar to that.</p>
 
 
 </div>

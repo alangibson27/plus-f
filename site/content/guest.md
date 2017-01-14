@@ -26,6 +26,10 @@ The Guest can also be controlled by the options in the menu bar at the top of th
 
 * Quit: Quit the Guest
 
+### Display menu
+
+* Smooth Display Rendering: Choose this to give slightly smoother pixels when you enlarge the window.
+
 ### Network menu
 
 * Connect: Enter a connection code to pair up with an Emulator for a two-player gaming session.

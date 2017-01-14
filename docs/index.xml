@@ -682,28 +682,6 @@ or tape loading errors!)
     </item>
     
     <item>
-      <title>About</title>
-      <link>http://plusf.socialthingy.com/about/</link>
-      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
-      
-      <guid>http://plusf.socialthingy.com/about/</guid>
-      <description>&lt;p&gt;Do you remember Match Day II?&lt;/p&gt;
-
-&lt;p&gt;Long before FIFA, Pro Evolution Soccer or any of the others, Match Day II managed to succinctly capture the essence of
-football in just 48k. No fouls, free kicks, substitutions, sendings-off or penalties - just pass, tackle, volley, head
-and save. You can easily imagine how a well-worked goal in Match Day II must look much like a football purist&amp;rsquo;s idea of
-perfection.&lt;/p&gt;
-
-&lt;p&gt;Of course, none of this was in the minds of me or my friends when we were growing up playing this Match Day II. All we
-had was this compellingly playable game, and a conviction that we must be the best people in the world at playing it.
-Time passes, people move on and circumstances change, but from time to time I couldn&amp;rsquo;t help but wonder what would happen
-if my friends and I were to play Match Day II against each other once more.&lt;/p&gt;
-
-&lt;p&gt;The only surprise is that it took me so long to come up with the idea of +F as a way of answering that question.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>Connect</title>
       <link>http://plusf.socialthingy.com/connect/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
@@ -713,16 +691,15 @@ if my friends and I were to play Match Day II against each other once more.&lt;/
 
 &lt;h3 id=&#34;how-to-do-it&#34;&gt;How to do it&lt;/h3&gt;
 
-&lt;p&gt;Network play works by player A running the Emulator and player B running the Guest. Both of these are downloaded and
-available in the same package. Here&amp;rsquo;s how it works:&lt;/p&gt;
+&lt;p&gt;Network play works by player A running the Emulator and player B running the Guest:&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Players A and B both need to ensure that &lt;em&gt;port forwarding&lt;/em&gt; is enabled on their router for UDP traffic, on ports 7000
-and 7001.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;At least one player must to ensure that &lt;em&gt;port forwarding&lt;/em&gt; is enabled on their router for UDP traffic, on ports 7000
+and 7001. If both players can forward these ports, the chance of a successful connection is improved.&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;Choose a code name and share this by email, instant message, text message or however you like.
+&lt;li&gt;&lt;p&gt;Choose a code name and share this by email, instant message, text message, smoke signal, or however you choose.
 It&amp;rsquo;s not especially important what this code is, and you can use the same one over and over again if you like.
 They are only retained until the connection has been made, at which point the +F Relay Service forgets it again.&lt;/p&gt;&lt;/li&gt;
 
@@ -741,32 +718,6 @@ overall quality of the connection:&lt;/p&gt;
 &lt;li&gt;Yellow: The connection quality is poor, and delays may be experienced.&lt;/li&gt;
 &lt;li&gt;Red: The connection has dropped, either temporarily or permanently.&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;h3 id=&#34;does-it-really-work&#34;&gt;Does it really work?&lt;/h3&gt;
-
-&lt;p&gt;Limited amounts of testing on the setup below have shown that it is possible for the Emulator and the Guest to be
-responsive enough to one another to make two-player games playable. Clearly, some latency may occur at times, causing
-the Guest&amp;rsquo;s copy of the display to jump or jerk a little.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Emulator running on Windows 10, connected to the internet wirelessly via a non-fibre connection&lt;/li&gt;
-&lt;li&gt;Guest running on Ubuntu, connected to the internet wirelessly via a 3G phone acting as a portable hotspot
-&lt;br /&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;If both Emulator and Guest are on fast wireless or wired connections, or on the same local network, performance
-should be acceptable.&lt;/p&gt;
-
-&lt;h3 id=&#34;firewalls-and-network-connectivity&#34;&gt;Firewalls and network connectivity&lt;/h3&gt;
-
-&lt;p&gt;In order to keep network play as responsive as possible, +F uses direct communication between the Emulator and
-the Guest (commonly known as Peer-to-Peer or P2P communication). Depending on your computer and internet service
-provider&amp;rsquo;s security settings, you may need to change some firewall rules so that the Emulator and Guest can reach
-each other.&lt;/p&gt;
-
-&lt;p&gt;Details of how to do this will vary based on the operating system, router and ISP you are using, but you need to ensure
-that your computer can receive inbound UDP network traffic on ports 7000 and 7001. If you&amp;rsquo;re already familiar with
-enabling multi-player games on your computer, the process you need to follow for +F will be similar to that.&lt;/p&gt;
 </description>
     </item>
     
@@ -838,6 +789,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Games</title>
+      <link>http://plusf.socialthingy.com/games/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/games/</guid>
+      <description>&lt;p&gt;Spectrum games are available for use in emulators in a number of file formats, the most popular ones being
+Z80, TAP and TZX, all of which +F can load. TAP files are at present the most reliable, although you should be able
+to use a lot of Z80 and TZX files as well.&lt;/p&gt;
+
+&lt;p&gt;One of the most authoritative sources for Spectrum games the &lt;a href=&#34;http://www.worldofspectrum.org/archive.html&#34;&gt;World of Spectrum Archive&lt;/a&gt;,
+which has an extensive collection of TAP and TZX files.&lt;/p&gt;
+
+&lt;p&gt;Don&amp;rsquo;t forget that the classic Spectrum games we can play today on emulators remain the result of the skills and
+dedication of the programmers who developed them. While many have granted free distribution rights for their games,
+others have not, they are well within their rights to do so, and it&amp;rsquo;s up to us to respect them.&lt;/p&gt;
+
+&lt;p&gt;Therefore, please be considerate when downloading program files, and refer to the information &lt;a href=&#34;http://www.worldofspectrum.org/permits&#34;&gt;here&lt;/a&gt;, here](&lt;a href=&#34;http://www.worldofspectrum.org/permits/publishers.html&#34;&gt;http://www.worldofspectrum.org/permits/publishers.html&lt;/a&gt;) and &lt;a href=&#34;http://www.worldofspectrum.org/permits/individuals.html&#34;&gt;here&lt;/a&gt; for full details on which publishers and
+developers have granted free distribution rights.&lt;/p&gt;
 </description>
     </item>
     
