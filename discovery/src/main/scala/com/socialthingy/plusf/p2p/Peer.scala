@@ -50,6 +50,7 @@ class Peer(bindAddress: InetSocketAddress,
   )
 
   var currentState: State = Initial
+  var currentSessionId: Option[String] = None
   var lastReceivedTimestamp = -1L
 
   def doNothing(data: ByteBuffer, source: InetSocketAddress): Unit = ()
@@ -108,6 +109,7 @@ class Peer(bindAddress: InetSocketAddress,
   def startIfRequired(): Unit = {
     if (socket == null || socket.isClosed) {
       socket = new DatagramSocket(bindAddress)
+      socket.setSoTimeout(timeout.toMillis.toInt)
 
       socketHandlerExecutor.submit(new Runnable {
         def run() = {
@@ -121,8 +123,12 @@ class Peer(bindAddress: InetSocketAddress,
                 receivedPacket.getSocketAddress.asInstanceOf[InetSocketAddress]
               )
             } catch {
-              case NonFatal(e) =>
-                log.error("Failure in receive loop", e)
+              case e: SocketTimeoutException if currentState == WaitingForPeer =>
+                callbacks.discoveryTimeout()
+                close()
+
+              case e: SocketException if e.getMessage == "Socket closed" => // do nothing, expected
+              case NonFatal(e) => log.error("Failure in receive loop", e)
             }
           }
           log.info("Socket closed")
@@ -141,6 +147,7 @@ class Peer(bindAddress: InetSocketAddress,
     }
 
     currentState = WaitingForPeer
+    currentSessionId = Some(sessionId)
     socket.send(buildPacket(joinCommand, discoveryServiceAddress))
   }
 
@@ -160,13 +167,25 @@ class Peer(bindAddress: InetSocketAddress,
     meter.getOneMinuteRate
   )
 
-  def close(): Unit = {
-    socket.close()
-    callbacks.closed()
+  def close(): Unit = (currentState, currentSessionId) match {
+    case (WaitingForPeer, Some(sessionId)) =>
+      socket.send(buildPacket(s"CANCEL|$sessionId", discoveryServiceAddress))
+      reset()
+      callbacks.discoveryCancelled()
+
+    case _ =>
+      reset()
+      callbacks.closed()
+  }
+
+  private def reset() = {
+    if (socket != null) {
+      socket.close()
+    }
+    currentSessionId = None
     currentState = Initial
     peerConnection = None
   }
-
 }
 
 object PacketUtils {
