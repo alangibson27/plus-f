@@ -119,7 +119,7 @@ class TapeSpec extends FlatSpec with Matchers {
     navigableBlocks(3).block shouldBe a[PauseBlock]
   }
 
-  type JPair = akka.japi.Pair[String, String]
+  type JPair = Pair[String, String]
   implicit def tuple2ToPair(tuple: (String, String)): JPair = new JPair(tuple._1, tuple._2)
   private def givenTapeOf(blocks: TapeBlock*): Tape = new Tape("1.0", blocks.toArray)
 }

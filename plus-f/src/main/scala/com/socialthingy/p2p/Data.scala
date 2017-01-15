@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.p2p
+package com.socialthingy.p2p
 
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicLong

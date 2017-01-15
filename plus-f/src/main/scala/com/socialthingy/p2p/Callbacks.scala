@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.p2p
+package com.socialthingy.p2p
 
 trait Callbacks {
   def data(content: Any): Unit

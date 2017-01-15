@@ -1,7 +1,6 @@
 lazy val commonDependencies = Seq(
 	"io.dropwizard.metrics" % "metrics-core" % "3.1.2",
 	"com.typesafe" % "config" % "1.3.0",
-	"com.typesafe.akka" %% "akka-actor" % "2.4.12",
 	"ch.qos.logback" % "logback-classic" % "1.1.3",
 	"net.jpountz.lz4" % "lz4" % "1.3.0",
 	"org.codehaus.janino" % "janino" % "2.7.8",
@@ -19,11 +18,11 @@ lazy val commonSettings = Seq(
 lazy val `plus-f` = project.in(file("plus-f"))
 	.enablePlugins(JavaAppPackaging, UniversalPlugin, JDKPackagerPlugin)
 	.settings(commonSettings)
-	.dependsOn(discovery)
 
 lazy val discovery = project.in(file("discovery"))
 	.enablePlugins(UniversalPlugin, JavaAppPackaging)
 	.settings(commonSettings)
+	.dependsOn(`plus-f`)
 
 addCommandAlias("dist-non-windows", ";clean;test;plus-f/buildZip;plus-f/buildDebian;plus-f/s3-upload")
 

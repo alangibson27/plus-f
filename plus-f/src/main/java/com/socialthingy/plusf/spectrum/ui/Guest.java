@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum.ui;
 
-import akka.japi.Option;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.Settings;
 import com.socialthingy.plusf.spectrum.io.ULA;
@@ -9,6 +8,7 @@ import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.GuestState;
 import com.socialthingy.plusf.spectrum.network.GuestStateType;
 import com.socialthingy.plusf.z80.Memory;
+import scala.Option;
 
 import javax.swing.*;
 import java.awt.*;
@@ -120,11 +120,11 @@ public class Guest extends JFrame implements Runnable {
         if (codename != null) {
             final Option<Object> port;
             if (portForwardingEnabled.isSelected()) {
-                port = Option.some(Settings.GUEST_PORT);
+                port = Option.apply(Settings.GUEST_PORT);
             } else {
-                port = Option.none();
+                port = Option.empty();
             }
-            peer.connect(this, codename, port.asScala());
+            peer.connect(this, codename, port);
         }
     }
 

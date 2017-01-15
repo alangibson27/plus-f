@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum.network;
 
-import com.socialthingy.plusf.p2p.*;
+import com.socialthingy.p2p.*;
 import com.socialthingy.plusf.spectrum.ui.ProgressDialog;
 import com.socialthingy.plusf.util.ObservedValue;
 import scala.Option;

@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.tape;
 
-import akka.japi.Pair;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.IOException;

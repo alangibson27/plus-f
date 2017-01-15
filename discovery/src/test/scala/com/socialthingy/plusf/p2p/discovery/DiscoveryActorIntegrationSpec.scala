@@ -5,6 +5,7 @@ import java.nio.ByteBuffer
 
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.TestKit
+import com.socialthingy.p2p.{Peer, _}
 import com.socialthingy.plusf.p2p._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.{Eventually, ScalaFutures}

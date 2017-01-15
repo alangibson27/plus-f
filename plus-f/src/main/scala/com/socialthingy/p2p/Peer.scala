@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.p2p
+package com.socialthingy.p2p
 
 import java.net._
 import java.nio.{ByteBuffer, ByteOrder}
@@ -26,8 +26,8 @@ class Peer(bindAddress: InetSocketAddress,
            serialiser: Serialiser,
            deserialiser: Deserialiser,
            timeout: FiniteDuration) {
-  import Peer._
   import PacketUtils._
+  import Peer._
 
   type Handler = (ByteBuffer, InetSocketAddress) => Unit
 

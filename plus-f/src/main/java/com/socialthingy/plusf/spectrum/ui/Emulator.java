@@ -1,7 +1,5 @@
 package com.socialthingy.plusf.spectrum.ui;
 
-import akka.japi.Option;
-import akka.japi.Pair;
 import com.codahale.metrics.MetricRegistry;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
@@ -13,14 +11,12 @@ import com.socialthingy.plusf.spectrum.joystick.SinclairJoystickInterface;
 import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestStateType;
-import com.socialthingy.plusf.tape.NavigableBlock;
-import com.socialthingy.plusf.tape.Tape;
-import com.socialthingy.plusf.tape.TapeException;
-import com.socialthingy.plusf.tape.TapeFileReader;
+import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Option;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -433,11 +429,11 @@ public class Emulator extends JFrame implements Runnable {
         if (codename != null) {
             final Option<Object> port;
             if (portForwardingEnabled.isSelected()) {
-                port = Option.some(Settings.COMPUTER_PORT);
+                port = Option.apply(Settings.COMPUTER_PORT);
             } else {
-                port = Option.none();
+                port = Option.empty();
             }
-            peer.connect(this, codename, port.asScala());
+            peer.connect(this, codename, port);
         }
     }
 

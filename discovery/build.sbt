@@ -1,4 +1,5 @@
 val testDependencies = Seq(
+  "com.typesafe.akka" %% "akka-actor" % "2.4.12",
   "com.typesafe.akka" %% "akka-testkit" % "2.4.12" % "test"
 )
 

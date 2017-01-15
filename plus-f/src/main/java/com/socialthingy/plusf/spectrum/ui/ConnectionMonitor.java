@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum.ui;
 
-import com.socialthingy.plusf.p2p.Statistics;
+import com.socialthingy.p2p.Statistics;
 import com.socialthingy.plusf.util.ObservedValue;
 
 import javax.swing.*;

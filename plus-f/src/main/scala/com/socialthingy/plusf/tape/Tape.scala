@@ -1,9 +1,10 @@
 package com.socialthingy.plusf.tape
 
-import akka.japi.{Pair => JPair}
 import java.util.{List => JList}
 
 import scala.collection.JavaConverters._
+
+case class Pair[F, S](first: F, second: S)
 
 object Tape {
   def apply(version: String, blocks: JList[TapeBlock]): Tape =
@@ -11,7 +12,7 @@ object Tape {
 }
 
 class Tape(val version: String, val blocks: Array[TapeBlock]) {
-  lazy val archiveInfo: JList[JPair[String, String]] = {
+  lazy val archiveInfo: JList[Pair[String, String]] = {
     blocks.filter(_.isInstanceOf[ArchiveInfoBlock])
       .flatMap(_.asInstanceOf[ArchiveInfoBlock].getDescriptions.asScala.toList)
       .toList.asJava

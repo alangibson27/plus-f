@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.network;
 
-import com.socialthingy.plusf.p2p.Deserialiser;
-import com.socialthingy.plusf.p2p.Serialiser;
+import com.socialthingy.p2p.Deserialiser;
+import com.socialthingy.p2p.Serialiser;
 
 import java.nio.ByteBuffer;
 
