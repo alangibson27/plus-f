@@ -16,6 +16,10 @@ import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
 import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
 
 public class SwingDoubleSizeDisplay extends DisplayComponent {
+    static {
+        System.loadLibrary("plusf");
+    }
+
     private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     private static final double INNER_OUTER_RATIO = 1.125;
@@ -105,6 +109,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     @Override
     protected void scale(final int[] sourcePixels) {
+//        scale(sourcePixels, targetPixels);
         for (int x = 0; x < SCREEN_WIDTH; x++) {
             for (int y = 0; y < SCREEN_HEIGHT; y++) {
                 final int a = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y - 1) * UnsafeUtil.SCALE));
@@ -125,4 +130,6 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
             }
         }
     }
+
+    private native void scale(final int[] sourcePixels, final int[] targetPixels);
 }
