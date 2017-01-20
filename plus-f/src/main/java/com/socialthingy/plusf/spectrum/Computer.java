@@ -83,7 +83,7 @@ public class Computer {
         try {
             while (currentCycleTstates < tstatesPerRefresh) {
                 try {
-                    processor.execute();
+                    processor.execute(tstatesPerRefresh - currentCycleTstates);
                 } catch (ExecutionException ex) {
                     log.warn(String.format("Processor error encountered. Last operation: %s", ex.getOperation().toString()), ex);
                 } catch (Exception ex) {

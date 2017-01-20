@@ -1,8 +1,10 @@
 package com.socialthingy.plusf.z80
 
 import com.socialthingy.plusf.ProcessorSpec
+import com.socialthingy.plusf.spectrum.Model
+import org.scalatest.{BeforeAndAfter, Inspectors}
 
-class BlockOperationSpec extends ProcessorSpec {
+class BlockOperationSpec extends ProcessorSpec with Inspectors with BeforeAndAfter {
 
   "ldi" should "operate correctly when bc decrements to a non-zero value" in new Machine {
     // given
@@ -58,7 +60,7 @@ class BlockOperationSpec extends ProcessorSpec {
     flag("f5").value shouldBe true
   }
 
-  "ldir" should "operate correctly when bc is greater than 1" in new Machine {
+  "ldir at the end of a cycle" should "operate correctly when bc is greater than 1" in new Machine {
     // given
     registerContainsValue("a", 0x08)
     registerContainsValue("hl", 0x1000)
@@ -70,7 +72,7 @@ class BlockOperationSpec extends ProcessorSpec {
     nextInstructionIs(0xed, 0xb0)
 
     // when
-    processor.execute()
+    processor.execute(10)
 
     // then
     registerValue("pc") shouldBe 0x0000
@@ -78,13 +80,14 @@ class BlockOperationSpec extends ProcessorSpec {
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0x0009
+    registerValue("r") shouldBe 0x02
 
     flag("h").value shouldBe false
     flag("p").value shouldBe false
     flag("n").value shouldBe false
   }
 
-  "ldir" should "operate correctly when bc is 1" in new Machine {
+  it should "operate correctly when bc is 1" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
     registerContainsValue("de", 0x2000)
@@ -95,7 +98,7 @@ class BlockOperationSpec extends ProcessorSpec {
     nextInstructionIs(0xed, 0xb0)
 
     // when
-    processor.execute()
+    processor.execute(10)
 
     // then
     registerValue("pc") shouldBe 0x0002
@@ -103,13 +106,14 @@ class BlockOperationSpec extends ProcessorSpec {
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0x0000
+    registerValue("r") shouldBe 0x02
 
     flag("h").value shouldBe false
     flag("p").value shouldBe false
     flag("n").value shouldBe false
   }
 
-  "ldir" should "operate correctly when bc is 0" in new Machine {
+  it should "operate correctly when bc is 0" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
     registerContainsValue("de", 0x2000)
@@ -120,7 +124,7 @@ class BlockOperationSpec extends ProcessorSpec {
     nextInstructionIs(0xed, 0xb0)
 
     // when
-    processor.execute()
+    processor.execute(10)
 
     // then
     registerValue("pc") shouldBe 0x0000
@@ -128,6 +132,61 @@ class BlockOperationSpec extends ProcessorSpec {
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0xffff
+    registerValue("r") shouldBe 0x02
+
+    flag("h").value shouldBe false
+    flag("p").value shouldBe false
+    flag("n").value shouldBe false
+  }
+
+  "ldir stopped mid-way through a cycle" should "stop mid-way correctly" in new Machine {
+    // given
+    registerContainsValue("hl", 0x1000)
+    registerContainsValue("de", 0x2000)
+    registerContainsValue("bc", 0x000a)
+
+    (0x1000 to 0x1100) foreach (memory(_) = 0xff)
+
+    nextInstructionIs(0xed, 0xb0)
+
+    // when
+    processor.execute(105)
+
+    // then
+    registerValue("pc") shouldBe 0x0000
+    forAll(0x2000 to 0x2004) (memory(_) shouldBe 0xff)
+    memory(0x2005) shouldBe 0
+    registerValue("hl") shouldBe 0x1005
+    registerValue("de") shouldBe 0x2005
+    registerValue("bc") shouldBe 0x0005
+    registerValue("r") shouldBe 0x0a
+
+    flag("h").value shouldBe false
+    flag("p").value shouldBe false
+    flag("n").value shouldBe false
+  }
+
+  "ldir stopping mid-way through a cycle" should "finish correctly" in new Machine {
+    // given
+    registerContainsValue("hl", 0x1000)
+    registerContainsValue("de", 0x2000)
+    registerContainsValue("bc", 0x000a)
+
+    (0x1000 to 0x1100) foreach (memory(_) = 0xff)
+
+    nextInstructionIs(0xed, 0xb0)
+
+    // when
+    processor.execute(1000)
+
+    // then
+    registerValue("pc") shouldBe 0x0002
+    forAll(0x2000 to 0x2009) (memory(_) shouldBe 0xff)
+    memory(0x200a) shouldBe 0
+    registerValue("hl") shouldBe 0x100a
+    registerValue("de") shouldBe 0x200a
+    registerValue("bc") shouldBe 0x0000
+    registerValue("r") shouldBe 0x14
 
     flag("h").value shouldBe false
     flag("p").value shouldBe false

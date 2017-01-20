@@ -10,15 +10,17 @@ import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
 import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 abstract class BlockOperation implements Operation {
+    protected static final int LOOP_CYCLES = 21;
+    protected static final int FINAL_CYCLES = 16;
 
     protected final FlagsRegister flagsRegister;
-    private final Register accumulator;
-    private final Register pcReg;
-    private final Register bcReg;
-    private final Register deReg;
-    private final Register hlReg;
-    private final int[] memory;
-    private final int increment;
+    protected final Register accumulator;
+    protected final Register pcReg;
+    protected final Register bcReg;
+    protected final Register deReg;
+    protected final Register hlReg;
+    protected final int[] memory;
+    protected final int increment;
     protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     protected BlockOperation(final Processor processor, final int[] memory, final int increment) {
@@ -35,9 +37,9 @@ abstract class BlockOperation implements Operation {
     protected int adjustPC() {
         if (bcReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 21;
+            return LOOP_CYCLES;
         } else {
-            return 16;
+            return FINAL_CYCLES;
         }
     }
 

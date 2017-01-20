@@ -155,6 +155,10 @@ public class Processor {
     }
 
     public Operation execute() throws ExecutionException {
+        return execute(1000);
+    }
+
+    public Operation execute(final int cyclesRemaining) throws ExecutionException {
         final boolean enableIffAfterExecution = enableIff;
         final int pc = pcReg.get();
         final Operation op = fetch();
@@ -186,7 +190,11 @@ public class Processor {
         this.lastOp = op;
         this.lastPc = pc;
         try {
-            this.lastTime = op.execute();
+            if (op.hasOptimisedForm()) {
+                this.lastTime = op.executeOptimised(cyclesRemaining);
+            } else {
+                this.lastTime = op.execute();
+            }
 
             if (enableIffAfterExecution) {
                 enableIff = false;
