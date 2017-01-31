@@ -65,6 +65,8 @@ public class Emulator extends JFrame implements Runnable {
     private final KempstonJoystickInterface kempstonJoystickInterface;
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
+    private boolean turboLoadActive;
+    private ButtonModel turboLoadEnabled = new DefaultButtonModel();
 
     public Emulator() {
         this(new UserPreferences());
@@ -205,6 +207,11 @@ public class Emulator extends JFrame implements Runnable {
         final JMenuItem jumpToBlock = menuItemFor("Jump to Block ...", this::jumpToTapeBlock, empty());
         jumpToBlock.setModel(tapePlayer.getJumpButtonModel());
         tapeMenu.add(jumpToBlock);
+
+        final JCheckBoxMenuItem enableTurboLoad = new JCheckBoxMenuItem("Turbo-load");
+        enableTurboLoad.setModel(turboLoadEnabled);
+        turboLoadEnabled.setSelected(true);
+        tapeMenu.add(enableTurboLoad);
 
         menuBar.add(tapeMenu);
 
@@ -442,6 +449,10 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
+        if (newSpeed != EmulatorSpeed.TURBO) {
+            turboLoadActive = false;
+        }
+
         speedIndicator.setText(String.format("%s speed", newSpeed.displayName));
         currentSpeed = newSpeed;
         if (cycleTimer != null) {
@@ -472,9 +483,24 @@ public class Emulator extends JFrame implements Runnable {
                     display.updateBorder(ula, currentSpeed == EmulatorSpeed.TURBO);
                     SwingUtilities.invokeLater(display::repaint);
                 }
+
+                handleTurboLoading();
             } while (currentSpeed == EmulatorSpeed.TURBO);
         } catch (Exception ex) {
             log.error("Unexpected error during execution cycle", ex);
+        }
+    }
+
+    private void handleTurboLoading() {
+        if (!turboLoadActive && ula.inFeExecuted() && turboLoadEnabled.isSelected()
+                && tapePlayer.isPlaying() && currentSpeed != EmulatorSpeed.TURBO) {
+            turboLoadActive = true;
+            setSpeed(EmulatorSpeed.TURBO);
+        }
+
+        if (turboLoadActive && (!ula.inFeExecuted() || !tapePlayer.isPlaying())) {
+            turboLoadActive = false;
+            setSpeed(EmulatorSpeed.NORMAL);
         }
     }
 
@@ -566,6 +592,7 @@ public class Emulator extends JFrame implements Runnable {
         tapePlayer.ejectTape();
         keyboard.reset();
         cycleTimer.cancel(false);
+        turboLoadActive = false;
         setSpeed(EmulatorSpeed.NORMAL);
     }
 
