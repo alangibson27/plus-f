@@ -21,6 +21,7 @@ public class ULA implements IO {
     private int borderColour;
     private List<Long> borderChanges = new ArrayList<>();
     private int unchangedBorderCycles = 0;
+    private boolean inFeExecuted = false;
 
     public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
         this.keyboard = keyboard;
@@ -28,9 +29,14 @@ public class ULA implements IO {
         this.memory = memory;
     }
 
+    public boolean inFeExecuted() {
+        return inFeExecuted;
+    }
+
     @Override
     public int read(int port, int accumulator) {
         if (port == 0xfe) {
+            inFeExecuted = true;
             if (tapeCyclesAdvanced > 0) {
                 earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
                 tapeCyclesAdvanced = 0;
@@ -85,6 +91,7 @@ public class ULA implements IO {
             flashActive = !flashActive;
         }
         currentCycleTstates = 0;
+        inFeExecuted = false;
     }
 
     public boolean borderNeedsRedrawing() {
