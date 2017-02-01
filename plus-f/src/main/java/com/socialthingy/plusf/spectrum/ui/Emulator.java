@@ -21,9 +21,7 @@ import scala.Option;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -66,7 +64,7 @@ public class Emulator extends JFrame implements Runnable {
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
     private boolean turboLoadActive;
-    private ButtonModel turboLoadEnabled = new DefaultButtonModel();
+    private boolean turboLoadEnabled;
 
     public Emulator() {
         this(new UserPreferences());
@@ -209,8 +207,8 @@ public class Emulator extends JFrame implements Runnable {
         tapeMenu.add(jumpToBlock);
 
         final JCheckBoxMenuItem enableTurboLoad = new JCheckBoxMenuItem("Turbo-load");
-        enableTurboLoad.setModel(turboLoadEnabled);
-        turboLoadEnabled.setSelected(true);
+        enableTurboLoad.addItemListener(e -> turboLoadEnabled = enableTurboLoad.isSelected());
+        enableTurboLoad.setSelected(true);
         tapeMenu.add(enableTurboLoad);
 
         menuBar.add(tapeMenu);
@@ -492,7 +490,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void handleTurboLoading() {
-        if (!turboLoadActive && ula.inFeExecuted() && turboLoadEnabled.isSelected()
+        if (!turboLoadActive && ula.inFeExecuted() && turboLoadEnabled
                 && tapePlayer.isPlaying() && currentSpeed != EmulatorSpeed.TURBO) {
             turboLoadActive = true;
             setSpeed(EmulatorSpeed.TURBO);
