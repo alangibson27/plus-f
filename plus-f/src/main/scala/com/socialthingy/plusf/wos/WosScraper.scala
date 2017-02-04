@@ -5,6 +5,7 @@ import java.net.URL
 import java.util.stream.Collectors
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
 case class Title(name: String, location: URL) {
@@ -13,15 +14,48 @@ case class Title(name: String, location: URL) {
 case class Archive(name: String, location: URL) {
   override def toString = name
 }
+
 object WosScraper {
-  def apply() = new WosScraper("www.worldofspectrum.org")
-  def apply(host: String) = new WosScraper(host)
+  def apply() = new CachedWosScraper(new RawWosScraper("www.worldofspectrum.org"))
+  def apply(host: String) = new CachedWosScraper(new RawWosScraper(host))
 }
 
-class WosScraper(host: String) {
+trait WosScraper {
+  def findTitles(searchText: String): Seq[Title]
+  def findArchives(title: Title): Seq[Archive]
+}
+
+class CachedWosScraper(underlying: WosScraper) extends WosScraper {
+  private val titleCache = ListBuffer[(String, Seq[Title])]()
+  private val archiveCache = ListBuffer[(Title, Seq[Archive])]()
+
+  override def findTitles(searchText: String): Seq[Title] =
+    findFromCache(searchText, underlying.findTitles, titleCache)
+
+  override def findArchives(title: Title): Seq[Archive] =
+    findFromCache(title, underlying.findArchives, archiveCache)
+
+  private def findFromCache[K, V](key: K, underlying: K => Seq[V], cache: ListBuffer[(K, Seq[V])]): Seq[V] = {
+    val cached = cache.find(_._1 == key)
+    cached match {
+      case Some((_, results)) => results
+      case _ =>
+        val results = underlying(key)
+        if (results.nonEmpty) {
+          cache.append((key, results))
+          if (cache.size == 51) {
+            cache.remove(0)
+          }
+        }
+        results
+    }
+  }
+}
+
+class RawWosScraper(host: String) extends WosScraper {
   private val formats = List("TAP", "TZX")
 
-  def findTitles(searchText: String): Seq[Title] = {
+  override def findTitles(searchText: String): Seq[Title] = {
     def collectTitles(acc: Set[Title], maybeTitles: Try[List[Title]]) = maybeTitles match {
       case Success(newTitles) => acc ++ newTitles
       case Failure(_) => acc
@@ -31,7 +65,7 @@ class WosScraper(host: String) {
     titlesPerFormat.foldLeft(Set[Title]())(collectTitles).toList.sortBy(_.name)
   }
 
-  def findArchives(title: Title): Seq[Archive] = {
+  override def findArchives(title: Title): Seq[Archive] = {
     val content = scrape(
       title.location,
       l => l.contains("""<A HREF="/pub/sinclair/"""),

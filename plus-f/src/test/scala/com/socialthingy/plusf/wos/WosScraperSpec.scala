@@ -28,7 +28,7 @@ class WosScraperSpec extends FlatSpec with Matchers with BeforeAndAfterAll with 
     WOS hasTitlesMatching "Chuckie" ofFormat "TAP" returning tapChuckie
 
     When("I search for titles containing the word 'Chuckie'")
-    val searcher = WosScraper(host)
+    val searcher = new RawWosScraper(host)
     val titles = searcher.findTitles("Chuckie")
 
     Then("I should get a de-duped list of titles, ordered alphabetically")
@@ -47,7 +47,7 @@ class WosScraperSpec extends FlatSpec with Matchers with BeforeAndAfterAll with 
     WOS hasArchivesFor chuckieEgg returning chuckieEggArchives
 
     When("I ask for the archives for Chuckie Egg")
-    val searcher = WosScraper(host)
+    val searcher = new RawWosScraper(host)
     val archives = searcher.findArchives(chuckieEgg)
 
     Then("I should get the archives")

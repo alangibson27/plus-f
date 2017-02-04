@@ -13,6 +13,7 @@ lazy val pkgName = "Plus-F"
 
 name := pkgName
 
+mainClass in Compile := Some("com.socialthingy.plusf.spectrum.ui.PlusF")
 packageName in Universal := pkgName
 maintainer in Linux := "Alan Gibson <alangibson27@gmail.com>"
 packageSummary in Linux := "ZX Spectrum Emulator with Network Play Capability"

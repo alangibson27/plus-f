@@ -7,6 +7,12 @@ import javax.swing._
 import javax.swing.event.{TreeExpansionEvent, TreeSelectionEvent, TreeSelectionListener, TreeWillExpandListener}
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel}
 
+import com.socialthingy.plusf.spectrum.ui.ProgressDialog
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
+
 object WosTree extends App {
   val dialog = new WosTree
   dialog.setSize(new Dimension(500, 600))
@@ -79,16 +85,35 @@ class WosTree(owner: Frame = null) extends JDialog(owner) {
       if (searchBox.getText.length >= 3) {
         rootNode.removeAllChildren()
 
-        val titles = wosScraper.findTitles(searchBox.getText)
-        if (titles.isEmpty) {
-          rootNode.setUserObject("No matches found")
-        } else {
-          rootNode.setUserObject("Search results")
-          titles.foreach(t => rootNode.add(new DefaultMutableTreeNode(t, true)))
-          tree.getModel.asInstanceOf[DefaultTreeModel].reload(rootNode)
-          tree.expandRow(0)
+        val titles = Future { wosScraper.findTitles(searchBox.getText) }
+        val progressDialog = new ProgressDialog(
+          WosTree.this,
+          "Searching",
+          () => ()
+        )
+        progressDialog.setMessage(s"""Searching WOS for "${searchBox.getText}..."""")
+        progressDialog.setVisible(true)
+
+        titles.onComplete { result =>
+          if (!progressDialog.wasCancelled()) onEventThread {
+            progressDialog.close()
+            handleResult(result)
+          }
         }
       }
+    }
+
+    private def handleResult(result: Try[Seq[Title]]) = result match {
+        case Success(t) if t.isEmpty => rootNode.setUserObject("No matches found")
+
+        case Success(t) =>
+          rootNode.setUserObject("Search results")
+          t.foreach(t => rootNode.add(new DefaultMutableTreeNode(t, true)))
+          tree.getModel.asInstanceOf[DefaultTreeModel].reload(rootNode)
+          tree.expandRow(0)
+
+        case Failure(f) =>
+          rootNode.setUserObject("Search error, please try again")
     }
   }
 
@@ -96,16 +121,43 @@ class WosTree(owner: Frame = null) extends JDialog(owner) {
     override def treeWillExpand(event: TreeExpansionEvent): Unit = {
       val selected = event.getPath.getLastPathComponent.asInstanceOf[DefaultMutableTreeNode]
       selected.getUserObject match {
-        case t: Title =>
-          val archives = wosScraper.findArchives(t)
-          archives.foreach(a => selected.add(new DefaultMutableTreeNode(a, false)))
-          tree.getModel.asInstanceOf[DefaultTreeModel].reload(selected)
-
+        case t: Title => loadArchives(selected, t)
         case _ =>
       }
     }
 
     override def treeWillCollapse(event: TreeExpansionEvent): Unit = {}
+
+    private def loadArchives(selectedNode: DefaultMutableTreeNode, title: Title) = {
+      val archives = Future { wosScraper.findArchives(title) }
+      val progressDialog = new ProgressDialog(
+        WosTree.this,
+        "Searching",
+        () => ()
+      )
+      progressDialog.setMessage(s"""Finding archives for "${title.name}..."""")
+      progressDialog.setVisible(true)
+
+      archives.onComplete { result =>
+        if (!progressDialog.wasCancelled()) onEventThread {
+          progressDialog.close()
+          handleResult(selectedNode, result)
+        }
+      }
+    }
+
+    private def handleResult(selectedNode: DefaultMutableTreeNode, result: Try[Seq[Archive]]) = {
+      selectedNode.removeAllChildren()
+      result match {
+        case Success(archives) =>
+          archives.foreach(a => selectedNode.add(new DefaultMutableTreeNode(a, false)))
+          tree.getModel.asInstanceOf[DefaultTreeModel].reload(selectedNode)
+
+        case _ =>
+          selectedNode.add(new DefaultMutableTreeNode("No suitable archives found"))
+          tree.getModel.asInstanceOf[DefaultTreeModel].reload(selectedNode)
+      }
+    }
   }
 
   object LoadButtonActivator extends TreeSelectionListener {
@@ -114,4 +166,6 @@ class WosTree(owner: Frame = null) extends JDialog(owner) {
       loadButton.setEnabled(selected.getUserObject.isInstanceOf[Archive])
     }
   }
+
+  private def onEventThread(code: => Any) = SwingUtilities.invokeLater(() => code)
 }
