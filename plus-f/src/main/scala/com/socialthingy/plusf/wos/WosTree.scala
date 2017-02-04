@@ -13,21 +13,26 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
-object WosTree extends App {
+object WosTreeTest extends App {
   val dialog = new WosTree
   dialog.setSize(new Dimension(500, 600))
   dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
   println(dialog.selectArchive)
 }
 
+object WosTree {
+  val wosScraper = WosScraper("www.worldofspectrum.org")
+}
+
 class WosTree(owner: Frame = null) extends JDialog(owner) {
+  import WosTree.wosScraper
+
   def selectArchive: Optional[Archive] = {
     setVisible(true)
     dispose()
     selected
   }
 
-  private val wosScraper = WosScraper("www.worldofspectrum.org")
   private val rootNode = new DefaultMutableTreeNode("Search Results")
   private val tree = new JTree(rootNode, true)
   private val searchBox = new JTextField()

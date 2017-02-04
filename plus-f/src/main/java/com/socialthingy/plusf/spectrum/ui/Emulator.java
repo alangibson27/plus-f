@@ -550,8 +550,34 @@ public class Emulator extends JFrame implements Runnable {
 
     private void loadFromArchive(final Archive archive) {
         try (final InputStream is = archive.location().openStream()) {
-            final File downloaded = File.createTempFile("plusf", "zip");
-            downloaded.deleteOnExit();
+            final int keepFile = JOptionPane.showConfirmDialog(
+                    this,
+                    "Do you want to save this archive?",
+                    "Save Downloaded Archive?",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            final File downloaded;
+            if (keepFile == JOptionPane.YES_OPTION) {
+                final JFileChooser chooser = new JFileChooser("Load .TAP, .TZX or .Z80 file");
+                if (prefs.definedFor(LAST_LOAD_DIRECTORY)) {
+                    chooser.setCurrentDirectory(new File(prefs.get(LAST_LOAD_DIRECTORY)));
+                }
+                chooser.setSelectedFile(new File(chooser.getCurrentDirectory(), archive.name()));
+
+                final int result = chooser.showSaveDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    downloaded = chooser.getSelectedFile();
+                } else {
+                    downloaded = File.createTempFile("plusf", "zip");
+                    downloaded.deleteOnExit();
+                }
+            } else {
+                downloaded = File.createTempFile("plusf", "zip");
+                downloaded.deleteOnExit();
+            }
+
             Files.copy(is, downloaded.toPath(), REPLACE_EXISTING);
             detectAndLoad(downloaded);
         } catch (TapeException|IOException e) {
