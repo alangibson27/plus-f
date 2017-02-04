@@ -3,8 +3,6 @@ import S3._
 s3Settings
 
 val plusfDependencies = Seq(
-  "com.google.http-client" % "google-http-client" % "1.22.0",
-  "com.google.http-client" % "google-http-client-xml" % "1.22.0",
   "org.easytesting" % "fest-swing" % "1.2.1" % "test",
   "com.github.tomakehurst" % "wiremock" % "2.5.1" % "test"
 )
