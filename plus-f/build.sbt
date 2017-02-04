@@ -2,14 +2,18 @@ import S3._
 
 s3Settings
 
-val testDependencies = Seq(
-  "org.easytesting" % "fest-swing" % "1.2.1" % "test"
+val plusfDependencies = Seq(
+  "com.google.http-client" % "google-http-client" % "1.22.0",
+  "com.google.http-client" % "google-http-client-xml" % "1.22.0",
+  "org.easytesting" % "fest-swing" % "1.2.1" % "test",
+  "com.github.tomakehurst" % "wiremock" % "2.5.1" % "test"
 )
 
 lazy val pkgName = "Plus-F"
 
 name := pkgName
 
+mainClass in Compile := Some("com.socialthingy.plusf.spectrum.ui.PlusF")
 packageName in Universal := pkgName
 maintainer in Linux := "Alan Gibson <alangibson27@gmail.com>"
 packageSummary in Linux := "ZX Spectrum Emulator with Network Play Capability"
@@ -37,7 +41,7 @@ host in upload := "download.socialthingy.com.s3.amazonaws.com"
 
 progress in upload := true
 
-libraryDependencies ++= testDependencies
+libraryDependencies ++= plusfDependencies
 
 lazy val buildZip = taskKey[File]("creates universal zip file")
 lazy val buildDebian = taskKey[File]("creates Debian file")

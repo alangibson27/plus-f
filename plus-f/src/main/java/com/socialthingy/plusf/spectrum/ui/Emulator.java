@@ -12,6 +12,9 @@ import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestStateType;
 import com.socialthingy.plusf.tape.*;
+import com.socialthingy.plusf.wos.Archive;
+import com.socialthingy.plusf.wos.WosTree;
+import com.socialthingy.plusf.wos.ZipUtils;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import org.slf4j.Logger;
@@ -26,11 +29,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 
 import static com.socialthingy.plusf.spectrum.UserPreferences.LAST_LOAD_DIRECTORY;
 import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
@@ -38,7 +43,9 @@ import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Optional.empty;
+import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class Emulator extends JFrame implements Runnable {
     private final Logger log = LoggerFactory.getLogger(Emulator.class);
@@ -131,7 +138,8 @@ public class Emulator extends JFrame implements Runnable {
 
         final JMenuBar menuBar = new JMenuBar();
         final JMenu fileMenu = new JMenu("File");
-        fileMenu.add(menuItemFor("Load", this::load, Optional.of(KeyEvent.VK_L)));
+        fileMenu.add(menuItemFor("Load from file ...", this::load, Optional.of(KeyEvent.VK_L)));
+        fileMenu.add(menuItemFor("Load from WOS ...", this::loadFromWos, Optional.of(KeyEvent.VK_W)));
         fileMenu.add(menuItemFor("Quit", this::quit, Optional.of(KeyEvent.VK_Q)));
         menuBar.add(fileMenu);
 
@@ -530,6 +538,58 @@ public class Emulator extends JFrame implements Runnable {
         });
     }
 
+    private void loadFromWos(final ActionEvent e) {
+        whilePaused(() -> {
+            final WosTree chooser = new WosTree(this);
+            chooser.setSize(500, 600);
+            chooser.setLocationRelativeTo(this);
+            final Optional<Archive> result = chooser.selectArchive();
+            result.ifPresent(this::loadFromArchive);
+        });
+    }
+
+    private void loadFromArchive(final Archive archive) {
+        try (final InputStream is = archive.location().openStream()) {
+            final int keepFile = JOptionPane.showConfirmDialog(
+                    this,
+                    "Do you want to save this archive?",
+                    "Save Downloaded Archive?",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            final File downloaded;
+            if (keepFile == JOptionPane.YES_OPTION) {
+                final JFileChooser chooser = new JFileChooser("Load .TAP, .TZX or .Z80 file");
+                if (prefs.definedFor(LAST_LOAD_DIRECTORY)) {
+                    chooser.setCurrentDirectory(new File(prefs.get(LAST_LOAD_DIRECTORY)));
+                }
+                chooser.setSelectedFile(new File(chooser.getCurrentDirectory(), archive.name()));
+
+                final int result = chooser.showSaveDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    downloaded = chooser.getSelectedFile();
+                } else {
+                    downloaded = File.createTempFile("plusf", "zip");
+                    downloaded.deleteOnExit();
+                }
+            } else {
+                downloaded = File.createTempFile("plusf", "zip");
+                downloaded.deleteOnExit();
+            }
+
+            Files.copy(is, downloaded.toPath(), REPLACE_EXISTING);
+            detectAndLoad(downloaded);
+        } catch (TapeException|IOException e) {
+            JOptionPane.showMessageDialog(
+                this,
+                "There was an error opening the archive.",
+                "Archive Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
     private void detectAndLoad(final File selectedFile) throws IOException, TapeException {
         final byte[] prelude = new byte[256];
         try (final InputStream is = new FileInputStream(selectedFile)) {
@@ -542,9 +602,66 @@ public class Emulator extends JFrame implements Runnable {
         } else if (TapeFileReader.recognises(prelude)) {
             final Tape tzx = new TapeFileReader(selectedFile).readTzx();
             tapePlayer.setTape(tzx);
+        } else if (ZipUtils.isZipFile(selectedFile)) {
+            loadFromZip(selectedFile);
         } else {
             final int borderColour = computer.loadSnapshot(selectedFile);
             ula.setBorderColour(borderColour);
+        }
+    }
+
+    private void loadFromZip(final File zipFile) throws IOException, TapeException {
+        final List<ZipEntry> filesInZip = ZipUtils.findFiles(zipFile);
+        if (filesInZip.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "No tape files were found in this archive",
+                "No Tape Files Found",
+                JOptionPane.ERROR_MESSAGE
+            );
+        } else if (filesInZip.size() == 1) {
+            unzipAndLoad(zipFile, filesInZip.get(0));
+        } else {
+            final Optional<ZipEntry> fileInZip = selectFromZip(filesInZip);
+            if (fileInZip.isPresent()) {
+                unzipAndLoad(zipFile, fileInZip.get());
+            }
+        }
+    }
+
+    private void unzipAndLoad(final File selectedFile, final ZipEntry fileInZip) throws IOException, TapeException {
+        final Optional<File> unzipped = ZipUtils.unzipFile(selectedFile, fileInZip);
+        if (unzipped.isPresent()) {
+            detectAndLoad(unzipped.get());
+        } else {
+            JOptionPane.showMessageDialog(
+                this,
+                "There was a problem attempting to unzip the file from the archive.",
+                "Archive Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private Optional<ZipEntry> selectFromZip(final List<ZipEntry> filesInZip) {
+        final DefaultListModel<ZipEntry> listModel = new DefaultListModel<>();
+        filesInZip.forEach(listModel::addElement);
+        final JList<ZipEntry> entryList = new JList<>(listModel);
+        entryList.setSelectionMode(SINGLE_SELECTION);
+        entryList.setSelectedIndex(0);
+
+        final int result = JOptionPane.showConfirmDialog(
+            this,
+            entryList,
+            "Select Tap",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (result == JOptionPane.OK_OPTION) {
+            return Optional.of(entryList.getSelectedValue());
+        } else {
+            return Optional.empty();
         }
     }
 

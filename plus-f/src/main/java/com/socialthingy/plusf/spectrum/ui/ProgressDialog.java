@@ -11,6 +11,7 @@ public class ProgressDialog extends JDialog {
     private static final int WIDTH = 300;
     private static final int HEIGHT = 100;
     private final JLabel message = new JLabel("");
+    private boolean wasCancelled = false;
 
     public ProgressDialog(final Window parent, final String title, final Runnable onCancel) {
         super(parent, title);
@@ -30,13 +31,16 @@ public class ProgressDialog extends JDialog {
         pack();
 
         cancelButton.addActionListener(ae -> {
+            wasCancelled = true;
+            setVisible(false);
+            dispose();
             onCancel.run();
-            close();
         });
 
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(final WindowEvent e) {
+                wasCancelled = true;
                 onCancel.run();
                 dispose();
             }
@@ -46,6 +50,11 @@ public class ProgressDialog extends JDialog {
     public void close() {
         setVisible(false);
         dispose();
+        wasCancelled = false;
+    }
+
+    public boolean wasCancelled() {
+        return wasCancelled;
     }
 
     public void setMessage(final String messageText) {
