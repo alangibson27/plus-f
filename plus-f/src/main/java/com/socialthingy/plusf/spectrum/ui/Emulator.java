@@ -32,6 +32,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -60,9 +62,11 @@ public class Emulator extends JFrame implements Runnable {
     private Model currentModel;
     private final SwingKeyboard keyboard;
     private final ScheduledThreadPoolExecutor cycleScheduler;
+    private final Executor soundScheduler = Executors.newSingleThreadExecutor();
     private ScheduledFuture<?> cycleTimer;
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
+    private JLabel soundIndicator;
     private final ULA ula;
     private final Processor processor;
     private long lastRepaint;
@@ -128,6 +132,7 @@ public class Emulator extends JFrame implements Runnable {
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
+        soundIndicator = new JLabel(String.format("%3.2f", 0.0));
 
         setTitle("+F Spectrum Emulator");
         initialiseUI();
@@ -236,12 +241,13 @@ public class Emulator extends JFrame implements Runnable {
         });
 
         final TapeControls tapeControls = new TapeControls(tapePlayer);
-        final JPanel statusBar = new JPanel(new GridLayout(1, 3));
+        final JPanel statusBar = new JPanel(new GridLayout(1, 4));
         speedIndicator.setHorizontalAlignment(SwingConstants.TRAILING);
         statusBar.add(
             new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
         );
         statusBar.add(tapeControls);
+        statusBar.add(soundIndicator);
         statusBar.add(speedIndicator);
 
         setJMenuBar(menuBar);
@@ -488,6 +494,21 @@ public class Emulator extends JFrame implements Runnable {
                     display.updateScreen(memory, ula);
                     display.updateBorder(ula, currentSpeed == EmulatorSpeed.TURBO);
                     SwingUtilities.invokeLater(display::repaint);
+                }
+
+                if (ula.getBeeperChanges().size() > 1) {
+//                    soundIndicator.setText(String.format("%3.2f", frequency - 4));
+//                    soundScheduler.execute(() -> beeper.beep(frequency));
+
+//                    System.out.println(ula.getBeeperChanges());
+                    // 1 tstate = 0.000000282s
+                    // middle C = 261.63Hz, beeper tstates = 6686, length = 0.001885824s
+                    // D = (1/(5958*0.000000141)) Hz = 297.59Hz, beeper tstates = 5958, length = 0.001680487
+                    // C = (1/(6686*0.000000141)) Hz = 265.19Hz
+                    // subtract 4?
+                    // beeper tstate = 12918, frequency = (1/(12918*0.000000141)) =
+                } else {
+                    soundIndicator.setText(String.format("%3.2f", 0.0));
                 }
 
                 handleTurboLoading();

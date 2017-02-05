@@ -1,5 +1,7 @@
 package com.socialthingy.plusf.spectrum.io;
 
+import com.socialthingy.plusf.sound.Beeper;
+import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
@@ -20,13 +22,19 @@ public class ULA implements IO {
     private int cyclesUntilFlashChange = 16;
     private int borderColour;
     private List<Long> borderChanges = new ArrayList<>();
+    private List<Long> beeperChanges = new ArrayList<>();
     private int unchangedBorderCycles = 0;
     private boolean inFeExecuted = false;
+    private boolean earWasOn = false;
+    private boolean micWasOn = false;
+    private long lastBeeperChange = 0;
+    private final Beeper beeper;
 
     public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.memory = memory;
+        this.beeper = new Beeper(32000);
     }
 
     public boolean inFeExecuted() {
@@ -39,6 +47,14 @@ public class ULA implements IO {
             inFeExecuted = true;
             if (tapeCyclesAdvanced > 0) {
                 earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
+
+//                final boolean micIsOn = earBit != 0;
+//                if (micIsOn != micWasOn) {
+//                    beeperChanges.add(currentCycleTstates - lastBeeperChange);
+//                    lastBeeperChange = currentCycleTstates;
+//                    micWasOn = micIsOn;
+//                }
+
                 tapeCyclesAdvanced = 0;
             }
             return keyboard.readKeyboard(accumulator) | earBit;
@@ -54,6 +70,14 @@ public class ULA implements IO {
                 unchangedBorderCycles = 0;
                 borderColour = newBorderColour;
                 borderChanges.add(((long) currentCycleTstates << 32) | borderColour);
+            }
+
+            final boolean earIsOn = (value & 0b10000) > 0;
+            if (earIsOn != earWasOn) {
+                final double frequency = 1.0 / ((currentCycleTstates - lastBeeperChange) * (0.04 / Model.PLUS_2.tstatesPerRefresh));
+                beeper.beep(frequency);
+                lastBeeperChange = currentCycleTstates;
+                earWasOn = earIsOn;
             }
         }
 
@@ -79,7 +103,14 @@ public class ULA implements IO {
         return borderChanges;
     }
 
+    public List<Long> getBeeperChanges() {
+        return beeperChanges;
+    }
+
     public void newCycle() {
+        beeperChanges.clear();
+        lastBeeperChange = 0;
+//        lastBeeperChange = lastBeeperChange - Model.PLUS_2.tstatesPerRefresh;
         if (borderChanges.size() == 1) {
             unchangedBorderCycles++;
         }
