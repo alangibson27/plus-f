@@ -19,7 +19,7 @@ public class PulseSequenceBlock extends TapeBlock {
                 pulseLengths[i] = nextWord(tzxFile);
             }
 
-            return Try.success(new PulseSequenceBlock(pulseLengths));
+            return Try.success(new PulseSequenceBlock(Adjustment.NO_CHANGE, pulseLengths));
         } catch (IOException ex) {
             return Try.failure(ex);
         }
