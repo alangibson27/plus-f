@@ -74,6 +74,7 @@ public class Processor {
         final ByteRegister eReg = new ByteRegister("e");
         final ByteRegister hReg = new ByteRegister("h");
         final ByteRegister lReg = new ByteRegister("l");
+        final ByteRegister mysteryReg = new ByteRegister("?");
 
         final BytePairRegister afReg = new BytePairRegister(aReg, fReg);
         final BytePairRegister bcReg = new BytePairRegister(bReg, cReg);
@@ -98,6 +99,7 @@ public class Processor {
         registers.put("l", lReg);
         registers.put("i", iReg);
         registers.put("r", rReg);
+        registers.put("?", mysteryReg);
 
         registers.put("af", afReg);
         registers.put("bc", bcReg);

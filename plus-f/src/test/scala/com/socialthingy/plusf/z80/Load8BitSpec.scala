@@ -181,6 +181,19 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerValue("pc") shouldBe 0x0003
       registerValue(dest) shouldBe memoryValue
     }
+
+    s"ld $dest, ($source + d)" should s"set the mystery register to the high byte of ($source + d)" in new Machine {
+      // given
+      val offset = 1
+      nextInstructionIs(opcode._1, opcode._2, offset)
+      registerContainsValue(source, 0x10ff)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("?") shouldBe 0x11
+    }
   }
 
   "ld a, (ix + d)" should "transfer value from indexed referenced address when the offset wraps around the bottom of memory" in new Machine {

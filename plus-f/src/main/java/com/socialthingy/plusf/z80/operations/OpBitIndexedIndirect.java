@@ -21,9 +21,10 @@ public class OpBitIndexedIndirect extends BitOperation {
 
     @Override
     public int execute() {
-        final int offset = processor.fetchRelative(-2);
-        checkBit(unsafe.getInt(memory, BASE + (indexRegister.withOffset(offset) * SCALE)));
-        flagsRegister.setUndocumentedFlagsFromValue((indexRegister.getHigh() + offset) & 0xff);
+        final int withOffset = indexRegister.withOffset(processor.fetchRelative(-2));
+        checkBit(unsafe.getInt(memory, BASE + (withOffset * SCALE)));
+        final int undocumentedFlagSource = withOffset >> 8;
+        flagsRegister.setUndocumentedFlagsFromValue(undocumentedFlagSource);
         return 20;
     }
 

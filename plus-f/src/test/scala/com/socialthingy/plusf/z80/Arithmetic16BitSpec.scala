@@ -30,6 +30,20 @@ class Arithmetic16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       flag("f3").value shouldBe false
       flag("f5").value shouldBe true
     }
+
+    s"add hl, $register" should "set the mystery register to the high byte of hl before addition" in new Machine {
+      // given
+      registerContainsValue("hl", 0x11ff)
+      registerContainsValue(register, 0x0001)
+
+      nextInstructionIs(opcode)
+
+      // when
+      processor.execute()
+
+      // then
+      registerValue("?") shouldBe 0x11
+    }
   }
 
   "add hl, hl" should "calculate a result with no carry or half carry" in new Machine {

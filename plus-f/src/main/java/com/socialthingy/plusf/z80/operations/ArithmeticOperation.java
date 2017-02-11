@@ -41,14 +41,17 @@ abstract class ArithmeticOperation implements Operation {
         flagsRegister.setUndocumentedFlagsFromValue(answer);
     }
 
-    protected int sub(int value, final boolean setUndocumentedFlagsFromResult) {
+    protected int sub(final int value, final boolean setUndocumentedFlagsFromResult) {
         final byte signedAccumulator = (byte) accumulator.get();
 
+        final int valueWithCarry;
         if (useCarryFlag && flagsRegister.get(Flag.C)) {
-            value = value + 1;
+            valueWithCarry = value + 1;
+        } else {
+            valueWithCarry = value;
         }
 
-        final int result = Bitwise.sub(accumulator.get(), value);
+        final int result = Bitwise.sub(accumulator.get(), valueWithCarry);
         final int answer = result & 0xff;
         flagsRegister.set(Flag.N, true);
         setCommonFlags(signedAccumulator, result);

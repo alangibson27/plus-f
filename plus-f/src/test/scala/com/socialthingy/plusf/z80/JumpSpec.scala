@@ -165,6 +165,18 @@ class JumpSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     }
   }
 
+  it should "set the mystery register to the high byte of the jump destination" in new Machine {
+    // given
+    registerContainsValue("pc", 0x10ff)
+    nextInstructionIs(0x18, 1)
+
+    // when
+    processor.execute()
+
+    // then
+    registerValue("?") shouldBe 0x11
+  }
+
   forAll(jumpOnPositiveValues) { (flagValue, shouldJump, text) =>
     "jr c, n" should s"$text jump if c flag is $flagValue" in new Machine {
       // given

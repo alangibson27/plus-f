@@ -15,6 +15,7 @@ public class OpLd8RegIndexedIndirect implements Operation {
     private final Processor processor;
     private final int[] memory;
     private final Register dest;
+    private final Register mysteryRegister;
     private final IndexRegister indexRegister;
     private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
@@ -22,12 +23,15 @@ public class OpLd8RegIndexedIndirect implements Operation {
         this.processor = processor;
         this.memory = memory;
         this.dest = dest;
+        this.mysteryRegister = processor.register("?");
         this.indexRegister = IndexRegister.class.cast(indexRegister);
     }
 
     @Override
     public int execute() {
-        dest.set(unsafe.getInt(memory, BASE + (indexRegister.withOffset(processor.fetchNextByte()) * SCALE)));
+        final int withOffset = indexRegister.withOffset(processor.fetchNextByte());
+        mysteryRegister.set(withOffset >> 8);
+        dest.set(unsafe.getInt(memory, BASE + (withOffset * SCALE)));
         return 19;
     }
 

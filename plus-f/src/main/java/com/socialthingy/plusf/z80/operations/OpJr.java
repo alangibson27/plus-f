@@ -8,16 +8,20 @@ public class OpJr implements Operation {
 
     private final Processor processor;
     private final Register pcReg;
+    private final Register mysteryReg;
 
     public OpJr(final Processor processor) {
         this.processor = processor;
         this.pcReg = processor.register("pc");
+        this.mysteryReg = processor.register("?");
     }
 
     @Override
     public int execute() {
         final byte offset = (byte) processor.fetchNextByte();
-        pcReg.set(pcReg.get() + offset);
+        final int target = (pcReg.get() + offset) & 0xffff;
+        mysteryReg.set(target >> 8);
+        pcReg.set(target);
         return 12;
     }
 

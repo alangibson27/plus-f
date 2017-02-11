@@ -98,7 +98,7 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
           flag("h").value shouldBe true
           flag("n").value shouldBe false
 
-          val undocumentedValue = (0x12 + offset) & 0xff
+          val undocumentedValue = ((0x1234 + offset.asInstanceOf[Byte]) & 0xffff) >> 8
           flag("f3").value shouldBe (undocumentedValue & 8) > 0
           flag("f5").value shouldBe (undocumentedValue & 32) > 0
 

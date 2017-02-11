@@ -58,7 +58,8 @@ abstract class BlockOperation implements Operation {
 
     protected int blockCompare() {
         final int hlValue = hlReg.get();
-        final int result = Bitwise.sub(accumulator.get(), unsafe.getInt(memory, BASE + (hlValue * SCALE)));
+        final int hlContents = unsafe.getInt(memory, BASE + (hlValue * SCALE));
+        final int result = Bitwise.sub(accumulator.get(), hlContents);
         hlReg.set(hlValue + increment);
         final int counter = bcReg.set(bcReg.get() - 1);
 
@@ -70,7 +71,7 @@ abstract class BlockOperation implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, counter != 0);
         flagsRegister.set(FlagsRegister.Flag.N, true);
 
-        final int undocumentedValue = (accumulator.get() - unsafe.getInt(memory, BASE + (hlValue * SCALE)) - halfCarry);
+        final int undocumentedValue = (accumulator.get() - hlContents - halfCarry) & 0xff;
         flagsRegister.set(FlagsRegister.Flag.F3, (undocumentedValue & 0b00001000) > 0);
         flagsRegister.set(FlagsRegister.Flag.F5, (undocumentedValue & 0b00000010) > 0);
 

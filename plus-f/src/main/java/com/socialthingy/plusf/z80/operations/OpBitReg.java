@@ -20,8 +20,12 @@ public class OpBitReg extends BitOperation {
     public int execute() {
         final int value = register.get();
         checkBit(value);
-        flagsRegister.set(FlagsRegister.Flag.F3, bitSet(value, 3));
-        flagsRegister.set(FlagsRegister.Flag.F5, bitSet(value, 5));
+        if (bitPosition == 3) {
+            flagsRegister.set(FlagsRegister.Flag.F3, bitSet(value, 3));
+        }
+        if (bitPosition == 5) {
+            flagsRegister.set(FlagsRegister.Flag.F5, bitSet(value, 5));
+        }
         return 8;
     }
 
