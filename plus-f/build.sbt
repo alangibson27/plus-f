@@ -25,6 +25,16 @@ jdkPackagerBasename := pkgName
 jdkPackagerType := "exe"
 jdkPackagerToolkit := SwingToolkit
 
+linuxPackageMappings ++= {
+  val desktopFile = baseDirectory.value / "src" / "main" / "usr" / "share" / "applications" / "plus-f" / "plus-f.desktop"
+  val iconFile = baseDirectory.value / "src" / "main" / "resources" / "icons" / "plus-f.png"
+
+  Seq(
+    packageMapping(desktopFile -> "/usr/share/applications/plus-f.desktop"),
+    packageMapping(iconFile -> "/usr/share/plus-f/bin/plus-f.png")
+  )
+}
+
 parallelExecution in Test := false
 
 mappings in upload := {

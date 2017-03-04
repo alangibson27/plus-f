@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Plus-F
+Comment=ZX Spectrum Emulator with Network Play Capability
+Exec=/usr/share/plus-f/bin/plus-f
+Icon=/usr/share/plus-f/bin/plus-f.png
+Type=Application
+StartupNotify=true
+Categories=Games;
