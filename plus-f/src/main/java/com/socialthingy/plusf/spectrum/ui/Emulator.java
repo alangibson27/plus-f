@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
+import com.socialthingy.plusf.sound.Beeper;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
@@ -32,8 +33,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -62,11 +61,11 @@ public class Emulator extends JFrame implements Runnable {
     private Model currentModel;
     private final SwingKeyboard keyboard;
     private final ScheduledThreadPoolExecutor cycleScheduler;
-    private final Executor soundScheduler = Executors.newSingleThreadExecutor();
     private ScheduledFuture<?> cycleTimer;
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
     private JLabel soundIndicator;
+    private final Beeper beeper;
     private final ULA ula;
     private final Processor processor;
     private long lastRepaint;
@@ -100,7 +99,8 @@ public class Emulator extends JFrame implements Runnable {
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, this.memory);
+        beeper = new Beeper(false);
+        ula = new ULA(keyboard, tapePlayer, this.memory, this.beeper);
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -496,21 +496,8 @@ public class Emulator extends JFrame implements Runnable {
                     SwingUtilities.invokeLater(display::repaint);
                 }
 
-                if (ula.getBeeperChanges().size() > 1) {
-//                    soundIndicator.setText(String.format("%3.2f", frequency - 4));
-//                    soundScheduler.execute(() -> beeper.beep(frequency));
-
-//                    System.out.println(ula.getBeeperChanges());
-                    // 1 tstate = 0.000000282s
-                    // middle C = 261.63Hz, beeper tstates = 6686, length = 0.001885824s
-                    // D = (1/(5958*0.000000141)) Hz = 297.59Hz, beeper tstates = 5958, length = 0.001680487
-                    // C = (1/(6686*0.000000141)) Hz = 265.19Hz
-                    // subtract 4?
-                    // beeper tstate = 12918, frequency = (1/(12918*0.000000141)) =
-                } else {
-                    soundIndicator.setText(String.format("%3.2f", 0.0));
-                }
-
+                final double frequency = beeper.play();
+                soundIndicator.setText(String.format("%3.2f", frequency));
                 handleTurboLoading();
             } while (currentSpeed == EmulatorSpeed.TURBO);
         } catch (Exception ex) {

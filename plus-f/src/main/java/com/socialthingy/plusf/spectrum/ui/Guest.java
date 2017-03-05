@@ -180,7 +180,7 @@ public class Guest extends JFrame implements Runnable {
 
 class GuestULA extends ULA {
     GuestULA() {
-        super(null, null, null);
+        super(null, null, null, null);
     }
 
     void setBorderChanges(final List<Long> borderChanges) {

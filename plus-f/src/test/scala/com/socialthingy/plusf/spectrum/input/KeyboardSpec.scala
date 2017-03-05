@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.spectrum.input
 
+import com.socialthingy.plusf.sound.Beeper
 import com.socialthingy.plusf.spectrum.TapePlayer
 import com.socialthingy.plusf.spectrum.io.{Keyboard, ULA}
 import org.scalatest.mock.MockitoSugar
@@ -84,7 +85,7 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
 
   trait Spectrum {
     val keyboard = new Keyboard()
-    val ula = new ULA(keyboard, new TapePlayer(), Array.ofDim[Int](0x10000))
+    val ula = new ULA(keyboard, new TapePlayer(), Array.ofDim[Int](0x10000), new Beeper)
   }
 
   implicit class BinaryOps(i: String) {
