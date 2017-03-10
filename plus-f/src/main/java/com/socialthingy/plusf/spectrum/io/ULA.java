@@ -45,9 +45,11 @@ public class ULA implements IO {
             if (tapeCyclesAdvanced > 0) {
                 earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
 
-                final boolean micIsOn = earBit != 0;
+                final boolean micIsOn = earBit == 0;
                 if (micIsOn != micWasOn) {
-                    beeper.beep(tstatesToMillis(currentCycleTstates));
+                    if (micIsOn) {
+                        beeper.beep(currentCycleTstates);
+                    }
                     micWasOn = micIsOn;
                 }
 
@@ -56,12 +58,6 @@ public class ULA implements IO {
             return keyboard.readKeyboard(accumulator) | earBit;
         }
         return 0;
-    }
-
-    private static final double SINGLE_TSTATE_LENGTH_MS = (1.0 / (69888.0 * 50.0)) * 1000;
-
-    private int tstatesToMillis(final int tstates) {
-        return (int) (SINGLE_TSTATE_LENGTH_MS * tstates);
     }
 
     @Override
@@ -74,11 +70,11 @@ public class ULA implements IO {
                 borderChanges.add(((long) currentCycleTstates << 32) | borderColour);
             }
 
-            final boolean earIsOn = (value & 0b10000) > 0;
+            final boolean earIsOn = (value & 0b10000) == 0;
             if (earIsOn != earWasOn) {
-                beeper.beep(tstatesToMillis(currentCycleTstates));
-                earWasOn = earIsOn;
+                beeper.beep(currentCycleTstates);
             }
+            earWasOn = earIsOn;
         }
 
         if (port == 0xfd && accumulator == 0x7f && !pagingDisabled) {

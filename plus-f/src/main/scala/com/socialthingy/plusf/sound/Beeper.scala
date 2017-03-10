@@ -3,6 +3,8 @@ package com.socialthingy.plusf.sound
 import com.jsyn.JSyn
 import com.jsyn.unitgen.{LineOut, SquareOscillator}
 
+import scala.collection.mutable.ListBuffer
+
 class Beeper(mute: Boolean = false) {
   private val synth = JSyn.createSynthesizer
   synth.start()
@@ -18,39 +20,44 @@ class Beeper(mute: Boolean = false) {
   osc.start()
   lineOut.start()
 
-  private var firstBeep: Option[Int] = None
-  private var lastBeep: Option[Int] = None
-  private var beeps: Int = 0
+  private val beepTstates = ListBuffer[Int]()
+//  private var firstBeep: Option[Int] = None
+//  private var lastBeep: Option[Int] = None
+//  private var beeps: Int = 0
+//  private var prevFreq: Option[Double] = None
 
-  def beep(timeMs: Int): Unit = {
-    beeps = beeps + 1
+  def beep(tstate: Int): Unit = beepTstates.append(tstate)
 
-    (firstBeep, lastBeep) match {
-      case (None, _) => firstBeep = Some(timeMs)
-      case (Some(_), _) => lastBeep = Some(timeMs)
-    }
-  }
-
-  def play: Double = (firstBeep, lastBeep) match {
-    case (None, _) =>
-      osc.setEnabled(false)
-      0.0
-
-    case (_, None) =>
-      osc.setEnabled(false)
-      0.0
-
-    case (Some(f), Some(l)) =>
+  def play: Double = if (beepTstates.size < 2) {
+    osc.setEnabled(false)
+    0.0
+  } else {
       if (!osc.isEnabled) {
         osc.setEnabled(true)
       }
 
-      val intervalMs = l - f
-      val frequency = ((beeps - 1) * (1000.0 / intervalMs)) / 2
-      osc.frequency.set(frequency)
-      firstBeep = None
-      lastBeep = None
-      beeps = 0
+      val intervals = beepTstates zip beepTstates.tail map { case (lo, hi) => hi - lo }
+      val intervalTstates = intervals.groupBy(identity).toList.sortBy(_._2.size)
+
+      val frequency = intervalTstates match {
+        case i1 :: Nil =>
+          setFreq(i1._1)
+
+        case i1 :: i2 :: _ =>
+          setFreq(i1._1)
+          setFreq(i2._1)
+      }
+
+      beepTstates.clear()
       frequency
+  }
+
+  private val clockFrequency = 3500000.0
+
+  private def setFreq(intervalTstates: Int): Double = {
+    val period: Double = intervalTstates / clockFrequency
+    val frequency: Double = (1.0 / period) / 2.0
+    osc.frequency.set(frequency, 0.001)
+    frequency
   }
 }
