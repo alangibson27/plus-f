@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.sound
 
 import com.jsyn.JSyn
-import com.jsyn.unitgen.{LineOut, SquareOscillator}
+import com.jsyn.unitgen._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -10,13 +10,13 @@ class Beeper(mute: Boolean = false) {
   private val synth = JSyn.createSynthesizer
   synth.start()
 
-  private val osc = new SquareOscillator
+  private val osc = new SquareOscillatorBL()
   private val lineOut = new LineOut
+
   synth.add(osc)
   synth.add(lineOut)
   osc.output.connect(0, lineOut.input, 0)
   osc.output.connect(0, lineOut.input, 1)
-  osc.amplitude.set(0.8)
 
   osc.start()
   lineOut.start()
@@ -36,6 +36,9 @@ class Beeper(mute: Boolean = false) {
         osc.noteOn(t.frequency, 0.8, now.makeRelative(offset))
         offset = offset + t.duration
       }
+      if (beepTstates.last < 50000) {
+        osc.noteOff(now.makeRelative(offset))
+      }
 
       beepTstates.clear()
       tones.head.frequency
@@ -49,11 +52,11 @@ object Tones {
   def fromBeeps(beepTstates: List[Int]): List[Tone] = {
     @tailrec
     def loop(intervals: List[Int], acc: List[Tone], currentTone: Tone): List[Tone] = intervals match {
-      case thisInterval :: t if thisInterval == currentTone.interval =>
-        loop(t, acc, currentTone.extended)
-
       case thisInterval :: t if thisInterval != currentTone.interval =>
         loop(t, currentTone :: acc, Tone(thisInterval, thisInterval))
+
+      case thisInterval :: t if thisInterval == currentTone.interval =>
+        loop(t, acc, currentTone.extended)
 
       case Nil => (currentTone :: acc).reverse
     }
