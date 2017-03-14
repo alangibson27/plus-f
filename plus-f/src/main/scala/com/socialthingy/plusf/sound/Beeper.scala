@@ -1,105 +1,47 @@
 package com.socialthingy.plusf.sound
 
 import com.jsyn.JSyn
+import com.jsyn.data.FloatSample
 import com.jsyn.unitgen._
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
-class Beeper(mute: Boolean = false) {
+class Beeper {
   private val synth = JSyn.createSynthesizer
-  synth.start()
+  synth.start(44100)
 
-  private val osc = new SquareOscillatorBL()
+  private val sampler = new VariableRateMonoReader
   private val lineOut = new LineOut
+  private val filter = new FilterLowPass
 
-  synth.add(osc)
+  synth.add(sampler)
   synth.add(lineOut)
-  osc.output.connect(0, lineOut.input, 0)
-  osc.output.connect(0, lineOut.input, 1)
+  synth.add(filter)
 
-  osc.start()
+  sampler.amplitude.set(0.8)
+  sampler.rate.set(synth.getFrameRate)
+  sampler.output.connect(0, lineOut.input, 0)
+  sampler.output.connect(0, lineOut.input, 1)
+
+  sampler.start()
+  filter.start()
   lineOut.start()
 
-  private val beepTstates = ListBuffer[Int]()
+  val updatePeriod: Double = 3500000.0 / synth.getFrameRate
+  private val beeperStates = ListBuffer[Float]()
 
-  def beep(tstate: Int): Unit = beepTstates.append(tstate)
+  def update(state: Boolean): Unit = beeperStates.append(if (state) 1.0F else 0.0F)
 
-  def play: Double = if (beepTstates.size < 2) {
-    osc.noteOff()
-    0.0
-  } else {
-      val tones = Tones.fromBeeps(beepTstates.toList)
-      val now = synth.createTimeStamp()
-      var offset: Double = 0.0
-      tones foreach { t =>
-        osc.noteOn(t.frequency, 0.8, now.makeRelative(offset))
-        offset = offset + t.duration
-      }
-      if (beepTstates.last < 50000) {
-        osc.noteOff(now.makeRelative(offset))
-      }
-
-      beepTstates.clear()
-      tones.head.frequency
-  }
-}
-
-object Tones {
-  val clockFrequency: Double = 3500000.0
-  val tstateDurationSecs: Double = 1 / clockFrequency
-
-  def fromBeeps(beepTstates: List[Int]): List[Tone] = {
-    @tailrec
-    def loop(intervals: List[Int], acc: List[Tone], currentTone: Tone): List[Tone] = intervals match {
-      case thisInterval :: t if thisInterval != currentTone.interval =>
-        loop(t, currentTone :: acc, Tone(thisInterval, thisInterval))
-
-      case thisInterval :: t if thisInterval == currentTone.interval =>
-        loop(t, acc, currentTone.extended)
-
-      case Nil => (currentTone :: acc).reverse
-    }
-
-    val intervals = if (beepTstates.size == 1) {
-      beepTstates
+  def play(): Unit = {
+    val first = beeperStates.head
+    if (beeperStates.forall(_ == first)) {
+      sampler.dataQueue.clear()
     } else {
-      beepTstates zip beepTstates.tail map { case (lo, hi) => hi - lo }
+      val sample = new FloatSample(beeperStates.toArray)
+      sampler.dataQueue.queue(sample)
     }
-    val firstInterval = intervals.head
-    loop(intervals.tail, List(), Tone(firstInterval, firstInterval))
+    beeperStates.clear()
   }
-}
 
-case class Tone(interval: Int, tstates: Int) {
-  import Tones._
-  def extended: Tone = copy(interval, tstates + interval)
-  def frequency: Double = (1.0 / (interval / clockFrequency)) / 2.0
-  def duration: Double = tstates * tstateDurationSecs
-}
-
-object Test extends App {
-  private val synth = JSyn.createSynthesizer
-  synth.start()
-
-  private val osc = new SquareOscillator
-  private val lineOut = new LineOut
-  synth.add(osc)
-  synth.add(lineOut)
-  osc.output.connect(0, lineOut.input, 0)
-  osc.output.connect(0, lineOut.input, 1)
-  osc.amplitude.set(0.8)
-
-  osc.start()
-  lineOut.start()
-
-  (0 until 1000) foreach { i =>
-    osc.noteOn(if (i % 2 == 0) 261.0 else 261.0 * 2, 0.8, synth.createTimeStamp.makeRelative(0.001 * i))
-  }
-  osc.noteOff(synth.createTimeStamp().makeRelative(1.0))
-
-  Thread.sleep(10000)
-  osc.stop()
-  lineOut.stop()
-  synth.stop()
+  def discard(): Unit = beeperStates.clear()
 }

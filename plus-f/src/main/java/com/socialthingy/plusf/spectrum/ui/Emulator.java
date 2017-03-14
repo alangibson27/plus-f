@@ -64,7 +64,6 @@ public class Emulator extends JFrame implements Runnable {
     private ScheduledFuture<?> cycleTimer;
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
-    private JLabel soundIndicator;
     private final Beeper beeper;
     private final ULA ula;
     private final Processor processor;
@@ -99,7 +98,7 @@ public class Emulator extends JFrame implements Runnable {
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        beeper = new Beeper(false);
+        beeper = new Beeper();
         ula = new ULA(keyboard, tapePlayer, this.memory, this.beeper);
 
         hostJoystick = new SwingJoystick();
@@ -132,7 +131,6 @@ public class Emulator extends JFrame implements Runnable {
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
-        soundIndicator = new JLabel(String.format("%3.2f", 0.0));
 
         setTitle("+F Spectrum Emulator");
         initialiseUI();
@@ -247,7 +245,6 @@ public class Emulator extends JFrame implements Runnable {
             new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
         );
         statusBar.add(tapeControls);
-        statusBar.add(soundIndicator);
         statusBar.add(speedIndicator);
 
         setJMenuBar(menuBar);
@@ -483,6 +480,11 @@ public class Emulator extends JFrame implements Runnable {
         try {
             do {
                 computer.singleCycle();
+                if (currentSpeed == EmulatorSpeed.NORMAL) {
+                    beeper.play();
+                } else {
+                    beeper.discard();
+                }
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final int[] screenBytes = Memory.getScreenBytes(memory);
                     peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));
@@ -496,8 +498,6 @@ public class Emulator extends JFrame implements Runnable {
                     SwingUtilities.invokeLater(display::repaint);
                 }
 
-                final double frequency = beeper.play();
-                soundIndicator.setText(String.format("%3.2f", frequency));
                 handleTurboLoading();
             } while (currentSpeed == EmulatorSpeed.TURBO);
         } catch (Exception ex) {

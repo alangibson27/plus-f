@@ -94,8 +94,9 @@ public class Computer {
                     }
                 }
 
-                currentCycleTstates += processor.lastTime();
-                ula.advanceCycle(processor.lastTime());
+                final int executedCycles = processor.lastTime();
+                currentCycleTstates += executedCycles;
+                ula.advanceCycle(executedCycles);
             }
         } finally {
             timer.stop();
