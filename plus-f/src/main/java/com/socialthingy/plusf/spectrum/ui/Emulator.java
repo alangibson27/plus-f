@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
+import com.socialthingy.plusf.sound.Beeper;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
@@ -37,8 +38,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
-import static com.socialthingy.plusf.spectrum.UserPreferences.LAST_LOAD_DIRECTORY;
-import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
+import static com.socialthingy.plusf.spectrum.UserPreferences.*;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.CENTER;
@@ -63,6 +63,7 @@ public class Emulator extends JFrame implements Runnable {
     private ScheduledFuture<?> cycleTimer;
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
+    private final Beeper beeper;
     private final ULA ula;
     private final Processor processor;
     private long lastRepaint;
@@ -96,7 +97,8 @@ public class Emulator extends JFrame implements Runnable {
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, this.memory);
+        beeper = new Beeper();
+        ula = new ULA(keyboard, tapePlayer, this.memory, this.beeper);
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -147,10 +149,21 @@ public class Emulator extends JFrame implements Runnable {
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
 
         final JCheckBoxMenuItem smoothRendering = new JCheckBoxMenuItem("Smooth Display Rendering");
-        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_MASK));
         smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
         smoothRendering.doClick();
         computerMenu.add(smoothRendering);
+
+        final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("48K Sound");
+        sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+        sound.addActionListener(e -> {
+            prefs.set(SOUND_ENABLED, sound.isSelected());
+            beeper.enable(sound.isSelected());
+        });
+        if (prefs.getOrElse(SOUND_ENABLED, true)) {
+            sound.doClick();
+        }
+        computerMenu.add(sound);
 
         addJoystickMenus(computerMenu);
 
@@ -215,8 +228,13 @@ public class Emulator extends JFrame implements Runnable {
         tapeMenu.add(jumpToBlock);
 
         final JCheckBoxMenuItem enableTurboLoad = new JCheckBoxMenuItem("Turbo-load");
-        enableTurboLoad.addItemListener(e -> turboLoadEnabled = enableTurboLoad.isSelected());
-        enableTurboLoad.setSelected(true);
+        enableTurboLoad.addItemListener(e -> {
+            prefs.set(TURBO_LOAD, enableTurboLoad.isSelected());
+            turboLoadEnabled = enableTurboLoad.isSelected();
+        });
+        if (prefs.getOrElse(TURBO_LOAD, true)) {
+            enableTurboLoad.doClick();
+        }
         tapeMenu.add(enableTurboLoad);
 
         menuBar.add(tapeMenu);
@@ -236,7 +254,7 @@ public class Emulator extends JFrame implements Runnable {
         });
 
         final TapeControls tapeControls = new TapeControls(tapePlayer);
-        final JPanel statusBar = new JPanel(new GridLayout(1, 3));
+        final JPanel statusBar = new JPanel(new GridLayout(1, 4));
         speedIndicator.setHorizontalAlignment(SwingConstants.TRAILING);
         statusBar.add(
             new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
@@ -477,6 +495,11 @@ public class Emulator extends JFrame implements Runnable {
         try {
             do {
                 computer.singleCycle();
+                if (currentSpeed == EmulatorSpeed.NORMAL) {
+                    beeper.play();
+                } else {
+                    beeper.discard();
+                }
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final int[] screenBytes = Memory.getScreenBytes(memory);
                     peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));

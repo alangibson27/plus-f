@@ -5,6 +5,7 @@ public enum Model {
     PLUS_2("+2", 70908, 8, 5, 2, 0, "/plus2-0.rom", "/plus2-1.rom");
 
     public final String displayName;
+    public final double tstateLengthMs;
     public final int tstatesPerRefresh;
     public final int ramPageCount;
     public final int screenPage;
@@ -23,6 +24,7 @@ public enum Model {
     ) {
         this.displayName = displayName;
         this.tstatesPerRefresh = tstatesPerRefresh;
+        this.tstateLengthMs = 0.02 / tstatesPerRefresh;
         this.ramPageCount = ramPageCount;
         this.screenPage = screenPage;
         this.midPage = midPage;
@@ -33,6 +35,7 @@ public enum Model {
     Model(final String displayName, final int tstatesPerRefresh, final String romFileName) {
         this.displayName = displayName;
         this.tstatesPerRefresh = tstatesPerRefresh;
+        this.tstateLengthMs = 0.02 / tstatesPerRefresh;
         this.romFileNames = new String[] {romFileName};
         this.ramPageCount = 0;
         this.screenPage = 0;

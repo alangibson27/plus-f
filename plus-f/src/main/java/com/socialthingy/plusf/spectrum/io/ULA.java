@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.spectrum.io;
 
+import com.socialthingy.plusf.sound.Beeper;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
@@ -16,17 +17,21 @@ public class ULA implements IO {
     private int earBit;
     private int tapeCyclesAdvanced;
     private int currentCycleTstates;
+    private int cyclesSinceBeeperUpdate;
     private boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
     private int borderColour;
     private List<Long> borderChanges = new ArrayList<>();
     private int unchangedBorderCycles = 0;
     private boolean inFeExecuted = false;
+    private boolean beeperIsOn = false;
+    private final Beeper beeper;
 
-    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory) {
+    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory, final Beeper beeper) {
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.memory = memory;
+        this.beeper = beeper;
     }
 
     public boolean inFeExecuted() {
@@ -39,6 +44,7 @@ public class ULA implements IO {
             inFeExecuted = true;
             if (tapeCyclesAdvanced > 0) {
                 earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
+                beeperIsOn = earBit == 0;
                 tapeCyclesAdvanced = 0;
             }
             return keyboard.readKeyboard(accumulator) | earBit;
@@ -55,6 +61,8 @@ public class ULA implements IO {
                 borderColour = newBorderColour;
                 borderChanges.add(((long) currentCycleTstates << 32) | borderColour);
             }
+
+            beeperIsOn = (value & 0b10000) == 0;
         }
 
         if (port == 0xfd && accumulator == 0x7f && !pagingDisabled) {
@@ -107,6 +115,12 @@ public class ULA implements IO {
     }
 
     public void advanceCycle(final int tstates) {
+        cyclesSinceBeeperUpdate += tstates;
+        if (cyclesSinceBeeperUpdate >= beeper.updatePeriod()) {
+            cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.updatePeriod();
+            beeper.update(beeperIsOn);
+        }
+
         currentCycleTstates += tstates;
         if (tapePlayer.isPlaying()) {
             tapeCyclesAdvanced += tstates;
