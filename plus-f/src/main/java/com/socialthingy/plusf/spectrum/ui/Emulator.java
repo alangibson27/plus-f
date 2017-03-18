@@ -38,8 +38,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
-import static com.socialthingy.plusf.spectrum.UserPreferences.LAST_LOAD_DIRECTORY;
-import static com.socialthingy.plusf.spectrum.UserPreferences.MODEL;
+import static com.socialthingy.plusf.spectrum.UserPreferences.*;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.CENTER;
@@ -150,10 +149,21 @@ public class Emulator extends JFrame implements Runnable {
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
 
         final JCheckBoxMenuItem smoothRendering = new JCheckBoxMenuItem("Smooth Display Rendering");
-        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_MASK));
         smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
         smoothRendering.doClick();
         computerMenu.add(smoothRendering);
+
+        final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("48K Sound");
+        sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+        sound.addActionListener(e -> {
+            prefs.set(SOUND_ENABLED, sound.isSelected());
+            beeper.enable(sound.isSelected());
+        });
+        if (prefs.getOrElse(SOUND_ENABLED, true)) {
+            sound.doClick();
+        }
+        computerMenu.add(sound);
 
         addJoystickMenus(computerMenu);
 
@@ -218,8 +228,13 @@ public class Emulator extends JFrame implements Runnable {
         tapeMenu.add(jumpToBlock);
 
         final JCheckBoxMenuItem enableTurboLoad = new JCheckBoxMenuItem("Turbo-load");
-        enableTurboLoad.addItemListener(e -> turboLoadEnabled = enableTurboLoad.isSelected());
-        enableTurboLoad.setSelected(true);
+        enableTurboLoad.addItemListener(e -> {
+            prefs.set(TURBO_LOAD, enableTurboLoad.isSelected());
+            turboLoadEnabled = enableTurboLoad.isSelected();
+        });
+        if (prefs.getOrElse(TURBO_LOAD, true)) {
+            enableTurboLoad.doClick();
+        }
         tapeMenu.add(enableTurboLoad);
 
         menuBar.add(tapeMenu);

@@ -29,12 +29,15 @@ class Beeper {
 
   val updatePeriod: Double = 3500000.0 / synth.getFrameRate
   private val beeperStates = ListBuffer[Float]()
+  private var enabled = false
+
+  def enable(enabled: Boolean): Unit = this.enabled = enabled
 
   def update(state: Boolean): Unit = beeperStates.append(if (state) 1.0F else 0.0F)
 
   def play(): Unit = {
     val first = beeperStates.head
-    if (beeperStates.forall(_ == first)) {
+    if (!enabled || beeperStates.forall(_ == first)) {
       sampler.dataQueue.clear()
     } else {
       val sample = new FloatSample(beeperStates.toArray)

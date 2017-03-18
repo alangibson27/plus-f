@@ -9,6 +9,8 @@ import java.util.Properties;
 public class UserPreferences {
     public static final String LAST_LOAD_DIRECTORY = "last-load-directory";
     public static final String MODEL = "initial-model";
+    public static final String SOUND_ENABLED = "sound-enabled";
+    public static final String TURBO_LOAD = "turbo-load";
 
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
     private final Properties prefs;
@@ -39,6 +41,10 @@ public class UserPreferences {
         return prefs.getProperty(key);
     }
 
+    public  void set(final String key, final boolean value) {
+        set(key, String.valueOf(value));
+    }
+
     public void set(final String key, final String value) {
         prefs.setProperty(key, value);
         try (final FileWriter fw = new FileWriter(prefsFile)) {
@@ -52,5 +58,10 @@ public class UserPreferences {
 
     public String getOrElse(final String key, final String ifUndefined) {
         return prefs.getProperty(key, ifUndefined);
+    }
+
+    public boolean getOrElse(final String key, final boolean ifUndefined) {
+        final String value = getOrElse(key, String.valueOf(ifUndefined));
+        return Boolean.valueOf(value);
     }
 }

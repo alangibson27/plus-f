@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum.input
 
-import com.socialthingy.plusf.sound.{Beeper, Beeper}
+import com.socialthingy.plusf.sound.Beeper
 import com.socialthingy.plusf.spectrum.TapePlayer
 import com.socialthingy.plusf.spectrum.io.{Keyboard, ULA}
 import org.scalatest.mock.MockitoSugar
