@@ -6,8 +6,20 @@
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Sat, 11 Feb 2017 17:36:26 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 24 Mar 2017 17:36:26 +0000</lastBuildDate>
     <atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Version 1.5</title>
+      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <pubDate>Fri, 24 Mar 2017 17:36:26 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;Initial (incomplete) support for 48k and AY sound.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Version 1.4.1</title>
@@ -701,25 +713,6 @@ the hard work of figuring out how to do software well, and it&amp;rsquo;s that n
 &lt;li&gt;Implemented TAP and TZX support&lt;/li&gt;
 &lt;li&gt;Added support for +2&lt;/li&gt;
 &lt;li&gt;Fixed some processor emulation bugs (there are still others in there)&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Version 0.5</title>
-      <link>http://plusf.socialthingy.com/release-notes/0/</link>
-      <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
-      
-      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Initial public release&lt;/li&gt;
-&lt;li&gt;Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack
-or tape loading errors!)
-
-&lt;ul&gt;
-&lt;li&gt;Reset doesn&amp;rsquo;t always work properly&lt;/li&gt;
-&lt;li&gt;Some snapshots fail to load if the Emulator has been running for some time&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
