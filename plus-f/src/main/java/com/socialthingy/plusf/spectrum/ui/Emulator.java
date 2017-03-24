@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
-import com.socialthingy.plusf.sound.Beeper;
+import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
@@ -63,7 +63,6 @@ public class Emulator extends JFrame implements Runnable {
     private ScheduledFuture<?> cycleTimer;
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
-    private final Beeper beeper;
     private final ULA ula;
     private final Processor processor;
     private long lastRepaint;
@@ -71,6 +70,7 @@ public class Emulator extends JFrame implements Runnable {
     private final KempstonJoystickInterface kempstonJoystickInterface;
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
+    private final SoundSystem soundSystem = new SoundSystem();
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
 
@@ -97,8 +97,7 @@ public class Emulator extends JFrame implements Runnable {
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        beeper = new Beeper();
-        ula = new ULA(keyboard, tapePlayer, this.memory, this.beeper);
+        ula = new ULA(keyboard, tapePlayer, this.memory, soundSystem.beeper(), soundSystem.ayChip());
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -154,11 +153,15 @@ public class Emulator extends JFrame implements Runnable {
         smoothRendering.doClick();
         computerMenu.add(smoothRendering);
 
-        final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("48K Sound");
+        final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");
         sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
         sound.addActionListener(e -> {
             prefs.set(SOUND_ENABLED, sound.isSelected());
-            beeper.enable(sound.isSelected());
+            if (sound.isSelected()) {
+                soundSystem.unmute();
+            } else {
+                soundSystem.mute();
+            }
         });
         if (prefs.getOrElse(SOUND_ENABLED, true)) {
             sound.doClick();
@@ -431,6 +434,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     public void run() {
+        soundSystem.start();
         setVisible(true);
         setMinimumSize(getSize());
         setSpeed(EmulatorSpeed.NORMAL);
@@ -473,19 +477,23 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
-        if (newSpeed != EmulatorSpeed.TURBO) {
-            turboLoadActive = false;
-        }
-
         speedIndicator.setText(String.format("%s speed", newSpeed.displayName));
         currentSpeed = newSpeed;
         if (cycleTimer != null) {
             cycleTimer.cancel(false);
         }
+
         if (newSpeed == EmulatorSpeed.TURBO) {
             cycleScheduler.execute(this::singleCycle);
         } else {
+            turboLoadActive = false;
             cycleTimer = cycleScheduler.scheduleAtFixedRate(this::singleCycle, 0, newSpeed.period, newSpeed.timeUnit);
+        }
+
+        if (newSpeed == EmulatorSpeed.NORMAL) {
+            soundSystem.unmute();
+        } else {
+            soundSystem.mute();
         }
     }
 
@@ -495,11 +503,8 @@ public class Emulator extends JFrame implements Runnable {
         try {
             do {
                 computer.singleCycle();
-                if (currentSpeed == EmulatorSpeed.NORMAL) {
-                    beeper.play();
-                } else {
-                    beeper.discard();
-                }
+                soundSystem.beeper().play();
+
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final int[] screenBytes = Memory.getScreenBytes(memory);
                     peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));
@@ -739,6 +744,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void whilePaused(final Runnable action) {
+        soundSystem.mute();
         cycleTimer.cancel(true);
         currentSpeed = EmulatorSpeed.NORMAL;
         keyboard.reset();
@@ -746,6 +752,7 @@ public class Emulator extends JFrame implements Runnable {
             action.run();
         } finally {
             setSpeed(currentSpeed);
+            soundSystem.unmute();
         }
     }
 }

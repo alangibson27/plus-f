@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.spectrum.io;
 
+import com.socialthingy.plusf.sound.AYChip;
 import com.socialthingy.plusf.sound.Beeper;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.z80.IO;
@@ -26,12 +27,14 @@ public class ULA implements IO {
     private boolean inFeExecuted = false;
     private boolean beeperIsOn = false;
     private final Beeper beeper;
+    private final AYChip ayChip;
 
-    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory, final Beeper beeper) {
+    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory, final Beeper beeper, final AYChip ayChip) {
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.memory = memory;
         this.beeper = beeper;
+        this.ayChip = ayChip;
     }
 
     public boolean inFeExecuted() {
@@ -48,6 +51,10 @@ public class ULA implements IO {
                 tapeCyclesAdvanced = 0;
             }
             return keyboard.readKeyboard(accumulator) | earBit;
+        }
+
+        if (port == 0xfd && accumulator == 0xff) {
+            return ayChip.read();
         }
         return 0;
     }
@@ -74,6 +81,14 @@ public class ULA implements IO {
             Memory.setRomPage(memory, newRomPage);
 
             pagingDisabled = (value & 0b00100000) != 0;
+        }
+
+        if (port == 0xfd && accumulator == 0xff && (value & 0b11110000) == 0) {
+            ayChip.selectRegister(value);
+        }
+
+        if (port == 0xfd && accumulator == 0xbf) {
+            ayChip.write(value);
         }
     }
 

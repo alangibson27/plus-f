@@ -16,6 +16,8 @@ import org.scalatest._
 
 import scala.language.implicitConversions
 
+object UITest extends Tag("UITest")
+
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
   val memory = Array.ofDim[Int](0x10000)
@@ -53,7 +55,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     ("Kempston", "Sinclair")
   )
 
-  "Joystick menus" should "not assign a host joystick when the guest joystick is changed" in {
+  "Joystick menus" should "not assign a host joystick when the guest joystick is changed" taggedAs(UITest) in {
     // when
     fixture.menuItem("GuestJoystickSinclair").click()
 
@@ -62,7 +64,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
   }
 
   forAll(joystickPermutations) { (newHostJoystick, newGuestJoystick) =>
-    it should s"switch the guest joystick to $newGuestJoystick when the host chooses $newHostJoystick" in {
+    it should s"switch the guest joystick to $newGuestJoystick when the host chooses $newHostJoystick" taggedAs(UITest) in {
       // given
       fixture.menuItem(s"HostJoystick$newGuestJoystick").click()
       fixture.menuItem(s"GuestJoystick$newHostJoystick").click()
@@ -83,7 +85,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     }
   }
 
-  "Emulator" should "run a simple 48k basic program which changes the border and sets some pixels" in {
+  "Emulator" should "run a simple 48k basic program which changes the border and sets some pixels" taggedAs(UITest) in {
     // given
     fixture.enter48kBasic()
 
@@ -101,7 +103,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     }
   }
 
-  it should "run a simple 128k basic program" in {
+  it should "run a simple 128k basic program" taggedAs(UITest) in {
     // given
     fixture.enter128kBasic()
 
@@ -112,7 +114,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     memory(16384) shouldBe 255
   }
 
-  it should "handle Sinclair joystick input correctly" in {
+  it should "handle Sinclair joystick input correctly" taggedAs(UITest) in {
     // given
     fixture.enter48kBasic()
 
