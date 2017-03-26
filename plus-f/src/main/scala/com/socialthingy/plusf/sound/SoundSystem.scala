@@ -4,13 +4,14 @@ import com.jsyn.JSyn
 import com.jsyn.unitgen._
 
 class SoundSystem {
+  val frameRate = 44100
   val synth = JSyn.createSynthesizer
   val lineOut = new LineOut
   val masterMixer = new FourWayFade
 
   private val beepSampler = {
     val s = new VariableRateMonoReader
-    s.rate.set(synth.getFrameRate)
+    s.rate.set(frameRate)
     s.output.connect(0, masterMixer.input, 0)
     synth.add(s)
     s
@@ -20,7 +21,7 @@ class SoundSystem {
     val tone = new SquareOscillator
     val noise = new FunctionOscillator
     noise.function.set((v: Double) => {
-        if (noise.frequency.get() == 0.0) 0.0 else scala.util.Random.nextDouble()
+        if (noise.frequency.get() == 0.0) 0.0 else -1.0 + (scala.util.Random.nextDouble() * 2.0)
     })
     val internalMixer = new Add
 
@@ -54,7 +55,7 @@ class SoundSystem {
   }
 
   def start(): Unit = {
-    synth.start()
+    synth.start(frameRate)
     lineOut.start()
   }
 }

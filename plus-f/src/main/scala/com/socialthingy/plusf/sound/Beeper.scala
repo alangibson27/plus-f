@@ -6,7 +6,7 @@ import com.jsyn.unitgen._
 import scala.collection.mutable.ListBuffer
 
 class Beeper(sampler: VariableRateMonoReader) {
-  val updatePeriod: Double = 3500000.0 / sampler.getFrameRate
+  val updatePeriod: Double = 3500000.0 / sampler.rate.get()
 
   private val beeperStates = ListBuffer[Float]()
   private var muted = false

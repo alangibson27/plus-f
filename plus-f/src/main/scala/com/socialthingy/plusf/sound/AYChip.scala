@@ -1,8 +1,9 @@
 package com.socialthingy.plusf.sound
 
 import com.jsyn.unitgen._
+import com.socialthingy.plusf.z80.IO
 
-class AYChip(toneChannels: Seq[ToneChannel]) {
+class AYChip(toneChannels: Seq[ToneChannel]) extends IO {
   private val amplitudeModeFlag = 1 << 4
 
   private val noiseCFlag = 1 << 5
@@ -19,16 +20,20 @@ class AYChip(toneChannels: Seq[ToneChannel]) {
 
   private val registers = Array.ofDim[Int](18)
 
-  def selectRegister(register: Int): Unit = selectedRegister = register
-
-  def setPeriod(channel: Int, period: Int): Unit = {
-    val frequency = toneChannels(channel).setTonePeriod(period)
-    println(s"set channel $channel to $frequency hz")
+  def setPeriod(channel: Int, period: Int): Double = {
+    toneChannels(channel).setTonePeriod(period)
   }
 
-  def read: Int = registers(selectedRegister)
+  override def recognises(low: Int, high: Int): Boolean = (high & 128) != 0 && (low & 2) == 0
 
-  def write(value: Int): Unit = if (registers(selectedRegister) != value) {
+  override def read(low: Int, high: Int): Int = registers(selectedRegister)
+
+  override def write(low: Int, high: Int, value: Int): Unit =
+    if ((high & 64) != 0) selectRegister(value & 0xf) else writeRegister(value)
+
+  private def selectRegister(register: Int): Unit = selectedRegister = register
+
+  private def writeRegister(value: Int): Unit = if (registers(selectedRegister) != value) {
     registers(selectedRegister) = value
 
     selectedRegister match {
@@ -39,7 +44,6 @@ class AYChip(toneChannels: Seq[ToneChannel]) {
         setPeriod(channel, (registers(highReg) << 8) + registers(lowReg))
 
       case 6 =>
-        println(s"Set noise period to $value")
         val period = value & 31
         toneChannels.foreach(_.setNoisePeriod(period))
 
@@ -51,40 +55,30 @@ class AYChip(toneChannels: Seq[ToneChannel]) {
         val znoiseC = (value & noiseCFlag) == 0
         val ztoneC = (value & toneCFlag) == 0
 
-        println(s"Noise enabled on ${if (znoiseA) "A" else ""}${if (znoiseB) "B" else ""}${if (znoiseC) "C" else ""}")
-        println(s"Tone enabled on ${if (ztoneA) "A" else ""}${if (ztoneB) "B" else ""}${if (ztoneC) "C" else ""}")
 
         toneChannels(0).enable(ztoneA, znoiseA)
         toneChannels(1).enable(ztoneB, znoiseB)
         toneChannels(2).enable(ztoneC, znoiseC)
 
         val ioa = if ((value & ioaFlag) == 0) "input" else "output"
-        println(s"IOA set to $ioa")
 
       case r if r == 8 || r == 9 || r == 10 =>
         val channel = r - 8
         if ((value & amplitudeModeFlag) == 0) {
           toneChannels(channel).setAmplitude(value & 15)
-          println(s"Setting amplitude $channel to $value")
-        } else {
-          println(s"Setting amplitude $channel to envelope")
         }
 
       case 11 =>
         val envelopePeriod = (registers(12) << 8) + registers(11)
         val envelopeFrequency = 3500000.0 / (256 * envelopePeriod)
-        println(s"Setting envelope frequency to $envelopeFrequency hz")
 
       case 12 =>
         val envelopePeriod = (registers(12) << 8) + registers(11)
         val envelopeFrequency = 3500000.0 / (256 * envelopePeriod)
-        println(s"Setting envelope frequency to $envelopeFrequency hz")
 
       case 13 =>
-        println(s"Setting envelope pattern to $value")
 
       case 15 =>
-        println("oops!")
 
       case 14 =>
     }

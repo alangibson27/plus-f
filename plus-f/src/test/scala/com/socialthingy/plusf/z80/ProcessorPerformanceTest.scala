@@ -41,6 +41,7 @@ object ProcessorPerformanceTest extends App with Timing {
 }
 
 class DummyIO extends IO {
+  override def recognises(low: Int, high: Int): Boolean = false
   override def write(port: Int, accumulator: Int, value: Int): Unit = ()
   override def read(port: Int, accumulator: Int): Int = 0
 }

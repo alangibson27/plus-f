@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80;
 
+import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.operations.*;

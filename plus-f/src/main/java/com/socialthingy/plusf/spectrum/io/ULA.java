@@ -1,10 +1,8 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.sound.AYChip;
 import com.socialthingy.plusf.sound.Beeper;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.z80.IO;
-import com.socialthingy.plusf.z80.Memory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +10,7 @@ import java.util.List;
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
     private final Keyboard keyboard;
-    private final int[] memory;
 
-    private boolean pagingDisabled = false;
     private int earBit;
     private int tapeCyclesAdvanced;
     private int currentCycleTstates;
@@ -24,44 +20,39 @@ public class ULA implements IO {
     private int borderColour;
     private List<Long> borderChanges = new ArrayList<>();
     private int unchangedBorderCycles = 0;
-    private boolean inFeExecuted = false;
+    private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
     private final Beeper beeper;
-    private final AYChip ayChip;
 
-    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final int[] memory, final Beeper beeper, final AYChip ayChip) {
+    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper) {
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
-        this.memory = memory;
         this.beeper = beeper;
-        this.ayChip = ayChip;
     }
 
-    public boolean inFeExecuted() {
-        return inFeExecuted;
-    }
-
-    @Override
-    public int read(int port, int accumulator) {
-        if (port == 0xfe) {
-            inFeExecuted = true;
-            if (tapeCyclesAdvanced > 0) {
-                earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
-                beeperIsOn = earBit == 0;
-                tapeCyclesAdvanced = 0;
-            }
-            return keyboard.readKeyboard(accumulator) | earBit;
-        }
-
-        if (port == 0xfd && accumulator == 0xff) {
-            return ayChip.read();
-        }
-        return 0;
+    public boolean ulaAccessed() {
+        return ulaAccessed;
     }
 
     @Override
-    public void write(int port, int accumulator, int value) {
-        if (port == 0xfe) {
+    public boolean recognises(final int low, final int high) {
+        return (low & 0b1) == 0;
+    }
+
+    @Override
+    public int read(int low, int high) {
+        ulaAccessed = true;
+        if (tapeCyclesAdvanced > 0) {
+            earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
+            beeperIsOn = earBit == 0;
+            tapeCyclesAdvanced = 0;
+        }
+        return keyboard.readKeyboard(high) | earBit;
+    }
+
+    @Override
+    public void write(int low, int high, int value) {
+        if (low == 0xfe) {
             final int newBorderColour = value & 0b111;
             if (borderColour != newBorderColour) {
                 unchangedBorderCycles = 0;
@@ -70,25 +61,6 @@ public class ULA implements IO {
             }
 
             beeperIsOn = (value & 0b10000) == 0;
-        }
-
-        if (port == 0xfd && accumulator == 0x7f && !pagingDisabled) {
-            final int newHighPage = value & 0b00000111;
-            final int newScreenPage = (value & 0b00001000) == 0 ? 5 : 7;
-            final int newRomPage = (value & 0b00010000) == 0 ? 0 : 1;
-            Memory.setHighPage(memory, newHighPage);
-            Memory.setScreenPage(newScreenPage);
-            Memory.setRomPage(memory, newRomPage);
-
-            pagingDisabled = (value & 0b00100000) != 0;
-        }
-
-        if (port == 0xfd && accumulator == 0xff && (value & 0b11110000) == 0) {
-            ayChip.selectRegister(value);
-        }
-
-        if (port == 0xfd && accumulator == 0xbf) {
-            ayChip.write(value);
         }
     }
 
@@ -114,7 +86,7 @@ public class ULA implements IO {
             flashActive = !flashActive;
         }
         currentCycleTstates = 0;
-        inFeExecuted = false;
+        ulaAccessed = false;
     }
 
     public boolean borderNeedsRedrawing() {
@@ -145,7 +117,6 @@ public class ULA implements IO {
     public void reset() {
         borderChanges.clear();
         unchangedBorderCycles = 0;
-        pagingDisabled = false;
         earBit = 0;
         tapeCyclesAdvanced = 0;
         currentCycleTstates = 0;

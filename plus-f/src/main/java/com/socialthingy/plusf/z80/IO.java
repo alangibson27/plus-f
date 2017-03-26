@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.z80;
 
 public interface IO {
-    int read(int port, int accumulator);
-    void write(int port, int accumulator, int value);
+    boolean recognises(int low, int high);
+    int read(int low, int high);
+    void write(int low, int high, int value);
 }

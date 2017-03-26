@@ -1,10 +1,12 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
+import com.socialthingy.plusf.sound.AYChip;
 import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
+import com.socialthingy.plusf.spectrum.io.MemoryController;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.joystick.Joystick;
 import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
@@ -64,6 +66,7 @@ public class Emulator extends JFrame implements Runnable {
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
     private final ULA ula;
+    private final MemoryController memoryController;
     private final Processor processor;
     private long lastRepaint;
     private final Joystick guestJoystick;
@@ -88,16 +91,18 @@ public class Emulator extends JFrame implements Runnable {
         }
         this.prefs = prefs;
         this.memory = suppliedMemory;
+        this.memoryController = new MemoryController(this.memory);
         this.display = suppliedDisplay;
 
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
         Memory.configure(this.memory, currentModel);
+        memoryController.reset(currentModel);
 
         final IOMultiplexer ioMux = new IOMultiplexer();
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, this.memory, soundSystem.beeper(), soundSystem.ayChip());
+        ula = new ULA(keyboard, tapePlayer, soundSystem.beeper());
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -107,11 +112,10 @@ public class Emulator extends JFrame implements Runnable {
         hostInputMultiplexer.deactivateJoystick();
         kempstonJoystickInterface.connect(guestJoystick);
 
-        ioMux.register(0xfe, ula);
-        if (currentModel.ramPageCount > 1) {
-            ioMux.register(0xfd, ula);
-        }
-        ioMux.register(0x1f, kempstonJoystickInterface);
+        ioMux.register(ula);
+        ioMux.register(memoryController);
+        ioMux.register(soundSystem.ayChip());
+        ioMux.register(kempstonJoystickInterface);
 
         computer = new Computer(
             processor,
@@ -526,13 +530,13 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void handleTurboLoading() {
-        if (!turboLoadActive && ula.inFeExecuted() && turboLoadEnabled
+        if (!turboLoadActive && ula.ulaAccessed() && turboLoadEnabled
                 && tapePlayer.isPlaying() && currentSpeed != EmulatorSpeed.TURBO) {
             turboLoadActive = true;
             setSpeed(EmulatorSpeed.TURBO);
         }
 
-        if (turboLoadActive && (!ula.inFeExecuted() || !tapePlayer.isPlaying())) {
+        if (turboLoadActive && (!ula.ulaAccessed() || !tapePlayer.isPlaying())) {
             turboLoadActive = false;
             setSpeed(EmulatorSpeed.NORMAL);
         }
@@ -728,7 +732,9 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     protected void resetComputer() {
-        Memory.configure(memory, Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name())));
+        final Model model = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
+        Memory.configure(memory, model);
+        memoryController.reset(model);
         computer.reset();
         processor.reset();
         ula.reset();
