@@ -44,14 +44,14 @@ class SoundSystem {
   masterMixer.output.connect(0, lineOut.input, 0)
   masterMixer.output.connect(0, lineOut.input, 1)
 
-  def mute(): Unit = {
-    lineOut.setEnabled(false)
-    beeper.mute()
-  }
+  private var isEnabled = false
 
-  def unmute(): Unit = {
-    lineOut.setEnabled(true)
-    beeper.unmute()
+  def setEnabled(enabled: Boolean): Boolean = {
+    val wasEnabled = isEnabled
+    isEnabled = enabled
+    lineOut.setEnabled(enabled)
+    beeper.setEnabled(enabled)
+    wasEnabled
   }
 
   def start(): Unit = {

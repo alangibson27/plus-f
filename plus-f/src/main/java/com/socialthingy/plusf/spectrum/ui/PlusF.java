@@ -6,13 +6,21 @@ import java.awt.*;
 import static java.awt.GridBagConstraints.*;
 
 public class PlusF extends JFrame {
+
+    private final JButton hostButton;
+    private final JButton guestButton;
+
     public PlusF() {
-        final JButton hostButton = new IconButton(new ImageIcon(getClass().getResource("/icons/host.png")));
-        hostButton.addActionListener(l -> start(new Emulator()));
+        hostButton = new IconButton(new ImageIcon(getClass().getResource("/icons/host.png")));
+        hostButton.addActionListener(l -> {
+            start(new Emulator());
+        });
         hostButton.setFocusPainted(false);
         final JLabel hostLabel = new JLabel("<html><b>Host</b><br/>For 1-player games, or starting a 2-player session</html>");
-        final JButton guestButton = new IconButton(new ImageIcon(getClass().getResource("/icons/guest.png")));
-        guestButton.addActionListener(l -> start(new Guest()));
+        guestButton = new IconButton(new ImageIcon(getClass().getResource("/icons/guest.png")));
+        guestButton.addActionListener(l -> {
+            start(new Guest());
+        });
         guestButton.setFocusPainted(false);
         final JLabel guestLabel = new JLabel("<html><b>Guest</b><br/>For joining in a 2-player game</html>");
 
@@ -52,6 +60,8 @@ public class PlusF extends JFrame {
 
     private void start(final Runnable runnable) {
         EventQueue.invokeLater(() -> {
+            hostButton.setEnabled(false);
+            guestButton.setEnabled(false);
             setVisible(false);
             dispose();
             runnable.run();
@@ -64,17 +74,17 @@ public class PlusF extends JFrame {
         final PlusF plusF = new PlusF();
         plusF.go();
     }
-}
 
-class IconButton extends JButton {
-    public IconButton(final Icon icon) {
-        super(icon);
-    }
+    private class IconButton extends JButton {
+        public IconButton(final Icon icon) {
+            super(icon);
+        }
 
-    @Override
-    public void paintComponent(final Graphics g) {
-        g.clearRect(0, 0, getWidth(), getHeight());
-        final Icon i = getIcon();
-        getIcon().paintIcon(this, g, (getWidth() - i.getIconWidth()) / 2, (getHeight() - i.getIconHeight()) / 2);
+        @Override
+        public void paintComponent(final Graphics g) {
+            g.clearRect(0, 0, getWidth(), getHeight());
+            final Icon i = getIcon();
+            getIcon().paintIcon(this, g, (getWidth() - i.getIconWidth()) / 2, (getHeight() - i.getIconHeight()) / 2);
+        }
     }
 }
