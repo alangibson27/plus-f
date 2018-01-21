@@ -161,15 +161,10 @@ public class Emulator extends JFrame implements Runnable {
         sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
         sound.addActionListener(e -> {
             prefs.set(SOUND_ENABLED, sound.isSelected());
-            if (sound.isSelected()) {
-                soundSystem.unmute();
-            } else {
-                soundSystem.mute();
-            }
+            soundSystem.setEnabled(sound.isSelected());
         });
-        if (prefs.getOrElse(SOUND_ENABLED, true)) {
-            sound.doClick();
-        }
+        sound.setSelected(prefs.getOrElse(SOUND_ENABLED, true));
+        soundSystem.setEnabled(sound.isSelected());
         computerMenu.add(sound);
 
         addJoystickMenus(computerMenu);
@@ -494,10 +489,8 @@ public class Emulator extends JFrame implements Runnable {
             cycleTimer = cycleScheduler.scheduleAtFixedRate(this::singleCycle, 0, newSpeed.period, newSpeed.timeUnit);
         }
 
-        if (newSpeed == EmulatorSpeed.NORMAL) {
-            soundSystem.unmute();
-        } else {
-            soundSystem.mute();
+        if (newSpeed != EmulatorSpeed.NORMAL) {
+            soundSystem.setEnabled(false);
         }
     }
 
@@ -750,7 +743,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void whilePaused(final Runnable action) {
-        soundSystem.mute();
+        final boolean wasEnabled = soundSystem.setEnabled(false);
         cycleTimer.cancel(true);
         currentSpeed = EmulatorSpeed.NORMAL;
         keyboard.reset();
@@ -758,7 +751,7 @@ public class Emulator extends JFrame implements Runnable {
             action.run();
         } finally {
             setSpeed(currentSpeed);
-            soundSystem.unmute();
+            soundSystem.setEnabled(wasEnabled);
         }
     }
 }

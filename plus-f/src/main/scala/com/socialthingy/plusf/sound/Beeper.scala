@@ -9,24 +9,23 @@ class Beeper(sampler: VariableRateMonoReader) {
   val updatePeriod: Double = 3500000.0 / sampler.rate.get()
 
   private val beeperStates = ListBuffer[Float]()
-  private var muted = false
+  private var isEnabled = false
 
-  def mute(): Unit = {
-    beeperStates.clear()
-    muted = true
+  def setEnabled(enabled: Boolean): Unit = {
+    isEnabled = enabled
+
+    if (!enabled) {
+      beeperStates.clear()
+    }
   }
 
-  def unmute(): Unit = {
-    muted = false
-  }
-
-  def update(state: Boolean): Unit = if (!muted) {
+  def update(state: Boolean): Unit = if (isEnabled) {
     beeperStates.append(if (state) 1.0F else 0.0F)
   }
 
   def play(): Unit = beeperStates.headOption match {
     case Some(state) =>
-      if (muted || beeperStates.forall(_ == state)) {
+      if (!isEnabled || beeperStates.forall(_ == state)) {
         sampler.dataQueue.clear()
       } else {
         val sample = new FloatSample(beeperStates.toArray)
