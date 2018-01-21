@@ -1,3 +1,5 @@
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.2.0-M5")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.2")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-s3" % "0.9")
+resolvers += Resolver.url("sbts3 ivy resolver", url("http://dl.bintray.com/emersonloureiro/sbt-plugins"))(Resolver.ivyStylePatterns)
+
+addSbtPlugin("cf.janga" % "sbts3" % "0.10")

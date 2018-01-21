@@ -1,6 +1,4 @@
-import S3._
-
-s3Settings
+enablePlugins(S3Plugin)
 
 val plusfDependencies = Seq(
   "org.easytesting" % "fest-swing" % "1.2.1" % "test",
@@ -37,7 +35,7 @@ linuxPackageMappings ++= {
 
 parallelExecution in Test := false
 
-mappings in upload := {
+mappings in s3Upload := {
   (target.value ** ("*.zip" || "*.exe" || "*.deb")).get.map{x => println(x); x}.map {
     case exe if exe.getName.endsWith("exe") => (exe, "Plus-F.exe")
     case deb if deb.getName.endsWith("deb") => (deb, "Plus-F.deb")
@@ -45,9 +43,9 @@ mappings in upload := {
   }
 }
 
-host in upload := "download.socialthingy.com.s3.amazonaws.com"
+s3Host in s3Upload := "download.socialthingy.com.s3.amazonaws.com"
 
-progress in upload := true
+//progress in s3Upload := true
 
 libraryDependencies ++= plusfDependencies
 
