@@ -500,7 +500,6 @@ public class Emulator extends JFrame implements Runnable {
         try {
             do {
                 computer.singleCycle();
-                soundSystem.beeper().play();
 
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final int[] screenBytes = Memory.getScreenBytes(memory);
@@ -509,6 +508,7 @@ public class Emulator extends JFrame implements Runnable {
                 sendToPeer = !sendToPeer;
 
                 if (shouldRepaint()) {
+                    soundSystem.beeper().play();
                     lastRepaint = System.currentTimeMillis();
                     display.updateScreen(memory, ula);
                     display.updateBorder(ula, currentSpeed == EmulatorSpeed.TURBO);
