@@ -55,8 +55,8 @@ abstract class DisplayComponent extends JComponent {
 
     protected final int[] targetPixels;
     protected final int[] borderPixels = new int[TOP_BORDER_HEIGHT + SCREEN_HEIGHT + BOTTOM_BORDER_HEIGHT];
-    protected final BufferedImage borderImage;
-    protected final BufferedImage image;
+    public final BufferedImage borderImage;
+    public final BufferedImage image;
     protected final int[] imageDataBuffer;
     protected final int[] borderImageDataBuffer;
     protected Object renderingHint = VALUE_INTERPOLATION_NEAREST_NEIGHBOR;

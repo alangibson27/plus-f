@@ -50,6 +50,8 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
                     outerTopLeft.x + ((outerSize.width - innerSize.width) / 2),
                     outerTopLeft.y + ((outerSize.height - innerSize.height) / 2)
                 );
+                outerSize = new Dimension(newSize.width, newSize.height);
+                outerTopLeft = new Point(0, 0);
             }
         });
     }
