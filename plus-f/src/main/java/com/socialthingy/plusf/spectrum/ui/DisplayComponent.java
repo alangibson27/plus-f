@@ -61,6 +61,7 @@ abstract class DisplayComponent extends JComponent {
     protected final int[] borderImageDataBuffer;
     protected Object renderingHint = VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
     private final PixelMapper pixelMapper;
+    protected boolean extendBorder;
 
     DisplayComponent(final PixelMapper pixelMapper) {
         this.pixelMapper = pixelMapper;
@@ -80,6 +81,10 @@ abstract class DisplayComponent extends JComponent {
 
     public void setSmoothRendering(final boolean smoothRendering) {
         renderingHint = smoothRendering ? VALUE_INTERPOLATION_BILINEAR : VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+    }
+
+    public void setExtendBorder(final boolean extendBorder) {
+        this.extendBorder = extendBorder;
     }
 
     public abstract void updateScreen(int[] memory, ULA ula);

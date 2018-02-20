@@ -13,8 +13,11 @@ import scala.Option;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -77,6 +80,11 @@ public class Guest extends JFrame implements Runnable {
             disconnectItem.setEnabled(peer.connectedProperty().get());
         });
 
+        final JMenu aboutMenu = new JMenu("About");
+        final JMenuItem aboutItem = menuItemFor("About Plus-F", this::aboutDialog, Optional.empty());
+        aboutMenu.add(aboutItem);
+        menuBar.add(aboutMenu);
+
         final JPanel statusBar = new JPanel(new GridLayout(1, 1));
         statusBar.add(
             new ConnectionMonitor(peer.connectedProperty(), peer.statistics(), peer.timeSinceLastReceived())
@@ -103,6 +111,24 @@ public class Guest extends JFrame implements Runnable {
         setVisible(true);
         setMinimumSize(getSize());
         cycleScheduler.scheduleAtFixedRate(this::refresh, 0, 20, TimeUnit.MILLISECONDS);
+    }
+
+    private void aboutDialog(final ActionEvent e) {
+        final Properties versionFile = new Properties();
+        String version;
+        try (final InputStream is = getClass().getResourceAsStream("/version.properties")) {
+            versionFile.load(is);
+            version = String.format("Plus-F version %s", versionFile.getProperty("version"));
+        } catch (IOException ex) {
+            version = "Plus-F";
+        }
+        JOptionPane.showMessageDialog(
+            this,
+            version,
+            "Plus-F",
+            JOptionPane.INFORMATION_MESSAGE,
+            new ImageIcon(Icons.windowIcon)
+        );
     }
 
     private void connect(final ActionEvent e) {

@@ -1,0 +1,80 @@
+buildscript {
+    dependencies {
+        classpath 'com.github.skhatri:gradle-s3-plugin:1.0.4'
+        classpath 'joda-time:joda-time:2.4'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+apply plugin: 's3'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile files('lib/jsyn-20161201.jar')
+    testCompile "org.easytesting:fest-swing:1.2.1"
+    testCompile "com.github.tomakehurst:wiremock:2.5.1"
+}
+
+version = '1.5.2'
+mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
+def embeddedJRE = false
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': mainClassName,
+                'Class-Path': configurations.runtime.collect { it.getName() }.join(' ')
+        )
+    }
+}
+
+task writeVersionFile {
+    def props = new Properties()
+    props.setProperty('version', project.version)
+    def writer = new FileWriter('src/main/resources/version.properties')
+    try {
+        props.store(writer, 'plus-f version')
+        writer.flush()
+    } finally {
+        writer.close()
+    }
+}
+
+task copyDependencies(type: Copy) {
+    destinationDir libsDir
+    from configurations.runtime
+}
+
+build.dependsOn('writeVersionFile')
+
+void createJavapackagerTask(String platform, boolean embedJre) {
+    task "${platform}Package" (type: Exec, dependsOn: [assemble, copyDependencies]) {
+        def dependencies = []
+        def paramEmbeddedJRE = embedJre ? [] : ['-Bruntime=']
+
+        workingDir project.projectDir
+        commandLine = [
+                'javapackager',
+                '-deploy',
+                '-v',
+                '-nosign',
+                '-native', platform,
+                '-outdir', "${buildDir}/distribution",
+                '-outfile', project.name,
+                '-name', 'Plus-F',
+                '-description', 'ZX Spectrum Emulator with Network Play Capability',
+                '-appclass', mainClassName,
+                '-srcdir', libsDir,
+                "-BappVersion=${project.version}",
+                '-BlicenseType=MIT',
+        ] + dependencies + paramEmbeddedJRE
+    }
+}
+
+for (String platform: ["deb", "rpm", "windows"]) {
+    createJavapackagerTask(platform, platform.equals("windows"))
+}

@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':plus-f')
+    compile 'com.typesafe.akka:akka-actor_2.12:2.4.12'
+    testCompile 'com.typesafe.akka:akka-testkit_2.12:2.4.12'
+}
+
+mainClassName = 'com.socialthingy.plusf.p2p.discovery.DiscoveryService'

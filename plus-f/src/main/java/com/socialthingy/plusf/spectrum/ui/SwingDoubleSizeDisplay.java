@@ -39,21 +39,27 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(final ComponentEvent e) {
-                final Dimension newSize = new Dimension(getSize().width, getSize().height - 16);
-                outerSize = new Dimension(roundTo2(newSize.height * WIDTH_HEIGHT_RATIO), roundTo2(newSize.height));
-                innerSize = new Dimension(
-                    roundTo2(outerSize.width / INNER_OUTER_RATIO),
-                    roundTo2(outerSize.height/ INNER_OUTER_RATIO)
-                );
-                outerTopLeft = new Point((newSize.width - outerSize.width) / 2, (newSize.height - outerSize.height) / 2);
-                innerTopLeft = new Point(
-                    outerTopLeft.x + ((outerSize.width - innerSize.width) / 2),
-                    outerTopLeft.y + ((outerSize.height - innerSize.height) / 2)
-                );
-                outerSize = new Dimension(newSize.width, newSize.height);
-                outerTopLeft = new Point(0, 0);
+                triggerResize();
             }
         });
+    }
+
+    private void triggerResize() {
+        final Dimension newSize = new Dimension(getSize().width, getSize().height - 16);
+        outerSize = new Dimension(roundTo2(newSize.height * WIDTH_HEIGHT_RATIO), roundTo2(newSize.height));
+        innerSize = new Dimension(
+            roundTo2(outerSize.width / INNER_OUTER_RATIO),
+            roundTo2(outerSize.height/ INNER_OUTER_RATIO)
+        );
+        outerTopLeft = new Point((newSize.width - outerSize.width) / 2, (newSize.height - outerSize.height) / 2);
+        innerTopLeft = new Point(
+            outerTopLeft.x + ((outerSize.width - innerSize.width) / 2),
+            outerTopLeft.y + ((outerSize.height - innerSize.height) / 2)
+        );
+        if (extendBorder) {
+            outerSize = new Dimension(newSize.width, newSize.height);
+            outerTopLeft = new Point(0, 0);
+        }
     }
 
     @Override
@@ -126,5 +132,11 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
                 unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 1, 1) * UnsafeUtil.SCALE), e3);
             }
         }
+    }
+
+    @Override
+    public void setExtendBorder(final boolean extendBorder) {
+        super.setExtendBorder(extendBorder);
+        triggerResize();
     }
 }

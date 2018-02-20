@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -151,12 +152,6 @@ public class Emulator extends JFrame implements Runnable {
         final JMenu computerMenu = new JMenu("Computer");
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
 
-        final JCheckBoxMenuItem smoothRendering = new JCheckBoxMenuItem("Smooth Display Rendering");
-        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_MASK));
-        smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
-        smoothRendering.doClick();
-        computerMenu.add(smoothRendering);
-
         final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");
         sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
         sound.addActionListener(e -> {
@@ -204,6 +199,18 @@ public class Emulator extends JFrame implements Runnable {
         }
         computerMenu.add(speedMenu);
         menuBar.add(computerMenu);
+
+        final JMenu displayMenu = new JMenu("Display");
+        final JCheckBoxMenuItem smoothRendering = new JCheckBoxMenuItem("Smooth Display Rendering");
+        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_MASK));
+        smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
+        smoothRendering.doClick();
+        displayMenu.add(smoothRendering);
+
+        final JCheckBoxMenuItem extendBorder = new JCheckBoxMenuItem("Extend Border");
+        extendBorder.addActionListener(e -> display.setExtendBorder(extendBorder.isSelected()));
+        displayMenu.add(extendBorder);
+        menuBar.add(displayMenu);
 
         final JMenu tapeMenu = new JMenu("Tape");
         final JCheckBoxMenuItem playTape = new JCheckBoxMenuItem("Play");
@@ -254,6 +261,11 @@ public class Emulator extends JFrame implements Runnable {
             connectItem.setEnabled(!peer.connectedProperty().get());
             disconnectItem.setEnabled(peer.connectedProperty().get());
         });
+
+        final JMenu aboutMenu = new JMenu("About");
+        final JMenuItem aboutItem = menuItemFor("About Plus-F", this::aboutDialog, Optional.empty());
+        aboutMenu.add(aboutItem);
+        menuBar.add(aboutMenu);
 
         final TapeControls tapeControls = new TapeControls(tapePlayer);
         final JPanel statusBar = new JPanel(new GridLayout(1, 4));
@@ -473,6 +485,24 @@ public class Emulator extends JFrame implements Runnable {
 
     private void disconnect(final ActionEvent e) {
         peer.disconnect();
+    }
+
+    private void aboutDialog(final ActionEvent e) {
+        final Properties versionFile = new Properties();
+        String version;
+        try (final InputStream is = getClass().getResourceAsStream("/version.properties")) {
+            versionFile.load(is);
+            version = String.format("Plus-F version %s", versionFile.getProperty("version"));
+        } catch (IOException ex) {
+            version = "Plus-F";
+        }
+        JOptionPane.showMessageDialog(
+            this,
+            version,
+            "Plus-F",
+            JOptionPane.INFORMATION_MESSAGE,
+            new ImageIcon(Icons.windowIcon)
+        );
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
