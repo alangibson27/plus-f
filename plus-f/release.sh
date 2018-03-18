@@ -1,6 +1,6 @@
 #!/bin/bash -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-${SCRIPT_DIR}/../gradlew debPackage rpmPackage
+${SCRIPT_DIR}/../gradlew clean debPackage rpmPackage
 for i in $(ls build/distribution/plus-f-*); do
     name=$(echo $i | sed -E "s/(plus-f.+)(\....)/Plus-F\2/")
     echo "Uploading $i to S3 as $name ..."

@@ -11,9 +11,10 @@ public class Settings {
 
     static {
         try {
-            final URL latestConfigUrl = new URL("http://download.socialthingy.com/plus-f.conf");
+            final URL latestConfigUrl = new URL("https://raw.githubusercontent.com/alangibson27/plus-f/master/plus-f/src/main/resources/default.conf");
             config = ConfigFactory.parseURL(latestConfigUrl).withFallback(defaultConfig);
         } catch (Exception e) {
+            e.printStackTrace();
             config = defaultConfig;
         }
     }
