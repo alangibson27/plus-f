@@ -19,7 +19,7 @@ dependencies {
     testCompile "com.github.tomakehurst:wiremock:2.5.1"
 }
 
-version = '1.5.2'
+version = '1.5.3'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
 def embeddedJRE = false
 
@@ -63,7 +63,7 @@ void createJavapackagerTask(String platform, boolean embedJre) {
                 '-v',
                 '-nosign',
                 '-native', platform,
-                '-outdir', "${buildDir}/distribution",
+                '-outdir', "${buildDir}/distributions",
                 '-outfile', project.name,
                 '-name', 'Plus-F',
                 '-description', 'ZX Spectrum Emulator with Network Play Capability',
