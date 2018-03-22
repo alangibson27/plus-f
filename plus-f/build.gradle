@@ -75,6 +75,6 @@ void createJavapackagerTask(String platform, boolean embedJre) {
     }
 }
 
-for (String platform: ["deb", "rpm", "windows"]) {
-    createJavapackagerTask(platform, platform.equals("windows"))
+for (String platform: ["deb", "rpm"]) {
+    createJavapackagerTask(platform, false)
 }
