@@ -19,6 +19,12 @@ dependencies {
     testCompile "com.github.tomakehurst:wiremock:2.5.1"
 }
 
+test {
+    tags {
+        exclude 'UITest'
+    }
+}
+
 version = '1.5.3'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
 def embeddedJRE = false
@@ -52,7 +58,7 @@ task copyDependencies(type: Copy) {
 build.dependsOn('writeVersionFile')
 
 void createJavapackagerTask(String platform, boolean embedJre) {
-    task "${platform}Package" (type: Exec, dependsOn: [assemble, copyDependencies]) {
+    task "${platform}Package" (type: Exec, dependsOn: [check, assemble, copyDependencies]) {
         def dependencies = []
         def paramEmbeddedJRE = embedJre ? [] : ['-Bruntime=']
 
