@@ -25,7 +25,7 @@ test {
     }
 }
 
-version = '1.5.3'
+version = '1.5.4'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
 def embeddedJRE = false
 

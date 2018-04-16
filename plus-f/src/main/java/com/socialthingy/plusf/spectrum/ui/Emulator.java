@@ -532,8 +532,12 @@ public class Emulator extends JFrame implements Runnable {
                 computer.singleCycle();
 
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
+                    final EmulatorState[] states = new EmulatorState[8];
                     final int[] screenBytes = Memory.getScreenBytes(memory);
-                    peer.send(new EmulatorState(screenBytes, ula.getBorderChanges(), ula.flashActive()));
+                    for (int i = 0; i < 8; i++) {
+                        states[i] = new EmulatorState(screenBytes, 0x4000 + (i * 0x360), 0x360, ula.getBorderChanges(), ula.flashActive());
+                    }
+                    peer.send(states);
                 }
                 sendToPeer = !sendToPeer;
 

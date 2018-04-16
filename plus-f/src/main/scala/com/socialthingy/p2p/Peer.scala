@@ -4,7 +4,7 @@ import java.net._
 import java.nio.{ByteBuffer, ByteOrder}
 import java.util.concurrent.{Executors, TimeUnit}
 
-import com.codahale.metrics.{Histogram, Meter, SlidingTimeWindowReservoir}
+import com.codahale.metrics.{Histogram, Meter, ExponentiallyDecayingReservoir}
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration.FiniteDuration
@@ -35,8 +35,8 @@ class Peer(bindAddress: InetSocketAddress,
   val socketHandlerExecutor = Executors.newSingleThreadExecutor()
   implicit val byteOrder = ByteOrder.BIG_ENDIAN
 
-  val latencies = new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES))
-  val sizes = new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES))
+  val latencies = new Histogram(new ExponentiallyDecayingReservoir)
+  val sizes = new Histogram(new ExponentiallyDecayingReservoir)
   val meter = new Meter()
   var outOfOrder = 0
 
@@ -60,9 +60,8 @@ class Peer(bindAddress: InetSocketAddress,
     } match {
       case Success(decompressed) =>
         latencies.update(System.currentTimeMillis - decompressed.systemTime)
-        sizes.update(data.remaining() / 1024)
         meter.mark()
-        if (decompressed.timestamp > lastReceivedTimestamp) {
+        if (decompressed.timestamp >= lastReceivedTimestamp) {
           lastReceivedTimestamp = decompressed.timestamp
           callbacks.data(decompressed.content)
         } else {
@@ -117,6 +116,7 @@ class Peer(bindAddress: InetSocketAddress,
             try {
               socket.receive(receivedPacket)
               log.debug("Received packet of size {} from {}", receivedPacket.getLength, receivedPacket.getAddress.toString)
+              sizes.update(receivedPacket.getLength)
               states(currentState)(
                 ByteBuffer.wrap(receivedPacket.getData, receivedPacket.getOffset, receivedPacket.getLength),
                 receivedPacket.getSocketAddress.asInstanceOf[InetSocketAddress]
@@ -160,9 +160,9 @@ class Peer(bindAddress: InetSocketAddress,
   }
 
   def statistics(): Statistics = Statistics(
-    latencies.getSnapshot.getMedian.toInt,
+    latencies.getSnapshot.get99thPercentile.toInt,
     outOfOrder,
-    sizes.getSnapshot.getMedian.toInt,
+    sizes.getSnapshot.get99thPercentile.toInt,
     meter.getOneMinuteRate
   )
 
@@ -187,4 +187,4 @@ class Peer(bindAddress: InetSocketAddress,
   }
 }
 
-case class Statistics(medianLatency: Int, outOfOrder: Int, size: Int, oneMinuteRate: Double)
+case class Statistics(latency: Int, outOfOrder: Int, size: Int, oneMinuteRate: Double)

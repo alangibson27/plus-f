@@ -7,9 +7,10 @@ object RawData {
   val timestamper = new AtomicLong(0)
 }
 
-case class RawData(content: Any) {
+case class RawData(content: Any, batchPosition: Int = 0) {
   import RawData._
-  lazy val wrap = new WrappedData(timestamper.getAndIncrement(), System.currentTimeMillis, content)
+  lazy val timestamp = if (batchPosition == 0) timestamper.getAndIncrement() else timestamper.get()
+  lazy val wrap = new WrappedData(timestamp, System.currentTimeMillis, content)
 }
 
 trait Deserialiser {
