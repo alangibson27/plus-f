@@ -44,8 +44,9 @@ public class PeerAdapter<T> implements Callbacks {
             FiniteDuration.apply(1, TimeUnit.MINUTES)
         );
         this.receiver = receiver;
-        Executors.newScheduledThreadPool(1).schedule(
+        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(
             this::updateStatistics,
+            10,
             10,
             TimeUnit.SECONDS
         );
@@ -84,7 +85,14 @@ public class PeerAdapter<T> implements Callbacks {
     }
 
     public void send(final Object data) {
-        peer.send(RawData.apply(data));
+        if (data.getClass().isArray()) {
+            final Object[] objs = (Object[]) data;
+            for (int i = 0; i < objs.length; i++) {
+                peer.send(RawData.apply(objs[i], i));
+            }
+        } else {
+            peer.send(RawData.apply(data, 0));
+        }
     }
 
     public void shutdown() {

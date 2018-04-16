@@ -31,14 +31,14 @@ public class ConnectionMonitor extends JPanel implements Observer {
     }
 
     private String textFor(final Statistics statistics) {
-        return String.format("Delay: %d ms", statistics.medianLatency());
+        return String.format("Delay: %d ms   Packet size: %d", statistics.latency(), statistics.size());
     }
 
     private Color colourFor(final Statistics statistics, final long timeSinceLastReceived) {
-        if (timeSinceLastReceived > 500) {
+        if (timeSinceLastReceived > 500 || statistics.latency() > 75) {
             return Color.RED;
-        } else if (statistics.medianLatency() > 40) {
-            return Color.YELLOW;
+        } else if (statistics.latency() > 50) {
+            return Color.MAGENTA;
         } else {
             return Color.GREEN;
         }

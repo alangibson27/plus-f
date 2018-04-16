@@ -160,7 +160,7 @@ public class Guest extends JFrame implements Runnable {
 
     private void refresh() {
         if (lastHostData != null) {
-            System.arraycopy(lastHostData.getMemory(), 0x4000, memory, 0x4000, 0x1b00);
+            System.arraycopy(lastHostData.getMemory(), lastHostData.getMemoryBase(), memory, lastHostData.getMemoryBase(), lastHostData.getMemoryLength());
             ula.setBorderChanges(lastHostData.getBorderChanges());
             EventQueue.invokeLater(() -> {
                 display.updateScreen(memory, ula);
