@@ -3,12 +3,11 @@ package com.socialthingy.plusf.sound
 import com.jsyn.data.FloatSample
 import com.jsyn.unitgen._
 
-import scala.collection.mutable.ListBuffer
-
 class Beeper(sampler: VariableRateMonoReader) {
   val updatePeriod: Double = 3500000.0 / sampler.rate.get()
 
-  private val beeperStates = ListBuffer[Float]()
+  private val beeperStates = Array.ofDim[Float](900)
+  private var beeperIdx = 0
   private var allStatesHigh = true
   private var isEnabled = false
 
@@ -16,25 +15,28 @@ class Beeper(sampler: VariableRateMonoReader) {
     isEnabled = enabled
 
     if (!enabled) {
-      beeperStates.clear()
+      beeperIdx = 0
     }
   }
 
   def update(state: Boolean): Unit = if (isEnabled) {
-    beeperStates.append(if (state) 1.0F else 0.0F)
+    beeperStates(beeperIdx) = if (state) 1.0F else 0.0F
+    beeperIdx += 1
     allStatesHigh = allStatesHigh && state
   }
 
-  def play(): Unit = if (beeperStates.isEmpty) {
+  def play(): Unit = if (beeperIdx == 0) {
     sampler.dataQueue.clear()
   } else {
     if (!isEnabled || allStatesHigh) {
       sampler.dataQueue.clear()
     } else {
-      val sample = new FloatSample(beeperStates.toArray)
+      val sample = new FloatSample()
+      sample.allocate(beeperIdx, 1)
+      sample.write(0, beeperStates, 0, beeperIdx)
       sampler.dataQueue.queue(sample)
     }
-    beeperStates.clear()
+    beeperIdx = 0
     allStatesHigh = true
   }
 }
