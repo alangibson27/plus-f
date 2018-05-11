@@ -11,40 +11,42 @@ public class UnsafePixelMapper extends PixelMapper {
 
     @Override
     public int[] getPixels(final int[] memory, final boolean flashActive) {
+        long targetIdx = BASE + (258 * SCALE);
         for (int y = 0; y < 192; y++) {
             long colourIdx = BASE + (colourLineAddress(y) * SCALE);
+            long pixelIdxBase = BASE + (lineAddress(y) * SCALE);
+            targetIdx += SCALE;
             for (int x = 0; x < 32; x++) {
                 final int colourVal = unsafe.getInt(memory, colourIdx);
                 final SpectrumColour colour = colours[colourVal];
                 colourIdx += SCALE;
 
-                final int pixelAddress = pixelAddress(x, y);
-                final int memoryVal = unsafe.getInt(memory, BASE + (pixelAddress * SCALE));
-                int displayX = (x * 8) + 7;
-                for (int bit = 1; bit < 256; bit <<= 1) {
+                final int memoryVal = unsafe.getInt(memory, pixelIdxBase);
+                pixelIdxBase += SCALE;
+
+                for (int bit = 128; bit > 0; bit >>= 1) {
                     if ((memoryVal & bit) > 0) {
                         setPixel(
-                            displayX + 1,
-                            y + 1,
+                            targetIdx,
                             flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk()
                         );
                     } else {
                         setPixel(
-                            displayX + 1,
-                            y + 1,
+                            targetIdx,
                             flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper()
                         );
                     }
-                    displayX--;
+                    targetIdx += SCALE;
                 }
             }
+            targetIdx += SCALE;
         }
 
         return displayBytes;
     }
 
-    private void setPixel(final int x, final int y, final int color) {
-        unsafe.putInt(displayBytes, 16L + ((x + (y * (SCREEN_WIDTH + 2))) * 4), color);
+    private void setPixel(final long idx, final int color) {
+        unsafe.putInt(displayBytes, idx, color);
     }
 }
 

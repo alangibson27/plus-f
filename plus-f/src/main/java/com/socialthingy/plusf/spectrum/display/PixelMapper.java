@@ -31,7 +31,11 @@ public abstract class PixelMapper {
         return 0x5800 + (0x20 * (y >> 3));
     }
 
-    private int lineAddress(final int y) {
+    protected int colourAddress(final int x, final int y) {
+        return 0x5800 + x + (0x20 * (y >> 3));
+    }
+
+    protected int lineAddress(final int y) {
         final int hi = y & 0b00111000;
         final int lo = y & 0b00000111;
         return 0x4000 + ((y >> 6) * 0x800) + (((hi >> 3) | (lo << 3)) * 32);
