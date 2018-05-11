@@ -7,7 +7,7 @@ public abstract class PixelMapper {
     protected final int[] displayBytes;
 
     protected PixelMapper() {
-        this.displayBytes = new int[SCREEN_WIDTH * SCREEN_HEIGHT];
+        this.displayBytes = new int[(SCREEN_WIDTH + 2) * (SCREEN_HEIGHT + 2)];
 
         for (int flash = 0; flash <= 1; flash++) {
             for (int bright = 0; bright <= 1; bright++) {
@@ -27,8 +27,8 @@ public abstract class PixelMapper {
         return lineAddress(y) + x;
     }
 
-    protected int colourAddress(final int x, final int y) {
-        return 0x5800 + x + (0x20 * (y >> 3));
+    protected int colourLineAddress(final int y) {
+        return 0x5800 + (0x20 * (y >> 3));
     }
 
     private int lineAddress(final int y) {

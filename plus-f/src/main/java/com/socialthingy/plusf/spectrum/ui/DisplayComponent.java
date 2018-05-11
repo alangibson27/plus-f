@@ -46,7 +46,7 @@ abstract class DisplayComponent extends JComponent {
     }
 
     static int sourcePixelAt(final int x, final int y) {
-        return xlimit(x) + (ylimit(y) * SCREEN_WIDTH);
+        return x + y * (SCREEN_WIDTH + 2);
     }
 
     static int targetPixelAt(final int mainx, final int mainy, final int subx, final int suby) {
