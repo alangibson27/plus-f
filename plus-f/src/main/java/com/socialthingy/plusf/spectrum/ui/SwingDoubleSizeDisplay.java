@@ -100,6 +100,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     @Override
     protected void paintComponent(final Graphics g) {
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g.drawImage(borderImage, outerTopLeft.x, outerTopLeft.y, outerSize.width, outerSize.height, null);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, renderingHint);
         g.drawImage(

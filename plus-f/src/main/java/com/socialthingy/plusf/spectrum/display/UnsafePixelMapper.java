@@ -7,7 +7,7 @@ import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
 import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 public class UnsafePixelMapper extends PixelMapper {
-    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
+    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     @Override
     public int[] getPixels(final int[] memory, final boolean flashActive) {
@@ -21,21 +21,14 @@ public class UnsafePixelMapper extends PixelMapper {
                 final SpectrumColour colour = colours[colourVal];
                 colourIdx += SCALE;
 
+                final int ink = flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk();
+                final int paper = flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper();
+
                 final int memoryVal = unsafe.getInt(memory, pixelIdxBase);
                 pixelIdxBase += SCALE;
 
                 for (int bit = 128; bit > 0; bit >>= 1) {
-                    if ((memoryVal & bit) > 0) {
-                        setPixel(
-                            targetIdx,
-                            flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk()
-                        );
-                    } else {
-                        setPixel(
-                            targetIdx,
-                            flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper()
-                        );
-                    }
+                    unsafe.putInt(displayBytes, targetIdx, (memoryVal & bit) > 0 ? ink : paper);
                     targetIdx += SCALE;
                 }
             }
@@ -43,10 +36,6 @@ public class UnsafePixelMapper extends PixelMapper {
         }
 
         return displayBytes;
-    }
-
-    private void setPixel(final long idx, final int color) {
-        unsafe.putInt(displayBytes, idx, color);
     }
 }
 
