@@ -140,6 +140,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void initialiseUI() {
+        System.out.println(java.awt.Toolkit.getDefaultToolkit().getColorModel());
         setIconImage(Icons.windowIcon);
 
         final JMenuBar menuBar = new JMenuBar();

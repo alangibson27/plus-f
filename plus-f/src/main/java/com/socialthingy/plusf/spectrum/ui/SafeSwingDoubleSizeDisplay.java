@@ -64,8 +64,8 @@ public class SafeSwingDoubleSizeDisplay extends DisplayComponent {
     }
 
     protected void scale(final int[] sourcePixels) {
-        for (int x = 0; x < SCREEN_WIDTH; x++) {
-            for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 1; x < SCREEN_WIDTH + 1; x++) {
+            for (int y = 1; y < SCREEN_HEIGHT + 1; y++) {
                 final int a = sourcePixels[sourcePixelAt(x, y - 1)];
                 final int c = sourcePixels[sourcePixelAt(x - 1, y)];
                 final int p = sourcePixels[sourcePixelAt(x, y)];
@@ -77,10 +77,10 @@ public class SafeSwingDoubleSizeDisplay extends DisplayComponent {
                 final int e2 = (d == c && d != b && c != a) ? c : p;
                 final int e3 = (b == d && b != a && d != c) ? d : p;
 
-                targetPixels[targetPixelAt(x, y, 0, 0)] = e0;
-                targetPixels[targetPixelAt(x, y, 1, 0)] = e1;
-                targetPixels[targetPixelAt(x, y, 0, 1)] = e2;
-                targetPixels[targetPixelAt(x, y, 1, 1)] = e3;
+                targetPixels[targetPixelAt(x - 1, y - 1, 0, 0)] = e0;
+                targetPixels[targetPixelAt(x - 1, y - 1, 1, 0)] = e1;
+                targetPixels[targetPixelAt(x - 1, y - 1, 0, 1)] = e2;
+                targetPixels[targetPixelAt(x - 1, y - 1, 1, 1)] = e3;
             }
         }
     }

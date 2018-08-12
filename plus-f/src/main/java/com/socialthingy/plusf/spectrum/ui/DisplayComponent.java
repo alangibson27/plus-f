@@ -25,28 +25,8 @@ abstract class DisplayComponent extends JComponent {
     private static final int TOP_BORDER_HEIGHT = 64;
     private static final int BOTTOM_BORDER_HEIGHT = 56;
 
-    private static int xlimit(final int x) {
-        if (x < 0) {
-            return 0;
-        } else if (x > 255) {
-            return 255;
-        } else {
-            return x;
-        }
-    }
-
-    private static int ylimit(final int y) {
-        if (y < 0) {
-            return 0;
-        } else if (y > 191) {
-            return 191;
-        } else {
-            return y;
-        }
-    }
-
     static int sourcePixelAt(final int x, final int y) {
-        return xlimit(x) + (ylimit(y) * SCREEN_WIDTH);
+        return x + y * (SCREEN_WIDTH + 2);
     }
 
     static int targetPixelAt(final int mainx, final int mainy, final int subx, final int suby) {

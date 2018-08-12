@@ -7,42 +7,35 @@ import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
 import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 public class UnsafePixelMapper extends PixelMapper {
-    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
+    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     @Override
     public int[] getPixels(final int[] memory, final boolean flashActive) {
+        long targetIdx = BASE + (258 * SCALE);
         for (int y = 0; y < 192; y++) {
+            long colourIdx = BASE + (colourLineAddress(y) * SCALE);
+            long pixelIdxBase = BASE + (lineAddress(y) * SCALE);
+            targetIdx += SCALE;
             for (int x = 0; x < 32; x++) {
-                final int colourVal = unsafe.getInt(memory, BASE + (colourAddress(x, y) * SCALE));
+                final int colourVal = unsafe.getInt(memory, colourIdx);
                 final SpectrumColour colour = colours[colourVal];
+                colourIdx += SCALE;
 
-                final int pixelAddress = pixelAddress(x, y);
-                final int memoryVal = unsafe.getInt(memory, BASE + (pixelAddress * SCALE));
-                int displayX = (x * 8) + 7;
-                for (int bit = 1; bit < 256; bit <<= 1) {
-                    if ((memoryVal & bit) > 0) {
-                        setPixel(
-                            displayX,
-                            y,
-                            flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk()
-                        );
-                    } else {
-                        setPixel(
-                            displayX,
-                            y,
-                            flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper()
-                        );
-                    }
-                    displayX--;
+                final int ink = flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk();
+                final int paper = flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper();
+
+                final int memoryVal = unsafe.getInt(memory, pixelIdxBase);
+                pixelIdxBase += SCALE;
+
+                for (int bit = 128; bit > 0; bit >>= 1) {
+                    unsafe.putInt(displayBytes, targetIdx, (memoryVal & bit) > 0 ? ink : paper);
+                    targetIdx += SCALE;
                 }
             }
+            targetIdx += SCALE;
         }
 
         return displayBytes;
-    }
-
-    private void setPixel(final int x, final int y, final int color) {
-        unsafe.putInt(displayBytes, 16L + ((x + (y * SCREEN_WIDTH)) * 4), color);
     }
 }
 

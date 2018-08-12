@@ -20,6 +20,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     private static final double INNER_OUTER_RATIO = 1.125;
     private static final double WIDTH_HEIGHT_RATIO = 576.0 / 432.0;
+    private static final int SCAN_WIDTH = SCREEN_WIDTH * SCALE * 2;
 
     private Dimension innerSize = new Dimension(SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE);
     private Dimension outerSize = new Dimension(
@@ -99,6 +100,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     @Override
     protected void paintComponent(final Graphics g) {
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g.drawImage(borderImage, outerTopLeft.x, outerTopLeft.y, outerSize.width, outerSize.height, null);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_INTERPOLATION, renderingHint);
         g.drawImage(
@@ -113,8 +115,12 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     @Override
     protected void scale(final int[] sourcePixels) {
-        for (int x = 0; x < SCREEN_WIDTH; x++) {
-            for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 1; x < SCREEN_WIDTH + 1; x++) {
+            int e0idx = (x - 1) * 2;
+            int e1idx = e0idx + 1;
+            int e2idx = e0idx + (SCREEN_WIDTH * SCALE);
+            int e3idx = e2idx + 1;
+            for (int y = 1; y < SCREEN_HEIGHT + 1; y++) {
                 final int a = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y - 1) * UnsafeUtil.SCALE));
                 final int c = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x - 1, y) * UnsafeUtil.SCALE));
                 final int p = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y) * UnsafeUtil.SCALE));
@@ -126,10 +132,15 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
                 final int e2 = (d == c && d != b && c != a) ? c : p;
                 final int e3 = (b == d && b != a && d != c) ? d : p;
 
-                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 0, 0) * UnsafeUtil.SCALE), e0);
-                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 1, 0) * UnsafeUtil.SCALE), e1);
-                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 0, 1) * UnsafeUtil.SCALE), e2);
-                unsafe.putInt(targetPixels, BASE + (targetPixelAt(x, y, 1, 1) * UnsafeUtil.SCALE), e3);
+                unsafe.putInt(targetPixels, BASE + (e0idx * UnsafeUtil.SCALE), e0);
+                unsafe.putInt(targetPixels, BASE + (e1idx * UnsafeUtil.SCALE), e1);
+                unsafe.putInt(targetPixels, BASE + (e2idx * UnsafeUtil.SCALE), e2);
+                unsafe.putInt(targetPixels, BASE + (e3idx * UnsafeUtil.SCALE), e3);
+
+                e0idx += SCAN_WIDTH;
+                e1idx += SCAN_WIDTH;
+                e2idx += SCAN_WIDTH;
+                e3idx += SCAN_WIDTH;
             }
         }
     }

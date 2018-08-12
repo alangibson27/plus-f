@@ -14,14 +14,14 @@ public class SafePixelMapper extends PixelMapper {
                 for (int bit = 1; bit < 256; bit <<= 1) {
                     if ((memoryVal & bit) > 0) {
                         setPixel(
-                            displayX,
-                            y,
+                            displayX + 1,
+                            y + 1,
                             flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk()
                         );
                     } else {
                         setPixel(
-                            displayX,
-                            y,
+                            displayX + 1,
+                            y + 1,
                             flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper()
                         );
                     }
@@ -34,7 +34,7 @@ public class SafePixelMapper extends PixelMapper {
     }
 
     private void setPixel(final int x, final int y, final int color) {
-        displayBytes[x + (y * SCREEN_WIDTH)] = color;
+        displayBytes[x + (y * (SCREEN_WIDTH + 2))] = color;
     }
 }
 
