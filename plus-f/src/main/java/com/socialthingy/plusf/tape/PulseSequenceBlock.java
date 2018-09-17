@@ -2,7 +2,6 @@ package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
-import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,21 +39,62 @@ public class PulseSequenceBlock extends TapeBlock {
     }
 
     @Override
-    public RepList<Boolean> getBitList(SignalState signalState) {
-        signalState.adjust(initialState);
-
-        final RepList<Boolean> bits = new RepList<>();
-        for (int i = 0; i < pulseCount; i++) {
-            bits.add(signalState.get(), pulseLengths[i]);
-            signalState.flip();
-        }
-
-        return bits;
+    public BlockBits getBitList(SignalState signalState) {
+        return new PulseSequenceBlockBits(signalState);
     }
 
     @Override
     public String toString() {
         final String pulses = Arrays.stream(pulseLengths).limit(5).mapToObj(String::valueOf).collect(Collectors.joining(","));
         return String.format("Pulse block - %d pulses [%s ...]", pulseCount, pulses);
+    }
+
+    private class PulseSequenceBlockBits implements BlockBits {
+        private final SignalState state;
+        private int pulseIdx;
+        private int bitIdx;
+
+        public PulseSequenceBlockBits(final SignalState signalState) {
+            this.state = signalState;
+            signalState.adjust(initialState);
+        }
+
+        @Override
+        public int skip(int count) {
+            int skipped = 0;
+            while (count > 0 && pulseIdx < pulseCount) {
+                int bitsLeftInPulse = pulseLengths[pulseIdx] - bitIdx;
+                if (count < bitsLeftInPulse) {
+                    bitIdx += count;
+                    skipped += count;
+                    count = 0;
+                } else {
+                    state.flip();
+                    skipped += bitsLeftInPulse;
+                    count -= bitsLeftInPulse;
+                    pulseIdx++;
+                    bitIdx = 0;
+                }
+            }
+            return skipped;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return (pulseIdx < pulseCount - 1) ||
+                    (pulseIdx == pulseCount - 1 && bitIdx < pulseLengths[pulseCount - 1]);
+        }
+
+        @Override
+        public Boolean next() {
+            final Boolean next = state.get();
+            bitIdx++;
+            if (bitIdx >= pulseLengths[pulseIdx]) {
+                state.flip();
+                pulseIdx++;
+                bitIdx = 0;
+            }
+            return next;
+        }
     }
 }

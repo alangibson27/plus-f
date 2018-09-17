@@ -1,13 +1,10 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.util.Word;
-import com.socialthingy.replist.RepList;
+import com.socialthingy.plusf.tape.BlockBits;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-
-import static java.util.Collections.emptyIterator;
 
 public abstract class TapeBlock {
     protected static String getFixedLengthString(final InputStream tapeFile) throws IOException {
@@ -19,8 +16,8 @@ public abstract class TapeBlock {
         return new String(buf);
     }
 
-    public RepList<Boolean> getBitList(final SignalState signalState) {
-        return new RepList<>();
+    public BlockBits getBitList(final SignalState signalState) {
+        return new EmptyBlockBits();
     }
 
     public String getDisplayName() {
@@ -37,5 +34,22 @@ public abstract class TapeBlock {
 
     protected static int nextTriple(final InputStream tzxFile) throws IOException {
         return tzxFile.read() + (tzxFile.read() << 8) + (tzxFile.read() << 16);
+    }
+
+    private class EmptyBlockBits implements BlockBits {
+        @Override
+        public int skip(int count) {
+            return 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public Boolean next() {
+            return null;
+        }
     }
 }

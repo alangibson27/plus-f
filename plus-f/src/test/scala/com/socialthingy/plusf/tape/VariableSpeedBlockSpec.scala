@@ -77,17 +77,22 @@ class VariableSpeedBlockSpec extends FlatSpec with Matchers with TapeMatchers wi
   }
 
   private def checkSameContent(variableSpeedBlock: VariableSpeedBlock, referenceBlock: ReferenceVariableSpeedBlock): Unit = {
-    val newBits = variableSpeedBlock.getBitList(new SignalState(false)).iterator()
+    val newBits = variableSpeedBlock.getBitList(new SignalState(false))
 
     val referenceTape = new RepList[JBoolean]()
     referenceBlock.write(referenceTape, false)
     val referenceBits = referenceTape.iterator()
 
+    var position = 0
     while (newBits.hasNext && referenceBits.hasNext) {
       val newBit = newBits.next
       val refBit = referenceBits.next
 
+      if (newBit != refBit) {
+        println(s"mismatch at position ${position}")
+      }
       newBit shouldBe refBit
+      position += 1
     }
 
     newBits.hasNext shouldBe false

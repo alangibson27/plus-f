@@ -33,7 +33,7 @@ class TapeSpec extends FlatSpec with Matchers {
       new PauseBlock(Duration.ofSeconds(1)),
       new PulseSequenceBlock(Array[Int](100, 200, 100, 200)),
       new PureDataBlock(Duration.ofSeconds(1), Array[Int](0x01, 0x02, 0x03), 100, 200, 8),
-      new PureToneBlock(100, 1000),
+      PureToneBlock.create(100, 1000),
       new TextDescriptionBlock("This is a tape"),
       new VariableSpeedBlock(Duration.ofSeconds(1), Array[Int](0x01, 0x02, 0x03))
     )
@@ -51,7 +51,7 @@ class TapeSpec extends FlatSpec with Matchers {
     navigableBlocks(2).block shouldBe a[PureDataBlock]
 
     navigableBlocks(3).index shouldBe 5
-    navigableBlocks(3).block shouldBe a[PureToneBlock]
+    navigableBlocks(3).block shouldBe a[PulseSequenceBlock]
 
     navigableBlocks(4).index shouldBe 7
     navigableBlocks(4).block shouldBe a[VariableSpeedBlock]
@@ -64,7 +64,7 @@ class TapeSpec extends FlatSpec with Matchers {
       new PauseBlock(Duration.ofSeconds(1)),
       new GroupStartBlock("Group Start"),
       new GroupStartBlock("Inner Group Start"),
-      new PureToneBlock(100, 1000),
+      PureToneBlock.create(100, 1000),
       new PureDataBlock(Duration.ofSeconds(1), Array.ofDim[Int](0x01), 100, 200, 8),
       new GroupEndBlock(),
       new GroupEndBlock(),
@@ -95,7 +95,7 @@ class TapeSpec extends FlatSpec with Matchers {
       new PauseBlock(Duration.ofSeconds(1)),
       new LoopStartBlock(10),
       new LoopStartBlock(20),
-      new PureToneBlock(100, 1000),
+      PureToneBlock.create(100, 1000),
       new PureDataBlock(Duration.ofSeconds(1), Array.ofDim[Int](0x01), 100, 200, 8),
       new LoopEndBlock(),
       new LoopEndBlock(),

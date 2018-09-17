@@ -2,14 +2,14 @@ package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
-import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PureDataBlock extends TapeBlock {
-
     public static final int[] FINAL_OPPOSITE_EDGE_PULSE = new int[]{3500};
 
     public static Try<PureDataBlock> read(final InputStream tzxFile) {
@@ -38,6 +38,7 @@ public class PureDataBlock extends TapeBlock {
     private final int zeroPulseLength;
     private final int onePulseLength;
     private final int finalByteBitsUsed;
+    private final List<TapeBlock> subBlocks = new ArrayList<>();
 
     public PureDataBlock(
         final Duration pauseLength,
@@ -51,6 +52,7 @@ public class PureDataBlock extends TapeBlock {
         this.zeroPulseLength = zeroPulseLength;
         this.onePulseLength = onePulseLength;
         this.finalByteBitsUsed = finalByteBitsUsed;
+        createSubBlocks();
     }
 
     public int[] getData() {
@@ -58,25 +60,26 @@ public class PureDataBlock extends TapeBlock {
     }
 
     @Override
-    public RepList<Boolean> getBitList(SignalState signalState) {
-        final RepList<Boolean> bits = new RepList<>();
+    public BlockBits getBitList(SignalState signalState) {
+        return new CompoundBlockBits(signalState, subBlocks);
+    }
+
+    private void createSubBlocks() {
         for (int byteIdx = 0; byteIdx < data.length - 1; byteIdx++) {
             for (int bitIdx = 7; bitIdx >= 0; bitIdx--) {
-                bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(data[byteIdx], bitIdx)).getBitList(signalState));
+                subBlocks.add(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(data[byteIdx], bitIdx)));
             }
         }
 
         final int finalByte = data[data.length - 1];
         for (int bitIdx = 7; bitIdx >= 8 - finalByteBitsUsed; bitIdx--) {
-            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(finalByte, bitIdx)).getBitList(signalState));
+            subBlocks.add(new PulseSequenceBlock(Adjustment.NO_CHANGE, bitPulses(finalByte, bitIdx)));
         }
 
         if (!pauseLength.isZero()) {
-            bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, FINAL_OPPOSITE_EDGE_PULSE).getBitList(signalState));
-            bits.append(new PauseBlock(pauseLength).getBitList(signalState));
+            subBlocks.add(new PulseSequenceBlock(Adjustment.NO_CHANGE, FINAL_OPPOSITE_EDGE_PULSE));
+            subBlocks.add(new PauseBlock(pauseLength));
         }
-
-        return bits;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.util.Try;
-import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,9 +18,11 @@ public class PauseBlock extends TapeBlock {
     }
 
     private final Duration pauseLength;
+    private final int pauseBits;
 
     public PauseBlock(final Duration pauseLength) {
         this.pauseLength = pauseLength;
+        this.pauseBits = (int) pauseLength.toMillis() * 3500;
     }
 
     public boolean shouldStopTape() {
@@ -29,8 +30,8 @@ public class PauseBlock extends TapeBlock {
     }
 
     @Override
-    public RepList<Boolean> getBitList(SignalState signalState) {
-        return getBits(signalState);
+    public BlockBits getBitList(SignalState signalState) {
+        return new PauseBlockBits();
     }
 
     @Override
@@ -38,9 +39,30 @@ public class PauseBlock extends TapeBlock {
         return String.format("%s pause", pauseLength.getSeconds());
     }
 
-    public RepList<Boolean> getBits(final SignalState signalState) {
-        final RepList<Boolean> bits = new RepList<>();
-        bits.add(false, (int) pauseLength.toMillis() * 3500);
-        return bits;
+    private class PauseBlockBits implements BlockBits {
+        private int idx;
+
+        @Override
+        public int skip(int count) {
+            if (count < pauseBits - idx) {
+                idx += count;
+                return count;
+            } else {
+                final int skipped = pauseBits - idx;
+                idx = pauseBits;
+                return skipped;
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return idx < pauseBits;
+        }
+
+        @Override
+        public Boolean next() {
+            idx++;
+            return false;
+        }
     }
 }
