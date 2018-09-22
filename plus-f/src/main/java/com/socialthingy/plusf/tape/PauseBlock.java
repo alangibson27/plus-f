@@ -30,8 +30,8 @@ public class PauseBlock extends TapeBlock {
     }
 
     @Override
-    public BlockBits getBitList(SignalState signalState) {
-        return new PauseBlockBits();
+    public BlockSignal getBlockSignal(SignalState signalState) {
+        return new PauseBlockSignal();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class PauseBlock extends TapeBlock {
         return String.format("%s pause", pauseLength.getSeconds());
     }
 
-    private class PauseBlockBits implements BlockBits {
+    private class PauseBlockSignal implements BlockSignal {
         private int idx;
 
         @Override

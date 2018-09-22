@@ -18,7 +18,7 @@ public class TapePlayer implements Iterator<Boolean> {
     private final ButtonModel jumpButtonModel;
     private int blockIdx = 0;
     private final SignalState signalState = new SignalState(false);
-    private BlockBits currentBlock = null;
+    private BlockSignal currentBlock = null;
     private int loopStart = -1;
     private int loopCount = 0;
     private Tape tape;
@@ -150,7 +150,7 @@ public class TapePlayer implements Iterator<Boolean> {
     public boolean skip(final int amount) {
         int remaining = amount - 1;
         while (remaining > 0 && currentBlock != null) {
-            final BlockBits block = currentBlock;
+            final BlockSignal block = currentBlock;
             remaining -= block.skip(remaining);
             if (!block.hasNext()) {
                 currentBlock = nextBlock();
@@ -160,7 +160,7 @@ public class TapePlayer implements Iterator<Boolean> {
         return hasNext() ? next() : false;
     }
 
-    private BlockBits nextBlock() {
+    private BlockSignal nextBlock() {
         if (blocks == null) {
             return null;
         }
@@ -195,6 +195,6 @@ public class TapePlayer implements Iterator<Boolean> {
             return nextBlock();
         }
 
-        return nextBlock.getBitList(signalState);
+        return nextBlock.getBlockSignal(signalState);
     }
 }

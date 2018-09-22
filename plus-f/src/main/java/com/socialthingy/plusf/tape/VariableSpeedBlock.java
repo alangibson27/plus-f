@@ -144,8 +144,8 @@ public class VariableSpeedBlock extends TapeBlock {
     }
 
     @Override
-    public BlockBits getBitList(final SignalState signalState) {
-        return new CompoundBlockBits(
+    public BlockSignal getBlockSignal(final SignalState signalState) {
+        return new CompoundBlockSignal(
             signalState,
             PureToneBlock.create(pilotPulseLength, pilotToneLength),
             new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength}),

@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.socialthingy.plusf.tape.TapeBlock.MILLISECOND_PULSE;
+
 public class TapeFileReader {
     private static final Logger logger = Logger.getLogger(TapeFileReader.class.getName());
 
@@ -111,7 +113,7 @@ public class TapeFileReader {
 
     private void addSuffixBlocks(final List<TapeBlock> blocks) {
         blocks.add(new GroupStartBlock("End of tape"));
-        blocks.add(new PulseSequenceBlock(SignalState.Adjustment.NO_CHANGE, new int[] {3500}));
+        blocks.add(new PulseSequenceBlock(SignalState.Adjustment.NO_CHANGE, MILLISECOND_PULSE));
         blocks.add(new PauseBlock(Duration.ofMillis(1)));
         blocks.add(new PauseBlock(Duration.ZERO));
         blocks.add(new GroupEndBlock());
