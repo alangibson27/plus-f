@@ -2,7 +2,6 @@ package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
-import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +24,10 @@ public class PulseSequenceBlock extends TapeBlock {
         }
     }
 
-    private final int pulseCount;
     private final int[] pulseLengths;
     private final Adjustment initialState;
 
     public PulseSequenceBlock(final Adjustment initialState, final int[] pulseLengths) {
-        this.pulseCount = pulseLengths.length;
         this.pulseLengths = pulseLengths;
         this.initialState = initialState;
     }
@@ -40,21 +37,18 @@ public class PulseSequenceBlock extends TapeBlock {
     }
 
     @Override
-    public RepList<Boolean> getBitList(SignalState signalState) {
-        signalState.adjust(initialState);
-
-        final RepList<Boolean> bits = new RepList<>();
-        for (int i = 0; i < pulseCount; i++) {
-            bits.add(signalState.get(), pulseLengths[i]);
-            signalState.flip();
-        }
-
-        return bits;
+    public BlockSignal getBlockSignal(SignalState signalState) {
+        return new PulseSequenceSignal(
+            signalState,
+            initialState,
+            pulseLengths
+        );
     }
 
     @Override
     public String toString() {
         final String pulses = Arrays.stream(pulseLengths).limit(5).mapToObj(String::valueOf).collect(Collectors.joining(","));
-        return String.format("Pulse block - %d pulses [%s ...]", pulseCount, pulses);
+        return String.format("Pulse block - %d pulses [%s ...]", pulseLengths.length, pulses);
     }
+
 }

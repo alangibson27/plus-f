@@ -20,7 +20,7 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
       s"have the correct number of tones of the correct pulse length when the signal is initially $level" in {
       val pureDataBlock = new PureDataBlock(Duration.ZERO, Array[Int](0x54, 0xf0), 50, 100, 8)
 
-      val bits = pureDataBlock.getBitList(new SignalState(firstValue)).iterator().asScala.toList
+      val bits = pureDataBlock.getBlockSignal(new SignalState(firstValue)).asScala.toList
 
       val pulses = bits.splitInto(
         50, 50, 100, 100, 50, 50, 100, 100, 50, 50, 100, 100, 50, 50, 50, 50,
@@ -81,7 +81,7 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
   "a pure data block followed by a pause" should "finish with a low signal for the pause duration" in {
     val pureDataBlock = new PureDataBlock(Duration.ofMillis(10), Array[Int](0x00), 50, 100, 8)
 
-    val bits = pureDataBlock.getBitList(lowSignal).iterator().asScala.toList
+    val bits = pureDataBlock.getBlockSignal(lowSignal).asScala.toList
 
     val pulses = bits.splitInto(50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 35000 + 3500)
 
@@ -117,7 +117,7 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
   it should "have a short ending high pulse when the final data pulse is low" in {
     val pureDataBlock = new PureDataBlock(Duration.ofMillis(10), Array[Int](0x00), 50, 100, 8)
 
-    val bits = pureDataBlock.getBitList(highSignal).iterator().asScala.toList
+    val bits = pureDataBlock.getBlockSignal(highSignal).asScala.toList
 
     val pulses = bits.splitInto(50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 3500, 35000)
 
@@ -151,22 +151,120 @@ class PureDataBlockSpec extends FlatSpec with TapeMatchers with Matchers with Ta
     pulses(17) should haveLengthAndState(35000, low)
   }
 
+  "a pure data block" should "skip correctly within a single bit" in {
+    val pureDataBlock = new PureDataBlock(Duration.ofMillis(0), Array[Int](0x00), 4, 2, 8)
+
+    val bits = pureDataBlock.getBlockSignal(lowSignal)
+
+    bits.next() shouldBe false
+    bits.skip(2) shouldBe 2
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+  }
+
+  it should "skip correctly across bits" in {
+    val pureDataBlock = new PureDataBlock(Duration.ofMillis(0), Array[Int](0x00), 4, 2, 8)
+
+    val bits = pureDataBlock.getBlockSignal(lowSignal)
+
+    bits.next() shouldBe false
+    bits.skip(7) shouldBe 7
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+  }
+
+  it should "skip correctly across bytes" in {
+    val pureDataBlock = new PureDataBlock(Duration.ofMillis(0), Array[Int](0x00, 0xff), 4, 2, 8)
+
+    val bits = pureDataBlock.getBlockSignal(lowSignal)
+
+    bits.next() shouldBe false
+    bits.skip(63) shouldBe 63
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+    bits.next() shouldBe true
+  }
+
+  it should "skip correctly to the end of the block" in {
+    val pureDataBlock = new PureDataBlock(Duration.ofMillis(0), Array[Int](0x00, 0xff), 4, 2, 8)
+
+    val bits = pureDataBlock.getBlockSignal(lowSignal)
+
+    bits.next() shouldBe false
+    bits.skip(63) shouldBe 63
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+    bits.next() shouldBe true
+    bits.skip(28) shouldBe 28
+    bits.hasNext() shouldBe false
+  }
+
+  it should "skip correctly beyond the end of the block" in {
+    val pureDataBlock = new PureDataBlock(Duration.ofMillis(0), Array[Int](0x00, 0xff), 4, 2, 8)
+
+    val bits = pureDataBlock.getBlockSignal(lowSignal)
+
+    bits.next() shouldBe false
+    bits.skip(63) shouldBe 63
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+    bits.next() shouldBe true
+    bits.skip(30) shouldBe 28
+    bits.hasNext() shouldBe false
+  }
+
+  it should "skip correctly to the end of the block when it only has 7 bits in the final byte" in {
+    val pureDataBlock = new PureDataBlock(Duration.ofMillis(0), Array[Int](0x00, 0xff), 4, 2, 7)
+
+    val bits = pureDataBlock.getBlockSignal(lowSignal)
+
+    bits.next() shouldBe false
+    bits.skip(63) shouldBe 63
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+    bits.next() shouldBe true
+    bits.skip(24) shouldBe 24
+    bits.hasNext() shouldBe false
+  }
+
+  it should "skip correctly beyond the end of the block when it only has 7 bits in the final byte" in {
+    val pureDataBlock = new PureDataBlock(Duration.ofMillis(0), Array[Int](0x00, 0xff), 4, 2, 7)
+
+    val bits = pureDataBlock.getBlockSignal(lowSignal)
+
+    bits.next() shouldBe false
+    bits.skip(63) shouldBe 63
+    bits.next() shouldBe false
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+    bits.next() shouldBe true
+    bits.skip(25) shouldBe 24
+    bits.hasNext() shouldBe false
+  }
+
   val finalByteLengths = Table("finalByteLength", 7, 6, 5, 4, 3, 2, 1)
 
   forAll(finalByteLengths) { finalByteLength =>
     s"a pure data block with $finalByteLength bits in the final byte" should "be represented correctly" in {
-      val pureDataBlock = new PureDataBlock(Duration.ZERO, Array[Int](0x00, 0x00), 50, 100, finalByteLength)
+      val pureDataBlock = new PureDataBlock(Duration.ZERO, Array[Int](0x00), 1, 2, finalByteLength)
 
-      val bits = pureDataBlock.getBitList(highSignal).iterator().asScala.toList
+      val bits = pureDataBlock.getBlockSignal(highSignal).asScala.toList
 
-      val numPulses = 16 + (finalByteLength * 2)
-      val pulses = bits.splitInto(Array.fill(numPulses)(50): _*)
+      val numPulses = finalByteLength * 2
+      val pulses = bits.splitInto(Array.fill(numPulses)(1): _*)
 
       pulses should have length numPulses
 
-      (0 until 8 + finalByteLength) foreach { idx =>
-        pulses(idx * 2) should haveLengthAndState(50, high)
-        pulses((idx * 2) + 1) should haveLengthAndState(50, low)
+      (0 until finalByteLength) foreach { idx =>
+        pulses(idx * 2) should haveLengthAndState(1, high)
+        pulses((idx * 2) + 1) should haveLengthAndState(1, low)
       }
     }
   }

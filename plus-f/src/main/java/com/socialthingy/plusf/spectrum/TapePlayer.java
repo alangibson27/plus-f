@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.spectrum;
 
 import com.socialthingy.plusf.tape.*;
-import com.socialthingy.replist.SkippableIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ public class TapePlayer implements Iterator<Boolean> {
     private final ButtonModel jumpButtonModel;
     private int blockIdx = 0;
     private final SignalState signalState = new SignalState(false);
-    private SkippableIterator<Boolean> currentBlock = null;
+    private BlockSignal currentBlock = null;
     private int loopStart = -1;
     private int loopCount = 0;
     private Tape tape;
@@ -151,7 +150,7 @@ public class TapePlayer implements Iterator<Boolean> {
     public boolean skip(final int amount) {
         int remaining = amount - 1;
         while (remaining > 0 && currentBlock != null) {
-            final SkippableIterator<Boolean> block = currentBlock;
+            final BlockSignal block = currentBlock;
             remaining -= block.skip(remaining);
             if (!block.hasNext()) {
                 currentBlock = nextBlock();
@@ -161,7 +160,7 @@ public class TapePlayer implements Iterator<Boolean> {
         return hasNext() ? next() : false;
     }
 
-    private SkippableIterator<Boolean> nextBlock() {
+    private BlockSignal nextBlock() {
         if (blocks == null) {
             return null;
         }
@@ -196,6 +195,6 @@ public class TapePlayer implements Iterator<Boolean> {
             return nextBlock();
         }
 
-        return nextBlock.getBitList(signalState).iterator();
+        return nextBlock.getBlockSignal(signalState);
     }
 }

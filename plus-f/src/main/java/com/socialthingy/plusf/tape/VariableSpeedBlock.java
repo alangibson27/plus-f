@@ -2,7 +2,6 @@ package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.tape.SignalState.Adjustment;
 import com.socialthingy.plusf.util.Try;
-import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -145,11 +144,13 @@ public class VariableSpeedBlock extends TapeBlock {
     }
 
     @Override
-    public RepList<Boolean> getBitList(final SignalState signalState) {
-        final RepList<Boolean> bits = new PureToneBlock(pilotPulseLength, pilotToneLength).getBitList(signalState);
-        bits.append(new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength}).getBitList(signalState));
-        bits.append(new PureDataBlock(pauseLength, data, zeroPulseLength, onePulseLength, finalByteBitsUsed).getBitList(signalState));
-        return bits;
+    public BlockSignal getBlockSignal(final SignalState signalState) {
+        return new CompoundBlockSignal(
+            signalState,
+            PureToneBlock.create(pilotPulseLength, pilotToneLength),
+            new PulseSequenceBlock(Adjustment.NO_CHANGE, new int[] {sync1PulseLength, sync2PulseLength}),
+            new PureDataBlock(pauseLength, data, zeroPulseLength, onePulseLength, finalByteBitsUsed)
+        );
     }
 
     @Override

@@ -8,7 +8,7 @@ class PulseSequenceBlockSpec extends FlatSpec with TapeMatchers with Matchers {
   val pulseSequenceBlock = new PulseSequenceBlock(Array[Int](100, 75, 125))
 
   "a pulse sequence block" should "have the correct number of tones of the correct pulse length when the signal is initially low" in {
-    val bits = pulseSequenceBlock.getBitList(lowSignal).iterator().asScala.toList
+    val bits = pulseSequenceBlock.getBlockSignal(lowSignal).asScala.toList
 
     val pulses = bits.splitInto(100, 75, 125)
 
@@ -19,7 +19,7 @@ class PulseSequenceBlockSpec extends FlatSpec with TapeMatchers with Matchers {
   }
 
   it should "have the correct number of tones of the correct pulse length when the signal is initially high" in {
-    val bits = pulseSequenceBlock.getBitList(highSignal).iterator().asScala.toList
+    val bits = pulseSequenceBlock.getBlockSignal(highSignal).asScala.toList
 
     val pulses = bits.splitInto(100, 75, 125)
 
@@ -30,7 +30,20 @@ class PulseSequenceBlockSpec extends FlatSpec with TapeMatchers with Matchers {
   }
 
   it should "always start with a low signal, even if the signal before the block is high" in {
-    val bits = pulseSequenceBlock.getBitList(highSignal).iterator().asScala.take(1).toList
+    val bits = pulseSequenceBlock.getBlockSignal(highSignal).asScala.take(1).toList
     bits.head shouldBe false
+  }
+
+  it should "skip correctly within a pulse" in {
+    val bits = pulseSequenceBlock.getBlockSignal(lowSignal)
+    bits.skip(99)
+    bits.next() shouldBe false
+    bits.next() shouldBe true
+  }
+
+  it should "skip correctly across pulses" in {
+    val bits = pulseSequenceBlock.getBlockSignal(lowSignal)
+    bits.skip(100)
+    bits.next() shouldBe true
   }
 }

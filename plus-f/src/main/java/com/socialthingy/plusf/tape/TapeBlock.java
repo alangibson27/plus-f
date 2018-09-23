@@ -1,15 +1,13 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.util.Word;
-import com.socialthingy.replist.RepList;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 
-import static java.util.Collections.emptyIterator;
+public abstract class TapeBlock implements BlockSignalProvider {
+    public static final int[] MILLISECOND_PULSE = {3500};
 
-public abstract class TapeBlock {
     protected static String getFixedLengthString(final InputStream tapeFile) throws IOException {
         final int length = nextByte(tapeFile);
         final byte[] buf = new byte[length];
@@ -19,8 +17,8 @@ public abstract class TapeBlock {
         return new String(buf);
     }
 
-    public RepList<Boolean> getBitList(final SignalState signalState) {
-        return new RepList<>();
+    public BlockSignal getBlockSignal(final SignalState signalState) {
+        return new EmptyBlockSignal();
     }
 
     public String getDisplayName() {
@@ -37,5 +35,22 @@ public abstract class TapeBlock {
 
     protected static int nextTriple(final InputStream tzxFile) throws IOException {
         return tzxFile.read() + (tzxFile.read() << 8) + (tzxFile.read() << 16);
+    }
+
+    private class EmptyBlockSignal implements BlockSignal {
+        @Override
+        public int skip(int count) {
+            return 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public Boolean next() {
+            return null;
+        }
     }
 }

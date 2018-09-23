@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.replist
 
-import com.socialthingy.replist.{RepList, SkippableIterator}
+import com.socialthingy.replist.RepList
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.annotation.tailrec
@@ -89,8 +89,6 @@ class RepListSpec extends FlatSpec with Matchers {
 
   it should "stop skipping when the end of the list is reached" in {
     val iter = rl.iterator()
-    val result = ListBuffer[String]()
-
     val skipped = iter.skip(10)
 
     skipped shouldBe 9
