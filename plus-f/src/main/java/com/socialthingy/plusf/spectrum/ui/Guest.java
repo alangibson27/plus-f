@@ -8,7 +8,6 @@ import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.GuestState;
 import com.socialthingy.plusf.spectrum.network.GuestStateType;
 import com.socialthingy.plusf.z80.Memory;
-import scala.Option;
 
 import javax.swing.*;
 import java.awt.*;
@@ -144,11 +143,11 @@ public class Guest extends JFrame implements Runnable {
         );
 
         if (codename != null) {
-            final Option<Object> port;
+            final Optional<Integer> port;
             if (portForwardingEnabled.isSelected()) {
-                port = Option.apply(Settings.GUEST_PORT);
+                port = Optional.of(Settings.GUEST_PORT);
             } else {
-                port = Option.empty();
+                port = Optional.empty();
             }
             peer.connect(this, codename, port);
         }

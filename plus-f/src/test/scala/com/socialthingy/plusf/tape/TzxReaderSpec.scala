@@ -13,17 +13,17 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     val tzx = new TapeFileReader(standardSpeedFile).readTzx()
 
     // then
-    tzx.version shouldBe "1.10"
+    tzx.getVersion shouldBe "1.10"
 
-    val blocks = tzx.blocks
+    val blocks = tzx.getBlocks
     blocks should have size 7
 
-    val programHeaderBlock = blocks(0)
+    val programHeaderBlock = blocks.get(0)
     programHeaderBlock shouldBe a[VariableSpeedBlock]
     programHeaderBlock.asInstanceOf[VariableSpeedBlock].getPauseLength.toMillis shouldBe 0x03e8
     programHeaderBlock.asInstanceOf[VariableSpeedBlock].getData should have length 0x0013
 
-    val programCodeBlock = blocks(1)
+    val programCodeBlock = blocks.get(1)
     programCodeBlock shouldBe a[VariableSpeedBlock]
     programCodeBlock.asInstanceOf[VariableSpeedBlock].getPauseLength.toMillis shouldBe 0x03e8
     programCodeBlock.asInstanceOf[VariableSpeedBlock].getData should have length 0x0066
@@ -37,17 +37,17 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     val tzx = new TapeFileReader(standardSpeedFile).readTzx()
 
     // then
-    tzx.version shouldBe "1.10"
+    tzx.getVersion shouldBe "1.10"
 
-    val blocks = tzx.blocks
+    val blocks = tzx.getBlocks
     blocks should have size 7
 
-    blocks(2) shouldBe a[GroupStartBlock]
-    blocks(3) shouldBe a[PulseSequenceBlock]
-    blocks(4) shouldBe a[PauseBlock]
-    blocks(5) shouldBe a[PauseBlock]
-    blocks(5).asInstanceOf[PauseBlock].shouldStopTape shouldBe true
-    blocks(6) shouldBe a[GroupEndBlock]
+    blocks.get(2) shouldBe a[GroupStartBlock]
+    blocks.get(3) shouldBe a[PulseSequenceBlock]
+    blocks.get(4) shouldBe a[PauseBlock]
+    blocks.get(5) shouldBe a[PauseBlock]
+    blocks.get(5).asInstanceOf[PauseBlock].shouldStopTape shouldBe true
+    blocks.get(6) shouldBe a[GroupEndBlock]
   }
 
   it should "reject a file with a malformed header" in {

@@ -25,15 +25,15 @@ class PixelMapperTest extends FlatSpec with GivenWhenThen with Matchers with Tab
       val bitmap = mapper.newInstance().getPixels(memory, false)
 
       Then("the four corners of the bitmap are black pixels")
-      bitmap should have size 256 * 192
+      bitmap should have size 258 * 194
       val black = SpectrumColour.dullColour(0)
       val white = SpectrumColour.dullColour(7)
 
-      val blackPixels = List(0x0000, 0x00ff, 0xbf00, 0xbfff)
+      val blackPixels = List(258 + 1, 258 + 256, (258 * 192) + 1, (258 * 192) + 256)
       forEvery(blackPixels) { pixel => bitmap(pixel) shouldBe black }
 
       And("all other pixels are white pixels")
-      val whitePixels = (0 until 0xc000) filterNot blackPixels.contains
+      val whitePixels = ((258 + 1) until (258 * 192) + 256) filterNot blackPixels.contains
       forEvery(whitePixels) { pixel => bitmap(pixel) shouldBe white }
     }
   }

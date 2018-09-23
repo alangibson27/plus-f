@@ -46,6 +46,11 @@ public class PulseSequenceBlock extends TapeBlock {
     }
 
     @Override
+    public boolean isDataBlock() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         final String pulses = Arrays.stream(pulseLengths).limit(5).mapToObj(String::valueOf).collect(Collectors.joining(","));
         return String.format("Pulse block - %d pulses [%s ...]", pulseLengths.length, pulses);

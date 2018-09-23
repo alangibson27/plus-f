@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
-import com.socialthingy.plusf.sound.AYChip;
 import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
@@ -20,9 +19,9 @@ import com.socialthingy.plusf.wos.WosTree;
 import com.socialthingy.plusf.wos.ZipUtils;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
+import kotlin.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Option;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -103,7 +102,7 @@ public class Emulator extends JFrame implements Runnable {
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, soundSystem.beeper());
+        ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper());
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -115,7 +114,7 @@ public class Emulator extends JFrame implements Runnable {
 
         ioMux.register(ula);
         ioMux.register(memoryController);
-        ioMux.register(soundSystem.ayChip());
+        ioMux.register(soundSystem.getAyChip());
         ioMux.register(kempstonJoystickInterface);
 
         computer = new Computer(
@@ -370,9 +369,9 @@ public class Emulator extends JFrame implements Runnable {
 
     private void tapeInfo(final ActionEvent actionEvent) {
         final Tape tape = tapePlayer.getTape().get();
-        final List<Pair<String, String>> info = tape.archiveInfo()
+        final List<Pair<String, String>> info = tape.getArchiveInfo()
                 .stream()
-                .map(p -> new Pair<>(p.first().replaceAll("\\s", " "), p.second().replaceAll("\\s", " ")))
+                .map(p -> new Pair<>(p.getFirst().replaceAll("\\s", " "), p.getSecond().replaceAll("\\s", " ")))
                 .collect(Collectors.toList());
 
         if (info.isEmpty()) {
@@ -385,7 +384,7 @@ public class Emulator extends JFrame implements Runnable {
         } else {
             final DefaultTableModel tableModel = new DefaultTableModel(0, 2);
             tableModel.setColumnIdentifiers(new String[] {"Name", "Value"});
-            info.stream().map(i -> new Object[] {i.first(), i.second()}).forEach(tableModel::addRow);
+            info.stream().map(i -> new Object[] {i.getFirst(), i.getSecond()}).forEach(tableModel::addRow);
 
             final JTable infoTable = new JTable(tableModel);
             infoTable.getColumnModel().getColumn(0).setMaxWidth(128);
@@ -400,7 +399,7 @@ public class Emulator extends JFrame implements Runnable {
 
     private void jumpToTapeBlock(final ActionEvent actionEvent) {
         final Tape tape = tapePlayer.getTape().get();
-        final List<NavigableBlock> blocks = tape.navigableBlocks();
+        final List<NavigableBlock> blocks = tape.getNavigableBlocks();
 
         if (blocks.isEmpty()) {
             JOptionPane.showMessageDialog(
@@ -424,7 +423,7 @@ public class Emulator extends JFrame implements Runnable {
                     final boolean cellHasFocus
                 ) {
                     final NavigableBlock selected = (NavigableBlock) list.getModel().getElementAt(index);
-                    return super.getListCellRendererComponent(list, selected.block().getDisplayName(), index, isSelected, cellHasFocus);
+                    return super.getListCellRendererComponent(list, selected.getBlock().getDisplayName(), index, isSelected, cellHasFocus);
                 }
             });
             final int result = JOptionPane.showConfirmDialog(
@@ -437,7 +436,7 @@ public class Emulator extends JFrame implements Runnable {
 
             if (result == JOptionPane.OK_OPTION && blockList.getSelectedValue() != null) {
                 try {
-                    tapePlayer.jumpToBlock(blockList.getSelectedValue().index());
+                    tapePlayer.jumpToBlock(blockList.getSelectedValue().getIndex());
                 } catch (TapeException ex) {
                     log.error("Unable to jump to tape block", ex);
                 }
@@ -474,11 +473,11 @@ public class Emulator extends JFrame implements Runnable {
         );
 
         if (codename != null) {
-            final Option<Object> port;
+            final Optional<Integer> port;
             if (portForwardingEnabled.isSelected()) {
-                port = Option.apply(Settings.COMPUTER_PORT);
+                port = Optional.of(Settings.COMPUTER_PORT);
             } else {
-                port = Option.empty();
+                port = Optional.empty();
             }
             peer.connect(this, codename, port);
         }
@@ -543,7 +542,7 @@ public class Emulator extends JFrame implements Runnable {
                 sendToPeer = !sendToPeer;
 
                 if (shouldRepaint()) {
-                    soundSystem.beeper().play();
+                    soundSystem.getBeeper().play();
                     lastRepaint = System.currentTimeMillis();
                     display.updateScreen(memory, ula);
                     display.updateBorder(ula, currentSpeed == EmulatorSpeed.TURBO);

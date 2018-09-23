@@ -62,6 +62,11 @@ public class PureDataBlock extends TapeBlock {
         return new CompoundBlockSignal(signalState, subBlocks);
     }
 
+    @Override
+    public boolean isDataBlock() {
+        return true;
+    }
+
     private void createSubBlocks() {
         subBlocks.add(PureDataBlockSignal::new);
 

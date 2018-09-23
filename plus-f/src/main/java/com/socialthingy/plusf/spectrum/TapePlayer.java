@@ -83,7 +83,7 @@ public class TapePlayer implements Iterator<Boolean> {
     public void setTape(final Tape tape) throws TapeException {
         ejectTape();
         this.tape = tape;
-        this.blocks = tape.blocks();
+        this.blocks = tape.getBlocks().toArray(new TapeBlock[tape.getBlocks().size()]);
         this.currentBlock = nextBlock();
         tapePresentModel.setEnabled(true);
         jumpButtonModel.setEnabled(true);

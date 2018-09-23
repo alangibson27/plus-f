@@ -24,4 +24,9 @@ public class PureToneBlock extends TapeBlock {
         }
         return new PulseSequenceBlock(SignalState.Adjustment.SET_LOW, pulseLengths);
     }
+
+    @Override
+    public boolean isDataBlock() {
+        return true;
+    }
 }

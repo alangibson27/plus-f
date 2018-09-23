@@ -154,6 +154,11 @@ public class VariableSpeedBlock extends TapeBlock {
     }
 
     @Override
+    public boolean isDataBlock() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return String.format("%s speed block", speed);
     }
