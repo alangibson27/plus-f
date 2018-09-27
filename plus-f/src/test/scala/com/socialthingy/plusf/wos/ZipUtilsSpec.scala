@@ -4,7 +4,6 @@ import java.io.{File, InputStream}
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 
-import com.socialthingy.plusf.wos.ZipUtils.{findFiles, isZipFile, unzipFile}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
@@ -13,21 +12,21 @@ import scala.language.implicitConversions
 
 class ZipUtilsSpec extends FlatSpec with Matchers {
   "ZipUtils" should "recognise a valid zip file" in {
-    isZipFile(getClass.getResourceAsStream("/valid.zip")) shouldBe true
+    ZipUtils.INSTANCE.isZipFile(getClass.getResourceAsStream("/valid.zip")) shouldBe true
   }
 
   it should "recognise an invalid zip file" in {
-    isZipFile(getClass.getResourceAsStream("/screenfiller.z80")) shouldBe false
+    ZipUtils.INSTANCE.isZipFile(getClass.getResourceAsStream("/screenfiller.z80")) shouldBe false
   }
 
   it should "identify TAP and TZX files in a zip file" in {
-    findFiles(getClass.getResourceAsStream("/valid.zip")).asScala.map(_.getName) should contain only ("file.tap", "file.tzx")
+    ZipUtils.INSTANCE.findFiles(getClass.getResourceAsStream("/valid.zip")).asScala.map(_.getName) should contain only ("file.tap", "file.tzx")
   }
 
   it should "unzip a file in a zip file" in {
     val file: File = getClass.getResourceAsStream("/valid.zip")
-    val inZip = findFiles(file).get(0)
-    val unzipped = unzipFile(file, inZip)
+    val inZip = ZipUtils.INSTANCE.findFiles(file).get(0)
+    val unzipped = ZipUtils.INSTANCE.unzipFile(file, inZip)
     Source.fromFile(unzipped.get).getLines().toList should contain only "hello-tap"
   }
 

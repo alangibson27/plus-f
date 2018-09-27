@@ -34,16 +34,16 @@ class WosScraperSpec extends FlatSpec with Matchers with BeforeAndAfterAll with 
     Then("I should get a de-duped list of titles, ordered alphabetically")
     titles should have size 4
     titles should contain inOrderOnly(
-      Title("Chuckie Designer", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Designer$&pub=^P%26M+Software$&loadpics=1")),
-      Title("Chuckie Egg", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg$&pub=^A%27n%27F+Software$&loadpics=1")),
-      Title("Chuckie Egg 2", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg+2$&pub=^A%27n%27F+Software$&loadpics=1")),
-      Title("Chuckie Egg Editor", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg+Editor$&pub=^Mercury+Software$&loadpics=1"))
+      new Title("Chuckie Designer", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Designer$&pub=^P%26M+Software$&loadpics=1")),
+      new Title("Chuckie Egg", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg$&pub=^A%27n%27F+Software$&loadpics=1")),
+      new Title("Chuckie Egg 2", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg+2$&pub=^A%27n%27F+Software$&loadpics=1")),
+      new Title("Chuckie Egg Editor", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg+Editor$&pub=^Mercury+Software$&loadpics=1"))
     )
   }
 
   "WosSearcher.findArchives" should "return all archives for a title" in {
     Given("WOS has archives for the title Chuckie Egg")
-    val chuckieEgg = Title("Chuckie Egg", new URL("http://" + host + "/infoseek.cgi"))
+    val chuckieEgg = new Title("Chuckie Egg", new URL("http://" + host + "/infoseek.cgi"))
     WOS hasArchivesFor chuckieEgg returning chuckieEggArchives
 
     When("I ask for the archives for Chuckie Egg")
@@ -53,9 +53,9 @@ class WosScraperSpec extends FlatSpec with Matchers with BeforeAndAfterAll with 
     Then("I should get the archives")
     archives should have size 3
     archives should contain only (
-      Archive("ChuckieEgg.tzx.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg.tzx.zip")),
-      Archive("ChuckieEgg.tap.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg.tap.zip")),
-      Archive("ChuckieEgg(PickChoose).tzx.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg(PickChoose).tzx.zip"))
+      new Archive("ChuckieEgg.tzx.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg.tzx.zip")),
+      new Archive("ChuckieEgg.tap.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg.tap.zip")),
+      new Archive("ChuckieEgg(PickChoose).tzx.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg(PickChoose).tzx.zip"))
     )
   }
 
@@ -75,7 +75,7 @@ class WosScraperSpec extends FlatSpec with Matchers with BeforeAndAfterAll with 
 
     def hasArchivesFor(title: Title) = new {
       def returning(response: String) = {
-        stubFor(get(urlPathEqualTo(title.location.getPath))
+        stubFor(get(urlPathEqualTo(title.getLocation.getPath))
           .willReturn(aResponse().withHeader("Content-Type", "text/html; charset=iso-8859-1")
           .withBody(response)))
       }

@@ -608,7 +608,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void loadFromArchive(final Archive archive) {
-        try (final InputStream is = archive.location().openStream()) {
+        try (final InputStream is = archive.getLocation().openStream()) {
             final int keepFile = JOptionPane.showConfirmDialog(
                     this,
                     "Do you want to save this archive?",
@@ -623,7 +623,7 @@ public class Emulator extends JFrame implements Runnable {
                 if (prefs.definedFor(LAST_LOAD_DIRECTORY)) {
                     chooser.setCurrentDirectory(new File(prefs.get(LAST_LOAD_DIRECTORY)));
                 }
-                chooser.setSelectedFile(new File(chooser.getCurrentDirectory(), archive.name()));
+                chooser.setSelectedFile(new File(chooser.getCurrentDirectory(), archive.getName()));
 
                 final int result = chooser.showSaveDialog(this);
                 if (result == JFileChooser.APPROVE_OPTION) {
@@ -661,7 +661,7 @@ public class Emulator extends JFrame implements Runnable {
         } else if (TapeFileReader.recognises(prelude)) {
             final Tape tzx = new TapeFileReader(selectedFile).readTzx();
             tapePlayer.setTape(tzx);
-        } else if (ZipUtils.isZipFile(selectedFile)) {
+        } else if (ZipUtils.INSTANCE.isZipFile(selectedFile)) {
             loadFromZip(selectedFile);
         } else {
             final int borderColour = computer.loadSnapshot(selectedFile);
@@ -670,7 +670,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void loadFromZip(final File zipFile) throws IOException, TapeException {
-        final List<ZipEntry> filesInZip = ZipUtils.findFiles(zipFile);
+        final List<ZipEntry> filesInZip = ZipUtils.INSTANCE.findFiles(zipFile);
         if (filesInZip.isEmpty()) {
             JOptionPane.showMessageDialog(
                 this,
@@ -689,7 +689,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void unzipAndLoad(final File selectedFile, final ZipEntry fileInZip) throws IOException, TapeException {
-        final Optional<File> unzipped = ZipUtils.unzipFile(selectedFile, fileInZip);
+        final Optional<File> unzipped = ZipUtils.INSTANCE.unzipFile(selectedFile, fileInZip);
         if (unzipped.isPresent()) {
             detectAndLoad(unzipped.get());
         } else {

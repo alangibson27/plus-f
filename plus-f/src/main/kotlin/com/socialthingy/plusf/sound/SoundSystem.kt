@@ -3,46 +3,50 @@ package com.socialthingy.plusf.sound
 import com.jsyn.JSyn
 import com.jsyn.unitgen.*
 
+const val frameRate = 44100
 
 class SoundSystem {
-    val frameRate: Double = 44100.0
-    val synth = JSyn.createSynthesizer()
-    val lineOut = LineOut()
-    val masterMixer = FourWayFade()
+    private val synth = JSyn.createSynthesizer()!!
+    private val lineOut = LineOut()
+    private val masterMixer = FourWayFade()
 
+    private val random = java.util.Random()
     private val beepSampler = createBeepSampler()
 
     private fun createBeepSampler(): VariableRateMonoReader {
         val s = VariableRateMonoReader()
-        s.rate.set(frameRate)
+        s.rate.set(frameRate.toDouble())
         s.output.connect(0, masterMixer.input, 0)
         synth.add(s)
         return s
     }
 
-    private val random = java.util.Random()
-
     private val toneChannels = createToneChannels()
 
     private fun createToneChannels(): List<ToneChannel> {
-        return (1..3).map { chanId ->
+        val toneChannels = mutableListOf<ToneChannel>()
+        for (i in 1..3) {
             val tone = SquareOscillator()
             val noise = FunctionOscillator()
-            noise.function.set { _ ->
+
+            noise.function.set {
                 if (noise.frequency.get() == 0.0) 0.0 else -1.0 + (random.nextDouble() * 2.0)
             }
+
             val internalMixer = Add()
 
             tone.output.connect(0, internalMixer.inputA, 0)
             noise.output.connect(0, internalMixer.inputB, 0)
-            internalMixer.output.connect(0, masterMixer.input, chanId)
+            internalMixer.output.connect(0, masterMixer.input, i)
 
             synth.add(tone)
             synth.add(noise)
             synth.add(internalMixer)
 
-            ToneChannel(tone, noise)
+            toneChannels.add(ToneChannel(tone, noise))
         }
+
+        return toneChannels
     }
 
     val beeper = Beeper(beepSampler)
@@ -66,7 +70,7 @@ class SoundSystem {
     }
 
     fun start() {
-        synth.start(frameRate.toInt())
+        synth.start(frameRate)
         lineOut.start()
     }
 }

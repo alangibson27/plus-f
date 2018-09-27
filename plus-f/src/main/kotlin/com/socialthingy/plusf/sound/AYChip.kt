@@ -3,7 +3,7 @@ package com.socialthingy.plusf.sound
 import com.jsyn.unitgen.*
 import com.socialthingy.plusf.z80.IO
 
-class AYChip(private val toneChannels: List<ToneChannel>) : IO {
+class AYChip(private val toneChannels: List<ToneChannel>): IO {
     private val amplitudeModeFlag = 1 shl 4
 
     private val noiseCFlag = 1 shl 5
@@ -14,6 +14,7 @@ class AYChip(private val toneChannels: List<ToneChannel>) : IO {
     private val toneBFlag = 1 shl 1
     private val toneAFlag = 1
 
+
     private var selectedRegister = 0
 
     private val registers = IntArray(18)
@@ -23,7 +24,9 @@ class AYChip(private val toneChannels: List<ToneChannel>) : IO {
     }
 
     override fun recognises(low: Int, high: Int): Boolean = (high and 128) != 0 && (low and 2) == 0
+
     override fun read(low: Int, high: Int): Int = registers[selectedRegister]
+
     override fun write(low: Int, high: Int, value: Int) {
         if ((high and 64) != 0) selectRegister(value and 0xf) else writeRegister(value)
     }
@@ -36,20 +39,20 @@ class AYChip(private val toneChannels: List<ToneChannel>) : IO {
         if (registers[selectedRegister] != value) {
             registers[selectedRegister] = value
 
-            when(selectedRegister) {
-                in 1..5 -> {
+            when {
+                selectedRegister < 6 -> {
                     val channel = selectedRegister / 2
                     val lowReg = channel * 2
                     val highReg = lowReg + 1
                     setPeriod(channel, (registers[highReg] shl 8) + registers[lowReg])
                 }
 
-                6 -> {
+                selectedRegister == 6 -> {
                     val period = value and 31
                     toneChannels.forEach { it.setNoisePeriod(period) }
                 }
 
-                7 -> {
+                selectedRegister == 7 -> {
                     val znoiseA = (value and noiseAFlag) == 0
                     val ztoneA = (value and toneAFlag) == 0
                     val znoiseB = (value and noiseBFlag) == 0
@@ -57,33 +60,26 @@ class AYChip(private val toneChannels: List<ToneChannel>) : IO {
                     val znoiseC = (value and noiseCFlag) == 0
                     val ztoneC = (value and toneCFlag) == 0
 
+
                     toneChannels[0].enable(ztoneA, znoiseA)
                     toneChannels[1].enable(ztoneB, znoiseB)
                     toneChannels[2].enable(ztoneC, znoiseC)
                 }
 
-                8, 9, 10 -> {
+                selectedRegister in 8..10 -> {
                     val channel = selectedRegister - 8
                     if ((value and amplitudeModeFlag) == 0) {
                         toneChannels[channel].setAmplitude(value and 15)
                     }
                 }
 
-                11 -> {
-//                    val envelopePeriod = (registers[12] shl 8) + registers[11]
-//                    val envelopeFrequency = 3500000.0 / (256 * envelopePeriod)
-                }
-
-                12 -> {
-//                    val envelopePeriod = (registers[12] shl 8) + registers[11]
-//                    val envelopeFrequency = 3500000.0 / (256 * envelopePeriod)
-                }
+                selectedRegister in 11..15 -> {}
             }
         }
     }
 }
 
-class ToneChannel(val tone: SquareOscillator, val noise: FunctionOscillator) {
+class ToneChannel(private val tone: SquareOscillator, private val noise: FunctionOscillator) {
     init {
         tone.amplitude.set(1.0)
         tone.frequency.set(0.0)
@@ -91,12 +87,13 @@ class ToneChannel(val tone: SquareOscillator, val noise: FunctionOscillator) {
         noise.frequency.set(0.0)
     }
 
+    private val amplitudeStep = 1.0 / 15
+
     fun enable(toneChannel: Boolean, noiseChannel: Boolean) {
         tone.isEnabled = toneChannel
         noise.isEnabled = noiseChannel
     }
 
-    private val amplitudeStep = 1.0 / 15
 
     fun setAmplitude(amplitude: Int) {
         noise.amplitude.set(amplitudeStep * amplitude)

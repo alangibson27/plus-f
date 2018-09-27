@@ -2,6 +2,7 @@ package com.socialthingy.plusf.p2p.discovery
 
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
+import java.util.Optional
 
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.TestKit
@@ -27,11 +28,11 @@ class DiscoveryActorIntegrationSpec
   implicit val ec = system.dispatcher
 
   val deser = new Deserialiser {
-    override def deserialise(bytes: ByteBuffer): Any =
+    override def deserialise(bytes: ByteBuffer): Object =
       new String(bytes.array(), bytes.position(), bytes.remaining(), "UTF-8")
   }
   val ser = new Serialiser {
-    override def serialise(obj: Any, byteStringBuilder: ByteBuffer): Unit = {
+    override def serialise(obj: Object, byteStringBuilder: ByteBuffer): Unit = {
       byteStringBuilder.put(obj.asInstanceOf[String].getBytes("UTF-8"))
     }
   }
@@ -44,18 +45,18 @@ class DiscoveryActorIntegrationSpec
   }
 
   "two peers in direct connect mode" should "be able to discover one another and exchange data" in withPeers { (peer1, cb1, peer2, cb2) =>
-    peer1.join("sess123")
-    peer2.join("sess123")
+    peer1.join("sess123", Optional.empty())
+    peer2.join("sess123", Optional.empty())
 
     eventually {
       verify(cb1).connectedToPeer(7082)
       verify(cb2).connectedToPeer(7081)
     }
 
-    peer1.send(RawData("hello from 1"))
-    peer2.send(RawData("hello from 2"))
-    peer1.send(RawData("blah!"))
-    peer2.send(RawData("wibble"))
+    peer1.send(new RawData("hello from 1", 0))
+    peer2.send(new RawData("hello from 2", 0))
+    peer1.send(new RawData("blah!", 0))
+    peer2.send(new RawData("wibble", 0))
 
     eventually {
       verify(cb1).data("hello from 2")
@@ -66,7 +67,7 @@ class DiscoveryActorIntegrationSpec
   }
 
   "a peer" should "successfully reinitialise after being closed" in withPeers { (peer, cb, _, _) =>
-    peer.join("sess123")
+    peer.join("sess123", Optional.empty())
 
     eventually {
       verify(cb).waitingForPeer()
@@ -78,7 +79,7 @@ class DiscoveryActorIntegrationSpec
       verify(cb).discoveryCancelled()
     }
 
-    peer.join("sess234")
+    peer.join("sess234", Optional.empty())
 
     eventually {
       verify(cb, times(2)).waitingForPeer()
@@ -86,7 +87,7 @@ class DiscoveryActorIntegrationSpec
   }
 
   "a peer" should "time out its session when nobody joins" in withPeers { (lonelyPeer, cb, _, _) =>
-    lonelyPeer.join("sess999")
+    lonelyPeer.join("sess999", Optional.empty())
     Thread.sleep(11000)
     eventually {
       verify(cb).discoveryTimeout()
@@ -94,7 +95,7 @@ class DiscoveryActorIntegrationSpec
   }
 
   "a peer" should "be able to cancel its session before a peer joins" in withPeers { (peer1, cb1, peer2, cb2) =>
-    peer1.join("sess123")
+    peer1.join("sess123", Optional.empty())
     eventually {
       verify(cb1).waitingForPeer()
     }
@@ -104,12 +105,12 @@ class DiscoveryActorIntegrationSpec
       verify(cb1).discoveryCancelled()
     }
 
-    peer2.join("sess123")
+    peer2.join("sess123", Optional.empty())
     eventually {
       verify(cb2).waitingForPeer()
     }
 
-    peer1.join("sess123")
+    peer1.join("sess123", Optional.empty())
 
     eventually {
       verify(cb1).connectedToPeer(7082)
@@ -118,8 +119,8 @@ class DiscoveryActorIntegrationSpec
   }
 
   "a peer in port forward mode" should "have its forwarded port number given to the other peer" in withPeers { (peer1, cb1, peer2, cb2) =>
-    peer1.join("sess123", Some(9876))
-    peer2.join("sess123")
+    peer1.join("sess123", Optional.of(9876))
+    peer2.join("sess123", Optional.empty())
 
     eventually {
       verify(cb2).connectedToPeer(9876)
@@ -128,10 +129,10 @@ class DiscoveryActorIntegrationSpec
 
   def withPeers(testCode: (Peer, Callbacks, Peer, Callbacks) => Any): Unit = {
     val cb1 = mock[Callbacks]
-    val peer1 = new Peer(new InetSocketAddress("localhost", 7081), discoveryAddr, cb1, ser, deser, 10 seconds)
+    val peer1 = new Peer(new InetSocketAddress("localhost", 7081), discoveryAddr, cb1, ser, deser, java.time.Duration.ofSeconds(10))
 
     val cb2 = mock[Callbacks]
-    val peer2 = new Peer(new InetSocketAddress("localhost", 7082), discoveryAddr, cb2, ser, deser, 10 seconds)
+    val peer2 = new Peer(new InetSocketAddress("localhost", 7082), discoveryAddr, cb2, ser, deser, java.time.Duration.ofSeconds(10))
 
     try {
       testCode(peer1, cb1, peer2, cb2)
