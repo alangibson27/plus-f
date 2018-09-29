@@ -19,7 +19,7 @@ object ZipUtils {
     }
 
     fun findFiles(file: File): List<ZipEntry> {
-        return withZipFile(file, listOf(), {
+        return withZipFile(file, listOf()) {
             val entriesInFile = it.entries()
             val matchingEntries = mutableListOf<ZipEntry>()
             while (entriesInFile.hasMoreElements()) {
@@ -30,11 +30,11 @@ object ZipUtils {
                 }
             }
             matchingEntries
-        })
+        }
     }
 
     fun unzipFile(zipFile: File, entry: ZipEntry): Optional<File> {
-        return withZipFile(zipFile, Optional.empty(), {
+        return withZipFile(zipFile, Optional.empty()) {
             val unzipped = File.createTempFile("plusf", entry.name)
             unzipped.deleteOnExit()
             val stream = it.getInputStream(entry)
@@ -42,7 +42,7 @@ object ZipUtils {
                 Files.copy(it, unzipped.toPath(), REPLACE_EXISTING)
                 Optional.of(unzipped)
             }
-        })
+        }
     }
 
     private fun <T> withZipFile(file: File, onError: T, action: (ZipFile) -> T): T {

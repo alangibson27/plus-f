@@ -80,9 +80,8 @@ class WosTree(owner: Frame? = null) : JDialog(owner) {
 
                 val progressDialog = ProgressDialog(
                         this@WosTree,
-                        "Searching",
-                        {}
-                )
+                        "Searching"
+                ) {}
 
                 CompletableFuture.supplyAsync { wosScraper.findTitles(searchBox.text) }
                         .thenAccept { result ->
@@ -125,9 +124,9 @@ class WosTree(owner: Frame? = null) : JDialog(owner) {
 //      val archives = Future { wosScraper.findArchives(title) }
             val progressDialog = ProgressDialog(
                     this@WosTree,
-                    "Searching",
-                    {}
-            )
+                    "Searching"
+            ) {}
+
             CompletableFuture.supplyAsync { wosScraper.findArchives(title) }
                     .thenAccept { result ->
                         if (!progressDialog.wasCancelled()) {

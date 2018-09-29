@@ -14,12 +14,11 @@ class AYChip(private val toneChannels: List<ToneChannel>): IO {
     private val toneBFlag = 1 shl 1
     private val toneAFlag = 1
 
-
     private var selectedRegister = 0
 
     private val registers = IntArray(18)
 
-    fun setPeriod(channel: Int, period: Int): Double {
+    private fun setPeriod(channel: Int, period: Int): Double {
         return toneChannels[channel].setTonePeriod(period)
     }
 
@@ -44,7 +43,7 @@ class AYChip(private val toneChannels: List<ToneChannel>): IO {
                     val channel = selectedRegister / 2
                     val lowReg = channel * 2
                     val highReg = lowReg + 1
-                    setPeriod(channel, (registers[highReg] shl 8) + registers[lowReg])
+                    this.setPeriod(channel, (registers[highReg] shl 8) + registers[lowReg])
                 }
 
                 selectedRegister == 6 -> {

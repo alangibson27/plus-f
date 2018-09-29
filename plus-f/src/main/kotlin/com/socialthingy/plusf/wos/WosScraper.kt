@@ -50,7 +50,7 @@ class CachedWosScraper(private val underlying: WosScraper) : WosScraper {
         return if (cached.isEmpty()) {
             val results = underlying(key)
             if (!results.isEmpty()) {
-                cache.put(key, results)
+                cache[key] = results
                 if (cache.size == 51) {
                     cache.remove(cache.keys.first())
                 }

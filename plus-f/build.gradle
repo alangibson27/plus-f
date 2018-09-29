@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.2.51"
+    id "org.jetbrains.kotlin.jvm" version "1.2.41"
 }
 
 apply plugin: 's3'
@@ -91,6 +91,7 @@ void createJavapackagerTask(String platform, boolean embedJre) {
                 '-srcdir', libsDir,
                 "-BappVersion=${project.version}",
                 '-BlicenseType=MIT',
+                "-BmainJar=plus-f-${project.version}.jar"
         ] + dependencies + paramEmbeddedJRE
     }
 }

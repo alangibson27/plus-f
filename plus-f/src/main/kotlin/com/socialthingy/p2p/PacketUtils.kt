@@ -7,7 +7,7 @@ import java.nio.ByteBuffer
 import net.jpountz.lz4.LZ4Factory
 
 object PacketUtils {
-    val lz4 = LZ4Factory.fastestJavaInstance()
+    private val lz4 = LZ4Factory.fastestJavaInstance()
 
     fun buildPacket(data: String, destination: InetSocketAddress): DatagramPacket {
         val bytes = data.toByteArray()

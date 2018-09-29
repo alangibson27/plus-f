@@ -16,12 +16,12 @@ enum class State {
 
 class Peer(private val bindAddress: InetSocketAddress,
            private val discoveryServiceAddress: InetSocketAddress,
-           val callbacks: Callbacks,
-           val serialiser: Serialiser,
-           val deserialiser: Deserialiser,
+           private val callbacks: Callbacks,
+           private val serialiser: Serialiser,
+           private val deserialiser: Deserialiser,
            private val timeout: java.time.Duration) {
 
-    val log = LoggerFactory.getLogger(javaClass)!!
+    private val log = LoggerFactory.getLogger(javaClass)!!
     private var socket: Optional<DatagramSocket> = Optional.empty()
     private val socketHandlerExecutor = Executors.newSingleThreadExecutor()!!
 
@@ -35,16 +35,14 @@ class Peer(private val bindAddress: InetSocketAddress,
     private val states = HashMap<State, (ByteBuffer, InetSocketAddress) -> Unit>()
 
     init {
-        states.put(State.INITIAL, this::doNothing)
-        states.put(State.WAITING_FOR_PEER, this::waitForResponse)
-        states.put(State.CONNECTED, this::connectedToPeer)
+        states[State.INITIAL] = put@{ _: ByteBuffer, _: InetSocketAddress -> return@put }
+        states[State.WAITING_FOR_PEER] = this::waitForResponse
+        states[State.CONNECTED] = this::connectedToPeer
     }
 
-    var currentState: State = State.INITIAL
-    var currentSessionId: Optional<String> = Optional.empty()
-    var lastReceivedTimestamp = -1L
-
-    private fun doNothing(data: ByteBuffer, source: InetSocketAddress) {}
+    private var currentState: State = State.INITIAL
+    private var currentSessionId: Optional<String> = Optional.empty()
+    private var lastReceivedTimestamp = -1L
 
     private fun connectedToPeer(data: ByteBuffer, source: InetSocketAddress) {
         try {
@@ -109,7 +107,7 @@ class Peer(private val bindAddress: InetSocketAddress,
             socket = Optional.of(newSocket)
             newSocket.soTimeout = timeout.toMillis().toInt()
 
-            socketHandlerExecutor.submit({
+            socketHandlerExecutor.submit {
                 val receivedPacket = DatagramPacket(ByteArray(16384), 16384)
                 while (!newSocket.isClosed) {
                     try {
@@ -132,7 +130,7 @@ class Peer(private val bindAddress: InetSocketAddress,
                     }
                 }
                 log.info("Socket closed")
-            })
+            }
         }
     }
 
@@ -140,7 +138,7 @@ class Peer(private val bindAddress: InetSocketAddress,
         startIfRequired()
 
         callbacks.discovering()
-        val joinCommand = fwdPort.map { "JOIN|" + sessionId + "|" + it }.orElse("JOIN|" + sessionId)
+        val joinCommand = fwdPort.map { "JOIN|$sessionId|$it" }.orElse("JOIN|$sessionId")
 
         currentState = State.WAITING_FOR_PEER
         currentSessionId = Optional.of(sessionId)
