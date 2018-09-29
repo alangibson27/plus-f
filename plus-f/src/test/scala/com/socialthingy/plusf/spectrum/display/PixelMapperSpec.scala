@@ -5,7 +5,7 @@ import java.util
 import org.scalatest.{FlatSpec, GivenWhenThen, Inspectors, Matchers}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
-class PixelMapperTest extends FlatSpec with GivenWhenThen with Matchers with TableDrivenPropertyChecks with Inspectors {
+class PixelMapperSpec extends FlatSpec with GivenWhenThen with Matchers with TableDrivenPropertyChecks with Inspectors {
 
   val mappers = Table("mapper class", classOf[SafePixelMapper], classOf[UnsafePixelMapper])
 
@@ -22,7 +22,7 @@ class PixelMapperTest extends FlatSpec with GivenWhenThen with Matchers with Tab
       memory(0x57ff) = 0x01
 
       When("the memory is mapped to a bitmap")
-      val bitmap = mapper.newInstance().getPixels(memory, false)
+      val bitmap = classOf[UnsafePixelMapper].newInstance().getPixels(memory, false)
 
       Then("the four corners of the bitmap are black pixels")
       bitmap should have size 258 * 194
@@ -33,8 +33,14 @@ class PixelMapperTest extends FlatSpec with GivenWhenThen with Matchers with Tab
       forEvery(blackPixels) { pixel => bitmap(pixel) shouldBe black }
 
       And("all other pixels are white pixels")
-      val whitePixels = ((258 + 1) until (258 * 192) + 256) filterNot blackPixels.contains
-      forEvery(whitePixels) { pixel => bitmap(pixel) shouldBe white }
+      (1 until 194) foreach { y =>
+        val xmax = if (y == 1 || y == 193) 1 else 0
+        val xmin = if (y == 1 || y == 193) 256 else 257
+
+        (xmin until xmax) foreach { x =>
+          bitmap(x + (y * 194)) shouldBe white
+        }
+      }
     }
   }
 

@@ -69,10 +69,15 @@ class RawWosScraper(private val host: String) : WosScraper {
     override fun findTitles(searchText: String): List<Title> {
         val titles = mutableListOf<Title>()
         for (format in formats) {
-            titles.addAll(getTitlesForFormat(format, searchText))
+            val titlesForFormat = getTitlesForFormat(format, searchText)
+            for (title in titlesForFormat) {
+                if (!titles.contains(title)) {
+                    titles.add(title)
+                }
+            }
         }
 
-        return titles
+        return titles.sortedBy { it.name }
     }
 
     override fun findArchives(title: Title): List<Archive> {

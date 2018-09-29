@@ -7,6 +7,11 @@ buildscript {
         mavenCentral()
     }
 }
+
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.2.51"
+}
+
 apply plugin: 's3'
 
 repositories {
@@ -14,9 +19,19 @@ repositories {
 }
 
 dependencies {
-    compile files('lib/jsyn-20161201.jar')
+    compile files('lib/jsyn-20171016.jar')
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
     testCompile "org.easytesting:fest-swing:1.2.1"
-    testCompile "com.github.tomakehurst:wiremock:2.5.1"
+    testCompile 'org.scala-lang:scala-library:2.12.4'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'src/main/kotlin']
+        }
+    }
 }
 
 test {
@@ -25,9 +40,8 @@ test {
     }
 }
 
-version = '1.5.5'
+version = '1.5.6'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
-def embeddedJRE = false
 
 jar {
     manifest {

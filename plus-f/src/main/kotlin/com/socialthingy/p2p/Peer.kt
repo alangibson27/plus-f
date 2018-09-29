@@ -104,7 +104,7 @@ class Peer(private val bindAddress: InetSocketAddress,
     }
 
     private fun startIfRequired() {
-        if (socket.map { it.isClosed }.orElse(false)) {
+        if (socket.map { it.isClosed }.orElse(true)) {
             val newSocket = DatagramSocket(bindAddress)
             socket = Optional.of(newSocket)
             newSocket.soTimeout = timeout.toMillis().toInt()
@@ -140,7 +140,7 @@ class Peer(private val bindAddress: InetSocketAddress,
         startIfRequired()
 
         callbacks.discovering()
-        val joinCommand = fwdPort.map { "JOIN|" + sessionId + it }.orElse("JOIN|" + sessionId)
+        val joinCommand = fwdPort.map { "JOIN|" + sessionId + "|" + it }.orElse("JOIN|" + sessionId)
 
         currentState = State.WAITING_FOR_PEER
         currentSessionId = Optional.of(sessionId)
@@ -172,7 +172,7 @@ class Peer(private val bindAddress: InetSocketAddress,
 
     fun close() {
         if (currentState == State.WAITING_FOR_PEER && currentSessionId.isPresent) {
-            socket.ifPresent { it.send(PacketUtils.buildPacket("CANCEL" + currentSessionId.get(), discoveryServiceAddress)) }
+            socket.ifPresent { it.send(PacketUtils.buildPacket("CANCEL|${currentSessionId.get()}", discoveryServiceAddress)) }
             reset()
             callbacks.discoveryCancelled()
         } else {
