@@ -9,6 +9,7 @@ buildscript {
 }
 
 plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.0'
     id "org.jetbrains.kotlin.jvm" version "1.2.41"
 }
 
@@ -43,6 +44,12 @@ test {
 version = '1.5.6'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
 
+shadowJar {
+    baseName = 'plus-f'
+    classifier = 'all'
+    version = version
+}
+
 jar {
     manifest {
         attributes(
@@ -72,8 +79,7 @@ task copyDependencies(type: Copy) {
 build.dependsOn('writeVersionFile')
 
 void createJavapackagerTask(String platform, boolean embedJre) {
-    task "${platform}Package" (type: Exec, dependsOn: [check, assemble, copyDependencies]) {
-        def dependencies = []
+    task "${platform}Package" (type: Exec, dependsOn: [check, assemble, shadowJar]) {
         def paramEmbeddedJRE = embedJre ? [] : ['-Bruntime=']
 
         workingDir project.projectDir
@@ -89,13 +95,14 @@ void createJavapackagerTask(String platform, boolean embedJre) {
                 '-description', 'ZX Spectrum Emulator with Network Play Capability',
                 '-appclass', mainClassName,
                 '-srcdir', libsDir,
+                '-srcfiles', shadowJar.archiveName,
                 "-BappVersion=${project.version}",
                 '-BlicenseType=MIT',
-                "-BmainJar=plus-f-${project.version}.jar"
-        ] + dependencies + paramEmbeddedJRE
+                "-BmainJar=${shadowJar.archiveName}"
+        ] + paramEmbeddedJRE
     }
 }
 
 for (String platform: ["deb", "rpm"]) {
-    createJavapackagerTask(platform, false)
+    createJavapackagerTask(platform, true)
 }

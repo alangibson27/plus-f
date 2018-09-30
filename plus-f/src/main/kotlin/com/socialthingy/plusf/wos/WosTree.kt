@@ -121,7 +121,6 @@ class WosTree(owner: Frame? = null) : JDialog(owner) {
         override fun treeWillCollapse(event: TreeExpansionEvent) {}
 
         private fun loadArchives(selectedNode: DefaultMutableTreeNode, title: Title) {
-//      val archives = Future { wosScraper.findArchives(title) }
             val progressDialog = ProgressDialog(
                     this@WosTree,
                     "Searching"
