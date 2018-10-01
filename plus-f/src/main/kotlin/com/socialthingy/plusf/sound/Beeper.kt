@@ -22,7 +22,7 @@ open class Beeper(private val sampler: VariableRateMonoReader) {
     fun update(state: Boolean) {
         if (isEnabled) {
             beeperStates[beeperIdx] = if (state) 1.0F else 0.0F
-            beeperIdx += 1
+            beeperIdx++
             allStatesHigh = allStatesHigh && state
         }
     }

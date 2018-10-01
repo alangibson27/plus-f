@@ -9,9 +9,33 @@ class SoundSystem {
     private val synth = JSyn.createSynthesizer()!!
     private val lineOut = LineOut()
     private val masterMixer = FourWayFade()
-
     private val random = java.util.Random()
     private val beepSampler = createBeepSampler()
+    private val toneChannels = createToneChannels()
+    private var isEnabled = false
+
+    val beeper = Beeper(beepSampler)
+    val ayChip = AYChip(toneChannels)
+
+    init {
+        synth.add(lineOut)
+        synth.add(masterMixer)
+        masterMixer.output.connect(0, lineOut.input, 0)
+        masterMixer.output.connect(0, lineOut.input, 1)
+    }
+
+    fun setEnabled(enabled: Boolean): Boolean {
+        val wasEnabled = isEnabled
+        isEnabled = enabled
+        lineOut.isEnabled = enabled
+        beeper.setEnabled(enabled)
+        return wasEnabled
+    }
+
+    fun start() {
+        synth.start(frameRate)
+        lineOut.start()
+    }
 
     private fun createBeepSampler(): VariableRateMonoReader {
         val s = VariableRateMonoReader()
@@ -20,8 +44,6 @@ class SoundSystem {
         synth.add(s)
         return s
     }
-
-    private val toneChannels = createToneChannels()
 
     private fun createToneChannels(): List<ToneChannel> {
         val toneChannels = mutableListOf<ToneChannel>()
@@ -47,30 +69,5 @@ class SoundSystem {
         }
 
         return toneChannels
-    }
-
-    val beeper = Beeper(beepSampler)
-    val ayChip = AYChip(toneChannels)
-
-    init {
-        synth.add(lineOut)
-        synth.add(masterMixer)
-        masterMixer.output.connect(0, lineOut.input, 0)
-        masterMixer.output.connect(0, lineOut.input, 1)
-    }
-
-    private var isEnabled = false
-
-    fun setEnabled(enabled: Boolean): Boolean {
-        val wasEnabled = isEnabled
-        isEnabled = enabled
-        lineOut.isEnabled = enabled
-        beeper.setEnabled(enabled)
-        return wasEnabled
-    }
-
-    fun start() {
-        synth.start(frameRate)
-        lineOut.start()
     }
 }
