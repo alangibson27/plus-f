@@ -25,6 +25,10 @@ public abstract class TapeBlock implements BlockSignalProvider {
         return toString();
     }
 
+    public boolean isDataBlock() {
+        return false;
+    }
+
     protected static int nextByte(final InputStream tzxFile) throws IOException {
         return tzxFile.read();
     }

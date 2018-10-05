@@ -22,12 +22,12 @@ class DisplayComponentTest
   forAll(displayComponents) { displayComponent =>
     s"${displayComponent.getSimpleName}" should "map source pixels to the target display correctly" in {
       Given("a bitmap with black pixels at each corner and white pixels everywhere else")
-      val source = Array.ofDim[Int](0xc000)
+      val source = Array.ofDim[Int](0xc384)
       util.Arrays.fill(source, white)
-      source(0x0000) = black
-      source(0x00ff) = black
-      source(0xbf00) = black
-      source(0xbfff) = black
+      source(258 + 1) = black
+      source(258 + 256) = black
+      source((258 * 192) + 1) = black
+      source((258 * 192) + 256) = black
 
       When("the display is rendered")
       val ctr = displayComponent.getConstructor(classOf[PixelMapper])
@@ -37,8 +37,8 @@ class DisplayComponentTest
 
       Then("the pixels at each corner should be black and all other pixels should be white")
       val blackPixels = List(
-        0x0000, 0x0001, 0x0200, // top left
-        0x01fe, 0x01ff, 0x03ff, // top right
+        0x0000, 0x0001, 0x0200, 0x0201, // top left
+        0x01fe, 0x01ff, 0x03ff, 0x03fe, // top right
 
         0x2fc00, 0x2fe00, 0x2fe01, // bottom left
         0x2fdff, 0x2fffe, 0x2ffff  // bottom right

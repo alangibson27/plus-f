@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.tape;
 
 import com.socialthingy.plusf.util.Try;
+import kotlin.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,7 +61,7 @@ public class ArchiveInfoBlock extends TapeBlock {
     @Override
     public String toString() {
         return descriptions.stream()
-                .map(p -> String.format("[%s] - %s", p.first(), p.second()))
+                .map(p -> String.format("[%s] - %s", p.getFirst(), p.getSecond()))
                 .collect(joining("\n"));
     }
 }

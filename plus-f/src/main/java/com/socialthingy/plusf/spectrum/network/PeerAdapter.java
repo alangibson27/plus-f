@@ -3,8 +3,6 @@ package com.socialthingy.plusf.spectrum.network;
 import com.socialthingy.p2p.*;
 import com.socialthingy.plusf.spectrum.ui.ProgressDialog;
 import com.socialthingy.plusf.util.ObservedValue;
-import scala.Option;
-import scala.concurrent.duration.FiniteDuration;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,7 +22,7 @@ public class PeerAdapter<T> implements Callbacks {
     private final Consumer<T> receiver;
     private Optional<ProgressDialog> connectionProgress = Optional.empty();
     private final ObservedValue<Boolean> connected = new ObservedValue<>(false);
-    private final ObservedValue<Statistics> statistics = new ObservedValue<>(Statistics.apply(0, 0, 0, 0.0));
+    private final ObservedValue<Statistics> statistics = new ObservedValue<>(new Statistics(0, 0, 0, 0.0));
     private final ObservedValue<Long> timeSinceLastReceived = new ObservedValue<>(0L);
 
     private long lastReceivedTime = 0;
@@ -41,7 +39,7 @@ public class PeerAdapter<T> implements Callbacks {
             this,
             serialiser,
             deserialiser,
-            FiniteDuration.apply(1, TimeUnit.MINUTES)
+            java.time.Duration.ofMinutes(1)
         );
         this.receiver = receiver;
         Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(
@@ -60,7 +58,7 @@ public class PeerAdapter<T> implements Callbacks {
         return connected;
     }
 
-    public void connect(final Window parent, final String sessionId, final Option<Object> forwardedPort) {
+    public void connect(final Window parent, final String sessionId, final Optional<Integer> forwardedPort) {
         final ProgressDialog progressMonitor = new ProgressDialog(
                 parent,
                 "Connecting to Peer",
@@ -88,10 +86,10 @@ public class PeerAdapter<T> implements Callbacks {
         if (data.getClass().isArray()) {
             final Object[] objs = (Object[]) data;
             for (int i = 0; i < objs.length; i++) {
-                peer.send(RawData.apply(objs[i], i));
+                peer.send(new RawData(objs[i], i));
             }
         } else {
-            peer.send(RawData.apply(data, 0));
+            peer.send(new RawData(data, 0));
         }
     }
 

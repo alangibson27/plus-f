@@ -7,6 +7,12 @@ buildscript {
         mavenCentral()
     }
 }
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '4.0.0'
+    id "org.jetbrains.kotlin.jvm" version "1.2.41"
+}
+
 apply plugin: 's3'
 
 repositories {
@@ -14,9 +20,19 @@ repositories {
 }
 
 dependencies {
-    compile files('lib/jsyn-20161201.jar')
+    compile files('lib/jsyn-20171016.jar')
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
     testCompile "org.easytesting:fest-swing:1.2.1"
-    testCompile "com.github.tomakehurst:wiremock:2.5.1"
+    testCompile 'org.scala-lang:scala-library:2.12.4'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'src/main/kotlin']
+        }
+    }
 }
 
 test {
@@ -25,9 +41,14 @@ test {
     }
 }
 
-version = '1.5.5'
+version = '1.5.6'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
-def embeddedJRE = false
+
+shadowJar {
+    baseName = 'plus-f'
+    classifier = 'all'
+    version = version
+}
 
 jar {
     manifest {
@@ -58,8 +79,7 @@ task copyDependencies(type: Copy) {
 build.dependsOn('writeVersionFile')
 
 void createJavapackagerTask(String platform, boolean embedJre) {
-    task "${platform}Package" (type: Exec, dependsOn: [check, assemble, copyDependencies]) {
-        def dependencies = []
+    task "${platform}Package" (type: Exec, dependsOn: [check, assemble, shadowJar]) {
         def paramEmbeddedJRE = embedJre ? [] : ['-Bruntime=']
 
         workingDir project.projectDir
@@ -75,12 +95,14 @@ void createJavapackagerTask(String platform, boolean embedJre) {
                 '-description', 'ZX Spectrum Emulator with Network Play Capability',
                 '-appclass', mainClassName,
                 '-srcdir', libsDir,
+                '-srcfiles', shadowJar.archiveName,
                 "-BappVersion=${project.version}",
                 '-BlicenseType=MIT',
-        ] + dependencies + paramEmbeddedJRE
+                "-BmainJar=${shadowJar.archiveName}"
+        ] + paramEmbeddedJRE
     }
 }
 
 for (String platform: ["deb", "rpm"]) {
-    createJavapackagerTask(platform, false)
+    createJavapackagerTask(platform, true)
 }

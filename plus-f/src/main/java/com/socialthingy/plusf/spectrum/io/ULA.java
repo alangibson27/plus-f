@@ -103,8 +103,8 @@ public class ULA implements IO {
 
     public void advanceCycle(final int tstates) {
         cyclesSinceBeeperUpdate += tstates;
-        if (cyclesSinceBeeperUpdate >= beeper.updatePeriod()) {
-            cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.updatePeriod();
+        if (cyclesSinceBeeperUpdate >= beeper.getUpdatePeriod()) {
+            cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.getUpdatePeriod();
             beeper.update(beeperIsOn);
         }
 

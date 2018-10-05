@@ -39,6 +39,11 @@ public class PauseBlock extends TapeBlock {
         return String.format("%s pause", pauseLength.getSeconds());
     }
 
+    @Override
+    public boolean isDataBlock() {
+        return true;
+    }
+
     private class PauseBlockSignal implements BlockSignal {
         private int idx;
 
