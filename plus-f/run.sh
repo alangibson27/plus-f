@@ -1,2 +1,3 @@
 #!/bin/bash
-java $JAVA_OPTS -cp "build/libs/*.jar"  -jar build/libs/plus-f-1.5.4.jar
+java $JAVA_OPTS -jar $(find build/libs -name "*all.jar")
+
