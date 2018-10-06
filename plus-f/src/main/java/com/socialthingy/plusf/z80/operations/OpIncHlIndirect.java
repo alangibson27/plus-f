@@ -4,9 +4,6 @@ import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpIncHlIndirect extends IncOperation {
 
     private final Register hlReg;
@@ -21,7 +18,7 @@ public class OpIncHlIndirect extends IncOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int result = increment(unsafe.getInt(memory, BASE + (address * SCALE)));
+        final int result = increment(memory[address]);
         Memory.set(memory, address, result);
         return 11;
     }

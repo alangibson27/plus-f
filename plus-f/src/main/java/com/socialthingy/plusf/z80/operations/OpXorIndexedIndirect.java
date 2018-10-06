@@ -3,9 +3,6 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Processor;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpXorIndexedIndirect extends XorOperation {
     private final Processor processor;
     private final int[] memory;
@@ -20,7 +17,7 @@ public class OpXorIndexedIndirect extends XorOperation {
 
     @Override
     public int execute() {
-        xor(unsafe.getInt(memory, BASE + ((indexRegister.withOffset(processor.fetchNextByte())) * SCALE)));
+        xor(memory[indexRegister.withOffset(processor.fetchNextByte())]);
         return 19;
     }
 

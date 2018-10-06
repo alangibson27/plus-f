@@ -4,9 +4,6 @@ import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpRrcHlIndirect extends RotateOperation {
 
     private final int[] memory;
@@ -21,7 +18,7 @@ public class OpRrcHlIndirect extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int result = rrcValue(unsafe.getInt(memory, BASE + ((address) * SCALE)));
+        final int result = rrcValue(memory[address]);
         setSignZeroAndParity(result);
         Memory.set(memory, address, result);
         return 15;

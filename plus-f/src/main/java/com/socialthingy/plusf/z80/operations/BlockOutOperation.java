@@ -1,11 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.*;
-import sun.misc.Unsafe;
-
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 abstract class BlockOutOperation implements Operation {
     protected final Processor processor;
@@ -16,7 +11,6 @@ abstract class BlockOutOperation implements Operation {
     protected final Register hlReg;
     protected final FlagsRegister flagsRegister;
     protected final Register pcReg;
-    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     protected BlockOutOperation(final Processor processor, final int[] memory, final IO io) {
         this.processor = processor;
@@ -33,7 +27,7 @@ abstract class BlockOutOperation implements Operation {
         final int bVal = (bReg.get() - 1) & 0xff;
         bReg.set(bVal);
         final int hlValue = hlReg.get();
-        io.write(cReg.get(), bVal, unsafe.getInt(memory, BASE + (hlValue * SCALE)));
+        io.write(cReg.get(), bVal, memory[hlValue]);
         hlReg.set((hlValue + hlDirection) & 0xffff);
     }
 

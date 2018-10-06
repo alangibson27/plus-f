@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>../../build/libs/plus-f-1.5.6-all.jar</jar>
+  <jar>../../build/libs/plus-f-1.5.7-all.jar</jar>
   <outfile>../../build/distributions/windows/Plus-F.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>

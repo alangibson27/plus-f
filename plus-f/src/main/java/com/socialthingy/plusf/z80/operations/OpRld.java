@@ -5,9 +5,6 @@ import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpRld extends RotateOperation {
 
     private final int[] memory;
@@ -22,7 +19,7 @@ public class OpRld extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int memoryValue = unsafe.getInt(memory, BASE + ((address) * SCALE));
+        final int memoryValue = memory[address];
 
         Memory.set(memory, address, (lowNibble(memoryValue) << 4) + lowNibble(accumulator.get()));
         accumulator.set((highNibble(accumulator.get()) << 4) + highNibble(memoryValue));

@@ -2,9 +2,7 @@ package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.Memory;
-import sun.misc.Unsafe;
 
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -13,10 +11,8 @@ import java.util.*;
 
 import static com.socialthingy.plusf.spectrum.display.PixelMapper.*;
 import static com.socialthingy.plusf.spectrum.display.SpectrumColour.dullColour;
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
 
 public class SwingDoubleSizeDisplay extends DisplayComponent {
-    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     private static final double INNER_OUTER_RATIO = 1.125;
     private static final double WIDTH_HEIGHT_RATIO = 576.0 / 432.0;
@@ -121,21 +117,21 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
             int e2idx = e0idx + (SCREEN_WIDTH * SCALE);
             int e3idx = e2idx + 1;
             for (int y = 1; y < SCREEN_HEIGHT + 1; y++) {
-                final int a = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y - 1) * UnsafeUtil.SCALE));
-                final int c = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x - 1, y) * UnsafeUtil.SCALE));
-                final int p = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y) * UnsafeUtil.SCALE));
-                final int b = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x + 1, y) * UnsafeUtil.SCALE));
-                final int d = unsafe.getInt(sourcePixels, BASE + (sourcePixelAt(x, y + 1) * UnsafeUtil.SCALE));
+                final int a = sourcePixels[sourcePixelAt(x, y - 1)];
+                final int c = sourcePixels[sourcePixelAt(x - 1, y)];
+                final int p = sourcePixels[sourcePixelAt(x, y)];
+                final int b = sourcePixels[sourcePixelAt(x + 1, y)];
+                final int d = sourcePixels[sourcePixelAt(x, y + 1)];
 
                 final int e0 = (c == a && c != d && a != b) ? a : p;
                 final int e1 = (a == b && a != c && b != d) ? b : p;
                 final int e2 = (d == c && d != b && c != a) ? c : p;
                 final int e3 = (b == d && b != a && d != c) ? d : p;
 
-                unsafe.putInt(targetPixels, BASE + (e0idx * UnsafeUtil.SCALE), e0);
-                unsafe.putInt(targetPixels, BASE + (e1idx * UnsafeUtil.SCALE), e1);
-                unsafe.putInt(targetPixels, BASE + (e2idx * UnsafeUtil.SCALE), e2);
-                unsafe.putInt(targetPixels, BASE + (e3idx * UnsafeUtil.SCALE), e3);
+                targetPixels[e0idx] = e0;
+                targetPixels[e1idx] = e1;
+                targetPixels[e2idx] = e2;
+                targetPixels[e3idx] = e3;
 
                 e0idx += SCAN_WIDTH;
                 e1idx += SCAN_WIDTH;

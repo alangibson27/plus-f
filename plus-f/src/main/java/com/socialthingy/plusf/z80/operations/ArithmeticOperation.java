@@ -1,13 +1,11 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.FlagsRegister.Flag;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
-import sun.misc.Unsafe;
 
 import static com.socialthingy.plusf.util.Bitwise.FULL_CARRY_BIT;
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
@@ -17,7 +15,6 @@ abstract class ArithmeticOperation implements Operation {
     protected final FlagsRegister flagsRegister;
     protected final Processor processor;
     protected final boolean useCarryFlag;
-    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     ArithmeticOperation(final Processor processor, final boolean useCarryFlag) {
         this.processor = processor;

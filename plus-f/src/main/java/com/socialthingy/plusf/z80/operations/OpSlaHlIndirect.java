@@ -4,9 +4,6 @@ import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpSlaHlIndirect extends SlaOperation {
     private final Register hlReg;
     private final int[] memory;
@@ -20,7 +17,7 @@ public class OpSlaHlIndirect extends SlaOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        Memory.set(memory, address, shift(unsafe.getInt(memory, BASE + ((address) * SCALE))));
+        Memory.set(memory, address, shift(memory[address]));
         return 15;
     }
 

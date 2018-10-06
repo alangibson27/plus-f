@@ -7,8 +7,8 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{29B33B35-BAD1-46A5-B07E-E52F57E5F046}
 AppName=Plus-F
-AppVersion=1.5.6
-;AppVerName=Plus-F 1.5.6
+AppVersion=1.5.7
+;AppVerName=Plus-F 1.5.7
 AppPublisher=socialthingy.com
 AppPublisherURL=http://plus-f.socialthingy.com/
 AppSupportURL=http://plus-f.socialthingy.com/

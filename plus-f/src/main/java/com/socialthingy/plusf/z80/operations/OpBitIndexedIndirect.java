@@ -3,9 +3,6 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Processor;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpBitIndexedIndirect extends BitOperation {
 
     private final int[] memory;
@@ -22,7 +19,7 @@ public class OpBitIndexedIndirect extends BitOperation {
     @Override
     public int execute() {
         final int offset = processor.fetchRelative(-2);
-        checkBit(unsafe.getInt(memory, BASE + (indexRegister.withOffset(offset) * SCALE)));
+        checkBit(memory[indexRegister.withOffset(offset)]);
         flagsRegister.setUndocumentedFlagsFromValue((indexRegister.getHigh() + offset) & 0xff);
         return 20;
     }

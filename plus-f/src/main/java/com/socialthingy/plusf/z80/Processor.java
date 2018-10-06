@@ -1,22 +1,14 @@
 package com.socialthingy.plusf.z80;
 
-import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.operations.*;
-import sun.misc.Unsafe;
 
 import java.io.PrintStream;
 import java.util.*;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 import static java.lang.Boolean.valueOf;
-import static sun.misc.Unsafe.ARRAY_OBJECT_BASE_OFFSET;
-import static sun.misc.Unsafe.ARRAY_OBJECT_INDEX_SCALE;
 
 public class Processor {
-    private static final Unsafe UNSAFE = UnsafeUtil.getUnsafe();
     private static final boolean DEBUG_ENABLED = valueOf(System.getProperty("debugger", "false"));
 
     private final Map<String, Register> registers = new HashMap<>();
@@ -330,8 +322,8 @@ public class Processor {
                 return im1ResponseOp;
             } else {
                 final int jumpBase = Word.from(0xff, iReg.get());
-                final int jumpLow = UNSAFE.getInt(memory, BASE + ((jumpBase) * SCALE));
-                final int jumpHigh = UNSAFE.getInt(memory, BASE + (((jumpBase + 1) & 0xffff) * SCALE));
+                final int jumpLow = memory[jumpBase];
+                final int jumpHigh = memory[jumpBase + 1];
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
@@ -388,15 +380,15 @@ public class Processor {
     }
 
     private int fromMemory(final int addr) {
-        return UNSAFE.getInt(memory, BASE + addr * SCALE);
+        return memory[addr];
     }
 
     private Operation fromOpTable(final Operation[] opTable, final int index) {
-        return (Operation) UNSAFE.getObject(opTable, (long) ARRAY_OBJECT_BASE_OFFSET + (ARRAY_OBJECT_INDEX_SCALE * index));
+        return opTable[index];
     }
 
     public int fetchNextByte() {
-        return UNSAFE.getInt(memory, BASE + ((pcReg.getAndInc()) * SCALE));
+        return memory[pcReg.getAndInc()];
     }
 
     public int getInterruptMode() {
@@ -408,7 +400,7 @@ public class Processor {
     }
 
     public int fetchRelative(final int offset) {
-        return UNSAFE.getInt(memory, BASE + (((pcReg.get() + offset) & 0xffff) * SCALE));
+        return memory[(pcReg.get() + offset) & 0xffff];
     }
 
     public void pushByte(final int value) {
@@ -416,7 +408,7 @@ public class Processor {
     }
 
     public int popByte() {
-        return UNSAFE.getInt(memory, BASE + ((spReg.getAndInc()) * SCALE));
+        return memory[spReg.getAndInc()];
     }
 
     public void setIff(final int iff, final boolean value) {

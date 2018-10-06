@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-import static com.socialthingy.plusf.spectrum.display.UnsafePixelMapper.*;
+import static com.socialthingy.plusf.spectrum.display.PixelMapper.*;
 import static java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 import static java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
 

@@ -1,14 +1,9 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
-import sun.misc.Unsafe;
-
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 public class OpExSpIndirectHl implements Operation {
 
@@ -16,7 +11,6 @@ public class OpExSpIndirectHl implements Operation {
     private final Register hReg;
     private final Register lReg;
     private final int[] memory;
-    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public OpExSpIndirectHl(final Processor processor, final int[] memory) {
         this.spReg = processor.register("sp");
@@ -32,8 +26,8 @@ public class OpExSpIndirectHl implements Operation {
 
         final int spLow = spReg.get();
         final int spHigh = 0xffff & (spLow + 1);
-        lReg.set(unsafe.getInt(memory, BASE + (spLow * SCALE)));
-        hReg.set(unsafe.getInt(memory, BASE + (spHigh * SCALE)));
+        lReg.set(memory[spLow]);
+        hReg.set(memory[spHigh]);
 
         Memory.set(memory, spLow, oldL);
         Memory.set(memory, spHigh, oldH);

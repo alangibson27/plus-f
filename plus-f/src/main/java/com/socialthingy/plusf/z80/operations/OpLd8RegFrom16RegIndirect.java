@@ -1,19 +1,13 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Register;
-import sun.misc.Unsafe;
-
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 public class OpLd8RegFrom16RegIndirect implements Operation {
 
     private final Register dest;
     private final Register sourceReference;
     private final int[] memory;
-    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public OpLd8RegFrom16RegIndirect(int[] memory, Register dest, Register sourceReference) {
         this.memory = memory;
@@ -23,7 +17,7 @@ public class OpLd8RegFrom16RegIndirect implements Operation {
 
     @Override
     public int execute() {
-        dest.set(unsafe.getInt(memory, BASE + (sourceReference.get() * SCALE)));
+        dest.set(memory[sourceReference.get()]);
         return 7;
     }
 

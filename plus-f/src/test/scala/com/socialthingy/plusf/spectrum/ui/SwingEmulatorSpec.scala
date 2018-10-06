@@ -6,7 +6,7 @@ import javax.swing.JRadioButtonMenuItem
 
 import com.socialthingy.plusf.spectrum.UserPreferences
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
-import com.socialthingy.plusf.spectrum.display.UnsafePixelMapper
+import com.socialthingy.plusf.spectrum.display.PixelMapper
 import com.socialthingy.plusf.spectrum.ui.DisplayComponent.targetPixelAt
 import org.fest.swing.core.KeyPressInfo
 import org.fest.swing.core.KeyPressInfo.keyCode
@@ -21,7 +21,7 @@ object UITest extends Tag("UITest")
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
   val memory = Array.ofDim[Int](0x10000)
-  val display = new SwingDoubleSizeDisplay(new UnsafePixelMapper)
+  val display = new SwingDoubleSizeDisplay(new PixelMapper)
   var emulator: Emulator = null
   var fixture: FrameFixture = null
   val prefs = {

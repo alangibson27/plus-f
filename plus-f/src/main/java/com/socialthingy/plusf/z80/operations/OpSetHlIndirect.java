@@ -4,9 +4,6 @@ import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpSetHlIndirect extends BitModificationOperation {
 
     private final Register hlReg;
@@ -24,7 +21,7 @@ public class OpSetHlIndirect extends BitModificationOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        Memory.set(memory, address, set(unsafe.getInt(memory, BASE + ((address) * SCALE))));
+        Memory.set(memory, address, set(memory[address]));
         return 15;
     }
 

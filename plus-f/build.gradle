@@ -41,7 +41,7 @@ test {
     }
 }
 
-version = '1.5.6'
+version = '1.5.7'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
 
 shadowJar {

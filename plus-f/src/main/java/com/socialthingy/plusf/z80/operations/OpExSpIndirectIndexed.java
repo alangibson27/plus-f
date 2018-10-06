@@ -1,19 +1,13 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.*;
-import sun.misc.Unsafe;
-
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
 
 public class OpExSpIndirectIndexed implements Operation {
 
     private final Register spReg;
     private final IndexRegister indexRegister;
     private final int[] memory;
-    private final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     public OpExSpIndirectIndexed(final Processor processor, final Register indexRegister, final int[] memory) {
         this.spReg = processor.register("sp");
@@ -28,10 +22,7 @@ public class OpExSpIndirectIndexed implements Operation {
         final int spLow = spReg.get();
         final int spHigh = 0xffff & (spLow + 1);
         indexRegister.set(
-            Word.from(
-                unsafe.getInt(memory, BASE + (spLow * SCALE)),
-                unsafe.getInt(memory, BASE + (spHigh * SCALE))
-            )
+            Word.from(memory[spLow], memory[spHigh])
         );
 
         Memory.set(memory, spLow, oldIndex & 0x00ff);

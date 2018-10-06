@@ -1,15 +1,12 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.util.UnsafeUtil;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
-import sun.misc.Unsafe;
 
 abstract class BitOperation implements Operation {
     protected final FlagsRegister flagsRegister;
     protected final int bitPosition;
-    protected final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
     BitOperation(final Processor processor, final int bitPosition) {
         this.flagsRegister = processor.flagsRegister();

@@ -3,9 +3,6 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Processor;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpOrIndexedIndirect extends OrOperation {
     private final Processor processor;
     private final int[] memory;
@@ -20,7 +17,7 @@ public class OpOrIndexedIndirect extends OrOperation {
 
     @Override
     public int execute() {
-        or(unsafe.getInt(memory, BASE + ((indexRegister.withOffset(processor.fetchNextByte())) * SCALE)));
+        or(memory[indexRegister.withOffset(processor.fetchNextByte())]);
         return 19;
     }
 

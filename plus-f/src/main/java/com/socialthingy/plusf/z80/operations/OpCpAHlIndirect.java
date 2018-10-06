@@ -3,9 +3,6 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-import static com.socialthingy.plusf.util.UnsafeUtil.BASE;
-import static com.socialthingy.plusf.util.UnsafeUtil.SCALE;
-
 public class OpCpAHlIndirect extends ArithmeticOperation {
 
     private final int[] memory;
@@ -19,7 +16,7 @@ public class OpCpAHlIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        sub(unsafe.getInt(memory, BASE + (hlReg.get() * SCALE)), false);
+        sub(memory[hlReg.get()], false);
         return 7;
     }
 
