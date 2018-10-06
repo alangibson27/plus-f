@@ -98,15 +98,24 @@ class WosTree(owner: Frame? = null) : JDialog(owner) {
             }
         }
 
-        private fun handleResult(result: List<Title>) {
-            if (result.isEmpty()) {
-                rootNode.userObject = "No matches found"
-            } else {
-                rootNode.userObject = "Search results"
-                result.forEach { rootNode.add(DefaultMutableTreeNode(it, true)) }
-                (tree.model as DefaultTreeModel).reload(rootNode)
-                tree.expandRow(0)
+        private fun handleResult(result: Try<List<Title>>) {
+            when (result) {
+                is Failure -> {
+                    rootNode.userObject = "Error, please try again"
+                }
+
+                is Success -> {
+                    if (result.t.isEmpty()) {
+                        rootNode.userObject = "No matches found"
+                    } else {
+                        rootNode.userObject = "Search results"
+                        result.t.forEach { rootNode.add(DefaultMutableTreeNode(it, true)) }
+                        (tree.model as DefaultTreeModel).reload(rootNode)
+                        tree.expandRow(0)
+                    }
+                }
             }
+
         }
     }
 
@@ -141,15 +150,22 @@ class WosTree(owner: Frame? = null) : JDialog(owner) {
 
         }
 
-        private fun handleResult(selectedNode: DefaultMutableTreeNode, result: List<Archive>) {
+        private fun handleResult(selectedNode: DefaultMutableTreeNode, result: Try<List<Archive>>) {
             selectedNode.removeAllChildren()
-            if (result.isNotEmpty()) {
-                result.forEach { selectedNode.add(DefaultMutableTreeNode(it, false)) }
-                (tree.model as DefaultTreeModel).reload(selectedNode)
-            } else {
-                selectedNode.add(DefaultMutableTreeNode("No suitable archives found"))
-                (tree.model as DefaultTreeModel).reload(selectedNode)
+            when (result) {
+                is Failure -> {
+                    selectedNode.add(DefaultMutableTreeNode("Error occurred, please try again"))
+                }
+
+                is Success -> {
+                    if (result.t.isNotEmpty()) {
+                        result.t.forEach { selectedNode.add(DefaultMutableTreeNode(it, false)) }
+                    } else {
+                        selectedNode.add(DefaultMutableTreeNode("No suitable archives found"))
+                    }
+                }
             }
+            (tree.model as DefaultTreeModel).reload(selectedNode)
         }
     }
 

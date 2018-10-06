@@ -20,8 +20,8 @@ object WosScrapers {
 }
 
 interface WosScraper {
-    fun findTitles(searchText: String): List<Title>
-    fun findArchives(title: Title): List<Archive>
+    fun findTitles(searchText: String): Try<List<Title>>
+    fun findArchives(title: Title): Try<List<Archive>>
 }
 
 fun <T> List<T>.dropUntil(p: (T) -> Boolean): List<T> {
@@ -36,21 +36,20 @@ class CachedWosScraper(private val underlying: WosScraper) : WosScraper {
     private val titleCache = mutableMapOf<String, List<Title>>()
     private val archiveCache = mutableMapOf<Title, List<Archive>>()
 
-    override fun findTitles(searchText: String): List<Title> {
+    override fun findTitles(searchText: String): Try<List<Title>> {
         return findFromCache(searchText, underlying::findTitles, titleCache)
     }
 
-    override fun findArchives(title: Title): List<Archive> {
+    override fun findArchives(title: Title): Try<List<Archive>> {
         return findFromCache(title, underlying::findArchives, archiveCache)
     }
 
-    private fun <K, V> findFromCache(key: K, underlying: (K) -> List<V>, cache: MutableMap<K, List<V>>): List<V> {
-        val cached = cache.filter { it.key == key }
-
-        return if (cached.isEmpty()) {
+    private fun <K, V> findFromCache(key: K, underlying: (K) -> Try<List<V>>, cache: MutableMap<K, List<V>>): Try<List<V>> {
+        val cached: List<V>? = cache[key]
+        return if (cached == null) {
             val results = underlying(key)
-            if (!results.isEmpty()) {
-                cache[key] = results
+            results.ifDefined {
+                cache[key] = it
                 if (cache.size == 51) {
                     cache.remove(cache.keys.first())
                 }
@@ -58,7 +57,7 @@ class CachedWosScraper(private val underlying: WosScraper) : WosScraper {
 
             results
         } else {
-            cached[cached.keys.first()]!!
+            Success(cached)
         }
     }
 }
@@ -66,51 +65,56 @@ class CachedWosScraper(private val underlying: WosScraper) : WosScraper {
 class RawWosScraper(private val host: String) : WosScraper {
     private val formats = listOf("TAP", "TZX")
 
-    override fun findTitles(searchText: String): List<Title> {
+    override fun findTitles(searchText: String): Try<List<Title>> {
         val titles = mutableListOf<Title>()
-        for (format in formats) {
-            val titlesForFormat = getTitlesForFormat(format, searchText)
-            for (title in titlesForFormat) {
-                if (!titles.contains(title)) {
-                    titles.add(title)
+        formats.map { getTitlesForFormat(it, searchText) }
+            .forEach {
+                when (it) {
+                    is Failure -> { return it }
+                    is Success -> {
+                        it.t.filterNot { titles.contains(it) }.forEach { titles.add(it) }
+                    }
                 }
             }
-        }
 
-        return titles.sortedBy { it.name }
+        return Success(titles.sortedBy { it.name })
     }
 
-    override fun findArchives(title: Title): List<Archive> {
+    override fun findArchives(title: Title): Try<List<Archive>> {
         val content = scrape(
                 title.location,
                 { it.contains("""<A HREF="/pub/sinclair/""") },
                 { it.startsWith("""<FONT SIZE="+1">""") }
         )
-        return content.map(this::extractArchiveFromRow).filter { it.isPresent }.map { it.get() }
+
+        return content.map {
+            it.map(this::extractArchiveFromRow).filter { it.isPresent }.map { it.get() }
+        }
     }
 
-    private fun getTitlesForFormat(searchText: String, format: String): List<Title> {
-        return try {
-            val url = urlForHost(String.format("/infoseekadv.cgi?what=1&format=%s&regexp=%s", searchText, format))
-            val content = scrape(
-                    url,
-                    { it.contains("""<TR><TD><FONT FACE="Arial,Helvetica"><A HREF="/infoseek.cgi""") },
-                    { it.startsWith("""</TABLE>""") }
-            )
-            content.map(this::extractTitleFromRow).filter { it.isPresent }.map { it.get() }
-        } catch (ex: Exception) {
-            listOf()
+    private fun getTitlesForFormat(searchText: String, format: String): Try<List<Title>> {
+        val url = urlForHost(String.format("/infoseekadv.cgi?what=1&format=%s&regexp=%s", searchText, format))
+        val content = scrape(
+                url,
+                { it.contains("""<TR><TD><FONT FACE="Arial,Helvetica"><A HREF="/infoseek.cgi""") },
+                { it.startsWith("""</TABLE>""") }
+        )
+
+        return content.map {
+            it.map(this::extractTitleFromRow).filter { it.isPresent }.map { it.get() }
         }
     }
 
     private fun scrape(url: URL,
                        firstLineMatch: (String) -> Boolean,
-                       lastLineMatch: (String) -> Boolean): List<String> {
-        val connection = url.openConnection()
-        val contentStream = BufferedReader(InputStreamReader(connection.getInputStream()))
-        return contentStream.use { cs ->
-            val allLines = cs.lines().collect(Collectors.toList<String>())
-            allLines.dropUntil(firstLineMatch).takeUntil(lastLineMatch)
+                       lastLineMatch: (String) -> Boolean): Try<List<String>> {
+        return Try {
+            val connection = url.openConnection()
+            val contentStream = BufferedReader(InputStreamReader(connection.getInputStream()))
+            contentStream.use { cs ->
+                val allLines = cs.lines().collect(Collectors.toList<String>())
+                allLines.dropUntil(firstLineMatch).takeUntil(lastLineMatch)
+            }
         }
     }
 

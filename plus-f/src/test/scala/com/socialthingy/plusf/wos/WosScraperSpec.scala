@@ -32,8 +32,8 @@ class WosScraperSpec extends FlatSpec with Matchers with BeforeAndAfterAll with 
     val titles = searcher.findTitles("Chuckie")
 
     Then("I should get a de-duped list of titles, ordered alphabetically")
-    titles should have size 4
-    titles should contain inOrderOnly(
+    titles.get() should have size 4
+    titles.get() should contain inOrderOnly(
       new Title("Chuckie Designer", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Designer$&pub=^P%26M+Software$&loadpics=1")),
       new Title("Chuckie Egg", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg$&pub=^A%27n%27F+Software$&loadpics=1")),
       new Title("Chuckie Egg 2", new URL("http://" + host + "/infoseek.cgi?regexp=^Chuckie+Egg+2$&pub=^A%27n%27F+Software$&loadpics=1")),
@@ -51,8 +51,8 @@ class WosScraperSpec extends FlatSpec with Matchers with BeforeAndAfterAll with 
     val archives = searcher.findArchives(chuckieEgg)
 
     Then("I should get the archives")
-    archives should have size 3
-    archives should contain only (
+    archives.get() should have size 3
+    archives.get() should contain only (
       new Archive("ChuckieEgg.tzx.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg.tzx.zip")),
       new Archive("ChuckieEgg.tap.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg.tap.zip")),
       new Archive("ChuckieEgg(PickChoose).tzx.zip", new URL("http://" + host + "/pub/sinclair/games/c/ChuckieEgg(PickChoose).tzx.zip"))
