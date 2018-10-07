@@ -16,7 +16,8 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
 
     private static final double INNER_OUTER_RATIO = 1.125;
     private static final double WIDTH_HEIGHT_RATIO = 576.0 / 432.0;
-    private static final int SCAN_WIDTH = SCREEN_WIDTH * SCALE * 2;
+    private static final int DEST_SCAN_WIDTH = SCREEN_WIDTH * SCALE * 2;
+    private static final int SRC_SCAN_WIDTH = SCREEN_WIDTH + 2;
 
     private Dimension innerSize = new Dimension(SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE);
     private Dimension outerSize = new Dimension(
@@ -116,27 +117,34 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
             int e1idx = e0idx + 1;
             int e2idx = e0idx + (SCREEN_WIDTH * SCALE);
             int e3idx = e2idx + 1;
+
+            int pIdx = x + SCREEN_WIDTH + 2;
+            int aIdx = x;
+            int cIdx = pIdx - 1;
+            int bIdx = pIdx + 1;
+            int dIdx = pIdx + SCREEN_WIDTH + 2;
+
             for (int y = 1; y < SCREEN_HEIGHT + 1; y++) {
-                final int a = sourcePixels[sourcePixelAt(x, y - 1)];
-                final int c = sourcePixels[sourcePixelAt(x - 1, y)];
-                final int p = sourcePixels[sourcePixelAt(x, y)];
-                final int b = sourcePixels[sourcePixelAt(x + 1, y)];
-                final int d = sourcePixels[sourcePixelAt(x, y + 1)];
+                final int a = sourcePixels[aIdx];
+                final int c = sourcePixels[cIdx];
+                final int p = sourcePixels[pIdx];
+                final int b = sourcePixels[bIdx];
+                final int d = sourcePixels[dIdx];
+                aIdx += SRC_SCAN_WIDTH;
+                cIdx += SRC_SCAN_WIDTH;
+                pIdx += SRC_SCAN_WIDTH;
+                bIdx += SRC_SCAN_WIDTH;
+                dIdx += SRC_SCAN_WIDTH;
 
-                final int e0 = (c == a && c != d && a != b) ? a : p;
-                final int e1 = (a == b && a != c && b != d) ? b : p;
-                final int e2 = (d == c && d != b && c != a) ? c : p;
-                final int e3 = (b == d && b != a && d != c) ? d : p;
+                targetPixels[e0idx] = (c == a && c != d && a != b) ? a : p;
+                targetPixels[e1idx] = (a == b && a != c && b != d) ? b : p;
+                targetPixels[e2idx] = (d == c && d != b && c != a) ? c : p;
+                targetPixels[e3idx] = (b == d && b != a && d != c) ? d : p;
 
-                targetPixels[e0idx] = e0;
-                targetPixels[e1idx] = e1;
-                targetPixels[e2idx] = e2;
-                targetPixels[e3idx] = e3;
-
-                e0idx += SCAN_WIDTH;
-                e1idx += SCAN_WIDTH;
-                e2idx += SCAN_WIDTH;
-                e3idx += SCAN_WIDTH;
+                e0idx += DEST_SCAN_WIDTH;
+                e1idx += DEST_SCAN_WIDTH;
+                e2idx += DEST_SCAN_WIDTH;
+                e3idx += DEST_SCAN_WIDTH;
             }
         }
     }

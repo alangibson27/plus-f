@@ -25,10 +25,6 @@ abstract class DisplayComponent extends JComponent {
     private static final int TOP_BORDER_HEIGHT = 64;
     private static final int BOTTOM_BORDER_HEIGHT = 56;
 
-    static int sourcePixelAt(final int x, final int y) {
-        return x + y * (SCREEN_WIDTH + 2);
-    }
-
     static int targetPixelAt(final int mainx, final int mainy, final int subx, final int suby) {
         return ((mainx * SwingDoubleSizeDisplay.SCALE) + subx) + (((mainy * SwingDoubleSizeDisplay.SCALE) + suby) * (SCREEN_WIDTH * SwingDoubleSizeDisplay.SCALE));
     }
