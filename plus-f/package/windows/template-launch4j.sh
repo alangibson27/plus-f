@@ -1,9 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+: "${VERSION:?VERSION must be set}"
+
+cat << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>../../build/libs/plus-f-1.5.7-all.jar</jar>
-  <outfile>../../build/distributions/windows/Plus-F.exe</outfile>
+  <jar>../../libs/plus-f-${VERSION}-all.jar</jar>
+  <outfile>Plus-F.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +19,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>Plus-F.ico</icon>
+  <icon>../../../package/windows/Plus-F.ico</icon>
   <jre>
     <path>./jre-10.0.2</path>
     <bundledJre64Bit>true</bundledJre64Bit>
@@ -24,3 +30,5 @@
     <runtimeBits>64/32</runtimeBits>
   </jre>
 </launch4jConfig>
+EOF
+
