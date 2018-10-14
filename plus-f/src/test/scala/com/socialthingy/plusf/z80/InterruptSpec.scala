@@ -49,10 +49,10 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     }
   }
 
-  class RoutineBuilder(memory: Array[Int], var address: Int) {
+  class RoutineBuilder(memory: Memory, var address: Int) {
     def does(op_codes: Int*): Unit = {
       op_codes foreach { opcode =>
-        memory(address) = opcode
+        memory.set(address, opcode)
         address += 1
       }
     }
@@ -340,8 +340,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // then
     registerValue("pc") shouldBe 0x0038
     registerValue("sp") shouldBe 0xfffd
-    memory(0xfffd) shouldBe 0x04
-    memory(0xfffe) shouldBe 0x00
+    memory.get(0xfffd) shouldBe 0x04
+    memory.get(0xfffe) shouldBe 0x00
     registerValue("b") shouldBe 0
   }
   
@@ -372,8 +372,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(2)
     nextInstructionIs(0xcb, 0xc0)
 
-    memory(0xb0ff) = 0xef
-    memory(0xb100) = 0xbe
+    memory.set(0xb0ff, 0xef)
+    memory.set(0xb100, 0xbe)
 
     registerContainsValue("i", 0xb0)
 
@@ -385,8 +385,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // then
     registerValue("pc") shouldBe 0xbeef
     registerValue("sp") shouldBe 0xfffd
-    memory(0xfffd) shouldBe 0x04
-    memory(0xfffe) shouldBe 0x00
+    memory.get(0xfffd) shouldBe 0x04
+    memory.get(0xfffe) shouldBe 0x00
     registerValue("b") shouldBe 0x00
   }
   
@@ -398,8 +398,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     maskableInterruptModeIs(2)
     nextInstructionIs(0xcb, 0xc0)
 
-    memory(0xb0e0) = 0xef
-    memory(0xb0e1) = 0xbe
+    memory.set(0xb0e0, 0xef)
+    memory.set(0xb0e1, 0xbe)
 
     registerContainsValue("i", 0xb0)
     registerContainsValue("r", 0xe1)
@@ -421,8 +421,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("sp", 0xffff)
 
     // nmi service routine
-    memory(0x0066) = 0xcb
-    memory(0x0067) = 0xc7
+    memory.set(0x0066, 0xcb)
+    memory.set(0x0067, 0xc7)
 
     // when
     processor.nmi()
@@ -434,8 +434,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerValue("a") shouldBe 0x01
 
     registerValue("sp") shouldBe 0xfffd
-    memory(0xfffd) shouldBe 0x01
-    memory(0xfffe) shouldBe 0x00
+    memory.get(0xfffd) shouldBe 0x01
+    memory.get(0xfffe) shouldBe 0x00
   }
   
   "nmi" should "be invoked when maskable interrupts are enabled" in new InterruptingMachine {
@@ -444,8 +444,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("sp", 0xffff)
 
     // nmi service routine
-    memory(0x0066) = 0xcb
-    memory(0x0067) = 0xc7
+    memory.set(0x0066, 0xcb)
+    memory.set(0x0067, 0xc7)
 
     // when
     processor.nmi()
@@ -457,8 +457,8 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerValue("a") shouldBe 0x01
 
     registerValue("sp") shouldBe 0xfffd
-    memory(0xfffd) shouldBe 0x02
-    memory(0xfffe) shouldBe 0x00
+    memory.get(0xfffd) shouldBe 0x02
+    memory.get(0xfffe) shouldBe 0x00
   }
   
   "halt" should "execute nops until a non-maskable interrupt" in new InterruptingMachine {

@@ -11,7 +11,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0xbeef)
 
-    memory(0x1000) = 0xba
+    memory.set(0x1000, 0xba)
 
     nextInstructionIs(0xed, 0xa0)
 
@@ -19,7 +19,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    memory(0x2000) shouldBe 0xba
+    memory.get(0x2000) shouldBe 0xba
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0xbeee
@@ -38,7 +38,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x0001)
 
-    memory(0x1000) = 0xba
+    memory.set(0x1000, 0xba)
 
     nextInstructionIs(0xed, 0xa0)
 
@@ -46,7 +46,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    memory(0x2000) shouldBe 0xba
+    memory.get(0x2000) shouldBe 0xba
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0x0000
@@ -65,7 +65,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x000a)
 
-    memory(0x1000) = 0xff
+    memory.set(0x1000, 0xff)
 
     nextInstructionIs(0xed, 0xb0)
 
@@ -74,7 +74,7 @@ class BlockOperationSpec extends ProcessorSpec {
 
     // then
     registerValue("pc") shouldBe 0x0000
-    memory(0x2000) shouldBe 0xff
+    memory.get(0x2000) shouldBe 0xff
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0x0009
@@ -90,7 +90,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x0001)
 
-    memory(0x1000) = 0xff
+    memory.set(0x1000, 0xff)
 
     nextInstructionIs(0xed, 0xb0)
 
@@ -99,7 +99,7 @@ class BlockOperationSpec extends ProcessorSpec {
 
     // then
     registerValue("pc") shouldBe 0x0002
-    memory(0x2000) shouldBe 0xff
+    memory.get(0x2000) shouldBe 0xff
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0x0000
@@ -115,7 +115,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x0000)
 
-    memory(0x1000) = 0xff
+    memory.set(0x1000, 0xff)
 
     nextInstructionIs(0xed, 0xb0)
 
@@ -124,7 +124,7 @@ class BlockOperationSpec extends ProcessorSpec {
 
     // then
     registerValue("pc") shouldBe 0x0000
-    memory(0x2000) shouldBe 0xff
+    memory.get(0x2000) shouldBe 0xff
     registerValue("hl") shouldBe 0x1001
     registerValue("de") shouldBe 0x2001
     registerValue("bc") shouldBe 0xffff
@@ -140,7 +140,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0xbeef)
 
-    memory(0x1000) = 0xba
+    memory.set(0x1000, 0xba)
 
     nextInstructionIs(0xed, 0xa8)
 
@@ -148,7 +148,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    memory(0x2000) shouldBe 0xba
+    memory.get(0x2000) shouldBe 0xba
     registerValue("hl") shouldBe 0x0fff
     registerValue("de") shouldBe 0x1fff
     registerValue("bc") shouldBe 0xbeee
@@ -164,7 +164,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x0001)
 
-    memory(0x1000) = 0xba
+    memory.set(0x1000, 0xba)
 
     nextInstructionIs(0xed, 0xa8)
 
@@ -172,7 +172,7 @@ class BlockOperationSpec extends ProcessorSpec {
     processor.execute()
 
     // then
-    memory(0x2000) shouldBe 0xba
+    memory.get(0x2000) shouldBe 0xba
     registerValue("hl") shouldBe 0x0fff
     registerValue("de") shouldBe 0x1fff
     registerValue("bc") shouldBe 0x0000
@@ -188,7 +188,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x000a)
 
-    memory(0x1000) = 0xff
+    memory.set(0x1000, 0xff)
 
     nextInstructionIs(0xed, 0xb8)
 
@@ -197,7 +197,7 @@ class BlockOperationSpec extends ProcessorSpec {
 
     // then
     registerValue("pc") shouldBe 0x0000
-    memory(0x2000) shouldBe 0xff
+    memory.get(0x2000) shouldBe 0xff
     registerValue("hl") shouldBe 0x0fff
     registerValue("de") shouldBe 0x1fff
     registerValue("bc") shouldBe 0x0009
@@ -213,7 +213,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x0001)
 
-    memory(0x1000) = 0xff
+    memory.set(0x1000, 0xff)
 
     nextInstructionIs(0xed, 0xb8)
 
@@ -222,7 +222,7 @@ class BlockOperationSpec extends ProcessorSpec {
 
     // then
     registerValue("pc") shouldBe 0x0002
-    memory(0x2000) shouldBe 0xff
+    memory.get(0x2000) shouldBe 0xff
     registerValue("hl") shouldBe 0x0fff
     registerValue("de") shouldBe 0x1fff
     registerValue("bc") shouldBe 0x0000
@@ -238,7 +238,7 @@ class BlockOperationSpec extends ProcessorSpec {
     registerContainsValue("de", 0x2000)
     registerContainsValue("bc", 0x0000)
 
-    memory(0x1000) = 0xff
+    memory.set(0x1000, 0xff)
 
     nextInstructionIs(0xed, 0xb8)
 
@@ -247,7 +247,7 @@ class BlockOperationSpec extends ProcessorSpec {
 
     // then
     registerValue("pc") shouldBe 0x0000
-    memory(0x2000) shouldBe 0xff
+    memory.get(0x2000) shouldBe 0xff
     registerValue("hl") shouldBe 0x0fff
     registerValue("de") shouldBe 0x1fff
     registerValue("bc") shouldBe 0xffff
@@ -260,7 +260,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpi" should "operate correctly with memory equal to value of a and bc greater than 1" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0090)
     registerContainsValue("a", 0xbe)
@@ -286,7 +286,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpi" should "operate correctly with memory equal to a and bc equal to 1" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", 0xbe)
@@ -310,7 +310,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpi" should "operate correctly with memory less than a and half borrow" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = binary("00001000")
+    memory.set(0x1000, binary("00001000"))
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", binary("10000000"))
@@ -336,7 +336,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpi" should "operate correctly with memory greater than a and half borrow" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = binary("00001000")
+    memory.set(0x1000, binary("00001000"))
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", binary("10000000"))
@@ -360,7 +360,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpi" should "operate correctly with memory greater than a and full borrow" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = binary("10000000")
+    memory.set(0x1000, binary("10000000"))
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", binary("00000001"))
@@ -384,7 +384,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpir" should "operate correctly with memory equal to a and bc greater than one" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0090)
     registerContainsValue("a", 0xbe)
@@ -410,7 +410,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpir" should "operate correctly with memory equal to a and bc equal to one" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", 0xbe)
@@ -436,7 +436,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpir" should "operate correctly with memory equal to a and bc equal to zero" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0000)
     registerContainsValue("a", 0xbe)
@@ -462,7 +462,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpd" should "operate correctly with memory equal to a and bc greater than one" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0090)
     registerContainsValue("a", 0xbe)
@@ -486,7 +486,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpd" should "operate correctly with memory equal to a and bc equal to one" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", 0xbe)
@@ -510,7 +510,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpd" should "operate correctly with memory less than a and half borrow" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = binary("00001000")
+    memory.set(0x1000, binary("00001000"))
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", binary("10000000"))
@@ -534,7 +534,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpd" should "operate correctly with memory greater than a and half borrow" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = binary("00001000")
+    memory.set(0x1000, binary("00001000"))
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", binary("10000000"))
@@ -558,7 +558,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpd" should "operate correctly with memory greater than a and full borrow" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = binary("10000000")
+    memory.set(0x1000, binary("10000000"))
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", binary("00000001"))
@@ -582,7 +582,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpdr" should "operate correctly with memory equal to a and bc greater than one" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0090)
     registerContainsValue("a", 0xbe)
@@ -608,7 +608,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpdr" should "operate correctly with memory equal to a and bc equal to one" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0001)
     registerContainsValue("a", 0xbe)
@@ -634,7 +634,7 @@ class BlockOperationSpec extends ProcessorSpec {
   "cpdr" should "operate correctly with memory equal to a and bc equal to zero" in new Machine {
     // given
     registerContainsValue("hl", 0x1000)
-    memory(0x1000) = 0xbe
+    memory.set(0x1000, 0xbe)
 
     registerContainsValue("bc", 0x0000)
     registerContainsValue("a", 0xbe)

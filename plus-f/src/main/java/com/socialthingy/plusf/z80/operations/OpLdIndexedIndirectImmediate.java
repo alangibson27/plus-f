@@ -5,10 +5,10 @@ import com.socialthingy.plusf.z80.*;
 public class OpLdIndexedIndirectImmediate implements Operation {
 
     private final Processor processor;
-    private final int[] memory;
+    private final Memory memory;
     private final IndexRegister indexRegister;
 
-    public OpLdIndexedIndirectImmediate(final Processor processor, final int[] memory, final Register indexRegister) {
+    public OpLdIndexedIndirectImmediate(final Processor processor, final Memory memory, final Register indexRegister) {
         this.processor = processor;
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
@@ -18,7 +18,7 @@ public class OpLdIndexedIndirectImmediate implements Operation {
     public int execute() {
         final int offset = processor.fetchNextByte();
         final int value = processor.fetchNextByte();
-        Memory.set(memory, indexRegister.withOffset(offset), value);
+        memory.set( indexRegister.withOffset(offset), value);
         return 19;
     }
 

@@ -7,9 +7,9 @@ public class OpExSpIndirectIndexed implements Operation {
 
     private final Register spReg;
     private final IndexRegister indexRegister;
-    private final int[] memory;
+    private final Memory memory;
 
-    public OpExSpIndirectIndexed(final Processor processor, final Register indexRegister, final int[] memory) {
+    public OpExSpIndirectIndexed(final Processor processor, final Register indexRegister, final Memory memory) {
         this.spReg = processor.register("sp");
         this.indexRegister = IndexRegister.class.cast(indexRegister);
         this.memory = memory;
@@ -22,11 +22,11 @@ public class OpExSpIndirectIndexed implements Operation {
         final int spLow = spReg.get();
         final int spHigh = 0xffff & (spLow + 1);
         indexRegister.set(
-            Word.from(memory[spLow], memory[spHigh])
+            Word.from(memory.get(spLow), memory.get(spHigh))
         );
 
-        Memory.set(memory, spLow, oldIndex & 0x00ff);
-        Memory.set(memory, spHigh, (oldIndex & 0xff00) >> 8);
+        memory.set( spLow, oldIndex & 0x00ff);
+        memory.set( spHigh, (oldIndex & 0xff00) >> 8);
         return 23;
     }
 

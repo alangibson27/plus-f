@@ -58,7 +58,7 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       s"bit $bitPosition, (hl) when bit is $value" should "calculate the correct result" in new Machine {
         // given
         registerContainsValue("hl", 0x1234)
-        memory(0x1234) = if (value) Math.pow(2, bitPosition).asInstanceOf[Int] else 0
+        memory.set(0x1234, if (value) Math.pow(2, bitPosition).asInstanceOf[Int] else 0)
         nextInstructionIs(0xcb, opcode)
 
         // when
@@ -86,7 +86,7 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
           // given
           val offset = randomByte
           registerContainsValue(indexRegister, 0x1234)
-          memory(0x1234 + offset.asInstanceOf[Byte]) = if (value) Math.pow(2, bitPosition).toInt else 0
+          memory.set(0x1234 + offset.asInstanceOf[Byte], if (value) Math.pow(2, bitPosition).toInt else 0)
           nextInstructionIs(registerOpcode, 0xcb, offset, opcode)
 
           // when
@@ -150,14 +150,14 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     s"res $bitPosition, (hl)" should "reset the correct bit" in new Machine {
       // given
       registerContainsValue("hl", 0x1234)
-      memory(0x1234) = 0xff
+      memory.set(0x1234, 0xff)
       nextInstructionIs(0xcb, opcode)
 
       // when
       processor.execute()
 
       // then
-      (memory(0x1234) & (1 << bitPosition)) shouldBe 0
+      (memory.get(0x1234) & (1 << bitPosition)) shouldBe 0
     }
   }
 
@@ -168,14 +168,14 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         val offset = randomByte
         val address = 0x1234 + offset.asInstanceOf[Byte]
         registerContainsValue(indexRegister, 0x1234)
-        memory(address) = 0xff
+        memory.set(address, 0xff)
         nextInstructionIs(registerOpcode, 0xcb, offset, opcode)
 
         // when
         processor.execute()
 
         // then
-        (memory(address) & (1 << bitPosition)) shouldBe 0
+        (memory.get(address) & (1 << bitPosition)) shouldBe 0
       }
     }
   }
@@ -218,14 +218,14 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     s"set $bitPosition, (hl)" should "set the correct bit" in new Machine {
       // given
       registerContainsValue("hl", 0x1234)
-      memory(0x1234) = 0x00
+      memory.set(0x1234, 0x00)
       nextInstructionIs(0xcb, opcode)
 
       // when
       processor.execute()
 
       // then
-      (memory(0x1234) >> bitPosition) shouldBe 1
+      (memory.get(0x1234) >> bitPosition) shouldBe 1
     }
   }
 
@@ -236,14 +236,14 @@ class BitManipulationSpec extends ProcessorSpec with TableDrivenPropertyChecks {
         val offset = randomByte
         val address = 0x1234 + offset.asInstanceOf[Byte]
         registerContainsValue(indexRegister, 0x1234)
-        memory(address) = 0x00
+        memory.set(address, 0x00)
         nextInstructionIs(registerOpcode, 0xcb, offset, opcode)
 
         // when
         processor.execute()
 
         // then
-        (memory(address) >> bitPosition) shouldBe 1
+        (memory.get(address) >> bitPosition) shouldBe 1
       }
     }
   }

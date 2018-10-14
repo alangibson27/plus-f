@@ -7,10 +7,10 @@ import com.socialthingy.plusf.z80.Register;
 
 public class OpRrd extends RotateOperation {
 
-    private final int[] memory;
+    private final Memory memory;
     private final Register hlReg;
 
-    public OpRrd(final Processor processor, final int[] memory) {
+    public OpRrd(final Processor processor, final Memory memory) {
         super(processor);
         this.memory = memory;
         this.hlReg = processor.register("hl");
@@ -19,9 +19,9 @@ public class OpRrd extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int memoryValue = memory[address];
+        final int memoryValue = memory.get(address);
 
-        Memory.set(memory, address, (lowNibble(accumulator.get()) << 4) + highNibble(memoryValue));
+        memory.set( address, (lowNibble(accumulator.get()) << 4) + highNibble(memoryValue));
         accumulator.set((highNibble(accumulator.get()) << 4) + lowNibble(memoryValue));
 
         setSignZeroAndParity(accumulator.get());

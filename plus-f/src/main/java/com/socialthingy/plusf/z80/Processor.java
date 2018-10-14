@@ -12,7 +12,7 @@ public class Processor {
     private static final boolean DEBUG_ENABLED = valueOf(System.getProperty("debugger", "false"));
 
     private final Map<String, Register> registers = new HashMap<>();
-    private final int[] memory;
+    private final Memory memory;
     private final Operation[] operations;
     private final Operation[] edOperations;
     private final Operation[] cbOperations;
@@ -43,7 +43,7 @@ public class Processor {
     private Set<Integer> breakpoints = new HashSet<>();
     private Set<Range> rangeBreakpoints = new HashSet<>();
 
-    public Processor(final int[] memory, final IO io) {
+    public Processor(final Memory memory, final IO io) {
         this.memory = memory;
 
         prepareRegisters();
@@ -253,14 +253,14 @@ public class Processor {
                     System.out.printf(
                         "%04x: %02x %02x %02x %02x %02x %02x %02x %02x\n",
                         i,
-                        memory[i],
-                        memory[(i + 1) & 0xffff],
-                        memory[(i + 2) & 0xffff],
-                        memory[(i + 3) & 0xffff],
-                        memory[(i + 4) & 0xffff],
-                        memory[(i + 5) & 0xffff],
-                        memory[(i + 6) & 0xffff],
-                        memory[(i + 7) & 0xffff]
+                        memory.get(i),
+                        memory.get(i + 1),
+                        memory.get(i + 2),
+                        memory.get(i + 3),
+                        memory.get(i + 4),
+                        memory.get(i + 5),
+                        memory.get(i + 6),
+                        memory.get(i + 7)
                     );
                 }
             }
@@ -282,7 +282,7 @@ public class Processor {
 
                 final List<Integer> results = new ArrayList<>();
                 for (int i = 0; i < 0xffff; i++) {
-                    if (memory[i] == v1 && memory[i + 1] == v2) {
+                    if (memory.get(i) == v1 && memory.get(i + 1) == v2) {
                         results.add(i);
                     }
                 }
@@ -292,19 +292,19 @@ public class Processor {
     }
 
     private void printCalcStack() {
-        final int stkBot = Word.from(memory[23651], memory[23652]);
-        final int stkEnd = Word.from(memory[23653], memory[23654]);
+        final int stkBot = Word.from(memory.get(23651), memory.get(23652));
+        final int stkEnd = Word.from(memory.get(23653), memory.get(23654));
 
         System.out.println("Calculator stack (from bottom):");
         for (int i = stkBot; i < stkEnd; i += 5) {
             System.out.printf(
                 "[%04x] %02x %02x %02x %02x %02x\n",
                 i,
-                memory[i],
-                memory[i + 1],
-                memory[i + 2],
-                memory[i + 3],
-                memory[i + 4]
+                memory.get(i),
+                memory.get(i + 1),
+                memory.get(i + 2),
+                memory.get(i + 3),
+                memory.get(i + 4)
             );
         }
     }
@@ -322,8 +322,8 @@ public class Processor {
                 return im1ResponseOp;
             } else {
                 final int jumpBase = Word.from(0xff, iReg.get());
-                final int jumpLow = memory[jumpBase];
-                final int jumpHigh = memory[jumpBase + 1];
+                final int jumpLow = memory.get(jumpBase);
+                final int jumpHigh = memory.get(jumpBase + 1);
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else {
@@ -380,7 +380,7 @@ public class Processor {
     }
 
     private int fromMemory(final int addr) {
-        return memory[addr];
+        return memory.get(addr);
     }
 
     private Operation fromOpTable(final Operation[] opTable, final int index) {
@@ -388,7 +388,7 @@ public class Processor {
     }
 
     public int fetchNextByte() {
-        return memory[pcReg.getAndInc()];
+        return memory.get(pcReg.getAndInc());
     }
 
     public int getInterruptMode() {
@@ -400,15 +400,15 @@ public class Processor {
     }
 
     public int fetchRelative(final int offset) {
-        return memory[(pcReg.get() + offset) & 0xffff];
+        return memory.get(pcReg.get() + offset);
     }
 
     public void pushByte(final int value) {
-        Memory.set(memory, spReg.decAndGet(), value);
+        memory.set(spReg.decAndGet(), value);
     }
 
     public int popByte() {
-        return memory[spReg.getAndInc()];
+        return memory.get(spReg.getAndInc());
     }
 
     public void setIff(final int iff, final boolean value) {

@@ -1,9 +1,10 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpCpir extends BlockOperation {
-    public OpCpir(final Processor processor, final int[] memory) {
+    public OpCpir(final Processor processor, final Memory memory) {
         super(processor, memory, 1);
     }
 

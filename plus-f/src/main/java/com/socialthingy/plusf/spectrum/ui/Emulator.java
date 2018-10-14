@@ -54,7 +54,7 @@ public class Emulator extends JFrame implements Runnable {
 
     private final Computer computer;
     private final DisplayComponent display;
-    private final int[] memory;
+    private final Memory memory;
     private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
     private final HostInputMultiplexer hostInputMultiplexer;
@@ -82,20 +82,17 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     public Emulator(final UserPreferences prefs) {
-        this(prefs, new int[0x10000], DisplayFactory.create());
+        this(prefs, new Memory(), DisplayFactory.create());
     }
 
-    protected Emulator(final UserPreferences prefs, final int[] suppliedMemory, final DisplayComponent suppliedDisplay) {
-        if (suppliedMemory.length != 0x10000) {
-            throw new IllegalArgumentException("Memory must be exactly 0x10000 in size.");
-        }
+    protected Emulator(final UserPreferences prefs, final Memory suppliedMemory, final DisplayComponent suppliedDisplay) {
         this.prefs = prefs;
         this.memory = suppliedMemory;
         this.memoryController = new MemoryController(this.memory);
         this.display = suppliedDisplay;
 
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        Memory.configure(this.memory, currentModel);
+        memory.configure(currentModel);
         memoryController.reset(currentModel);
 
         final IOMultiplexer ioMux = new IOMultiplexer();
@@ -533,9 +530,9 @@ public class Emulator extends JFrame implements Runnable {
 
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final EmulatorState[] states = new EmulatorState[8];
-                    final int[] screenBytes = Memory.getScreenBytes(memory);
+                    final int[] screenBytes = memory.getScreenBytes();
                     for (int i = 0; i < 8; i++) {
-                        states[i] = new EmulatorState(screenBytes, 0x4000 + (i * 0x360), 0x360, ula.getBorderChanges(), ula.flashActive());
+                        states[i] = new EmulatorState(memory, 0x4000 + (i * 0x360), 0x360, ula.getBorderChanges(), ula.flashActive());
                     }
                     peer.send(states);
                 }
@@ -760,7 +757,7 @@ public class Emulator extends JFrame implements Runnable {
 
     protected void resetComputer() {
         final Model model = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        Memory.configure(memory, model);
+        memory.configure(model);
         memoryController.reset(model);
         computer.reset();
         processor.reset();

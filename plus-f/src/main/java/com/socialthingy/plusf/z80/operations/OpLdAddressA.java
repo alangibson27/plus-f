@@ -9,10 +9,10 @@ import com.socialthingy.plusf.z80.Register;
 public class OpLdAddressA implements Operation {
 
     private final Processor processor;
-    private final int[] memory;
+    private final Memory memory;
     private final Register aReg;
 
-    public OpLdAddressA(final Processor processor, final int[] memory) {
+    public OpLdAddressA(final Processor processor, final Memory memory) {
         this.processor = processor;
         this.memory = memory;
         this.aReg = processor.register("a");
@@ -21,7 +21,7 @@ public class OpLdAddressA implements Operation {
     @Override
     public int execute() {
         final int destination = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
-        Memory.set(memory, destination, aReg.get());
+        memory.set( destination, aReg.get());
         return 13;
     }
 

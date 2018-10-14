@@ -3,7 +3,7 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.z80.*;
 
 public class OpIni extends BlockInOperation {
-    public OpIni(final Processor processor, final int[] memory, final IO io) {
+    public OpIni(final Processor processor, final Memory memory, final IO io) {
         super(processor, memory, io);
     }
 

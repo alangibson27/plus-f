@@ -6,9 +6,9 @@ import com.socialthingy.plusf.z80.Memory;
 
 public class MemoryController implements IO {
     private boolean pagingDisabled = false;
-    private final int[] memory;
+    private final Memory memory;
 
-    public MemoryController(final int[] memory) {
+    public MemoryController(final Memory memory) {
         this.memory = memory;
     }
 
@@ -28,9 +28,9 @@ public class MemoryController implements IO {
             final int newHighPage = value & 0b00000111;
             final int newScreenPage = (value & 0b00001000) == 0 ? 5 : 7;
             final int newRomPage = (value & 0b00010000) == 0 ? 0 : 1;
-            Memory.setHighPage(memory, newHighPage);
-            Memory.setScreenPage(newScreenPage);
-            Memory.setRomPage(memory, newRomPage);
+            memory.setHighPageInMemory(newHighPage);
+            memory.setScreenPage(newScreenPage);
+            memory.setRomPage(newRomPage);
 
             pagingDisabled = (value & 0b00100000) != 0;
         }

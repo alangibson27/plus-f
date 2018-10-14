@@ -8,9 +8,9 @@ public class OpLd16RegIndirectFrom8Reg implements Operation {
 
     private final Register destReference;
     private final Register source;
-    private final int[] memory;
+    private final Memory memory;
 
-    public OpLd16RegIndirectFrom8Reg(final int[] memory, final Register destReference, final Register source) {
+    public OpLd16RegIndirectFrom8Reg(final Memory memory, final Register destReference, final Register source) {
         this.memory = memory;
         this.destReference = destReference;
         this.source = source;
@@ -18,7 +18,7 @@ public class OpLd16RegIndirectFrom8Reg implements Operation {
 
     @Override
     public int execute() {
-        Memory.set(memory, destReference.get(), source.get());
+        memory.set( destReference.get(), source.get());
         return 7;
     }
 

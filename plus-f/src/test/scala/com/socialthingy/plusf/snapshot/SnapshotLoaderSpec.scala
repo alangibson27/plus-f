@@ -50,7 +50,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
 
     processor.getInterruptMode shouldBe 1
 
-    (0x4000 until 0x4100) foreach (memory(_) shouldBe 0xff)
+    (0x4000 until 0x4100) foreach (memory.get(_) shouldBe 0xff)
   }
 
   it should "load z80 v3 snapshot" in new Machine {

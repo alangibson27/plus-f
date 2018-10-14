@@ -20,7 +20,7 @@ public class Computer {
     private static final Logger log = LoggerFactory.getLogger(Computer.class);
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
-    private final int[] memory;
+    private final Memory memory;
     private final Timer processorExecuteTimer;
     private final Processor processor;
     private final MetricRegistry metricRegistry;
@@ -30,7 +30,7 @@ public class Computer {
     public Computer(
         final Processor processor,
         final ULA ula,
-        final int[] memory,
+        final Memory memory,
         final Model model,
         final MetricRegistry metricRegistry
     ) {

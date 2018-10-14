@@ -40,7 +40,7 @@ public class SnapshotLoader {
         }
     }
 
-    public int read(final Processor processor, final int[] memory) throws IOException {
+    public int read(final Processor processor, final Memory memory) throws IOException {
         final SnapshotInfo snapshotInfo = extractCommonHeaders();
         if (pcValue == 0x0000) {
             final int headerLength = Word.from(inputStream.read(), inputStream.read());
@@ -157,7 +157,7 @@ public class SnapshotLoader {
         return new SnapshotInfo(memoryIsCompressed, borderColour);
     }
 
-    private void commitChanges(final Processor processor, final int[] memory) {
+    private void commitChanges(final Processor processor, final Memory memory) {
         processor.register("a").set(aValue);
         processor.register("f").set(fValue);
         processor.register("c").set(cValue);
@@ -185,9 +185,9 @@ public class SnapshotLoader {
 
         processor.setInterruptMode(interruptMode);
 
-        System.arraycopy(memoryPages[4], 0, memory, 0x8000, 0x4000);
-        System.arraycopy(memoryPages[5], 0, memory, 0xc000, 0x4000);
-        System.arraycopy(memoryPages[8], 0, memory, 0x4000, 0x4000);
+        memory.copyFrom(memoryPages[4], 2);
+        memory.copyFrom(memoryPages[5], 3);
+        memory.copyFrom(memoryPages[8], 1);
     }
 
     private void loadMemoryFromCompressedBinary(final int base, final int length, final int[] memory) throws IOException {

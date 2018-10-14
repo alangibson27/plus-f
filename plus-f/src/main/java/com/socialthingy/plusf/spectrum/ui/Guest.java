@@ -31,13 +31,13 @@ public class Guest extends JFrame implements Runnable {
     private final DisplayComponent display;
     private final GuestULA ula;
     private EmulatorState lastHostData;
-    private final int[] memory;
+    private final Memory memory;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
 
     public Guest() {
-        memory = new int[0x10000];
-        Memory.configure(memory, Model._48K);
+        memory = new Memory();
+        memory.configure(Model._48K);
         ula = new GuestULA();
         display = DisplayFactory.create();
         joystick = new SwingJoystick();

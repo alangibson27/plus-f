@@ -1,22 +1,21 @@
 package com.socialthingy.plusf.spectrum.display
 
-import java.util
-
+import com.socialthingy.plusf.z80.Memory
 import org.scalatest.{FlatSpec, GivenWhenThen, Inspectors, Matchers}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class PixelMapperSpec extends FlatSpec with GivenWhenThen with Matchers with TableDrivenPropertyChecks with Inspectors {
 
   "PixelMapper" should "correctly map the Spectrum display memory to a bitmap" in {
-    val memory = Array.ofDim[Int](0x10000)
+    val memory = new Memory
     Given("the display ink colour is black and the paper colour is white")
-    util.Arrays.fill(memory, 0x5800, 0x5b00, 56)
+    (0x5800 to 0x5b00) foreach { memory.set(_, 56) }
 
     And("the pixels at the four corners of the screen are set")
-    memory(0x4000) = 0x80
-    memory(0x401f) = 0x01
-    memory(0x57e0) = 0x80
-    memory(0x57ff) = 0x01
+    memory.set(0x4000, 0x80)
+    memory.set(0x401f, 0x01)
+    memory.set(0x57e0, 0x80)
+    memory.set(0x57ff, 0x01)
 
     When("the memory is mapped to a bitmap")
     val bitmap = new PixelMapper().getPixels(memory, false)

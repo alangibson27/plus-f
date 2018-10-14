@@ -67,8 +67,8 @@ class ExchangeSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("sp", 0xbeef)
     registerContainsValue("hl", 0x1234)
 
-    memory(0xbeef) = 0xba
-    memory(0xbef0) = 0xbe
+    memory.set(0xbeef, 0xba)
+    memory.set(0xbef0, 0xbe)
 
     nextInstructionIs(0xe3)
 
@@ -76,8 +76,8 @@ class ExchangeSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0xbeef) shouldBe 0x34
-    memory(0xbef0) shouldBe 0x12
+    memory.get(0xbeef) shouldBe 0x34
+    memory.get(0xbef0) shouldBe 0x12
     registerValue("hl") shouldBe 0xbeba
   }
 
@@ -91,8 +91,8 @@ class ExchangeSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     s"ex (sp), $register" should s"exchange the word at the stack pointer with the value in $register" in new Machine {
       // given
       registerContainsValue("sp", 0xbeef)
-      memory(0xbeef) = 0x12
-      memory(0xbef0) = 0x34
+      memory.set(0xbeef, 0x12)
+      memory.set(0xbef0, 0x34)
 
       registerContainsValue(register, 0xbeba)
 
@@ -102,8 +102,8 @@ class ExchangeSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(0xbeef) shouldBe 0xba
-      memory(0xbef0) shouldBe 0xbe
+      memory.get(0xbeef) shouldBe 0xba
+      memory.get(0xbef0) shouldBe 0xbe
 
       registerValue(register) shouldBe 0x3412
     }

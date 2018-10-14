@@ -7,7 +7,7 @@ public class OperationTable {
     
     public static Operation[] build(
         final Processor processor,
-        final int[] memory,
+        final Memory memory,
         final IO io
     ) {
         final Operation[] operations = new Operation[0x100];
@@ -285,7 +285,7 @@ public class OperationTable {
 
     public static Operation[] buildEdGroup(
         final Processor processor,
-        final int[] memory,
+        final Memory memory,
         final IO io
     ) {
         final Operation[] operations = new Operation[0x100];
@@ -386,7 +386,7 @@ public class OperationTable {
 
     public static Operation[] buildCbGroup(
         final Processor processor,
-        final int[] memory
+        final Memory memory
     ) {
         final Operation[] operations = new Operation[0x100];
 
@@ -667,7 +667,7 @@ public class OperationTable {
 
     public static Operation[] buildIndexedGroup(
         final Processor processor,
-        final int[] memory,
+        final Memory memory,
         final IndexRegister indexRegister
     ) {
         final Operation[] operations = new Operation[0x100];
@@ -774,7 +774,7 @@ public class OperationTable {
 
     public static Operation[] buildIndexedBitwiseGroup(
         final Processor processor,
-        final int[] memory,
+        final Memory memory,
         final IndexRegister indexRegister
     ) {
         final Operation[] operations = new Operation[0x100];

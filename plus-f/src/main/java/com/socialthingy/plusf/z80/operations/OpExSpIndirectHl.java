@@ -10,9 +10,9 @@ public class OpExSpIndirectHl implements Operation {
     private final Register spReg;
     private final Register hReg;
     private final Register lReg;
-    private final int[] memory;
+    private final Memory memory;
 
-    public OpExSpIndirectHl(final Processor processor, final int[] memory) {
+    public OpExSpIndirectHl(final Processor processor, final Memory memory) {
         this.spReg = processor.register("sp");
         this.hReg = processor.register("h");
         this.lReg = processor.register("l");
@@ -26,11 +26,11 @@ public class OpExSpIndirectHl implements Operation {
 
         final int spLow = spReg.get();
         final int spHigh = 0xffff & (spLow + 1);
-        lReg.set(memory[spLow]);
-        hReg.set(memory[spHigh]);
+        lReg.set(memory.get(spLow));
+        hReg.set(memory.get(spHigh));
 
-        Memory.set(memory, spLow, oldL);
-        Memory.set(memory, spHigh, oldH);
+        memory.set( spLow, oldL);
+        memory.set( spHigh, oldH);
         return 19;
     }
 

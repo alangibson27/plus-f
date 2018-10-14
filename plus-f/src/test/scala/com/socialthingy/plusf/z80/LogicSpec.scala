@@ -211,7 +211,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("a", binary("11111111"))
     registerContainsValue("hl", 0x4000)
 
-    memory(0x4000) = binary("00111000")
+    memory.set(0x4000, binary("00111000"))
 
     nextInstructionIs(0xa6)
 
@@ -244,7 +244,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue(register, 0xbeef)
 
       val offset = randomByte
-      memory(0xbeef + offset.asInstanceOf[Byte]) = binary("00111000")
+      memory.set(0xbeef + offset.asInstanceOf[Byte], binary("00111000"))
 
       nextInstructionIs(opcode._1, opcode._2, offset)
 
@@ -449,7 +449,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("a", binary("11000111"))
     registerContainsValue("hl", 0x4000)
 
-    memory(0x4000) = binary("00111000")
+    memory.set(0x4000, binary("00111000"))
 
     nextInstructionIs(0xb6)
 
@@ -482,7 +482,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue(register, 0xbeef)
 
       val offset = randomByte
-      memory(0xbeef + offset.asInstanceOf[Byte]) = binary("00111000")
+      memory.set(0xbeef + offset.asInstanceOf[Byte], binary("00111000"))
 
       nextInstructionIs(opcode._1, opcode._2, offset)
 
@@ -689,7 +689,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("a", binary("11000111"))
     registerContainsValue("hl", 0x4000)
 
-    memory(0x4000) = binary("00111000")
+    memory.set(0x4000, binary("00111000"))
 
     nextInstructionIs(0xae)
 
@@ -722,7 +722,7 @@ class LogicSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue(register, 0xbeef)
 
       val offset = randomByte
-      memory(0xbeef + offset.asInstanceOf[Byte]) = binary("00111000")
+      memory.set(0xbeef + offset.asInstanceOf[Byte], binary("00111000"))
 
       nextInstructionIs(opcode._1, opcode._2, offset)
 

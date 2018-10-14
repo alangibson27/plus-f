@@ -4,7 +4,7 @@ import com.socialthingy.plusf.z80.*;
 
 abstract class BlockInOperation implements Operation {
     protected final Processor processor;
-    protected final int[] memory;
+    protected final Memory memory;
     protected final IO io;
     protected final Register bReg;
     protected final Register cReg;
@@ -12,7 +12,7 @@ abstract class BlockInOperation implements Operation {
     protected final FlagsRegister flagsRegister;
     protected final Register pcReg;
 
-    protected BlockInOperation(final Processor processor, final int[] memory, final IO io) {
+    protected BlockInOperation(final Processor processor, final Memory memory, final IO io) {
         this.processor = processor;
         this.memory = memory;
         this.io = io;
@@ -27,7 +27,7 @@ abstract class BlockInOperation implements Operation {
         final int bVal = bReg.get();
         final int value = io.read(cReg.get(), bVal);
         final int hlValue = hlReg.get();
-        Memory.set(memory, hlValue, value);
+        memory.set( hlValue, value);
         bReg.set((bVal - 1) & 0xff);
         hlReg.set((hlValue + hlDirection) & 0xffff);
     }
