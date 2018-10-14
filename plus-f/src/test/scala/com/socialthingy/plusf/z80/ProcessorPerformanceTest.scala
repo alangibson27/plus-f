@@ -3,14 +3,12 @@ package com.socialthingy.plusf.z80
 import java.io.InputStream
 
 import com.socialthingy.plusf.Timing
-import com.socialthingy.plusf.spectrum.Model
 
 import scala.annotation.tailrec
 
 object ProcessorPerformanceTest extends App with Timing {
 
   val memory = new Memory
-  memory.configure(Model._48K)
   val rom = getClass.getResourceAsStream("/48.rom")
   readMemory(rom, memory)
 

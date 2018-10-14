@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.sound.Beeper;
+import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.z80.IO;
 
@@ -13,7 +14,7 @@ public class ULA implements IO {
 
     private int earBit;
     private int tapeCyclesAdvanced;
-    private int currentCycleTstates;
+    private final Clock clock;
     private int cyclesSinceBeeperUpdate;
     private boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
@@ -24,7 +25,8 @@ public class ULA implements IO {
     private boolean beeperIsOn = false;
     private final Beeper beeper;
 
-    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper) {
+    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, Clock clock) {
+        this.clock = clock;
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.beeper = beeper;
@@ -57,7 +59,7 @@ public class ULA implements IO {
             if (borderColour != newBorderColour) {
                 unchangedBorderCycles = 0;
                 borderColour = newBorderColour;
-                borderChanges.add(((long) currentCycleTstates << 32) | borderColour);
+                borderChanges.add(((long) clock.getTicks() << 32) | borderColour);
             }
 
             beeperIsOn = (value & 0b10000) == 0;
@@ -85,7 +87,7 @@ public class ULA implements IO {
             cyclesUntilFlashChange = 16;
             flashActive = !flashActive;
         }
-        currentCycleTstates = 0;
+        clock.reset();
         ulaAccessed = false;
     }
 
@@ -108,18 +110,18 @@ public class ULA implements IO {
             beeper.update(beeperIsOn);
         }
 
-        currentCycleTstates += tstates;
+        clock.tick(tstates);
         if (tapePlayer.isPlaying()) {
             tapeCyclesAdvanced += tstates;
         }
     }
 
     public void reset() {
+        clock.reset();
         borderChanges.clear();
         unchangedBorderCycles = 0;
         earBit = 0;
         tapeCyclesAdvanced = 0;
-        currentCycleTstates = 0;
         flashActive = false;
         cyclesUntilFlashChange = 16;
     }

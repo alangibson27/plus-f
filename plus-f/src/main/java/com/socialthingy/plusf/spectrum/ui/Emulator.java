@@ -5,7 +5,7 @@ import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
-import com.socialthingy.plusf.spectrum.io.MemoryController;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.joystick.Joystick;
 import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
@@ -17,7 +17,6 @@ import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.wos.Archive;
 import com.socialthingy.plusf.wos.WosTree;
 import com.socialthingy.plusf.wos.ZipUtils;
-import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import kotlin.Pair;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ public class Emulator extends JFrame implements Runnable {
 
     private final Computer computer;
     private final DisplayComponent display;
-    private final Memory memory;
+    private final SpectrumMemory memory;
     private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
     private final HostInputMultiplexer hostInputMultiplexer;
@@ -66,7 +65,6 @@ public class Emulator extends JFrame implements Runnable {
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
     private final ULA ula;
-    private final MemoryController memoryController;
     private final Processor processor;
     private long lastRepaint;
     private final Joystick guestJoystick;
@@ -74,6 +72,7 @@ public class Emulator extends JFrame implements Runnable {
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
     private final SoundSystem soundSystem = new SoundSystem();
+    private final Clock clock = new Clock();
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
 
@@ -82,24 +81,22 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     public Emulator(final UserPreferences prefs) {
-        this(prefs, new Memory(), DisplayFactory.create());
+        this(prefs, new SpectrumMemory(), DisplayFactory.create());
     }
 
-    protected Emulator(final UserPreferences prefs, final Memory suppliedMemory, final DisplayComponent suppliedDisplay) {
+    protected Emulator(final UserPreferences prefs, final SpectrumMemory suppliedMemory, final DisplayComponent suppliedDisplay) {
         this.prefs = prefs;
         this.memory = suppliedMemory;
-        this.memoryController = new MemoryController(this.memory);
         this.display = suppliedDisplay;
 
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
         memory.configure(currentModel);
-        memoryController.reset(currentModel);
 
         final IOMultiplexer ioMux = new IOMultiplexer();
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper());
+        ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock);
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -110,7 +107,7 @@ public class Emulator extends JFrame implements Runnable {
         kempstonJoystickInterface.connect(guestJoystick);
 
         ioMux.register(ula);
-        ioMux.register(memoryController);
+        ioMux.register(memory);
         ioMux.register(soundSystem.getAyChip());
         ioMux.register(kempstonJoystickInterface);
 
@@ -758,7 +755,6 @@ public class Emulator extends JFrame implements Runnable {
     protected void resetComputer() {
         final Model model = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
         memory.configure(model);
-        memoryController.reset(model);
         computer.reset();
         processor.reset();
         ula.reset();

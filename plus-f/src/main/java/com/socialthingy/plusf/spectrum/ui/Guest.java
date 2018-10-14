@@ -1,13 +1,14 @@
 package com.socialthingy.plusf.spectrum.ui;
 
+import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.Settings;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.GuestState;
 import com.socialthingy.plusf.spectrum.network.GuestStateType;
-import com.socialthingy.plusf.z80.Memory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,12 +32,12 @@ public class Guest extends JFrame implements Runnable {
     private final DisplayComponent display;
     private final GuestULA ula;
     private EmulatorState lastHostData;
-    private final Memory memory;
+    private final SpectrumMemory memory;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
 
     public Guest() {
-        memory = new Memory();
+        memory = new SpectrumMemory();
         memory.configure(Model._48K);
         ula = new GuestULA();
         display = DisplayFactory.create();
@@ -205,7 +206,7 @@ public class Guest extends JFrame implements Runnable {
 
 class GuestULA extends ULA {
     GuestULA() {
-        super(null, null, null);
+        super(null, null, null, new Clock());
     }
 
     void setBorderChanges(final List<Long> borderChanges) {

@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.z80
+package com.socialthingy.plusf.spectrum.io
 
 import com.socialthingy.plusf.spectrum.Model
 import org.scalatest.{Matchers, WordSpec}
@@ -7,7 +7,7 @@ class MemorySpec extends WordSpec with Matchers {
 
   "+2 memory" when {
     "configured" should {
-      val memory = new Memory
+      val memory = new SpectrumMemory
       memory.configure(Model.PLUS_2)
 
       "have the editor ROM in slot 0" in {
@@ -219,7 +219,7 @@ class MemorySpec extends WordSpec with Matchers {
   }
 
   trait ConfiguredMemory {
-    val memory = new Memory
+    val memory = new SpectrumMemory
     memory.configure(Model.PLUS_2)
   }
 }

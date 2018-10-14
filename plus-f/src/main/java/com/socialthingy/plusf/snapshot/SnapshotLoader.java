@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.snapshot;
 
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.util.Word;
-import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 import java.io.*;
@@ -40,7 +40,7 @@ public class SnapshotLoader {
         }
     }
 
-    public int read(final Processor processor, final Memory memory) throws IOException {
+    public int read(final Processor processor, final SpectrumMemory memory) throws IOException {
         final SnapshotInfo snapshotInfo = extractCommonHeaders();
         if (pcValue == 0x0000) {
             final int headerLength = Word.from(inputStream.read(), inputStream.read());
@@ -157,7 +157,7 @@ public class SnapshotLoader {
         return new SnapshotInfo(memoryIsCompressed, borderColour);
     }
 
-    private void commitChanges(final Processor processor, final Memory memory) {
+    private void commitChanges(final Processor processor, final SpectrumMemory memory) {
         processor.register("a").set(aValue);
         processor.register("f").set(fValue);
         processor.register("c").set(cValue);
@@ -185,9 +185,9 @@ public class SnapshotLoader {
 
         processor.setInterruptMode(interruptMode);
 
-        memory.copyFrom(memoryPages[4], 2);
-        memory.copyFrom(memoryPages[5], 3);
-        memory.copyFrom(memoryPages[8], 1);
+        memory.copyIntoPage(memoryPages[4], 2);
+        memory.copyIntoPage(memoryPages[5], 3);
+        memory.copyIntoPage(memoryPages[8], 1);
     }
 
     private void loadMemoryFromCompressedBinary(final int base, final int length, final int[] memory) throws IOException {

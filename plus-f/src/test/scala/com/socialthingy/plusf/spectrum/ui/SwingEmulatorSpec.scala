@@ -7,8 +7,8 @@ import javax.swing.JRadioButtonMenuItem
 import com.socialthingy.plusf.spectrum.UserPreferences
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
 import com.socialthingy.plusf.spectrum.display.PixelMapper
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory
 import com.socialthingy.plusf.spectrum.ui.DisplayComponent.targetPixelAt
-import com.socialthingy.plusf.z80.Memory
 import org.fest.swing.core.KeyPressInfo
 import org.fest.swing.core.KeyPressInfo.keyCode
 import org.fest.swing.fixture.{FrameFixture, JMenuItemFixture}
@@ -21,7 +21,7 @@ object UITest extends Tag("UITest")
 
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
-  val memory = new Memory
+  val memory = new SpectrumMemory
   val display = new SwingDoubleSizeDisplay(new PixelMapper)
   var emulator: Emulator = null
   var fixture: FrameFixture = null

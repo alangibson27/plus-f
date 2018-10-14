@@ -1,8 +1,8 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.z80.Memory;
 
 import javax.swing.*;
 
@@ -52,7 +52,7 @@ abstract class DisplayComponent extends JComponent {
         setMinimumSize(DISPLAY_DIMENSIONS);
     }
 
-    protected void renderMemory(final Memory memory, boolean flashActive) {
+    protected void renderMemory(final SpectrumMemory memory, boolean flashActive) {
         scale(pixelMapper.getPixels(memory, flashActive));
     }
 
@@ -64,7 +64,7 @@ abstract class DisplayComponent extends JComponent {
         this.extendBorder = extendBorder;
     }
 
-    public abstract void updateScreen(final Memory memory, ULA ula);
+    public abstract void updateScreen(final SpectrumMemory memory, ULA ula);
     public abstract void updateBorder(ULA ula, boolean force);
     protected abstract void scale(int[] sourcePixels);
 }

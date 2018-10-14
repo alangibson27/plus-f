@@ -3,11 +3,16 @@ package com.socialthingy.plusf.snapshot
 import java.io.IOException
 
 import com.socialthingy.plusf.ProcessorSpec
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory
 import org.scalatest.Matchers
 
 class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
 
-  "Snapshot loader" should "load a z80 v1 snapshot" in new Machine {
+  trait Spectrum extends Machine {
+    override val memory = new SpectrumMemory
+  }
+
+  "Snapshot loader" should "load a z80 v1 snapshot" in new Spectrum {
     // given
     val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80"))
 
@@ -53,7 +58,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
     (0x4000 until 0x4100) foreach (memory.get(_) shouldBe 0xff)
   }
 
-  it should "load z80 v3 snapshot" in new Machine {
+  it should "load z80 v3 snapshot" in new Spectrum {
     // given
     val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80-v3"))
 
@@ -96,7 +101,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
 
   }
 
-  it should "reject a snapshot for a non-48k machine" in new Machine {
+  it should "reject a snapshot for a non-48k machine" in new Spectrum {
     intercept[IOException] {
       val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80-128k"))
       loader.read(processor, memory)
