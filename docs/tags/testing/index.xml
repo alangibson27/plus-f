@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Plus-F</title>
-    <link>http://plusf.socialthingy.com/tags/testing/index.xml</link>
-    <description>Recent content on Plus-F</description>
+    <title>Testing on Plus-F</title>
+    <link>http://plusf.socialthingy.com/tags/testing/</link>
+    <description>Recent content in Testing on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <atom:link href="http://plusf.socialthingy.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 28 Nov 2016 23:25:34 +0000</lastBuildDate>
+    
+	<atom:link href="http://plusf.socialthingy.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>If You Only Do One Thing</title>
@@ -14,142 +17,7 @@
       <pubDate>Mon, 28 Nov 2016 23:25:34 +0000</pubDate>
       
       <guid>http://plusf.socialthingy.com/blog/if-you-only-do-one-thing/</guid>
-      <description>&lt;p&gt;Over the years, there have been all number of innovations, techniques, tools,
-tricks and fads purported to help you build better-quality applications more quickly - model-driven code generation,
-object-relational frameworks, IoC containers, unit testing, Scrum, Kanban, documenting everything, documenting nothing,
-pair programming - even industrial quantities of XML (in the case of the abomination that was SOAP). For me, though,
-one stands head and shoulders above all the rest, Test-Driven Development. If you only do one thing tomorrow that you
-aren&amp;rsquo;t doing today, choose TDD.&lt;/p&gt;
-
-&lt;p&gt;I came to the TDD party pretty late. Of course, I&amp;rsquo;d known all about unit testing for a long time, but
-I&amp;rsquo;d never actually seen it work, in terms of improving the speed or quality of application development. What I&amp;rsquo;d
-generally seen was that a conscientious newcomer to some team would write tests for new code they were working on, plus
-maybe a few other tests where they had to fix existing code. Those tests would be maintained for a period of time,
-before falling into (for want of a better word) disrepair, spending as much time failing as passing, and eventually
-being deleted or ignored. When I first came into a TDD environment, it opened my eyes to how to make proper use of
-automated tests, and when I look back at the times before I used TDD, I see nothing but missed opportunities to build
-better software.&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;ve done TDD with JUnit, ScalaTest, PyTest, Nose and Cucumber, and it works well with any and all of them. I don&amp;rsquo;t
-think the choice of tools is especially important - just pick the ones that work for you and use them. Even if you&amp;rsquo;re
-still writing programs in COBOL for mainframes, I&amp;rsquo;m sure there are options out there.&lt;/p&gt;
-
-&lt;p&gt;I don&amp;rsquo;t think I would have attempted +F if I wasn&amp;rsquo;t already doing TDD in my day job. A processor is basically a
-large collection of instructions which all operate on the same global state. Those instructions can then be combined in
-an infinite number of permutations, where the state of a single bit in a single register can cause execution to take a
-completely different path. Butterflies flap their wings at every step along the way.&lt;/p&gt;
-
-&lt;p&gt;I shuddered at the thought of having to debug a problem in some large Z80 program (i.e. Match Day II) without having
-confidence that the individual processor operations were working correctly in isolation.&lt;/p&gt;
-
-&lt;p&gt;The only way to tackle it was one operation at a time, writing tests based on what the
-&lt;a href=&#34;http://www.z80.info/zip/z80cpu_um.pdf&#34;&gt;Z80 User Manual&lt;/a&gt; specified, writing the code for the operation, then moving on
-to the next. Dull, yes, but it&amp;rsquo;s the only way I could see of gaining any traction. As it is, having taken the TDD
-approach, the major problems which stopped programs from working outright have been reasonably rare, obvious and easy to
-debug and fix.&lt;/p&gt;
-
-&lt;p&gt;By now, you may have read about my &lt;a href=&#34;../fundamentals&#34;&gt;valiant but doomed attempt to write +F in Python&lt;/a&gt;. I&amp;rsquo;ll confess that
-the thought of having to start again from scratch did make me think twice about what I was doing, but the choice was made
-easier by the one thing I had in my favour - a good set of tests for all of the processor emulation. And, given that I
-hadn&amp;rsquo;t got much beyond that part (aside from a prototype display that showed just how slow the emulator was), that meant
-I had a good set of tests for more or less everything that I needed to rewrite. Admittedly, those tests were in Python&amp;rsquo;s
-&lt;a href=&#34;https://nose.readthedocs.io/en/latest/&#34;&gt;Nose framework&lt;/a&gt;, but picking up on something else I&amp;rsquo;d learned over the previous
-year or two, a typical test looked like this one:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def test_and_a_with_other_reg_giving_zero_result(self):
-    # given
-    self.given_register_contains_value(&#39;a&#39;, 0b10101010)
-    self.given_register_contains_value(&#39;b&#39;, 0b01010101)
-
-    self.given_next_instruction_is(0xa0)
-
-    # when
-    self.processor.execute()
-
-    # then
-    self.assert_register(&#39;a&#39;).equals(0b00000000)
-    self.assert_register(&#39;b&#39;).equals(0b01010101)
-
-    self.assert_flag(&#39;s&#39;).is_reset()
-    self.assert_flag(&#39;z&#39;).is_set()
-    self.assert_flag(&#39;h&#39;).is_set()
-    self.assert_flag(&#39;p&#39;).is_set()
-    self.assert_flag(&#39;n&#39;).is_reset()
-    self.assert_flag(&#39;c&#39;).is_reset()
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In other words, it read sort of like a mini-DSL. A bit of judicious search-and-replace meant that I could port tests
-like these easily to an equivalent in ScalaTest like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-scala&#34;&gt;&amp;quot;and &amp;lt;reg&amp;gt;&amp;quot; should &amp;quot;calculate a zero result when a and &amp;lt;reg&amp;gt; have no shared bits&amp;quot; in new Machine {
-  // given
-  registerContainsValue(&amp;quot;a&amp;quot;, binary(&amp;quot;10101010&amp;quot;))
-  registerContainsValue(&amp;quot;b&amp;quot;, binary(&amp;quot;01010101&amp;quot;))
-
-  nextInstructionIs(0xa0)
-
-  // when
-  processor.execute()
-
-  // then
-  registerValue(&amp;quot;a&amp;quot;) shouldBe binary(&amp;quot;00000000&amp;quot;)
-  registerValue(&amp;quot;b&amp;quot;) shouldBe binary(&amp;quot;01010101&amp;quot;)
-
-  flag(&amp;quot;s&amp;quot;).value shouldBe false
-  flag(&amp;quot;z&amp;quot;).value shouldBe true
-  flag(&amp;quot;h&amp;quot;).value shouldBe true
-  flag(&amp;quot;p&amp;quot;).value shouldBe true
-  flag(&amp;quot;n&amp;quot;).value shouldBe false
-  flag(&amp;quot;c&amp;quot;).value shouldBe false
-  flag(&amp;quot;f3&amp;quot;).value shouldBe false
-  flag(&amp;quot;f5&amp;quot;).value shouldBe false
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;All I then had to do was write the implementation of the DSL (easy enough), and then I had a full set of tests
-available from the outset, against which I could code the Java version of +F. Class-by-class, I converted
-the tests and then wrote the code to pass them, and in little over a month I was back to the same point I&amp;rsquo;d reached in
-Python without too much effort. Full-on TDD to the rescue!&lt;/p&gt;
-
-&lt;p&gt;Of course, it would be out of character if the faint glimmer of success I saw in the distance wasn&amp;rsquo;t subsequently
-extinguished by an act of stupidity, laziness, or (in this case) both.&lt;/p&gt;
-
-&lt;p&gt;Processor emulation isn&amp;rsquo;t the only complex thing I had to tackle when writing +F. Tape loading was another
-tricky area, and emulating it properly is surprisingly fiddly. There&amp;rsquo;s a &lt;a href=&#34;http://www.worldofspectrum.org/TZXformat.html&#34;&gt;remarkably well-documented specification&lt;/a&gt; of the TZX emulated tape format, and in theory all that&amp;rsquo;s required is
-to turn the contents of a TZX file into a stream of 0s and 1s which can be fed bit-by-bit into the emulated Spectrum.
-The catch is that the timings and high/low state of the input really have to be precise, or the ROM&amp;rsquo;s tape loading
-routine doesn&amp;rsquo;t work. Either the input signal won&amp;rsquo;t be recognised at all, or you&amp;rsquo;re faced with the sight of the
-&lt;code&gt;R Tape Loading Error, 0:1&lt;/code&gt; error message that haunted the childhood of me and many others of my generation.&lt;/p&gt;
-
-&lt;p&gt;Intricate and nuanced, but well-documented &amp;hellip; this is exactly the sort of thing that TDD was made for. However, by this
-stage, I had a lot of +F working and I&amp;rsquo;d become a bit cavalier in my attitude again. (My unfortunate dalliance with
-Python was by this stage some six months in the past. How quickly the mind forgets.) Certain that I was only a few commits
-away from a fully-working application, I pinned my ears back and frenziedly wrote the TZX-handling routines, supported by
-only a smattering of tests.&lt;/p&gt;
-
-&lt;p&gt;Surprisingly, the code worked. Sadly, however, it was laughably inefficient. When reading from a TZX file, the screen
-refresh rate would slow noticeably, and I&amp;rsquo;m sure all the lights in the house became dimmer while it was running too. It&amp;rsquo;s
-hardly unheard of first implementations to be lacking performance-wise, so I could treat it as a proof of concept and
-rewrite it piece-by-piece so that it skipped along more efficiently.&lt;/p&gt;
-
-&lt;p&gt;That&amp;rsquo;s where the problems &lt;em&gt;really&lt;/em&gt; began. Inefficient as it may have been, the first TZX routine was fairly good functionally.
-But because I didn&amp;rsquo;t have a thorough set of tests which allowed me to make changes and still verify that each part worked,
-any time I did something that made it run faster, I also introduced a bug somewhere else. In a bid to stop the incessant
-cycle of fixing one bug only to introduce another, I resorted to cobbling together a &amp;ldquo;regression test&amp;rdquo; based
-on &lt;a href=&#34;https://github.com/alangibson27/+F/blob/master/+F/src/test/java/com/socialthingy/plusf/tape/ReferenceVariableSpeedBlock.java&#34;&gt;this class from the original, inefficient, implementation&lt;/a&gt;
-and testing all of my potential improvements with respect to that.&lt;/p&gt;
-
-&lt;p&gt;It helped, but was nothing more than a length of wallpaper to cover up the cracks in my approach. It&amp;rsquo;s still there.&lt;/p&gt;
-
-&lt;p&gt;Thankfully, I haven&amp;rsquo;t had to touch the TZX-handling routines much of late, but I dread the day that I have to. I think
-it&amp;rsquo;s pretty clear to see, when comparing &lt;a href=&#34;https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/tape&#34;&gt;its code&lt;/a&gt;
-with the &lt;a href=&#34;https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/z80&#34;&gt;Z80 emulation code that was developed with a TDD approach&lt;/a&gt;,
-that not building it by TDD has caused a lot of problems there needn&amp;rsquo;t have been.&lt;/p&gt;
-
-&lt;p&gt;The lesson? It&amp;rsquo;s all too easy to consider brushing TDD aside in an effort to get to where you want to be more quickly,
-but no matter how much you try to rationalise it, it&amp;rsquo;s still just cutting corners. You can&amp;rsquo;t just wave away the inherent
-complexity of software when it suits, but you can certainly use TDD to tame it a bit.&lt;/p&gt;
-</description>
+      <description>Over the years, there have been all number of innovations, techniques, tools, tricks and fads purported to help you build better-quality applications more quickly - model-driven code generation, object-relational frameworks, IoC containers, unit testing, Scrum, Kanban, documenting everything, documenting nothing, pair programming - even industrial quantities of XML (in the case of the abomination that was SOAP). For me, though, one stands head and shoulders above all the rest, Test-Driven Development.</description>
     </item>
     
   </channel>

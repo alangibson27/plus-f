@@ -1,136 +1,95 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Release-notes-rsses on Plus-F</title>
-    <link>http://plusf.socialthingy.com/release-notes/index.xml</link>
-    <description>Recent content in Release-notes-rsses on Plus-F</description>
+    <title>Release-notes on Plus-F</title>
+    <link>http://plusf.socialthingy.com/release-notes/</link>
+    <description>Recent content in Release-notes on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <lastBuildDate>Fri, 24 Mar 2017 17:36:26 +0000</lastBuildDate>
-    <atom:link href="http://plusf.socialthingy.com/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="http://plusf.socialthingy.com/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Version 1.5</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.5/</link>
       <pubDate>Fri, 24 Mar 2017 17:36:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Initial (incomplete) support for 48k and AY sound.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.5/</guid>
+      <description> Initial (incomplete) support for 48k and AY sound.  </description>
     </item>
     
     <item>
       <title>Version 1.4.1</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.4.1/</link>
       <pubDate>Sat, 11 Feb 2017 17:36:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Fix to TZX loading which allows Speedlock 2-7 to work.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.4.1/</guid>
+      <description> Fix to TZX loading which allows Speedlock 2-7 to work.  </description>
     </item>
     
     <item>
       <title>Version 1.4</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.4/</link>
       <pubDate>Fri, 03 Feb 2017 17:36:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Support for loading TAP and TZX files inside ZIP files.&lt;/li&gt;
-&lt;li&gt;Integration with World Of Spectrum archive.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.4/</guid>
+      <description> Support for loading TAP and TZX files inside ZIP files. Integration with World Of Spectrum archive.  </description>
     </item>
     
     <item>
       <title>Version 1.3</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.3/</link>
       <pubDate>Tue, 03 Jan 2017 20:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Compatibility fixes for Raspberry Pi.&lt;/li&gt;
-&lt;li&gt;Support logging to file.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.3/</guid>
+      <description> Compatibility fixes for Raspberry Pi. Support logging to file.  </description>
     </item>
     
     <item>
       <title>Version 1.2</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.2/</link>
       <pubDate>Sun, 18 Dec 2016 22:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Added full-screen mode and rendering tweaks.&lt;/li&gt;
-&lt;li&gt;Minor bugfix to tape loading.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.2/</guid>
+      <description> Added full-screen mode and rendering tweaks. Minor bugfix to tape loading.  </description>
     </item>
     
     <item>
       <title>Version 1.1</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.1/</link>
       <pubDate>Tue, 22 Nov 2016 22:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Single launcher for Emulator and Guest&lt;/li&gt;
-&lt;li&gt;UI tweaks&lt;/li&gt;
-&lt;li&gt;Windows 64-bit Installer and Universal Zip downloads&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.1/</guid>
+      <description> Single launcher for Emulator and Guest UI tweaks Windows 64-bit Installer and Universal Zip downloads  </description>
     </item>
     
     <item>
       <title>Version 1.0</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.0/</link>
       <pubDate>Mon, 31 Oct 2016 22:55:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Performance improvements&lt;/li&gt;
-&lt;li&gt;UI tweaks&lt;/li&gt;
-&lt;li&gt;Revamped network connectivity&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.0/</guid>
+      <description> Performance improvements UI tweaks Revamped network connectivity  </description>
     </item>
     
     <item>
       <title>Version 0.6</title>
-      <link>http://plusf.socialthingy.com/release-notes/0/</link>
+      <link>http://plusf.socialthingy.com/release-notes/0.6/</link>
       <pubDate>Sun, 14 Aug 2016 22:55:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Implemented TAP and TZX support&lt;/li&gt;
-&lt;li&gt;Added support for +2&lt;/li&gt;
-&lt;li&gt;Fixed some processor emulation bugs (there are still others in there)&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/0.6/</guid>
+      <description> Implemented TAP and TZX support Added support for +2 Fixed some processor emulation bugs (there are still others in there)  </description>
     </item>
     
     <item>
       <title>Version 0.5</title>
-      <link>http://plusf.socialthingy.com/release-notes/0/</link>
+      <link>http://plusf.socialthingy.com/release-notes/0.5/</link>
       <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Initial public release&lt;/li&gt;
-&lt;li&gt;Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack
-or tape loading errors!)
-
-&lt;ul&gt;
-&lt;li&gt;Reset doesn&amp;rsquo;t always work properly&lt;/li&gt;
-&lt;li&gt;Some snapshots fail to load if the Emulator has been running for some time&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/0.5/</guid>
+      <description> Initial public release Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack or tape loading errors!)  Reset doesn&amp;rsquo;t always work properly Some snapshots fail to load if the Emulator has been running for some time   </description>
     </item>
     
   </channel>
