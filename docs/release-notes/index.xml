@@ -6,10 +6,19 @@
     <description>Recent content in Release-notes on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Fri, 24 Mar 2017 17:36:26 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 16 Oct 2018 21:06:00 +0100</lastBuildDate>
     
 	<atom:link href="http://plusf.socialthingy.com/release-notes/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Version 1.6</title>
+      <link>http://plusf.socialthingy.com/release-notes/1.6/</link>
+      <pubDate>Tue, 16 Oct 2018 21:06:00 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/1.6/</guid>
+      <description> Removed use of sun.misc.Unsafe Various performance optimisations Reduced display flicker on some games  </description>
+    </item>
     
     <item>
       <title>Version 1.5</title>
