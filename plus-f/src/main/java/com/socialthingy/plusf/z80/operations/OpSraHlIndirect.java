@@ -6,9 +6,9 @@ import com.socialthingy.plusf.z80.Register;
 
 public class OpSraHlIndirect extends SraOperation {
     private final Register hlReg;
-    private final int[] memory;
+    private final Memory memory;
 
-    public OpSraHlIndirect(final Processor processor, final int[] memory) {
+    public OpSraHlIndirect(final Processor processor, final Memory memory) {
         super(processor);
         this.hlReg = processor.register("hl");
         this.memory = memory;
@@ -17,7 +17,7 @@ public class OpSraHlIndirect extends SraOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        Memory.set(memory, address, shift(memory[address]));
+        memory.set( address, shift(memory.get(address)));
         return 15;
     }
 

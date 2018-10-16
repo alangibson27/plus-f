@@ -80,8 +80,8 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
       // then
       registerValue("sp") shouldBe 0xfffd
-      memory(0xfffe) shouldBe highByte
-      memory(0xfffd) shouldBe lowByte
+      memory.get(0xfffe) shouldBe highByte
+      memory.get(0xfffd) shouldBe lowByte
     }
   }
 
@@ -96,8 +96,8 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0xffff) shouldBe 0xab
-    memory(0xfffe) shouldBe 0xcd
+    memory.get(0xffff) shouldBe 0xab
+    memory.get(0xfffe) shouldBe 0xcd
   }
 
   val popOperations = Table(
@@ -116,8 +116,8 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val lowByte = randomByte
       val highByte = randomByte
 
-      memory(0xfff0) = lowByte
-      memory(0xfff1) = highByte
+      memory.set(0xfff0, lowByte)
+      memory.set(0xfff1, highByte)
 
       registerContainsValue("sp", 0xfff0)
 
@@ -134,8 +134,8 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
   "pop <reg>" should "pop the register value from the stack correctly when the stack pointer is at the top of memory" in new Machine {
     // given
-    memory(0xffff) = 0xab
-    memory(0x0000) = 0xcd
+    memory.set(0xffff, 0xab)
+    memory.set(0x0000, 0xcd)
 
     registerContainsValue("sp", 0xffff)
 
@@ -174,8 +174,8 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(0xbeee) shouldBe 0x34
-      memory(0xbeef) shouldBe 0x12
+      memory.get(0xbeee) shouldBe 0x34
+      memory.get(0xbeef) shouldBe 0x12
     }
   }
 
@@ -193,8 +193,8 @@ class Load16BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   forAll(ldRegFromMemoryOperations) { (opcode, register) =>
     s"ld $register, (nn) ${opcode.size}" should "load the register value from memory" in new Machine {
       // given
-      memory(0x1000) = 0x10
-      memory(0x1001) = 0x20
+      memory.set(0x1000, 0x10)
+      memory.set(0x1001, 0x20)
 
       opcode.foreach(nextInstructionIs(_))
       nextInstructionIs(0x00)

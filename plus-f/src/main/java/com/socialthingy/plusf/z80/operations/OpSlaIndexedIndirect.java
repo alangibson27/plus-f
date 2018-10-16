@@ -6,10 +6,10 @@ import com.socialthingy.plusf.z80.Processor;
 
 public class OpSlaIndexedIndirect extends SlaOperation {
     private final IndexRegister indexRegister;
-    private final int[] memory;
+    private final Memory memory;
     private final Processor processor;
 
-    public OpSlaIndexedIndirect(final Processor processor, final int[] memory, final IndexRegister indexRegister) {
+    public OpSlaIndexedIndirect(final Processor processor, final Memory memory, final IndexRegister indexRegister) {
         super(processor);
         this.processor = processor;
         this.indexRegister = indexRegister;
@@ -19,7 +19,7 @@ public class OpSlaIndexedIndirect extends SlaOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        Memory.set(memory, address, shift(memory[address]));
+        memory.set( address, shift(memory.get(address)));
         return 23;
     }
 }

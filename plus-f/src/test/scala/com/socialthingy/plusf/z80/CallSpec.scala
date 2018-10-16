@@ -18,8 +18,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // then
     registerValue("pc") shouldBe 0xbeef
     registerValue("sp") shouldBe 0xfffd
-    memory(0xfffd) shouldBe 0x37
-    memory(0xfffe) shouldBe 0x12
+    memory.get(0xfffd) shouldBe 0x37
+    memory.get(0xfffe) shouldBe 0x12
   }
 
   val truthValues = Table("value", true, false)
@@ -172,8 +172,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("pc", 0x1234)
     registerContainsValue("sp", 0xfffd)
 
-    memory(0xfffd) = 0xef
-    memory(0xfffe) = 0xbe
+    memory.set(0xfffd, 0xef)
+    memory.set(0xfffe, 0xbe)
 
     nextInstructionIs(0xc9)
 
@@ -192,8 +192,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("z") is z
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xc0)
 
@@ -213,8 +213,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("z") is z
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xc8)
 
@@ -234,8 +234,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("c") is c
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xd0)
 
@@ -255,8 +255,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("c") is c
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xd8)
 
@@ -276,8 +276,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("p") is p
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xe0)
 
@@ -297,8 +297,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("p") is p
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xe8)
 
@@ -318,8 +318,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("s") is s
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xf0)
 
@@ -339,8 +339,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue("sp", 0xfffd)
       flag("s") is s
 
-      memory(0xfffd) = 0xbe
-      memory(0xfffe) = 0xba
+      memory.set(0xfffd, 0xbe)
+      memory.set(0xfffe, 0xba)
 
       nextInstructionIs(0xf8)
 
@@ -373,8 +373,8 @@ class CallSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(0xfffd) shouldBe 0x89
-      memory(0xfffe) shouldBe 0x99
+      memory.get(0xfffd) shouldBe 0x89
+      memory.get(0xfffe) shouldBe 0x99
       registerValue("sp") shouldBe 0xfffd
       registerValue("pc") shouldBe callAddress
     }

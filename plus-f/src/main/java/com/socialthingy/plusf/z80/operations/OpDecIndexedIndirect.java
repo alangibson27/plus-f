@@ -7,10 +7,10 @@ import com.socialthingy.plusf.z80.Processor;
 public class OpDecIndexedIndirect extends DecOperation {
 
     private final Processor processor;
-    private final int[] memory;
+    private final Memory memory;
     private final IndexRegister indexRegister;
 
-    public OpDecIndexedIndirect(final Processor processor, final int[] memory, final IndexRegister indexRegister) {
+    public OpDecIndexedIndirect(final Processor processor, final Memory memory, final IndexRegister indexRegister) {
         super(processor);
         this.processor = processor;
         this.memory = memory;
@@ -20,8 +20,8 @@ public class OpDecIndexedIndirect extends DecOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchNextByte());
-        final int result = decrement(memory[address]);
-        Memory.set(memory, address, result);
+        final int result = decrement(memory.get(address));
+        memory.set( address, result);
         return 23;
     }
 

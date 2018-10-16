@@ -8,9 +8,9 @@ import com.socialthingy.plusf.z80.Register;
 public class OpLdAddress16Reg implements Operation {
     private final Processor processor;
     private final Register register;
-    private final int[] memory;
+    private final Memory memory;
 
-    public OpLdAddress16Reg(final Processor processor, final int[] memory, final Register register) {
+    public OpLdAddress16Reg(final Processor processor, final Memory memory, final Register register) {
         this.processor = processor;
         this.register = register;
         this.memory = memory;
@@ -20,8 +20,8 @@ public class OpLdAddress16Reg implements Operation {
     public int execute() {
         final int address = processor.fetchNextWord();
         final int value = register.get();
-        Memory.set(memory, address, value & 0x00ff);
-        Memory.set(memory, (address + 1) & 0xffff, (value & 0xff00) >> 8);
+        memory.set( address, value & 0x00ff);
+        memory.set( (address + 1) & 0xffff, (value & 0xff00) >> 8);
         return 20;
     }
 

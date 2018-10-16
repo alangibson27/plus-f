@@ -7,10 +7,10 @@ import com.socialthingy.plusf.z80.Processor;
 public class OpRlcIndexedIndirect extends RotateOperation {
 
     private final Processor processor;
-    private final int[] memory;
+    private final Memory memory;
     private final IndexRegister indexRegister;
 
-    public OpRlcIndexedIndirect(final Processor processor, final int[] memory, final IndexRegister indexRegister) {
+    public OpRlcIndexedIndirect(final Processor processor, final Memory memory, final IndexRegister indexRegister) {
         super(processor);
         this.processor = processor;
         this.memory = memory;
@@ -20,9 +20,9 @@ public class OpRlcIndexedIndirect extends RotateOperation {
     @Override
     public int execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        final int result = rlcValue(memory[address]);
+        final int result = rlcValue(memory.get(address));
         setSignZeroAndParity(result);
-        Memory.set(memory, address, result);
+        memory.set(address, result);
         return 23;
     }
 }

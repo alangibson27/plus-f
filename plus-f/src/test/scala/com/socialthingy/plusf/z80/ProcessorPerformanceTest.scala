@@ -3,14 +3,12 @@ package com.socialthingy.plusf.z80
 import java.io.InputStream
 
 import com.socialthingy.plusf.Timing
-import com.socialthingy.plusf.spectrum.Model
 
 import scala.annotation.tailrec
 
 object ProcessorPerformanceTest extends App with Timing {
 
-  val memory = Array.ofDim[Int](0x10000)
-  Memory.configure(memory, Model._48K)
+  val memory = new Memory
   val rom = getClass.getResourceAsStream("/48.rom")
   readMemory(rom, memory)
 
@@ -26,12 +24,12 @@ object ProcessorPerformanceTest extends App with Timing {
     println(time)
   }
 
-  def readMemory(data: InputStream, destination: Array[Int]): Unit = {
+  def readMemory(data: InputStream, destination: Memory): Unit = {
     @tailrec
     def loop(addr: Int): Unit = {
       val nextVal = data.read()
       if (nextVal >= 0) {
-        memory(addr) = nextVal
+        memory.set(addr, nextVal)
         loop(addr + 1)
       }
     }

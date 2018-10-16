@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EmulatorStateHandler implements Serialiser, Deserialiser {
-    private final  int[] memory = new int[0x10000];
+    private final int[] memory = new int[0x10000];
 
     @Override
     public Object deserialise(final ByteBuffer in) {

@@ -7,10 +7,10 @@ import com.socialthingy.plusf.z80.Processor;
 public class OpResIndexedIndirect extends BitModificationOperation {
 
     private final Processor processor;
-    private final int[] memory;
+    private final Memory memory;
     private final IndexRegister indexRegister;
 
-    public OpResIndexedIndirect(final Processor processor, final int[] memory, final IndexRegister indexRegister, final int bitPosition) {
+    public OpResIndexedIndirect(final Processor processor, final Memory memory, final IndexRegister indexRegister, final int bitPosition) {
         super(bitPosition);
         this.processor = processor;
         this.memory = memory;
@@ -21,7 +21,7 @@ public class OpResIndexedIndirect extends BitModificationOperation {
     public int execute() {
         final int offset = processor.fetchRelative(-2);
         final int address = indexRegister.withOffset(offset);
-        Memory.set(memory, address, reset(memory[address]));
+        memory.set( address, reset(memory.get(address)));
         return 23;
     }
 

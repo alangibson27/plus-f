@@ -7,6 +7,7 @@ import javax.swing.JRadioButtonMenuItem
 import com.socialthingy.plusf.spectrum.UserPreferences
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
 import com.socialthingy.plusf.spectrum.display.PixelMapper
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory
 import com.socialthingy.plusf.spectrum.ui.DisplayComponent.targetPixelAt
 import org.fest.swing.core.KeyPressInfo
 import org.fest.swing.core.KeyPressInfo.keyCode
@@ -20,7 +21,6 @@ object UITest extends Tag("UITest")
 
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
-  val memory = Array.ofDim[Int](0x10000)
   val display = new SwingDoubleSizeDisplay(new PixelMapper)
   var emulator: Emulator = null
   var fixture: FrameFixture = null
@@ -36,7 +36,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   before {
     if (emulator == null) {
-      emulator = new Emulator(prefs, memory, display)
+      emulator = new Emulator(prefs, display)
       fixture = new FrameFixture(emulator)
       emulator.run()
       Thread.sleep(1000)
@@ -111,7 +111,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     fixture.typeProgram("POKE 16384, 255")
 
     // then
-    memory(16384) shouldBe 255
+    emulator.memory.get(16384) shouldBe 255
   }
 
   it should "handle Sinclair joystick input correctly" taggedAs(UITest) in {
@@ -127,7 +127,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     fixture.typeProgram("O16384,B")
 
     // then
-    memory(16384) shouldBe 30
+    emulator.memory.get(16384) shouldBe 30
   }
 
   implicit class EmulatorOps(e: FrameFixture) {

@@ -5,7 +5,7 @@ import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
-import com.socialthingy.plusf.spectrum.io.MemoryController;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.joystick.Joystick;
 import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
@@ -17,7 +17,6 @@ import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.wos.Archive;
 import com.socialthingy.plusf.wos.WosTree;
 import com.socialthingy.plusf.wos.ZipUtils;
-import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import kotlin.Pair;
 import org.slf4j.Logger;
@@ -54,7 +53,6 @@ public class Emulator extends JFrame implements Runnable {
 
     private final Computer computer;
     private final DisplayComponent display;
-    private final int[] memory;
     private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
     private final HostInputMultiplexer hostInputMultiplexer;
@@ -66,7 +64,6 @@ public class Emulator extends JFrame implements Runnable {
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
     private final ULA ula;
-    private final MemoryController memoryController;
     private final Processor processor;
     private long lastRepaint;
     private final Joystick guestJoystick;
@@ -74,35 +71,27 @@ public class Emulator extends JFrame implements Runnable {
     private final SinclairJoystickInterface sinclair1JoystickInterface;
     private final SwingJoystick hostJoystick;
     private final SoundSystem soundSystem = new SoundSystem();
+    private final Clock clock = new Clock();
+    protected final SpectrumMemory memory = new SpectrumMemory(clock); // visible for testing
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
 
     public Emulator() {
-        this(new UserPreferences());
+        this(new UserPreferences(), DisplayFactory.create());
     }
 
-    public Emulator(final UserPreferences prefs) {
-        this(prefs, new int[0x10000], DisplayFactory.create());
-    }
-
-    protected Emulator(final UserPreferences prefs, final int[] suppliedMemory, final DisplayComponent suppliedDisplay) {
-        if (suppliedMemory.length != 0x10000) {
-            throw new IllegalArgumentException("Memory must be exactly 0x10000 in size.");
-        }
+    protected Emulator(final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
         this.prefs = prefs;
-        this.memory = suppliedMemory;
-        this.memoryController = new MemoryController(this.memory);
         this.display = suppliedDisplay;
 
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        Memory.configure(this.memory, currentModel);
-        memoryController.reset(currentModel);
+        memory.configure(currentModel);
 
         final IOMultiplexer ioMux = new IOMultiplexer();
         processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper());
+        ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock);
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -113,7 +102,7 @@ public class Emulator extends JFrame implements Runnable {
         kempstonJoystickInterface.connect(guestJoystick);
 
         ioMux.register(ula);
-        ioMux.register(memoryController);
+        ioMux.register(memory);
         ioMux.register(soundSystem.getAyChip());
         ioMux.register(kempstonJoystickInterface);
 
@@ -533,7 +522,7 @@ public class Emulator extends JFrame implements Runnable {
 
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final EmulatorState[] states = new EmulatorState[8];
-                    final int[] screenBytes = Memory.getScreenBytes(memory);
+                    final int[] screenBytes = memory.getScreenBytes();
                     for (int i = 0; i < 8; i++) {
                         states[i] = new EmulatorState(screenBytes, 0x4000 + (i * 0x360), 0x360, ula.getBorderChanges(), ula.flashActive());
                     }
@@ -760,8 +749,7 @@ public class Emulator extends JFrame implements Runnable {
 
     protected void resetComputer() {
         final Model model = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        Memory.configure(memory, model);
-        memoryController.reset(model);
+        memory.configure(model);
         computer.reset();
         processor.reset();
         ula.reset();

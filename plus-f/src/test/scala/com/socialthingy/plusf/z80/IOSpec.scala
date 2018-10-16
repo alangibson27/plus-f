@@ -87,7 +87,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x00
     registerValue("hl") shouldBe 0xbef0
     flag("z").value shouldBe true
@@ -109,7 +109,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x0f
     registerValue("hl") shouldBe 0xbef0
     flag("z").value shouldBe false
@@ -132,7 +132,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0002
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x00
     registerValue("hl") shouldBe 0xbef0
     flag("z").value shouldBe true
@@ -155,7 +155,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0000
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x0f
     registerValue("hl") shouldBe 0xbef0
     flag("z").value shouldBe true
@@ -177,7 +177,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x00
     registerValue("hl") shouldBe 0xbeee
     flag("z").value shouldBe true
@@ -199,7 +199,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x0f
     registerValue("hl") shouldBe 0xbeee
     flag("z").value shouldBe false
@@ -222,7 +222,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0002
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x00
     registerValue("hl") shouldBe 0xbeee
     flag("z").value shouldBe true
@@ -245,7 +245,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0000
-    memory(0xbeef) shouldBe 0xaa
+    memory.get(0xbeef) shouldBe 0xaa
     registerValue("b") shouldBe 0x0f
     registerValue("hl") shouldBe 0xbeee
     flag("z").value shouldBe true
@@ -311,7 +311,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xa3)
 
@@ -332,7 +332,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xa3)
 
@@ -353,7 +353,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xb3)
 
@@ -375,7 +375,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xb3)
 
@@ -397,7 +397,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xab)
 
@@ -418,7 +418,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xab)
 
@@ -439,7 +439,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xbb)
 
@@ -461,7 +461,7 @@ class IOSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("c", 0xef)
 
     registerContainsValue("hl", 0xbeef)
-    memory(0xbeef) = 0xaa
+    memory.set(0xbeef, 0xaa)
 
     nextInstructionIs(0xed, 0xbb)
 

@@ -5,11 +5,11 @@ import com.socialthingy.plusf.z80.*;
 public class OpLdIndexedIndirect8Reg implements Operation {
 
     private final Processor processor;
-    private final int[] memory;
+    private final Memory memory;
     private final IndexRegister indexRegister;
     private final Register source;
 
-    public OpLdIndexedIndirect8Reg(final Processor processor, final int[] memory, final Register indexRegister, final Register source) {
+    public OpLdIndexedIndirect8Reg(final Processor processor, final Memory memory, final Register indexRegister, final Register source) {
         this.processor = processor;
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
@@ -18,7 +18,7 @@ public class OpLdIndexedIndirect8Reg implements Operation {
 
     @Override
     public int execute() {
-        Memory.set(memory, indexRegister.withOffset(processor.fetchNextByte()), source.get());
+        memory.set( indexRegister.withOffset(processor.fetchNextByte()), source.get());
         return 19;
     }
 

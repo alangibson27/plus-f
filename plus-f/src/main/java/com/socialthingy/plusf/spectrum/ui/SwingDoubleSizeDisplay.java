@@ -1,8 +1,8 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
-import com.socialthingy.plusf.z80.Memory;
 
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -61,10 +61,10 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
     }
 
     @Override
-    public void updateScreen(final int[] memory, final ULA ula) {
-        if (Memory.screenChanged() || ula.flashStatusChanged()) {
-            Memory.markScreenDrawn();
-            renderMemory(Memory.getScreenBytes(memory), ula.flashActive());
+    public void updateScreen(final SpectrumMemory memory, final ULA ula) {
+        if (memory.screenChanged() || ula.flashStatusChanged()) {
+            memory.markScreenDrawn();
+            renderMemory(memory, ula.flashActive());
             System.arraycopy(targetPixels, 0, imageDataBuffer, 0, imageDataBuffer.length);
         }
     }

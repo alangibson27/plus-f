@@ -59,7 +59,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       // given
       registerContainsValue(source, 0xa0a0)
       nextInstructionIs(opcode)
-      memory(0xa0a0) = 0xaa
+      memory.set(0xa0a0, 0xaa)
 
       // when
       processor.execute()
@@ -89,7 +89,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
       // then
       registerValue("pc") shouldBe 0x0001
-      memory(0xb0c0) shouldBe 0xbb
+      memory.get(0xb0c0) shouldBe 0xbb
     }
   }
 
@@ -103,7 +103,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0001
-    memory(0xb0c0) shouldBe 0xc0
+    memory.get(0xb0c0) shouldBe 0xc0
   }
 
   "ld (hl), h" should "transfer value from l register to referenced memory correctly" in new Machine {
@@ -116,7 +116,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0001
-    memory(0xb0c0) shouldBe 0xb0
+    memory.get(0xb0c0) shouldBe 0xb0
   }
 
   val regImmediateOperations = Table(
@@ -149,7 +149,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0002
-    memory(0xa123) shouldBe 0xff
+    memory.get(0xa123) shouldBe 0xff
   }
 
   val regIndexedAddrOperations = Table(
@@ -172,7 +172,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
       val referencedAddress = 0x1000 + offset.asInstanceOf[Byte]
       val memoryValue = randomByte
-      memory(referencedAddress) = memoryValue
+      memory.set(referencedAddress, memoryValue)
 
       // when
       processor.execute()
@@ -191,7 +191,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     val referencedAddress = 0xff8a
     val memoryValue = 0x12
-    memory(referencedAddress) = memoryValue
+    memory.set(referencedAddress, memoryValue)
 
     // when
     processor.execute()
@@ -209,7 +209,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     val referencedAddress = 0x007e
     val memoryValue = 0x12
-    memory(referencedAddress) = memoryValue
+    memory.set(referencedAddress, memoryValue)
 
     // when
     processor.execute()
@@ -227,7 +227,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x3a, addressLo, addressHi)
 
     val memoryValue = randomByte
-    memory(address) = memoryValue
+    memory.set(address, memoryValue)
 
     // when
     processor.execute()
@@ -272,7 +272,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerValue("pc") shouldBe 0x0003
 
       val referencedAddress = 0x1000 + offset.asInstanceOf[Byte]
-      memory(referencedAddress) shouldBe registerValue
+      memory.get(referencedAddress) shouldBe registerValue
     }
   }
 
@@ -290,7 +290,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     // then
     registerValue("pc") shouldBe 0x0003
-    memory(address) shouldBe registerValue
+    memory.get(address) shouldBe registerValue
   }
 
   val indexedRegImmediateOperations = Table(
@@ -312,7 +312,7 @@ class Load8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(0xffff & (0x1000 + offset.asInstanceOf[Byte])) shouldBe immediateValue
+      memory.get(0xffff & (0x1000 + offset.asInstanceOf[Byte])) shouldBe immediateValue
     }
   }
 

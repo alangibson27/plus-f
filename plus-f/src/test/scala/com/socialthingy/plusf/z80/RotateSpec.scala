@@ -68,7 +68,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       // given
       registerContainsValue("a", initialAccumulator)
       registerContainsValue("hl", 0x4000)
-      memory(0x4000) = initialMemory
+      memory.set(0x4000, initialMemory)
 
       nextInstructionIs(0xed, opcode)
 
@@ -76,7 +76,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(0x4000) shouldBe finalMemory
+      memory.get(0x4000) shouldBe finalMemory
       registerValue("a") shouldBe finalAccumulator
 
       flag("s").value shouldBe sign
@@ -157,7 +157,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c").is(false)
-    memory(0x4000) = binary("01010101")
+    memory.set(0x4000, binary("01010101"))
 
     nextInstructionIs(0xcb, 0x06)
 
@@ -165,7 +165,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("10101010")
+    memory.get(0x4000) shouldBe binary("10101010")
 
     flag("s").value shouldBe true
     flag("z").value shouldBe false
@@ -190,7 +190,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c").is(false)
-      memory(address) = binary("01010101")
+      memory.set(address, binary("01010101"))
 
       nextInstructionIs(opcode, 0xcb, offset, 0x06)
 
@@ -198,7 +198,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("10101010")
+      memory.get(address) shouldBe binary("10101010")
 
       flag("s").value shouldBe true
       flag("z").value shouldBe false
@@ -237,7 +237,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c").is(false)
-    memory(0x4000) = binary("10101010")
+    memory.set(0x4000, binary("10101010"))
 
     nextInstructionIs(0xcb, 0x16)
 
@@ -245,7 +245,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("01010100")
+    memory.get(0x4000) shouldBe binary("01010100")
 
     flag("s").value shouldBe false
     flag("z").value shouldBe false
@@ -270,7 +270,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c").is(false)
-      memory(address) = binary("10101010")
+      memory.set(address, binary("10101010"))
 
       nextInstructionIs(opcode, 0xcb, offset, 0x16)
 
@@ -278,7 +278,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("01010100")
+      memory.get(address) shouldBe binary("01010100")
 
       flag("s").value shouldBe false
       flag("z").value shouldBe false
@@ -317,7 +317,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c").is(false)
-    memory(0x4000) = binary("10101010")
+    memory.set(0x4000, binary("10101010"))
 
     nextInstructionIs(0xcb, 0x0e)
 
@@ -325,7 +325,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("01010101")
+    memory.get(0x4000) shouldBe binary("01010101")
 
     flag("s").value shouldBe false
     flag("z").value shouldBe false
@@ -350,7 +350,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c").is(false)
-      memory(address) = binary("10101010")
+      memory.set(address, binary("10101010"))
 
       nextInstructionIs(opcode, 0xcb, offset, 0x0e)
 
@@ -358,7 +358,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("01010101")
+      memory.get(address) shouldBe binary("01010101")
 
       flag("s").value shouldBe false
       flag("z").value shouldBe false
@@ -397,7 +397,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c").is(true)
-    memory(0x4000) = binary("10101010")
+    memory.set(0x4000, binary("10101010"))
 
     nextInstructionIs(0xcb, 0x1e)
 
@@ -405,7 +405,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("11010101")
+    memory.get(0x4000) shouldBe binary("11010101")
 
     flag("s").value shouldBe true
     flag("z").value shouldBe false
@@ -430,7 +430,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c").is(true)
-      memory(address) = binary("10101010")
+      memory.set(address, binary("10101010"))
 
       nextInstructionIs(opcode, 0xcb, offset, 0x1e)
 
@@ -438,7 +438,7 @@ class RotateSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("11010101")
+      memory.get(address) shouldBe binary("11010101")
 
       flag("s").value shouldBe true
       flag("z").value shouldBe false

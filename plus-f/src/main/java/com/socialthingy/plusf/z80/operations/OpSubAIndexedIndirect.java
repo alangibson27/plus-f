@@ -1,16 +1,17 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.IndexRegister;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
 public class OpSubAIndexedIndirect extends ArithmeticOperation {
 
-    private final int[] memory;
+    private final Memory memory;
     private final IndexRegister indexRegister;
     private final String toString;
 
-    public OpSubAIndexedIndirect(final Processor processor, final int[] memory, final Register indexRegister, final boolean useCarryFlag) {
+    public OpSubAIndexedIndirect(final Processor processor, final Memory memory, final Register indexRegister, final boolean useCarryFlag) {
         super(processor, useCarryFlag);
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
@@ -24,7 +25,7 @@ public class OpSubAIndexedIndirect extends ArithmeticOperation {
 
     @Override
     public int execute() {
-        accumulator.set(sub(memory[indexRegister.withOffset(processor.fetchNextByte())], true));
+        accumulator.set(sub(memory.get(indexRegister.withOffset(processor.fetchNextByte())), true));
         return 19;
     }
 

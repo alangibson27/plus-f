@@ -4,6 +4,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.snapshot.SnapshotLoader;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.z80.*;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class Computer {
     private static final Logger log = LoggerFactory.getLogger(Computer.class);
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
-    private final int[] memory;
+    private final SpectrumMemory memory;
     private final Timer processorExecuteTimer;
     private final Processor processor;
     private final MetricRegistry metricRegistry;
@@ -30,7 +31,7 @@ public class Computer {
     public Computer(
         final Processor processor,
         final ULA ula,
-        final int[] memory,
+        final SpectrumMemory memory,
         final Model model,
         final MetricRegistry metricRegistry
     ) {

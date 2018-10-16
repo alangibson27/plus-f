@@ -8,8 +8,8 @@ class JumpSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "jp nn" should "jump to the correct location" in new Machine {
     // given
     registerContainsValue("a", 0x00)
-    memory(0xbeef) = 0xcb
-    memory(0xbef0) = 0xff
+    memory.set(0xbeef, 0xcb)
+    memory.set(0xbef0, 0xff)
 
     nextInstructionIs(0xc3, 0xef, 0xbe)
 

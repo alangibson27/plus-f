@@ -2,48 +2,40 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Plus-F</title>
-    <link>http://plusf.socialthingy.com/index.xml</link>
+    <link>http://plusf.socialthingy.com/</link>
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <lastBuildDate>Fri, 24 Mar 2017 17:36:26 +0000</lastBuildDate>
-    <atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Version 1.5</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.5/</link>
       <pubDate>Fri, 24 Mar 2017 17:36:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Initial (incomplete) support for 48k and AY sound.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.5/</guid>
+      <description> Initial (incomplete) support for 48k and AY sound.  </description>
     </item>
     
     <item>
       <title>Version 1.4.1</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.4.1/</link>
       <pubDate>Sat, 11 Feb 2017 17:36:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Fix to TZX loading which allows Speedlock 2-7 to work.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.4.1/</guid>
+      <description> Fix to TZX loading which allows Speedlock 2-7 to work.  </description>
     </item>
     
     <item>
       <title>Version 1.4</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.4/</link>
       <pubDate>Fri, 03 Feb 2017 17:36:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Support for loading TAP and TZX files inside ZIP files.&lt;/li&gt;
-&lt;li&gt;Integration with World Of Spectrum archive.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.4/</guid>
+      <description> Support for loading TAP and TZX files inside ZIP files. Integration with World Of Spectrum archive.  </description>
     </item>
     
     <item>
@@ -52,42 +44,27 @@
       <pubDate>Sat, 14 Jan 2017 20:31:58 +0000</pubDate>
       
       <guid>http://plusf.socialthingy.com/credits/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;The Spectrum 48k and +2 ROMs distributed with +F remain copyright of Amstrad,and
-Amstrad have kindly given their permission for the redistribution of their
-copyrighted material but retain that copyright.
-(Full details &lt;a href=&#34;https://groups.google.com/forum/#!msg/comp.sys.amstrad.8bit/HtpBU2Bzv_U/HhNDSU3MksAJ&#34;&gt;here&lt;/a&gt;.)&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;The Spectrum font used on this site is &lt;a href=&#34;http://www.dafont.com/zx-spectrum-7.font&#34;&gt;ZX-Spectrum-7&lt;/a&gt;
-by Alexander Sizenko, which he has very kindly made available as Freeware.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <description> The Spectrum 48k and +2 ROMs distributed with +F remain copyright of Amstrad,and Amstrad have kindly given their permission for the redistribution of their copyrighted material but retain that copyright. (Full details here.)
+ The Spectrum font used on this site is ZX-Spectrum-7 by Alexander Sizenko, which he has very kindly made available as Freeware.
+  </description>
     </item>
     
     <item>
       <title>Version 1.3</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.3/</link>
       <pubDate>Tue, 03 Jan 2017 20:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Compatibility fixes for Raspberry Pi.&lt;/li&gt;
-&lt;li&gt;Support logging to file.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.3/</guid>
+      <description> Compatibility fixes for Raspberry Pi. Support logging to file.  </description>
     </item>
     
     <item>
       <title>Version 1.2</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.2/</link>
       <pubDate>Sun, 18 Dec 2016 22:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Added full-screen mode and rendering tweaks.&lt;/li&gt;
-&lt;li&gt;Minor bugfix to tape loading.&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.2/</guid>
+      <description> Added full-screen mode and rendering tweaks. Minor bugfix to tape loading.  </description>
     </item>
     
     <item>
@@ -100,84 +77,7 @@ by Alexander Sizenko, which he has very kindly made available as Freeware.&lt;/p
 &lt;a href=&#34;../if-you-only-do-one-thing&#34;&gt;last time&lt;/a&gt; was the last but one of the major bits
 of +F. Having reached this milestone, I decided to take some time out and enjoy
 playing a game or two of Match Day II before doing any more work on it. My work
-may have stopped, but it turns out my computer was working as hard as ever.&lt;/p&gt;
-
-&lt;p&gt;The user experience was fairly good, at first glance, with the emulation running
-without crashes and at full speed. Indeed, I&amp;rsquo;d even had time to add a &amp;ldquo;turbo&amp;rdquo; mode
-which would run the emulation as fast as possible, designed to remove the boredom
-of waiting for tapes to load (although this does give a somewhat less authentic
-experience and you should hang your head in shame if you do use it). The problem
-was that when I had +F running for more than a couple of minutes, the fan on
-my laptop would whoosh up to full speed, and stay there more or less until +F
-stopped. A quick check with &lt;code&gt;top&lt;/code&gt; confirmed that +F was using a whole core of
-the laptop&amp;rsquo;s dual-core processor.&lt;/p&gt;
-
-&lt;p&gt;By any measure, that&amp;rsquo;s too much for a Spectrum emulator running on modern hardware.
-The &lt;a href=&#34;../standing-on-the-shoulders-of-giants&#34;&gt;FUSE&lt;/a&gt; emulator written in C uses only
-a few percent of the available CPU capacity on the same computer and OS, and while
-I wasn&amp;rsquo;t expecting to achieve that level of performance from a Java application
-(a deliberate trade-off of raw performance for fewer cross-platform difficulties),
-I was still surprised it was quite so processor-hungry. But why?&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;ll spare you the blow-by-blow details, except to say that a few profiling
-sessions using &lt;a href=&#34;https://github.com/RichardWarburton/honest-profiler/wiki&#34;&gt;honest-profiler&lt;/a&gt;
-showed that the problem lay in the rendering of the display. The antiquated display
-hardware of the Spectrum was efficient both in terms of memory and execution time
-(while also giving us the famous &lt;a href=&#34;http://speccyholic.tumblr.com/post/89194660510/the-spectrums-secret-weapon&#34;&gt;attribute clash&lt;/a&gt;)
-but does make it slightly convoluted to generate a pixel-based RGB bitmap. Somewhere
-in that display emulation were a few methods in particular that appeared to be hogging
-the CPU unexpectedly. The surprising thing is that these methods did little else
-apart from looking up various mappings between Spectrum display co-ordinates and
-the corresponding window co-ordinates. Thinking ahead, I&amp;rsquo;d decided to pre-compute
-these calculations and store the results in an array, since they&amp;rsquo;d be needed on
-every single display refresh, so I couldn&amp;rsquo;t see why these would be slow.&lt;/p&gt;
-
-&lt;p&gt;And there was my mistake.&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;d assumed that array lookups are less expensive than repeated method calls, but
-that wasn&amp;rsquo;t actually the case for the calculations that I had precomputed. When
-you include bounds checking and whatever else is involved in array access, it
-actually turned out to be &lt;em&gt;more&lt;/em&gt; expensive than recalculating the co-ordinates on
-every call. In trying to outsmart the JVM with some optimisations of my own, I&amp;rsquo;d
-actually worked against it and stopped it from doing its own, more effective, optimisations
-to the code.&lt;/p&gt;
-
-&lt;p&gt;For the JVM is very clever indeed. (It does this sort of thing all day, every day, so
-it ought to be an expert, I suppose.) Based on the methods it sees being executed
-as your program runs, it can choose to compile and inline them as it sees fit. Inlining
-in particular tends to work best where methods are short, with the upshot that
-&lt;a href=&#34;https://techblug.wordpress.com/2013/08/19/java-jit-compiler-inlining/&#34;&gt;adding method calls can make your code run faster&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Of course, when it comes to Java code, you could argue that you&amp;rsquo;re better to start
-off with code that composes lots of calls to small methods anyway, and you&amp;rsquo;d be
-right. If nothing else, it means that your code is easier to reason about and test,
-but as an added bonus you&amp;rsquo;re also staying out of the JVM&amp;rsquo;s way and letting it do
-what it&amp;rsquo;s best at.&lt;/p&gt;
-
-&lt;p&gt;The mistake I made is one which has been known for a long time, and which &lt;a href=&#34;https://shreevatsa.wordpress.com/2008/05/16/premature-optimization-is-the-root-of-all-evil/&#34;&gt;Knuth&lt;/a&gt;
-popularised with his statement &lt;em&gt;premature optimisation is the root of all evil&lt;/em&gt;.
-Software may have moved on in many ways since he said that in 1974, but to me the
-problem of premature optimisation is more human than technological, and I&amp;rsquo;d be surprised
-if we were that much less susceptible to it now than we were then. In my case,
-with no evidence to support me, I assumed that certain operations were going to
-be costly, and wrote bad code based on that faulty assumption.&lt;/p&gt;
-
-&lt;p&gt;How could I have avoided this?&lt;/p&gt;
-
-&lt;p&gt;It&amp;rsquo;s a tricky balance. On the one hand, in my original Python implementation of
-+F, by doing no profiling or performance testing until the very end, &lt;a href=&#34;../fundamentals&#34;&gt;I ended
-up wasting time on an implementation that would never have been fit for purpose&lt;/a&gt;. Clearly, I could have done with paying a bit more attention to
-performance up-front in that case. In the case of the Java version of +F, by
-fixating on performance too early (probably a consequence of having been burned
-a little by the fact the first attempt at +F was so slow), I ended up with an
-inefficient application.&lt;/p&gt;
-
-&lt;p&gt;I think it all boils down to gathering evidence and acting upon that. Where you
-have requirements that a program should exhibit a certain level of performance
-(in my case not needing an entire CPU core in order to emulate a computerised beermat
-from the 1980s), it&amp;rsquo;s important to test for this, just like you would test whether
-it behaves correctly or not, and to bake this testing into your development cycle
-if you can.&lt;/p&gt;</description>
+may have stopped, but it turns out my computer was working as hard as ever.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -186,156 +86,16 @@ if you can.&lt;/p&gt;</description>
       <pubDate>Mon, 28 Nov 2016 23:25:34 +0000</pubDate>
       
       <guid>http://plusf.socialthingy.com/blog/if-you-only-do-one-thing/</guid>
-      <description>&lt;p&gt;Over the years, there have been all number of innovations, techniques, tools,
-tricks and fads purported to help you build better-quality applications more quickly - model-driven code generation,
-object-relational frameworks, IoC containers, unit testing, Scrum, Kanban, documenting everything, documenting nothing,
-pair programming - even industrial quantities of XML (in the case of the abomination that was SOAP). For me, though,
-one stands head and shoulders above all the rest, Test-Driven Development. If you only do one thing tomorrow that you
-aren&amp;rsquo;t doing today, choose TDD.&lt;/p&gt;
-
-&lt;p&gt;I came to the TDD party pretty late. Of course, I&amp;rsquo;d known all about unit testing for a long time, but
-I&amp;rsquo;d never actually seen it work, in terms of improving the speed or quality of application development. What I&amp;rsquo;d
-generally seen was that a conscientious newcomer to some team would write tests for new code they were working on, plus
-maybe a few other tests where they had to fix existing code. Those tests would be maintained for a period of time,
-before falling into (for want of a better word) disrepair, spending as much time failing as passing, and eventually
-being deleted or ignored. When I first came into a TDD environment, it opened my eyes to how to make proper use of
-automated tests, and when I look back at the times before I used TDD, I see nothing but missed opportunities to build
-better software.&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;ve done TDD with JUnit, ScalaTest, PyTest, Nose and Cucumber, and it works well with any and all of them. I don&amp;rsquo;t
-think the choice of tools is especially important - just pick the ones that work for you and use them. Even if you&amp;rsquo;re
-still writing programs in COBOL for mainframes, I&amp;rsquo;m sure there are options out there.&lt;/p&gt;
-
-&lt;p&gt;I don&amp;rsquo;t think I would have attempted +F if I wasn&amp;rsquo;t already doing TDD in my day job. A processor is basically a
-large collection of instructions which all operate on the same global state. Those instructions can then be combined in
-an infinite number of permutations, where the state of a single bit in a single register can cause execution to take a
-completely different path. Butterflies flap their wings at every step along the way.&lt;/p&gt;
-
-&lt;p&gt;I shuddered at the thought of having to debug a problem in some large Z80 program (i.e. Match Day II) without having
-confidence that the individual processor operations were working correctly in isolation.&lt;/p&gt;
-
-&lt;p&gt;The only way to tackle it was one operation at a time, writing tests based on what the
-&lt;a href=&#34;http://www.z80.info/zip/z80cpu_um.pdf&#34;&gt;Z80 User Manual&lt;/a&gt; specified, writing the code for the operation, then moving on
-to the next. Dull, yes, but it&amp;rsquo;s the only way I could see of gaining any traction. As it is, having taken the TDD
-approach, the major problems which stopped programs from working outright have been reasonably rare, obvious and easy to
-debug and fix.&lt;/p&gt;
-
-&lt;p&gt;By now, you may have read about my &lt;a href=&#34;../fundamentals&#34;&gt;valiant but doomed attempt to write +F in Python&lt;/a&gt;. I&amp;rsquo;ll confess that
-the thought of having to start again from scratch did make me think twice about what I was doing, but the choice was made
-easier by the one thing I had in my favour - a good set of tests for all of the processor emulation. And, given that I
-hadn&amp;rsquo;t got much beyond that part (aside from a prototype display that showed just how slow the emulator was), that meant
-I had a good set of tests for more or less everything that I needed to rewrite. Admittedly, those tests were in Python&amp;rsquo;s
-&lt;a href=&#34;https://nose.readthedocs.io/en/latest/&#34;&gt;Nose framework&lt;/a&gt;, but picking up on something else I&amp;rsquo;d learned over the previous
-year or two, a typical test looked like this one:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def test_and_a_with_other_reg_giving_zero_result(self):
-    # given
-    self.given_register_contains_value(&#39;a&#39;, 0b10101010)
-    self.given_register_contains_value(&#39;b&#39;, 0b01010101)
-
-    self.given_next_instruction_is(0xa0)
-
-    # when
-    self.processor.execute()
-
-    # then
-    self.assert_register(&#39;a&#39;).equals(0b00000000)
-    self.assert_register(&#39;b&#39;).equals(0b01010101)
-
-    self.assert_flag(&#39;s&#39;).is_reset()
-    self.assert_flag(&#39;z&#39;).is_set()
-    self.assert_flag(&#39;h&#39;).is_set()
-    self.assert_flag(&#39;p&#39;).is_set()
-    self.assert_flag(&#39;n&#39;).is_reset()
-    self.assert_flag(&#39;c&#39;).is_reset()
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;In other words, it read sort of like a mini-DSL. A bit of judicious search-and-replace meant that I could port tests
-like these easily to an equivalent in ScalaTest like this:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-scala&#34;&gt;&amp;quot;and &amp;lt;reg&amp;gt;&amp;quot; should &amp;quot;calculate a zero result when a and &amp;lt;reg&amp;gt; have no shared bits&amp;quot; in new Machine {
-  // given
-  registerContainsValue(&amp;quot;a&amp;quot;, binary(&amp;quot;10101010&amp;quot;))
-  registerContainsValue(&amp;quot;b&amp;quot;, binary(&amp;quot;01010101&amp;quot;))
-
-  nextInstructionIs(0xa0)
-
-  // when
-  processor.execute()
-
-  // then
-  registerValue(&amp;quot;a&amp;quot;) shouldBe binary(&amp;quot;00000000&amp;quot;)
-  registerValue(&amp;quot;b&amp;quot;) shouldBe binary(&amp;quot;01010101&amp;quot;)
-
-  flag(&amp;quot;s&amp;quot;).value shouldBe false
-  flag(&amp;quot;z&amp;quot;).value shouldBe true
-  flag(&amp;quot;h&amp;quot;).value shouldBe true
-  flag(&amp;quot;p&amp;quot;).value shouldBe true
-  flag(&amp;quot;n&amp;quot;).value shouldBe false
-  flag(&amp;quot;c&amp;quot;).value shouldBe false
-  flag(&amp;quot;f3&amp;quot;).value shouldBe false
-  flag(&amp;quot;f5&amp;quot;).value shouldBe false
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;All I then had to do was write the implementation of the DSL (easy enough), and then I had a full set of tests
-available from the outset, against which I could code the Java version of +F. Class-by-class, I converted
-the tests and then wrote the code to pass them, and in little over a month I was back to the same point I&amp;rsquo;d reached in
-Python without too much effort. Full-on TDD to the rescue!&lt;/p&gt;
-
-&lt;p&gt;Of course, it would be out of character if the faint glimmer of success I saw in the distance wasn&amp;rsquo;t subsequently
-extinguished by an act of stupidity, laziness, or (in this case) both.&lt;/p&gt;
-
-&lt;p&gt;Processor emulation isn&amp;rsquo;t the only complex thing I had to tackle when writing +F. Tape loading was another
-tricky area, and emulating it properly is surprisingly fiddly. There&amp;rsquo;s a &lt;a href=&#34;http://www.worldofspectrum.org/TZXformat.html&#34;&gt;remarkably well-documented specification&lt;/a&gt; of the TZX emulated tape format, and in theory all that&amp;rsquo;s required is
-to turn the contents of a TZX file into a stream of 0s and 1s which can be fed bit-by-bit into the emulated Spectrum.
-The catch is that the timings and high/low state of the input really have to be precise, or the ROM&amp;rsquo;s tape loading
-routine doesn&amp;rsquo;t work. Either the input signal won&amp;rsquo;t be recognised at all, or you&amp;rsquo;re faced with the sight of the
-&lt;code&gt;R Tape Loading Error, 0:1&lt;/code&gt; error message that haunted the childhood of me and many others of my generation.&lt;/p&gt;
-
-&lt;p&gt;Intricate and nuanced, but well-documented &amp;hellip; this is exactly the sort of thing that TDD was made for. However, by this
-stage, I had a lot of +F working and I&amp;rsquo;d become a bit cavalier in my attitude again. (My unfortunate dalliance with
-Python was by this stage some six months in the past. How quickly the mind forgets.) Certain that I was only a few commits
-away from a fully-working application, I pinned my ears back and frenziedly wrote the TZX-handling routines, supported by
-only a smattering of tests.&lt;/p&gt;
-
-&lt;p&gt;Surprisingly, the code worked. Sadly, however, it was laughably inefficient. When reading from a TZX file, the screen
-refresh rate would slow noticeably, and I&amp;rsquo;m sure all the lights in the house became dimmer while it was running too. It&amp;rsquo;s
-hardly unheard of first implementations to be lacking performance-wise, so I could treat it as a proof of concept and
-rewrite it piece-by-piece so that it skipped along more efficiently.&lt;/p&gt;
-
-&lt;p&gt;That&amp;rsquo;s where the problems &lt;em&gt;really&lt;/em&gt; began. Inefficient as it may have been, the first TZX routine was fairly good functionally.
-But because I didn&amp;rsquo;t have a thorough set of tests which allowed me to make changes and still verify that each part worked,
-any time I did something that made it run faster, I also introduced a bug somewhere else. In a bid to stop the incessant
-cycle of fixing one bug only to introduce another, I resorted to cobbling together a &amp;ldquo;regression test&amp;rdquo; based
-on &lt;a href=&#34;https://github.com/alangibson27/+F/blob/master/+F/src/test/java/com/socialthingy/plusf/tape/ReferenceVariableSpeedBlock.java&#34;&gt;this class from the original, inefficient, implementation&lt;/a&gt;
-and testing all of my potential improvements with respect to that.&lt;/p&gt;
-
-&lt;p&gt;It helped, but was nothing more than a length of wallpaper to cover up the cracks in my approach. It&amp;rsquo;s still there.&lt;/p&gt;
-
-&lt;p&gt;Thankfully, I haven&amp;rsquo;t had to touch the TZX-handling routines much of late, but I dread the day that I have to. I think
-it&amp;rsquo;s pretty clear to see, when comparing &lt;a href=&#34;https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/tape&#34;&gt;its code&lt;/a&gt;
-with the &lt;a href=&#34;https://github.com/alangibson27/+F/tree/master/+F/src/main/java/com/socialthingy/plusf/z80&#34;&gt;Z80 emulation code that was developed with a TDD approach&lt;/a&gt;,
-that not building it by TDD has caused a lot of problems there needn&amp;rsquo;t have been.&lt;/p&gt;
-
-&lt;p&gt;The lesson? It&amp;rsquo;s all too easy to consider brushing TDD aside in an effort to get to where you want to be more quickly,
-but no matter how much you try to rationalise it, it&amp;rsquo;s still just cutting corners. You can&amp;rsquo;t just wave away the inherent
-complexity of software when it suits, but you can certainly use TDD to tame it a bit.&lt;/p&gt;
-</description>
+      <description>Over the years, there have been all number of innovations, techniques, tools, tricks and fads purported to help you build better-quality applications more quickly - model-driven code generation, object-relational frameworks, IoC containers, unit testing, Scrum, Kanban, documenting everything, documenting nothing, pair programming - even industrial quantities of XML (in the case of the abomination that was SOAP). For me, though, one stands head and shoulders above all the rest, Test-Driven Development.</description>
     </item>
     
     <item>
       <title>Version 1.1</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.1/</link>
       <pubDate>Tue, 22 Nov 2016 22:27:26 +0000</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Single launcher for Emulator and Guest&lt;/li&gt;
-&lt;li&gt;UI tweaks&lt;/li&gt;
-&lt;li&gt;Windows 64-bit Installer and Universal Zip downloads&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.1/</guid>
+      <description> Single launcher for Emulator and Guest UI tweaks Windows 64-bit Installer and Universal Zip downloads  </description>
     </item>
     
     <item>
@@ -344,167 +104,7 @@ complexity of software when it suits, but you can certainly use TDD to tame it a
       <pubDate>Sun, 13 Nov 2016 22:43:30 +0000</pubDate>
       
       <guid>http://plusf.socialthingy.com/blog/fundamentals/</guid>
-      <description>&lt;p&gt;The relationship between a programmer and a language is much like the relationship between the cricketer and a
-bat. Unless you know how to handle it properly, you&amp;rsquo;re not going to achieve much and you could end up in a lot of pain.
-And so it was with +F, or at least the program which eventually became +F. It started off with the working title
-&lt;em&gt;QAOPM&lt;/em&gt;, and was written in Python.&lt;/p&gt;
-
-&lt;p&gt;The choice of language was driven by a couple of things.&lt;/p&gt;
-
-&lt;p&gt;First, I aimed to write a cross-platform emulator. Python is readily available on both of my target platforms (Linux and
-Windows), and I planned to use the Pygame library to build the user interface. Second, I love Python&amp;rsquo;s
-&lt;a href=&#34;https://www.python.org/dev/peps/pep-0020/&#34;&gt;principles&lt;/a&gt;, its elegance and its clarity. (I know the fact that whitespace
-is syntactically relevant bothers some people, but it looks natural to me, and it&amp;rsquo;s never tripped me up.) My
-opportunities to work with this language had been limited to a few utilities and the odd simple web application,
-and I relished the chance to learn more on a project that was a bit more meaty.&lt;/p&gt;
-
-&lt;p&gt;That decision made, I set about writing +F, and four enjoyable months later (well, as enjoyable as jumping armpits-deep
-into the Z80 reference manual can be) I had a basic working version which could load a program from a snapshot file,
-emulate the Z80 and render the Spectrum display. It couldn&amp;rsquo;t accept keyboard input so you couldn&amp;rsquo;t actually do much with
-it, but I was sure that would follow in short order. All the unit tests worked, the display rendering was accurate,
-and it was time to fire it all up together for the first time and give it a shakedown.&lt;/p&gt;
-
-&lt;p&gt;And &amp;hellip; it was slow.&lt;/p&gt;
-
-&lt;p&gt;Not a little sluggish, not jerky from time to time, but truly, painfully slow. Right from the outset, I&amp;rsquo;d been sure
-that a modern PC (even my 2010-vintage laptop) would be able to handle emulation of an 8-bit computer without breaking
-sweat. After all, there&amp;rsquo;s already an &lt;a href=&#34;http://torinak.com/qaop&#34;&gt;emulator written in JavaScript&lt;/a&gt; that runs at full speed
-in a browser, so while I was expecting I&amp;rsquo;d need to make a few tweaks here and there, I had just assumed that the emulator
-would be fast enough. Not so. What was the problem?&lt;/p&gt;
-
-&lt;p&gt;Me.&lt;/p&gt;
-
-&lt;p&gt;Not Python. Definitely not Python.&lt;/p&gt;
-
-&lt;p&gt;Me.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;(At this point, I want to make perfectly clear that I&amp;rsquo;m certain that in the hands of an experienced Python programmer,
-it is possible to write an emulator with the requisite speed to be usable. If that sounds like you, I&amp;rsquo;ve left all of
-the code for the &lt;a href=&#34;https://github.com/alangibson27/qaopm&#34;&gt;Python +F on GitHub&lt;/a&gt;, and in the interests of learning how to
-become a better programmer, I&amp;rsquo;d be very happy if you had the time to take a look and could explain to me how I could
-have achieved a better outcome. I&amp;rsquo;m not having a bash at Python, I&amp;rsquo;m having a bash at me.)&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;ve earned a living for almost two decades writing software in Java, and more recently Scala. I&amp;rsquo;ve become to an
-extent conditioned to think of software solutions in terms of interactions between objects (although obviously Scala
-opens the door to a more functional approach too), and that&amp;rsquo;s how I approached the Python predecessor of +F.&lt;/p&gt;
-
-&lt;p&gt;The processor was a class. Each Z80 operation was a class, with related operations existing in a class hierarchy. Memory was
-a class. The display was a class. Almost everything was nicely organised into classes, each with short methods which
-did strictly one thing - just the way you&amp;rsquo;d unthinkingly build almost any Java application. For all
-that I could read and write Python, though, I&amp;rsquo;d neglected the fact that an interpreted, dynamically-typed language
-behaves differently to a compiled, statically-typed language.&lt;/p&gt;
-
-&lt;p&gt;It turns out this was a really big problem for me because my code fell foul of a combination of Python&amp;rsquo;s weak spots (according to
-&lt;a href=&#34;https://wiki.python.org/moin/PythonSpeed/PerformanceTips#Loops&#34;&gt;this page&lt;/a&gt;) - lots of field dereferencing in tight, nested for-loops.
-In any other application, I may not have noticed this, but an emulator is basically just one big outer loop, which runs some
-other loops inside it on each iteration. The outermost loop runs once for each display refresh cycle (50 times a second
-in the case of the Spectrum), with each iteration running the processor&amp;rsquo;s fetch-execute cycle up to about 17000 times,
-followed by another loop which sets the colour of each of the 49152 pixels in the display. Lots of for-loops and, in
-my implementation, lots of dereferencing of fields on collaborating objects.&lt;/p&gt;
-
-&lt;p&gt;Here&amp;rsquo;s a representative example of how the code for a single emulated Z80 operation (&lt;code&gt;add a, (hl)&lt;/code&gt;) looked, before I
-realised this there were going to be speed issues:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class OpAddAHlIndirect(BaseOp):
-    def __init__(self, processor, memory):
-        BaseOp.__init__(self)
-        self.processor = processor
-        self.memory = memory
-
-    def execute(self):
-        value = self.memory.peek(self.processor.get_16bit_reg(&#39;hl&#39;))
-        _add_a(self.processor, value, False)
-
-    def t_states(self):
-        return 7
-
-    def __str__(self):
-        return &#39;add a, (hl)&#39;
-
-def _add_a(processor, value, carry):
-    signed_a = to_signed(processor.main_registers[&#39;a&#39;])
-    if carry:
-        value = (value + 1) &amp;amp; 0xff
-    result, half_carry, full_carry = bitwise_add(processor.main_registers[&#39;a&#39;], value)
-    signed_result = to_signed(result)
-    processor.main_registers[&#39;a&#39;] = result
-    processor.set_condition(&#39;s&#39;, signed_result &amp;lt; 0)
-    processor.set_condition(&#39;z&#39;, result == 0)
-    processor.set_condition(&#39;h&#39;, half_carry)
-    processor.set_condition(&#39;p&#39;, (signed_a &amp;lt; 0) != (signed_result &amp;lt; 0))
-    processor.set_condition(&#39;n&#39;, False)
-    processor.set_condition(&#39;c&#39;, full_carry)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The execute method is the one that is run in the emulation loop. This single method, which could in theory be executed
-up to 17000 times every 1/50th of a second, was itself doing three expensive field dereferences per iteration, and when
-you include those done by the &lt;code&gt;_add_a&lt;/code&gt; function it invokes, in total there are about a dozen in executing this one simple
-operation!&lt;/p&gt;
-
-&lt;p&gt;Having gone back and done the background reading I ought to have done at the start, I spent a month trying to remedy the
-problem, the outcome of which was that the code for our representative &lt;code&gt;add a, (hl)&lt;/code&gt; operation became &amp;hellip;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;class OpAddAHlIndirect(BaseOp):
-    def __init__(self, processor, memory):
-        BaseOp.__init__(self)
-        self.processor = processor
-        self.memory = memory
-
-    def execute(self, processor, memory, pc):
-        value = memory[0xffff &amp;amp; processor.get_16bit_reg(&#39;hl&#39;)]
-        _add_a(processor, value, False)
-        return 7, False, pc
-
-    def __str__(self):
-        return &#39;add a, (hl)&#39;
-
-def _add_a(processor, value, carry):
-    signed_a = to_signed(processor.main_registers[&#39;a&#39;])
-    if carry:
-        value = (value + 1) &amp;amp; 0xff
-    result, half_carry, full_carry = bitwise_add(processor.main_registers[&#39;a&#39;], value)
-    signed_result = to_signed(result)
-    processor.main_registers[&#39;a&#39;] = result
-    set_condition = processor.set_condition
-    set_condition(&#39;s&#39;, signed_result &amp;lt; 0)
-    set_condition(&#39;z&#39;, result == 0)
-    set_condition(&#39;h&#39;, half_carry)
-    set_condition(&#39;p&#39;, (signed_a &amp;lt; 0) != (signed_result &amp;lt; 0))
-    set_condition(&#39;n&#39;, False)
-    set_condition(&#39;c&#39;, full_carry)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&amp;hellip; and while reducing the number of dot-dereferences (complemented with a few other recommended techniques such as
-flattening nested loops) did help a bit, it wasn&amp;rsquo;t enough to make the emulator fast enough to be viable. Suitably
-discouraged, I decided to scrap the idea of writing an emulator in Python and retreated to the safer territory of Java.&lt;/p&gt;
-
-&lt;p&gt;Where had I gone wrong?&lt;/p&gt;
-
-&lt;p&gt;I had my cricket bat, I&amp;rsquo;d carefully seasoned it with linseed oil and I&amp;rsquo;d spent my time in the nets, honing my technique.
-I&amp;rsquo;d then tried to play snooker with it.&lt;/p&gt;
-
-&lt;p&gt;I hadn&amp;rsquo;t understood the fundamentals of Python. You most certainly &lt;em&gt;can&lt;/em&gt; write Java-esque object-oriented programs with
-it, but what is cheap in Java comes with a different cost in Python. I fell into a trap
-&lt;a href=&#34;http://www.joelonsoftware.com/articles/fog0000000319.html&#34;&gt;articulately described by Joel Spolsky&lt;/a&gt;, where I didn&amp;rsquo;t
-see the details beneath an abstraction, and paid the price in terms of poor performance. (If you haven&amp;rsquo;t read that
-article yet, stop right now, read and understand it, read it again, then read some of the other articles on Joel on Software
-before coming back here. It&amp;rsquo;ll be well worth your while, trust me.)&lt;/p&gt;
-
-&lt;p&gt;I hope I won&amp;rsquo;t make this particular mistake again, but how could I have avoided this problem? I could have read some
-information about the performance characteristics of Python in advance of starting, of course. But given that I&amp;rsquo;m not
-especially taken with the idea of lots of up-front background reading when there&amp;rsquo;s code I could be writing (this may or
-may not be a character flaw, I leave that for you to judge), I think the best thing I could have done is reached a point
-where I realised my mistake a lot sooner.&lt;/p&gt;
-
-&lt;p&gt;Premature optimisation is of course a problem in itself (more on &lt;em&gt;that&lt;/em&gt; later), but a spot of up-front prototyping would have
-definitely helped. For example, I could have built a representative subset of the Z80 instruction set and performance
-tested a few simple routines, or built the display rendering logic and tested it standalone at the required frame rate.
-I&amp;rsquo;m sure that either of these would have made me either change the way I was writing my Python, or make the jump to
-Java sooner than I did.&lt;/p&gt;
-
-&lt;p&gt;In honesty, it would have been easy to give up once I realised my best chance was to start all over again, but I did
-have one thing in my favour which was going to ease the pain considerably. I&amp;rsquo;ll tell you about that next time.&lt;/p&gt;
-</description>
+      <description>The relationship between a programmer and a language is much like the relationship between the cricketer and a bat. Unless you know how to handle it properly, you&amp;rsquo;re not going to achieve much and you could end up in a lot of pain. And so it was with +F, or at least the program which eventually became +F. It started off with the working title QAOPM, and was written in Python.</description>
     </item>
     
     <item>
@@ -513,94 +113,8 @@ have one thing in my favour which was going to ease the pain considerably. I&amp
       <pubDate>Sun, 06 Nov 2016 22:02:33 +0000</pubDate>
       
       <guid>http://plusf.socialthingy.com/blog/seeing-clearly/</guid>
-      <description>&lt;p&gt;Before I dive into the missteps and mishaps of +F, I&amp;rsquo;d like to start with one very important thing I did right,
-in the very early stages.&lt;/p&gt;
-
-&lt;p&gt;The original idea for +F came from the tail end of an IM conversation with an old school friend, reminiscing
-about the computer games we used to play when we were young. A particular favourite of ours was Match Day II
-(for those of you too young to remember, it was sort of like the best bits of FIFA and PES combined in a single game,
-only about a hundred times better than that) and we were at the time convinced we would be world champions at it,
-if such a competition had existed. (Sadly, eSports wasn&amp;rsquo;t to come into being until a good 10 years after we were past
-our gaming peak, and the world had mistakenly moved on from Match Day II by then anyway.)&lt;/p&gt;
-
-&lt;p&gt;I can&amp;rsquo;t remember who, but one or the other of us signed off by saying &lt;em&gt;I&amp;rsquo;m sure I could still hammer you&lt;/em&gt;, and
-it put me to thinking &amp;hellip; which one of us would actually win? The simple way to solve it would be to get together
-in front of a computer, fire up an emulator (FUSE, for example) and sort it out. Sadly, at the time, we were
-on almost exactly opposite sides of the world, and it would have been a long way for either of us to fly simply
-to settle an old childhood rivalry.&lt;/p&gt;
-
-&lt;p&gt;Nonetheless, it planted an idea in my mind. Given how easy it is to make high quality video calls to faraway
-places, surely there must be no problem in sending Spectrum screenshots in one direction and joystick movements
-in another, at least in theory? Depending on the distance and quality of network connection, things might chug
-along a little slowly at times, but the Spectrum was never known as a speed machine, was it?&lt;/p&gt;
-
-&lt;p&gt;I toyed with the idea for a while before I started any code. My first thought was whether I could bolt some
-network play facilities onto an existing open-source emulator, most of which tend to be written in C or some
-similar low-level language. I rejected this idea primarily because I thought trying to understand someone
-else&amp;rsquo;s C code would be beyond me, but also because I wanted the emulator to be usable across Linux and
-Windows, and a language with simpler cross-platform support would be a better option.&lt;/p&gt;
-
-&lt;p&gt;So that more or less put me in the position of writing my own emulator from the ground up. It&amp;rsquo;s a challenge I
-did relish, but I wasn&amp;rsquo;t in any illusion about the amount of work it would need. Where to start?&lt;/p&gt;
-
-&lt;p&gt;More importantly, where to &lt;em&gt;stop&lt;/em&gt;?&lt;/p&gt;
-
-&lt;p&gt;I only wanted to be able to play a couple of games of Match Day II, so there wouldn&amp;rsquo;t be any need to go overboard
-with whizzbang features that made no difference to the quality of gameplay. Those thoughts left me with a very clear
-vision of what I wanted +F to be:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;An emulator that worked on (at least) Linux and Windows.&lt;/li&gt;
-&lt;li&gt;Network play capability, with a fully-fledged emulator at one end and a &amp;ldquo;dumb&amp;rdquo; console at the other.&lt;/li&gt;
-&lt;li&gt;48k model only.&lt;/li&gt;
-&lt;li&gt;Allows a full game of Match Day II to be played without crashing, even if nothing else works.&lt;/li&gt;
-&lt;li&gt;No sound.&lt;/li&gt;
-&lt;li&gt;No loading borders.&lt;/li&gt;
-&lt;li&gt;No superfluous UI features or twiddles.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;And there it was, the minimum viable product for +F. I didn&amp;rsquo;t go as far as setting up a backlog for it or
-anything like that, but armed with a clear idea of what I wanted, I was able to decide where to start, what to do
-next, and what not to bother with. That&amp;rsquo;s really important, because even in something with a scope that seems
-limited, like a Spectrum emulator, there are a lot more things going on than you might expect, and a lot of
-places you could choose to put your effort.&lt;/p&gt;
-
-&lt;p&gt;Take borders. It&amp;rsquo;s possible to change the colour of the border at specific positions down the screen, and
-indeed games like &lt;a href=&#34;http://www.worldofspectrum.org/infoseekid.cgi?id=0000227&#34;&gt;Aquaplane&lt;/a&gt; use this to create a
-&amp;ldquo;horizon&amp;rdquo; effect that spans the full width of the screen. However, making the change at the correct position
-is intimately linked with the timing of the Spectrum&amp;rsquo;s display hardware. The rules for emulating this correctly
-are &lt;a href=&#34;http://www.worldofspectrum.org/faq/reference/48kreference.htm#ZXSpectrum&#34;&gt;very complicated&lt;/a&gt; and would take
-an age to implement and test.&lt;/p&gt;
-
-&lt;p&gt;For my purposes, though, because I had already established Match Day II was my priority, and because it
-doesn&amp;rsquo;t do anything at all the border (it&amp;rsquo;s black the whole time) it was an easy choice for me not to care
-about this at all. This sort of focus that I had because of my clear vision of +F saved me from
-disappearing off into the more arcane (but no less technically interesting) aspects of building an emulator.&lt;/p&gt;
-
-&lt;p&gt;How does any of this relate to what you and I do in our day jobs? Well, imagine you&amp;rsquo;re maintaining a library
-that&amp;rsquo;s going to be used by some other groups - maybe internal, maybe external, maybe a combination of both.
-Once your code has been released into the wild for the first time, you&amp;rsquo;re bound to get people coming to you and
-asking for new features. Chances are they&amp;rsquo;ll all request different things - this team wants something that
-makes it easier to integrate with Spring, that team wants support for a particular metrics framework, and that
-team over there wants a version that produces XML rather than JSON.&lt;/p&gt;
-
-&lt;p&gt;Reasonable though all these requests may be, if you say &lt;em&gt;yes&lt;/em&gt; to all of them, you&amp;rsquo;ll end up with a bloated
-library, it&amp;rsquo;ll be more involved to maintain and release, client teams will have a tougher time to upgrade,
-and in the end every encounter with your library will become a chore rather than a pleasure. You&amp;rsquo;ll also run
-the risk of losing focus on the core capabilities of your library, and you&amp;rsquo;ll spend time and effort on things
-that only a fraction of your user base will use, rather than using that time to make your code more robust,
-correct, efficient or easy to integrate with.&lt;/p&gt;
-
-&lt;p&gt;In the end, it comes down to one thing - do you have a clear idea of what the core purpose of your library is?
-Sure, you could add some code that will produce an XML form of your output, and the people who asked for it
-will doubtless be thankful (today, anyway). But should your library really be getting involved in those sort of
-serialisation issues - maybe it should be producing a logical model and leaving it up to the teams who use it
-to decide how its output appears instead?&lt;/p&gt;
-
-&lt;p&gt;Maybe adding the XML support (or whatever) &lt;em&gt;is&lt;/em&gt; absolutely the right thing to do, but that&amp;rsquo;s a question only
-you (and the rest of your team) can answer. If you&amp;rsquo;re given a requirement and you can&amp;rsquo;t answer the question
-&lt;em&gt;Do we need this?&lt;/em&gt; with a straight &lt;em&gt;yes&lt;/em&gt; or &lt;em&gt;no&lt;/em&gt;, it&amp;rsquo;s well worth your time to figure out why you can&amp;rsquo;t.&lt;/p&gt;
-</description>
+      <description>Before I dive into the missteps and mishaps of +F, I&amp;rsquo;d like to start with one very important thing I did right, in the very early stages.
+The original idea for +F came from the tail end of an IM conversation with an old school friend, reminiscing about the computer games we used to play when we were young. A particular favourite of ours was Match Day II (for those of you too young to remember, it was sort of like the best bits of FIFA and PES combined in a single game, only about a hundred times better than that) and we were at the time convinced we would be world champions at it, if such a competition had existed.</description>
     </item>
     
     <item>
@@ -612,27 +126,7 @@ you (and the rest of your team) can answer. If you&amp;rsquo;re given a requirem
       <description>&lt;p&gt;The fundamental thing an emulator does is, by definition, copy the behaviour of something else. And so it is
 with +F, which emulates a real ZX Spectrum. The catch, sadly, is that I don&amp;rsquo;t have one of those to hand, so
 without the real thing as a reference, how can I check that +F is working properly? The answer lies in the
-fantastic emulators that others have written.&lt;/p&gt;
-
-&lt;p&gt;I mainly run Linux at home, and over the years I&amp;rsquo;ve enjoyed using the &lt;a href=&#34;http://fuse-emulator.sourceforge.net/&#34;&gt;FUSE Emulator&lt;/a&gt;.
-From my time using it, I&amp;rsquo;ve developed confidence that it is a faithful emulation of a ZX Spectrum, and at
-various points in the development of +F I&amp;rsquo;ve used it as my reference. When I wasn&amp;rsquo;t sure if my Z80 emulation
-code was setting flags correctly, or I wanted to see what the behaviour of a particular block of assembly code
-was, I would run identical tests against FUSE and +F, and where +F gave a different answer, I could be confident
-that there was a bug in there which I needed to fix.&lt;/p&gt;
-
-&lt;p&gt;On top of that, FUSE also comes with a handy set of debugging tools, which I also made use of at various times -
-notably in checking I had the right behaviour for incrementing the value of the refresh register. (There was also
-another time where I poured away days of effort trying to squash a bug I&amp;rsquo;d introduced unthinkingly as a
-result of the fundamental misconception that the Spectrum ROM would never try to overwrite itself, but more
-on that later.)&lt;/p&gt;
-
-&lt;p&gt;All of this is simply to say that, without FUSE, I wouldn&amp;rsquo;t have been able to develop +F. While +F does have
-a few tweaks and twiddles that FUSE doesn&amp;rsquo;t have, it&amp;rsquo;s still inferior in many ways, and if you&amp;rsquo;re looking for a
-solid Spectrum emulator that&amp;rsquo;s packed full of features and gives you an authentic experience, try FUSE.&lt;/p&gt;
-
-&lt;p&gt;It also goes without saying that I&amp;rsquo;m deeply thankful to FUSE&amp;rsquo;s author for his work, and also very much in awe
-of it.&lt;/p&gt;</description>
+fantastic emulators that others have written.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -641,80 +135,86 @@ of it.&lt;/p&gt;</description>
       <pubDate>Mon, 31 Oct 2016 22:49:58 +0000</pubDate>
       
       <guid>http://plusf.socialthingy.com/blog/in-the-beginning/</guid>
-      <description>&lt;p&gt;Why did I bother writing +F? There are already plenty of fully-featured, freely-available Spectrum emulators for
-more or less any platform you care to think of. Indeed, I remember using a perfectly playable one on the Commodore
-Amiga as far back as 1994 or 1995 (ZXAM by Antonio J. Pomar Roselló), so it&amp;rsquo;s hardly a novel idea.&lt;/p&gt;
-
-&lt;p&gt;I did have a little twist which I wanted to add, which at the time I started writing didn&amp;rsquo;t appear to be available
-in any other emulator, namely the ability to play games across the Internet. (It turns out that &lt;a href=&#34;http://zxm.speccy.cz/realspec/&#34;&gt;RealSpec&lt;/a&gt;
-claims to do this and more, but I haven&amp;rsquo;t tried it.)&lt;/p&gt;
-
-&lt;p&gt;More than just that, though, it was probably inevitable I would end up trying this sooner or later. Much like
-mountaineers are reputed to climb mountains &amp;ldquo;because they&amp;rsquo;re there&amp;rdquo;, or lovelorn teenage boys write dreadful and
-embarrassing poetry, the chances of a programming geek with a fondness for 80s gaming writing an emulator are
-rather high. (Given I&amp;rsquo;d already written a
-&lt;a href=&#34;https://chrome.google.com/webstore/detail/speccy-loading-borders/jakeajfeddddpglibndhjhdmlinejihf&#34;&gt;Chrome plugin that uses CSS to emulate Spectrum loading borders&lt;/a&gt;,
-it&amp;rsquo;s safe to say that I&amp;rsquo;ve got form.)&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;So Mr. Nerdy-Nerdy has a warm, fuzzy feeling about his pet project&lt;/em&gt;, you may be thinking. &lt;em&gt;Very good, move along.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;And to a certain extent, you&amp;rsquo;re right. There&amp;rsquo;s nothing novel about +F and I certainly wasn&amp;rsquo;t planning to blog about
-it. Indeed, if I was just a programming geek by night, I probably wouldn&amp;rsquo;t have, but I&amp;rsquo;ve actually also been a programming
-geek by profession for the best part of two decades. When you do anything for that length of time, you run the risk of
-it becoming an overlearned skill, something you don&amp;rsquo;t necessarily need to devote much conscious thought to.
-You learn all manner of techniques and best practices from the people you work with, you learn your own lessons, pick
-your favourites, and you&amp;rsquo;ll also probably tend to adopt and fit in with the way that your team works.&lt;/p&gt;
-
-&lt;p&gt;Combine that with time pressures and shifting requirements, and it can be easy to go through the motions and forget &lt;em&gt;why&lt;/em&gt;
-you do things the way you do them. Best practices only become so because they have been shown to provide benefits,
-but it&amp;rsquo;s easy to forget this and slip into something of a ritualistic mentality about the way you build software. &lt;em&gt;If our
-code coverage metrics hit the magic number, we make sure the digits of our release number don&amp;rsquo;t add up to thirteen, and
-we sacrifice a chicken, the software gods will smile upon us and our release will be successful.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;With +F being a personal hobby project, and me being answerable to nobody but myself for its success or otherwise, I
-wasn&amp;rsquo;t subject to the formalities of software development which I&amp;rsquo;ve become used to in my day job. I could completely
-freely choose which ones to follow and which ones to ignore. It&amp;rsquo;s fair to say that there was a fair amount of unwarranted
-bravado about the choices I made, an air of &lt;em&gt;it can&amp;rsquo;t be that complicated&lt;/em&gt; (wrong), &lt;em&gt;I do more difficult things than
-this every day&lt;/em&gt; (wrong again) and &lt;em&gt;I&amp;rsquo;m old enough to know what I&amp;rsquo;m doing&lt;/em&gt; (even more wrong) about my approach.&lt;/p&gt;
-
-&lt;p&gt;The result is the catalogue of gaffes, goofs and prat-falls you&amp;rsquo;re going to read about in this blog. I will, of course,
-make the odd diversion into the simultaneously mundane and fascinating details of emulation, but what I really want to
-get across as I write is that there really &lt;em&gt;are&lt;/em&gt; good reasons why we do things the way we do, and if we lose sight of that
-then we are bound to repeat the mistakes of the past.&lt;/p&gt;
-
-&lt;p&gt;That does sound rather heavy and fatalistic, but the flip-side is to realise that yourself and others have already done
-the hard work of figuring out how to do software well, and it&amp;rsquo;s that note of encouragement I hope you take away with you.&lt;/p&gt;
-
-&lt;p&gt;I hope you find my writing enjoyable.&lt;/p&gt;
-</description>
+      <description>Why did I bother writing +F? There are already plenty of fully-featured, freely-available Spectrum emulators for more or less any platform you care to think of. Indeed, I remember using a perfectly playable one on the Commodore Amiga as far back as 1994 or 1995 (ZXAM by Antonio J. Pomar Roselló), so it&amp;rsquo;s hardly a novel idea.
+I did have a little twist which I wanted to add, which at the time I started writing didn&amp;rsquo;t appear to be available in any other emulator, namely the ability to play games across the Internet.</description>
     </item>
     
     <item>
       <title>Version 1.0</title>
-      <link>http://plusf.socialthingy.com/release-notes/1/</link>
+      <link>http://plusf.socialthingy.com/release-notes/1.0/</link>
       <pubDate>Mon, 31 Oct 2016 22:55:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/1/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Performance improvements&lt;/li&gt;
-&lt;li&gt;UI tweaks&lt;/li&gt;
-&lt;li&gt;Revamped network connectivity&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/1.0/</guid>
+      <description> Performance improvements UI tweaks Revamped network connectivity  </description>
     </item>
     
     <item>
       <title>Version 0.6</title>
-      <link>http://plusf.socialthingy.com/release-notes/0/</link>
+      <link>http://plusf.socialthingy.com/release-notes/0.6/</link>
       <pubDate>Sun, 14 Aug 2016 22:55:26 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/release-notes/0/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;Implemented TAP and TZX support&lt;/li&gt;
-&lt;li&gt;Added support for +2&lt;/li&gt;
-&lt;li&gt;Fixed some processor emulation bugs (there are still others in there)&lt;/li&gt;
-&lt;/ul&gt;
-</description>
+      <guid>http://plusf.socialthingy.com/release-notes/0.6/</guid>
+      <description> Implemented TAP and TZX support Added support for +2 Fixed some processor emulation bugs (there are still others in there)  </description>
+    </item>
+    
+    <item>
+      <title>Version 0.5</title>
+      <link>http://plusf.socialthingy.com/release-notes/0.5/</link>
+      <pubDate>Mon, 30 May 2016 11:47:26 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/0.5/</guid>
+      <description> Initial public release Emulation is still rather buggy (I will add fixes, but for the moment consider it the equivalent of a wobbly RAM pack or tape loading errors!)  Reset doesn&amp;rsquo;t always work properly Some snapshots fail to load if the Emulator has been running for some time   </description>
+    </item>
+    
+    <item>
+      <title>Connect</title>
+      <link>http://plusf.socialthingy.com/connect/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/connect/</guid>
+      <description>How to do it Network play works by player A running the Emulator and player B running the Guest:
+ At least one player must to ensure that port forwarding is enabled on their router for UDP traffic, on ports 7000 and 7001. If both players can forward these ports, the chance of a successful connection is improved.
+ Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.</description>
+    </item>
+    
+    <item>
+      <title>Download</title>
+      <link>http://plusf.socialthingy.com/download/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/download/</guid>
+      <description>Available packages  64-bit Windows Installer  This is the simplest way to get up and running on a compatible Windows system. On Windows 10, you might see a warning from Windows SmartScreen when you run the installer. Just click the &amp;ldquo;More Info&amp;rdquo; text and then the &amp;ldquo;Run anyway&amp;rdquo; button.  Universal Zip Package  This download is suitable for all operating systems. You&amp;rsquo;ll need to install a recent version of Java 8 separately, in order to run.</description>
+    </item>
+    
+    <item>
+      <title>Games</title>
+      <link>http://plusf.socialthingy.com/games/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/games/</guid>
+      <description>Spectrum games are available for use in emulators in a number of file formats, the most popular ones being Z80, TAP and TZX, all of which +F can load. TAP files are at present the most reliable, although you should be able to use a lot of Z80 and TZX files as well.
+One of the most authoritative sources for Spectrum games the World of Spectrum Archive, which has an extensive collection of TAP and TZX files.</description>
+    </item>
+    
+    <item>
+      <title>The Emulator</title>
+      <link>http://plusf.socialthingy.com/emulator/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/emulator/</guid>
+      <description>The +F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&amp;rsquo;t expect programs which generate &amp;ldquo;rainbow&amp;rdquo; effects to work properly.
+So where is the symbol shift key? The CTRL key is used in place of the Spectrum&amp;rsquo;s symbol shift key.</description>
+    </item>
+    
+    <item>
+      <title>The Guest</title>
+      <link>http://plusf.socialthingy.com/guest/</link>
+      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/guest/</guid>
+      <description>The +F Guest is a program that receives screen updates from a +F Emulator across a network, and sends back keypresses translated to Kempston joystick movements. This means that a user of the guest can participate in a two-player game, provided the game has Kempston joystick support (most have).
+Keyboard Controls At present, controls are not redefinable and are fixed to the conventional ones below:
+ Q: Up A: Down O: Left P: Right M: Fire  Menu items The Guest can also be controlled by the options in the menu bar at the top of the screen.</description>
     </item>
     
   </channel>

@@ -78,7 +78,7 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
   "dec (hl)" should "calculate the correct result" in new Machine {
     // given
     registerContainsValue("hl", 0xbabe)
-    memory(0xbabe) = binary("00000010")
+    memory.set(0xbabe, binary("00000010"))
 
     nextInstructionIs(0x35)
 
@@ -86,7 +86,7 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0xbabe) shouldBe binary("00000001")
+    memory.get(0xbabe) shouldBe binary("00000001")
 
     flag("s") is false
     flag("z") is false
@@ -108,7 +108,7 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       // given
       registerContainsValue(register, 0xbeef)
       val offset = randomByte
-      memory(0xbeef + offset.asInstanceOf[Byte]) = binary("00111000")
+      memory.set(0xbeef + offset.asInstanceOf[Byte], binary("00111000"))
 
       nextInstructionIs(opcode._1, opcode._2, offset)
 
@@ -116,7 +116,7 @@ class Dec8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(0xbeef + offset.asInstanceOf[Byte]) shouldBe binary("00110111")
+      memory.get(0xbeef + offset.asInstanceOf[Byte]) shouldBe binary("00110111")
 
       flag("s") is false
       flag("z") is false

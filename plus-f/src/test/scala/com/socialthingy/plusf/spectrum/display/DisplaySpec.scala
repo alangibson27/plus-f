@@ -11,8 +11,8 @@ class DisplaySpec extends FlatSpec with Matchers {
 
   "colour block with flash attribute set" should "show non-inverted colours when not flashing" in new TestDisplay {
     // given
-    memory(0x4000) = binary("10000000")
-    memory(0x5800) = binary("10000001")
+    memory.set(0x4000, binary("10000000"))
+    memory.set(0x5800, binary("10000001"))
 
     // when
     refresh(memory, notFlashing)
@@ -24,8 +24,8 @@ class DisplaySpec extends FlatSpec with Matchers {
 
   it should "show inverted colours when flashing" in new TestDisplay {
     // given
-    memory(0x4000) = binary("10000000")
-    memory(0x5800) = binary("10000001")
+    memory.set(0x4000, binary("10000000"))
+    memory.set(0x5800, binary("10000001"))
 
     // when
     refresh(memory, flashing)
@@ -37,8 +37,8 @@ class DisplaySpec extends FlatSpec with Matchers {
 
   "colour block with flashing attribute not set" should "not show inverted colours when flashing" in new TestDisplay {
     // given
-    memory(0x4000) = binary("10000000")
-    memory(0x5800) = binary("00000001")
+    memory.set(0x4000, binary("10000000"))
+    memory.set(0x5800, binary("00000001"))
 
     // when
     refresh(memory, notFlashing)

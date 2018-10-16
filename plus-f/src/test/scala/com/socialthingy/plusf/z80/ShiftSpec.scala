@@ -56,7 +56,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c") is false
-    memory(0x4000) = binary("10101010")
+    memory.set(0x4000, binary("10101010"))
 
     nextInstructionIs(0xcb, 0x26)
 
@@ -64,7 +64,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("01010100")
+    memory.get(0x4000) shouldBe binary("01010100")
 
     flag("s").value shouldBe false
     flag("z").value shouldBe false
@@ -88,7 +88,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c") is false
-      memory(address) = binary("10101010")
+      memory.set(address, binary("10101010"))
 
       nextInstructionIs(prefix, 0xcb, offset, 0x26)
 
@@ -96,7 +96,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("01010100")
+      memory.get(address) shouldBe binary("01010100")
 
       flag("s").value shouldBe false
       flag("z").value shouldBe false
@@ -135,7 +135,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c") is false
-    memory(0x4000) = binary("10101010")
+    memory.set(0x4000, binary("10101010"))
 
     nextInstructionIs(0xcb, 0x2e)
 
@@ -143,7 +143,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("11010101")
+    memory.get(0x4000) shouldBe binary("11010101")
 
     flag("s").value shouldBe true
     flag("z").value shouldBe false
@@ -162,7 +162,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c") is false
-      memory(address) = binary("10101010")
+      memory.set(address, binary("10101010"))
 
       nextInstructionIs(prefix, 0xcb, offset, 0x2e)
 
@@ -170,7 +170,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("11010101")
+      memory.get(address) shouldBe binary("11010101")
 
       flag("s").value shouldBe true
       flag("z").value shouldBe false
@@ -209,7 +209,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c") is false
-    memory(0x4000) = binary("10101010")
+    memory.set(0x4000, binary("10101010"))
 
     nextInstructionIs(0xcb, 0x3e)
 
@@ -217,7 +217,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("01010101")
+    memory.get(0x4000) shouldBe binary("01010101")
 
     flag("s").value shouldBe false
     flag("z").value shouldBe false
@@ -236,7 +236,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       val address = 0x4000 + offset.asInstanceOf[Byte]
       registerContainsValue(register, 0x4000)
       flag("c") is false
-      memory(address) = binary("10101010")
+      memory.set(address, binary("10101010"))
 
       nextInstructionIs(prefix, 0xcb, offset, 0x3e)
 
@@ -244,7 +244,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       processor.execute()
 
       // then
-      memory(address) shouldBe binary("01010101")
+      memory.get(address) shouldBe binary("01010101")
 
       flag("s").value shouldBe false
       flag("z").value shouldBe false
@@ -283,7 +283,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     // given
     registerContainsValue("hl", 0x4000)
     flag("c") is false
-    memory(0x4000) = binary("10101010")
+    memory.set(0x4000, binary("10101010"))
 
     nextInstructionIs(0xcb, 0x36)
 
@@ -291,7 +291,7 @@ class ShiftSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     processor.execute()
 
     // then
-    memory(0x4000) shouldBe binary("01010101")
+    memory.get(0x4000) shouldBe binary("01010101")
 
     flag("s").value shouldBe false
     flag("z").value shouldBe false

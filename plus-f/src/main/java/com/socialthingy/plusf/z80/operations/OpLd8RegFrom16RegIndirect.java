@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Register;
 
@@ -7,9 +8,9 @@ public class OpLd8RegFrom16RegIndirect implements Operation {
 
     private final Register dest;
     private final Register sourceReference;
-    private final int[] memory;
+    private final Memory memory;
 
-    public OpLd8RegFrom16RegIndirect(int[] memory, Register dest, Register sourceReference) {
+    public OpLd8RegFrom16RegIndirect(final Memory memory, final Register dest, final Register sourceReference) {
         this.memory = memory;
         this.dest = dest;
         this.sourceReference = sourceReference;
@@ -17,7 +18,7 @@ public class OpLd8RegFrom16RegIndirect implements Operation {
 
     @Override
     public int execute() {
-        dest.set(memory[sourceReference.get()]);
+        dest.set(memory.get(sourceReference.get()));
         return 7;
     }
 

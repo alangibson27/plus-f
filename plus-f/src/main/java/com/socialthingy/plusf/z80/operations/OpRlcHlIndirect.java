@@ -6,10 +6,10 @@ import com.socialthingy.plusf.z80.Register;
 
 public class OpRlcHlIndirect extends RotateOperation {
 
-    private final int[] memory;
+    private final Memory memory;
     private final Register hlReg;
 
-    public OpRlcHlIndirect(final Processor processor, final int[] memory) {
+    public OpRlcHlIndirect(final Processor processor, final Memory memory) {
         super(processor);
         this.memory = memory;
         this.hlReg = processor.register("hl");
@@ -18,9 +18,9 @@ public class OpRlcHlIndirect extends RotateOperation {
     @Override
     public int execute() {
         final int address = hlReg.get();
-        final int result = rlcValue(memory[address]);
+        final int result = rlcValue(memory.get(address));
         setSignZeroAndParity(result);
-        Memory.set(memory, address, result);
+        memory.set( address, result);
         return 15;
     }
 

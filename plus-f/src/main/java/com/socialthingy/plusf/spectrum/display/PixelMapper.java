@@ -1,5 +1,7 @@
 package com.socialthingy.plusf.spectrum.display;
 
+import com.socialthingy.plusf.z80.Memory;
+
 public class PixelMapper {
     public static final int SCREEN_WIDTH = 256;
     public static final int SCREEN_HEIGHT = 192;

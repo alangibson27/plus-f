@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Plus-F</title>
+    <link>http://plusf.socialthingy.com/tags/</link>
+    <description>Recent content in Tags on Plus-F</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-gb</language>
+    <lastBuildDate>Mon, 31 Oct 2016 22:49:58 +0000</lastBuildDate>
+    
+	<atom:link href="http://plusf.socialthingy.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Development</title>
+      <link>http://plusf.socialthingy.com/tags/development/</link>
+      <pubDate>Mon, 31 Oct 2016 22:49:58 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/tags/development/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Emulators</title>
+      <link>http://plusf.socialthingy.com/tags/emulators/</link>
+      <pubDate>Fri, 04 Nov 2016 20:54:07 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/tags/emulators/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Performance</title>
+      <link>http://plusf.socialthingy.com/tags/performance/</link>
+      <pubDate>Tue, 13 Dec 2016 21:24:44 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/tags/performance/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Software Development</title>
+      <link>http://plusf.socialthingy.com/tags/software-development/</link>
+      <pubDate>Tue, 13 Dec 2016 21:24:44 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/tags/software-development/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Testing</title>
+      <link>http://plusf.socialthingy.com/tags/testing/</link>
+      <pubDate>Mon, 28 Nov 2016 23:25:34 +0000</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/tags/testing/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

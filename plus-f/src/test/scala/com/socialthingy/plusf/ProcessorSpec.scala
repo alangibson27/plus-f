@@ -13,10 +13,9 @@ import scala.util.Random
 trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with MockitoSugar {
 
   trait Machine {
-    Memory.disableMemoryProtection()
-
     var instructionPointer = 0x0
-    val memory = new Array[Int](0x10000)
+    val memory = new Memory()
+
     val io = {
       val stub = mock[IO]
       mockitoWhen(stub.read(anyInt(), anyInt())).thenReturn(Random.nextInt(256))
@@ -59,7 +58,7 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
     }
 
     def pokeAtIp(value: Int): Unit = {
-      memory(instructionPointer) = value
+      memory.set(instructionPointer, value)
       instructionPointer = instructionPointer +% 1
     }
 

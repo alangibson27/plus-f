@@ -1,9 +1,10 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpLdi extends BlockOperation {
-    public OpLdi(final Processor processor, final int[] memory) {
+    public OpLdi(final Processor processor, final Memory memory) {
         super(processor, memory, 1);
     }
 

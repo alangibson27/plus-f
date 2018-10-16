@@ -167,7 +167,7 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("a", binary("00001000"))
     registerContainsValue("hl", 0xbeef)
 
-    memory(0xbeef) = binary("00000001")
+    memory.set(0xbeef, binary("00000001"))
 
     nextInstructionIs(0xbe)
 
@@ -200,7 +200,7 @@ class Compare8BitSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       registerContainsValue(register, 0xbeef)
 
       val offset = randomByte
-      memory(0xbeef + offset.asInstanceOf[Byte]) = binary("00000001")
+      memory.set(0xbeef + offset.asInstanceOf[Byte], binary("00000001"))
 
       nextInstructionIs(opcode._1, opcode._2, offset)
 

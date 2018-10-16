@@ -2,10 +2,11 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.IO;
+import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpIndr extends BlockInOperation {
-    public OpIndr(final Processor processor, final int[] memory, final IO io) {
+    public OpIndr(final Processor processor, final Memory memory, final IO io) {
         super(processor, memory, io);
     }
 

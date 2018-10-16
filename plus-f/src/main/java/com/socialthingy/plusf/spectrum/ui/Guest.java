@@ -1,13 +1,14 @@
 package com.socialthingy.plusf.spectrum.ui;
 
+import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.Settings;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.GuestState;
 import com.socialthingy.plusf.spectrum.network.GuestStateType;
-import com.socialthingy.plusf.z80.Memory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,13 +32,13 @@ public class Guest extends JFrame implements Runnable {
     private final DisplayComponent display;
     private final GuestULA ula;
     private EmulatorState lastHostData;
-    private final int[] memory;
+    private final SpectrumMemory memory;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
 
     public Guest() {
-        memory = new int[0x10000];
-        Memory.configure(memory, Model._48K);
+        memory = new SpectrumMemory(new Clock());
+        memory.configure(Model._48K);
         ula = new GuestULA();
         display = DisplayFactory.create();
         joystick = new SwingJoystick();
@@ -159,8 +160,9 @@ public class Guest extends JFrame implements Runnable {
 
     private void refresh() {
         if (lastHostData != null) {
-            System.arraycopy(lastHostData.getMemory(), lastHostData.getMemoryBase(), memory, lastHostData.getMemoryBase(), lastHostData.getMemoryLength());
+            memory.setDisplayMemoryDirectly(lastHostData.getMemory(), lastHostData.getMemoryBase(), lastHostData.getMemoryLength());
             ula.setBorderChanges(lastHostData.getBorderChanges());
+            ula.setFlashActive(lastHostData.isFlashActive());
             EventQueue.invokeLater(() -> {
                 display.updateScreen(memory, ula);
                 display.updateBorder(ula, true);
@@ -205,12 +207,16 @@ public class Guest extends JFrame implements Runnable {
 
 class GuestULA extends ULA {
     GuestULA() {
-        super(null, null, null);
+        super(null, null, null, new Clock());
     }
 
     void setBorderChanges(final List<Long> borderChanges) {
         getBorderChanges().clear();
         getBorderChanges().addAll(borderChanges);
+    }
+
+    void setFlashActive(final boolean flashActive) {
+        super.flashActive = flashActive;
     }
 
     @Override

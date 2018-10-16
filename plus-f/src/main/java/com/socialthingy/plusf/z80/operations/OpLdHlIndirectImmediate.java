@@ -9,9 +9,9 @@ public class OpLdHlIndirectImmediate implements Operation {
 
     private final Processor processor;
     private final Register destReference;
-    private final int[] memory;
+    private final Memory memory;
 
-    public OpLdHlIndirectImmediate(final Processor processor, final int[] memory) {
+    public OpLdHlIndirectImmediate(final Processor processor, final Memory memory) {
         this.processor = processor;
         this.destReference = processor.register("hl");
         this.memory = memory;
@@ -19,7 +19,7 @@ public class OpLdHlIndirectImmediate implements Operation {
 
     @Override
     public int execute() {
-        Memory.set(memory, destReference.get(), processor.fetchNextByte());
+        memory.set( destReference.get(), processor.fetchNextByte());
         return 10;
     }
 
