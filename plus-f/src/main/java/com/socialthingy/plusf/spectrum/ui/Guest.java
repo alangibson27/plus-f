@@ -37,7 +37,7 @@ public class Guest extends JFrame implements Runnable {
     private final ScheduledThreadPoolExecutor cycleScheduler;
 
     public Guest() {
-        memory = new SpectrumMemory();
+        memory = new SpectrumMemory(new Clock());
         memory.configure(Model._48K);
         ula = new GuestULA();
         display = DisplayFactory.create();
@@ -160,8 +160,9 @@ public class Guest extends JFrame implements Runnable {
 
     private void refresh() {
         if (lastHostData != null) {
-            System.arraycopy(lastHostData.getMemory(), lastHostData.getMemoryBase(), memory, lastHostData.getMemoryBase(), lastHostData.getMemoryLength());
+            memory.setDisplayMemoryDirectly(lastHostData.getMemory(), lastHostData.getMemoryBase(), lastHostData.getMemoryLength());
             ula.setBorderChanges(lastHostData.getBorderChanges());
+            ula.setFlashActive(lastHostData.isFlashActive());
             EventQueue.invokeLater(() -> {
                 display.updateScreen(memory, ula);
                 display.updateBorder(ula, true);
@@ -212,6 +213,10 @@ class GuestULA extends ULA {
     void setBorderChanges(final List<Long> borderChanges) {
         getBorderChanges().clear();
         getBorderChanges().addAll(borderChanges);
+    }
+
+    void setFlashActive(final boolean flashActive) {
+        super.flashActive = flashActive;
     }
 
     @Override

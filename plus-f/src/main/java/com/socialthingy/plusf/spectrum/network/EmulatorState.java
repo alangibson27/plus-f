@@ -1,17 +1,15 @@
 package com.socialthingy.plusf.spectrum.network;
 
-import com.socialthingy.plusf.z80.Memory;
-
 import java.util.List;
 
 public class EmulatorState {
-    private Memory memory;
+    private int[] memory;
     private int memoryBase;
     private int memoryLength;
     private List<Long> borderChanges;
     private boolean flashActive;
 
-    public EmulatorState(final Memory memory, final int memoryBase, final int memoryLength, final List<Long> borderChanges, final boolean flashActive) {
+    public EmulatorState(final int[] memory, final int memoryBase, final int memoryLength, final List<Long> borderChanges, final boolean flashActive) {
         this.memory = memory;
         this.memoryBase = memoryBase;
         this.memoryLength = memoryLength;
@@ -19,7 +17,7 @@ public class EmulatorState {
         this.flashActive = flashActive;
     }
 
-    public Memory getMemory() {
+    public int[] getMemory() {
         return memory;
     }
 

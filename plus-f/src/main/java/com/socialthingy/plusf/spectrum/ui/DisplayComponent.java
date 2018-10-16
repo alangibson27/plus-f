@@ -53,7 +53,7 @@ abstract class DisplayComponent extends JComponent {
     }
 
     protected void renderMemory(final SpectrumMemory memory, boolean flashActive) {
-        scale(pixelMapper.getPixels(memory, flashActive));
+        scale(pixelMapper.getPixels(memory.getScreenBytes(), flashActive));
     }
 
     public void setSmoothRendering(final boolean smoothRendering) {

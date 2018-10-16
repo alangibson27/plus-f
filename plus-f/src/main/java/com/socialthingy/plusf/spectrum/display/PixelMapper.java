@@ -33,21 +33,21 @@ public class PixelMapper {
         return 0x4000 + ((y >> 6) * 0x800) + (((hi >> 3) | (lo << 3)) * 32);
     }
 
-    public int[] getPixels(final Memory memory, final boolean flashActive) {
+    public int[] getPixels(final int[] memory, final boolean flashActive) {
         int targetIdx = 258;
         for (int y = 0; y < 192; y++) {
             int colourIdx = colourLineAddress(y);
             int pixelIdxBase = lineAddress(y);
             targetIdx += 1;
             for (int x = 0; x < 32; x++) {
-                final int colourVal = memory.get(colourIdx);
+                final int colourVal = memory[colourIdx];
                 final SpectrumColour colour = colours[colourVal];
                 colourIdx += 1;
 
                 final int ink = flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk();
                 final int paper = flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper();
 
-                final int memoryVal = memory.get(pixelIdxBase);
+                final int memoryVal = memory[pixelIdxBase];
                 pixelIdxBase += 1;
 
                 for (int bit = 128; bit > 0; bit >>= 1) {

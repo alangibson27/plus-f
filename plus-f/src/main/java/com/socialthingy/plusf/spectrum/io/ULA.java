@@ -16,7 +16,7 @@ public class ULA implements IO {
     private int tapeCyclesAdvanced;
     private final Clock clock;
     private int cyclesSinceBeeperUpdate;
-    private boolean flashActive = false;
+    protected boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
     private int borderColour;
     private List<Long> borderChanges = new ArrayList<>();

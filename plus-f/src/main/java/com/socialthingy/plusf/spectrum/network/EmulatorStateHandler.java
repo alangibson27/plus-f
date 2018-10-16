@@ -2,21 +2,20 @@ package com.socialthingy.plusf.spectrum.network;
 
 import com.socialthingy.p2p.Deserialiser;
 import com.socialthingy.p2p.Serialiser;
-import com.socialthingy.plusf.z80.Memory;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EmulatorStateHandler implements Serialiser, Deserialiser {
-    private final Memory memory = new Memory();
+    private final int[] memory = new int[0x10000];
 
     @Override
     public Object deserialise(final ByteBuffer in) {
         final int memoryBase = in.getInt();
         final int memoryLength = in.getInt();
         for (int i = 0; i < memoryLength; i++) {
-            memory.set(memoryBase + i, in.get() & 0xff);
+            memory[memoryBase + i] = in.get() & 0xff;
         }
         final boolean isFlashActive = in.get() != 0;
         final List<Long> borderChanges = new ArrayList<>();
@@ -31,9 +30,9 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
         final EmulatorState state = (EmulatorState) obj;
         out.putInt(state.getMemoryBase());
         out.putInt(state.getMemoryLength());
-        final Memory memory = state.getMemory();
+        final int[] memory = state.getMemory();
         for (int i = 0; i < state.getMemoryLength(); i++) {
-            out.put((byte) memory.get(state.getMemoryBase() + i));
+            out.put((byte) memory[state.getMemoryBase() + i]);
         }
 
         out.put(state.isFlashActive() ? (byte) 1 : 0);

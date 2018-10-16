@@ -53,7 +53,6 @@ public class Emulator extends JFrame implements Runnable {
 
     private final Computer computer;
     private final DisplayComponent display;
-    private final SpectrumMemory memory;
     private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
     private final HostInputMultiplexer hostInputMultiplexer;
@@ -73,20 +72,16 @@ public class Emulator extends JFrame implements Runnable {
     private final SwingJoystick hostJoystick;
     private final SoundSystem soundSystem = new SoundSystem();
     private final Clock clock = new Clock();
+    protected final SpectrumMemory memory = new SpectrumMemory(clock); // visible for testing
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
 
     public Emulator() {
-        this(new UserPreferences());
+        this(new UserPreferences(), DisplayFactory.create());
     }
 
-    public Emulator(final UserPreferences prefs) {
-        this(prefs, new SpectrumMemory(), DisplayFactory.create());
-    }
-
-    protected Emulator(final UserPreferences prefs, final SpectrumMemory suppliedMemory, final DisplayComponent suppliedDisplay) {
+    protected Emulator(final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
         this.prefs = prefs;
-        this.memory = suppliedMemory;
         this.display = suppliedDisplay;
 
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
@@ -529,7 +524,7 @@ public class Emulator extends JFrame implements Runnable {
                     final EmulatorState[] states = new EmulatorState[8];
                     final int[] screenBytes = memory.getScreenBytes();
                     for (int i = 0; i < 8; i++) {
-                        states[i] = new EmulatorState(memory, 0x4000 + (i * 0x360), 0x360, ula.getBorderChanges(), ula.flashActive());
+                        states[i] = new EmulatorState(screenBytes, 0x4000 + (i * 0x360), 0x360, ula.getBorderChanges(), ula.flashActive());
                     }
                     peer.send(states);
                 }

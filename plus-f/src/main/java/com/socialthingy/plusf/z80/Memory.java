@@ -7,8 +7,8 @@ public class Memory {
         this.addressableMemory = new int[0x10000];
     }
 
-    public void set(int addr, final int value) {
-        addressableMemory[addr] = value;
+    public void set(final int addr, final int value) {
+        addressableMemory[addr & 0xffff] = value;
     }
 
     public int get(final int addr) {

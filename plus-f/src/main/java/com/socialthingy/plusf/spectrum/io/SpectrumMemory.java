@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.spectrum.io;
 
+import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
@@ -9,11 +10,13 @@ import java.io.InputStream;
 
 public class SpectrumMemory extends Memory implements IO {
     private static final int PAGE_SIZE = 0x4000;
-    private static final int DISPLAY_SIZE = 0x1b00;
     private static final int ROM_PAGE = 0;
     private static final int SCREEN_PAGE = 1;
     private static final int MIDDLE_PAGE = 2;
     private static final int HIGH_PAGE = 3;
+    private static final int SCANLINES_BEFORE_DISPLAY = 64;
+
+    private final Clock clock;
     private boolean pagingDisabled = false;
     private Model currentModel;
     private boolean screenChanged = true;
@@ -24,6 +27,28 @@ public class SpectrumMemory extends Memory implements IO {
     private int romPage;
     private int screenPage;
     private int highPageInMemory;
+
+    public SpectrumMemory(final Clock clock) {
+        this.clock = clock;
+        clock.addResetHandler(this::resetDisplayMemory);
+    }
+
+    public void setDisplayMemoryDirectly(final int[] src, final int addr, final int len) {
+        System.arraycopy(src, addr, displayMemory, addr, len);
+    }
+
+    private void resetDisplayMemory() {
+        screenChanged = true;
+        if (currentModel == Model._48K) {
+            System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x4000, 0x1b00);
+        } else {
+            if (screenPage == 5) {
+                System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x4000, 0x1b00);
+            } else {
+                System.arraycopy(addressableMemory, HIGH_PAGE * PAGE_SIZE, displayMemory, 0x4000, 0x1b00);
+            }
+        }
+    }
 
     @Override
     public boolean recognises(int low, int high) {
@@ -61,13 +86,18 @@ public class SpectrumMemory extends Memory implements IO {
 
                 switch (currentModel) {
                     case _48K:
-                        screenChanged = screenChanged || addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00;
+                        if (addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
+                            writeToDisplayIfBeforeScanlineReached(addr, value);
+                        }
                         break;
 
                     case PLUS_2:
                         switch (page) {
                             case 1:
-                                screenChanged = screenChanged || (screenPage == 5 && addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00);
+                                if (screenPage == 5 && addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
+                                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                                }
+
                                 if (highPageInMemory == 5) {
                                     super.set(addr + 0x8000, value);
                                 }
@@ -79,7 +109,10 @@ public class SpectrumMemory extends Memory implements IO {
                                 }
 
                             case 3:
-                                screenChanged = screenChanged || (screenPage == highPageInMemory && addr >= SpectrumMemory.HIGH_PAGE && addr < 0xdb00);
+                                if (screenPage == highPageInMemory && addr >= SpectrumMemory.HIGH_PAGE && addr < 0xdb00) {
+                                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                                }
+
                                 if (highPageInMemory == 2) {
                                     super.set(addr - SpectrumMemory.PAGE_SIZE, value);
                                 } else if (highPageInMemory == 5) {
@@ -90,6 +123,19 @@ public class SpectrumMemory extends Memory implements IO {
                 }
             }
         }
+    }
+
+    private void writeToDisplayIfBeforeScanlineReached(final int addr, final int value) {
+        if (clock.getTicks() < (SCANLINES_BEFORE_DISPLAY + yCoord(addr)) * currentModel.ticksPerScanline) {
+            screenChanged = true;
+            displayMemory[addr] = value;
+        }
+    }
+
+    private int yCoord(final int addr) {
+        final int hi = addr >> 8;
+        final int lo = addr & 0xff;
+        return ((hi & 24) << 2) + ((lo & 224) >> 2) + (hi & 7);
     }
 
     public void configure(final Model model) {
@@ -172,16 +218,7 @@ public class SpectrumMemory extends Memory implements IO {
     }
 
     public int[] getScreenBytes() {
-        if (currentModel == Model._48K || screenPage == 5) {
-            return addressableMemory;
-        } else {
-            if (highPageInMemory == 7) {
-                System.arraycopy(addressableMemory, HIGH_PAGE * PAGE_SIZE, displayMemory, SCREEN_PAGE * PAGE_SIZE, DISPLAY_SIZE);
-            } else {
-                System.arraycopy(ramPages[7], 0x0000, displayMemory, SCREEN_PAGE * PAGE_SIZE, DISPLAY_SIZE);
-            }
-            return displayMemory;
-        }
+        return displayMemory;
     }
 
     public boolean screenChanged() {
