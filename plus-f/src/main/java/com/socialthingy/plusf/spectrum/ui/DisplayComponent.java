@@ -23,8 +23,8 @@ abstract class DisplayComponent extends JComponent {
     protected static final int TSTATES_PER_LINE = 224;
     protected static final int SCALED_WIDTH = SCREEN_WIDTH * SCALE;
     protected static final int SCALED_HEIGHT = SCREEN_HEIGHT * SCALE;
-    private static final int TOP_BORDER_HEIGHT = 64;
-    private static final int BOTTOM_BORDER_HEIGHT = 56;
+    protected static final int TOP_BORDER_HEIGHT = 64;
+    protected static final int BOTTOM_BORDER_HEIGHT = 56;
 
     static int targetPixelAt(final int mainx, final int mainy, final int subx, final int suby) {
         return ((mainx * SwingDoubleSizeDisplay.SCALE) + subx) + (((mainy * SwingDoubleSizeDisplay.SCALE) + suby) * (SCREEN_WIDTH * SwingDoubleSizeDisplay.SCALE));
@@ -45,7 +45,7 @@ abstract class DisplayComponent extends JComponent {
         this.targetPixels = new int[SCALED_WIDTH * SCALED_HEIGHT];
         this.image = new BufferedImage(SCALED_WIDTH, SCALED_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         this.imageDataBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-        this.borderImage = new BufferedImage(1, borderPixels.length, BufferedImage.TYPE_INT_ARGB);
+        this.borderImage = new BufferedImage(1, (BORDER * 2) + SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         this.borderImageDataBuffer = ((DataBufferInt) borderImage.getRaster().getDataBuffer()).getData();
 
         setPreferredSize(DISPLAY_DIMENSIONS);

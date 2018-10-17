@@ -91,7 +91,7 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
             for (int i = topLine; i < borderPixels.length; i++) {
                 borderPixels[i] = colour;
             }
-            System.arraycopy(borderPixels, 0, borderImageDataBuffer, 0, borderImageDataBuffer.length);
+            System.arraycopy(borderPixels, TOP_BORDER_HEIGHT - BORDER, borderImageDataBuffer, 0, borderImageDataBuffer.length);
         }
     }
 

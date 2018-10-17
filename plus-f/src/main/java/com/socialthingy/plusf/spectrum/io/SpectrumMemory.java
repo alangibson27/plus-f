@@ -75,6 +75,17 @@ public class SpectrumMemory extends Memory implements IO {
     }
 
     @Override
+    public int get(final int addr) {
+        if (addr >= PAGE_SIZE && addr < 0x8000 &&
+                clock.getTicks() >= 64 * currentModel.ticksPerScanline &&
+                clock.getTicks() < (64 + 192) * currentModel.ticksPerScanline) {
+            clock.tick(2);
+        }
+
+        return super.get(addr);
+    }
+
+    @Override
     public void set(int addr, final int value) {
         addr &= 0xffff;
         final int page = addr >> 14;
@@ -86,6 +97,12 @@ public class SpectrumMemory extends Memory implements IO {
 
                 switch (currentModel) {
                     case _48K:
+                        if (addr >= PAGE_SIZE && addr < 0x8000 &&
+                                clock.getTicks() >= 64 * currentModel.ticksPerScanline &&
+                                clock.getTicks() < (64 + 192) * currentModel.ticksPerScanline) {
+                            clock.tick(2);
+                        }
+
                         if (addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
                             writeToDisplayIfBeforeScanlineReached(addr, value);
                         }
