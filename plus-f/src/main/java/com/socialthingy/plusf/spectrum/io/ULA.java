@@ -5,9 +5,6 @@ import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.z80.IO;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
     private final Keyboard keyboard;
@@ -18,8 +15,9 @@ public class ULA implements IO {
     private int cyclesSinceBeeperUpdate;
     protected boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
-    private int borderColour;
-    private List<Long> borderChanges = new ArrayList<>();
+    private int currentBorderColour;
+    private int[] borderColours = new int[64 + 192 + 52];
+    private boolean borderColourChanged = true;
     private int unchangedBorderCycles = 0;
     private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
@@ -56,10 +54,10 @@ public class ULA implements IO {
     public void write(int low, int high, int value) {
         if (low == 0xfe) {
             final int newBorderColour = value & 0b111;
-            if (borderColour != newBorderColour) {
+            if (currentBorderColour != newBorderColour) {
                 unchangedBorderCycles = 0;
-                borderColour = newBorderColour;
-                borderChanges.add(((long) clock.getTicks() << 32) | borderColour);
+                borderColourChanged = true;
+                currentBorderColour = newBorderColour;
             }
 
             beeperIsOn = (value & 0b10000) == 0;
@@ -67,21 +65,13 @@ public class ULA implements IO {
     }
 
     public void setBorderColour(final int borderColour) {
-        this.borderColour = borderColour & 0b111;
-        borderChanges.clear();
-        borderChanges.add((long) borderColour);
-    }
-
-    public List<Long> getBorderChanges() {
-        return borderChanges;
+        this.currentBorderColour = borderColour & 0b111;
     }
 
     public void newCycle() {
-        if (borderChanges.size() == 1) {
+        if (!borderColourChanged) {
             unchangedBorderCycles++;
         }
-        borderChanges.clear();
-        borderChanges.add((long) borderColour);
         cyclesUntilFlashChange--;
         if (cyclesUntilFlashChange == 0) {
             cyclesUntilFlashChange = 16;
@@ -92,7 +82,7 @@ public class ULA implements IO {
     }
 
     public boolean borderNeedsRedrawing() {
-        return unchangedBorderCycles < 2 && !borderChanges.isEmpty();
+        return unchangedBorderCycles < 2 && borderColourChanged;
     }
 
     public boolean flashStatusChanged() {
@@ -103,11 +93,20 @@ public class ULA implements IO {
         return flashActive;
     }
 
+    public int[] getBorderColours() {
+        return borderColours;
+    }
+
     public void advanceCycle(final int tstates) {
         cyclesSinceBeeperUpdate += tstates;
         if (cyclesSinceBeeperUpdate >= beeper.getUpdatePeriod()) {
             cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.getUpdatePeriod();
             beeper.update(beeperIsOn);
+        }
+
+        final int scanline = clock.getTicks() / 224;
+        if (scanline < borderColours.length) {
+            borderColours[scanline] = currentBorderColour;
         }
 
         clock.tick(tstates);
@@ -118,7 +117,6 @@ public class ULA implements IO {
 
     public void reset() {
         clock.reset();
-        borderChanges.clear();
         unchangedBorderCycles = 0;
         earBit = 0;
         tapeCyclesAdvanced = 0;

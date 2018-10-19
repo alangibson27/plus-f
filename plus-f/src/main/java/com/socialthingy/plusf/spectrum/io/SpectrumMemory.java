@@ -76,68 +76,65 @@ public class SpectrumMemory extends Memory implements IO {
 
     @Override
     public int get(final int addr) {
-        if (addr >= PAGE_SIZE && addr < 0x8000 &&
-                clock.getTicks() >= 64 * currentModel.ticksPerScanline &&
-                clock.getTicks() < (64 + 192) * currentModel.ticksPerScanline) {
-            clock.tick(2);
-        }
-
+        handleMemoryContention(addr);
         return super.get(addr);
+    }
+
+    private void handleMemoryContention(final int addr) {
+        if (clock.getTicks() >= 64 * currentModel.ticksPerScanline &&
+                clock.getTicks() < (64 + 192) * currentModel.ticksPerScanline) {
+            if ((addr >= PAGE_SIZE && addr < 0x8000) ||
+                    (currentModel == Model.PLUS_2 && addr >= HIGH_PAGE * PAGE_SIZE && (highPageInMemory & 1) == 1)) {
+                clock.tick(2);
+            }
+        }
     }
 
     @Override
     public void set(int addr, final int value) {
         addr &= 0xffff;
+        handleMemoryContention(addr);
         final int page = addr >> 14;
 
         if (page > 0) {
-            final int prevValue = super.get(addr);
-            if (prevValue != value) {
-                super.set(addr, value);
+            super.set(addr, value);
 
-                switch (currentModel) {
-                    case _48K:
-                        if (addr >= PAGE_SIZE && addr < 0x8000 &&
-                                clock.getTicks() >= 64 * currentModel.ticksPerScanline &&
-                                clock.getTicks() < (64 + 192) * currentModel.ticksPerScanline) {
-                            clock.tick(2);
-                        }
+            switch (currentModel) {
+                case _48K:
+                    if (addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
+                        writeToDisplayIfBeforeScanlineReached(addr, value);
+                    }
+                    break;
 
-                        if (addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
-                            writeToDisplayIfBeforeScanlineReached(addr, value);
-                        }
-                        break;
+                case PLUS_2:
+                    switch (page) {
+                        case 1:
+                            if (screenPage == 5 && addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
+                                writeToDisplayIfBeforeScanlineReached(addr, value);
+                            }
 
-                    case PLUS_2:
-                        switch (page) {
-                            case 1:
-                                if (screenPage == 5 && addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
-                                    writeToDisplayIfBeforeScanlineReached(addr, value);
-                                }
+                            if (highPageInMemory == 5) {
+                                super.set(addr + 0x8000, value);
+                            }
+                            break;
 
-                                if (highPageInMemory == 5) {
-                                    super.set(addr + 0x8000, value);
-                                }
-                                break;
+                        case 2:
+                            if (highPageInMemory == 2) {
+                                super.set(addr + SpectrumMemory.PAGE_SIZE, value);
+                            }
 
-                            case 2:
-                                if (highPageInMemory == 2) {
-                                    super.set(addr + SpectrumMemory.PAGE_SIZE, value);
-                                }
+                        case 3:
+                            if (screenPage == highPageInMemory && addr >= SpectrumMemory.HIGH_PAGE && addr < 0xdb00) {
+                                writeToDisplayIfBeforeScanlineReached(addr, value);
+                            }
 
-                            case 3:
-                                if (screenPage == highPageInMemory && addr >= SpectrumMemory.HIGH_PAGE && addr < 0xdb00) {
-                                    writeToDisplayIfBeforeScanlineReached(addr, value);
-                                }
-
-                                if (highPageInMemory == 2) {
-                                    super.set(addr - SpectrumMemory.PAGE_SIZE, value);
-                                } else if (highPageInMemory == 5) {
-                                    super.set(addr - 0x8000, value);
-                                }
-                                break;
-                        }
-                }
+                            if (highPageInMemory == 2) {
+                                super.set(addr - SpectrumMemory.PAGE_SIZE, value);
+                            } else if (highPageInMemory == 5) {
+                                super.set(addr - 0x8000, value);
+                            }
+                            break;
+                    }
             }
         }
     }

@@ -211,8 +211,8 @@ class GuestULA extends ULA {
     }
 
     void setBorderChanges(final List<Long> borderChanges) {
-        getBorderChanges().clear();
-        getBorderChanges().addAll(borderChanges);
+//        getBorderChanges().clear();
+//        getBorderChanges().addAll(borderChanges);
     }
 
     void setFlashActive(final boolean flashActive) {

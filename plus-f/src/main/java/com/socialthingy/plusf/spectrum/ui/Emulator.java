@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -524,7 +525,7 @@ public class Emulator extends JFrame implements Runnable {
                     final EmulatorState[] states = new EmulatorState[8];
                     final int[] screenBytes = memory.getScreenBytes();
                     for (int i = 0; i < 8; i++) {
-                        states[i] = new EmulatorState(screenBytes, 0x4000 + (i * 0x360), 0x360, ula.getBorderChanges(), ula.flashActive());
+                        states[i] = new EmulatorState(screenBytes, 0x4000 + (i * 0x360), 0x360, Collections.emptyList(), ula.flashActive());
                     }
                     peer.send(states);
                 }

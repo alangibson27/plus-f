@@ -72,24 +72,9 @@ public class SwingDoubleSizeDisplay extends DisplayComponent {
     @Override
     public void updateBorder(final ULA ula, final boolean force) {
         if (force || ula.borderNeedsRedrawing()) {
-            final Iterator<Long> it = new ArrayList<>(ula.getBorderChanges()).iterator();
-            long change = it.next();
-            int colour = dullColour((int) change);
-            int topLine = ((int) (change >> 32)) / TSTATES_PER_LINE;
-            while (it.hasNext()) {
-                change = it.next();
-                int bottomLine = ((int) (change >> 32)) / TSTATES_PER_LINE;
-                if (bottomLine > borderPixels.length) {
-                    bottomLine = borderPixels.length;
-                }
-                for (int i = topLine; i < bottomLine; i++) {
-                    borderPixels[i] = colour;
-                }
-                colour = dullColour((int) change);
-                topLine = bottomLine;
-            }
-            for (int i = topLine; i < borderPixels.length; i++) {
-                borderPixels[i] = colour;
+            int scanline = 0;
+            for (int colourIdx: ula.getBorderColours()) {
+                borderPixels[scanline++] = dullColour(colourIdx);
             }
             System.arraycopy(borderPixels, TOP_BORDER_HEIGHT - BORDER, borderImageDataBuffer, 0, borderImageDataBuffer.length);
         }

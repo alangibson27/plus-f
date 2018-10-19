@@ -2,7 +2,7 @@ package com.socialthingy.plusf.spectrum;
 
 public enum Model {
     _48K("48K", 69888, 224, "/48.rom"),
-    PLUS_2("+2", 70908, 227, 8, 5, 2, 0, "/plus2-0.rom", "/plus2-1.rom");
+    PLUS_2("+2", 70908, 228, 8, 5, 2, 0, "/plus2-0.rom", "/plus2-1.rom");
 
     public final String displayName;
     public final double tstateLengthMs;
