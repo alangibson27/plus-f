@@ -3,7 +3,11 @@ package com.socialthingy.plusf.spectrum.io;
 import com.socialthingy.plusf.sound.Beeper;
 import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.TapePlayer;
+import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.z80.IO;
+
+import static com.socialthingy.plusf.spectrum.display.DisplayComponent.BOTTOM_BORDER_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.DisplayComponent.TOP_BORDER_HEIGHT;
 
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
@@ -16,8 +20,8 @@ public class ULA implements IO {
     protected boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
     private int currentBorderColour;
-    private int[] borderColours = new int[64 + 192 + 52];
-    private boolean borderColourChanged = true;
+    protected int[] borderColours = new int[TOP_BORDER_HEIGHT + PixelMapper.SCREEN_HEIGHT + BOTTOM_BORDER_HEIGHT];
+    protected boolean borderColourChanged = true;
     private int unchangedBorderCycles = 0;
     private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;

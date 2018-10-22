@@ -6,9 +6,9 @@ import javax.swing.JRadioButtonMenuItem
 
 import com.socialthingy.plusf.spectrum.UserPreferences
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
-import com.socialthingy.plusf.spectrum.display.PixelMapper
-import com.socialthingy.plusf.spectrum.io.SpectrumMemory
-import com.socialthingy.plusf.spectrum.ui.DisplayComponent.targetPixelAt
+import com.socialthingy.plusf.spectrum.display.{DisplayComponent, PixelMapper}
+import com.socialthingy.plusf.spectrum.display.DisplayComponent.SCALE
+import com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_WIDTH
 import org.fest.swing.core.KeyPressInfo
 import org.fest.swing.core.KeyPressInfo.keyCode
 import org.fest.swing.fixture.{FrameFixture, JMenuItemFixture}
@@ -21,7 +21,7 @@ object UITest extends Tag("UITest")
 
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
-  val display = new SwingDoubleSizeDisplay(new PixelMapper)
+  val display = new TestDisplayComponent(new PixelMapper)
   var emulator: Emulator = null
   var fixture: FrameFixture = null
   val prefs = {
@@ -94,12 +94,12 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     fixture.typeProgram("O16384,255")
 
     // then
-    forEvery(display.borderPixels) { _ shouldBe 0xff000000 }
+    forEvery(display.getBorderColours) { _ shouldBe 0xff000000 }
     forEvery(0 to 6) { x =>
-      display.targetPixels(targetPixelAt(x, 0, 0, 0)) shouldBe 0xff000000
-      display.targetPixels(targetPixelAt(x, 0, 0, 1)) shouldBe 0xff000000
-      display.targetPixels(targetPixelAt(x, 0, 1, 0)) shouldBe 0xff000000
-      display.targetPixels(targetPixelAt(x, 0, 1, 1)) shouldBe 0xff000000
+      display.getTargetPixels(targetPixelAt(x, 0, 0, 0)) shouldBe 0xff000000
+      display.getTargetPixels(targetPixelAt(x, 0, 0, 1)) shouldBe 0xff000000
+      display.getTargetPixels(targetPixelAt(x, 0, 1, 0)) shouldBe 0xff000000
+      display.getTargetPixels(targetPixelAt(x, 0, 1, 1)) shouldBe 0xff000000
     }
   }
 
@@ -166,4 +166,11 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
   )
 
   implicit def intToKeyPressInfo(i: Int): KeyPressInfo = keyCode(i)
+
+  def targetPixelAt(mainx: Int, mainy: Int, subx: Int, suby: Int) = (mainx * SCALE + subx) + ((mainy * SCALE + suby) * (SCREEN_WIDTH * SCALE))
+}
+
+class TestDisplayComponent(mapper: PixelMapper) extends DisplayComponent(mapper) {
+  def getBorderColours: Array[Int] = borderImageDataBuffer
+  def getTargetPixels: Array[Int] = imageDataBuffer
 }
