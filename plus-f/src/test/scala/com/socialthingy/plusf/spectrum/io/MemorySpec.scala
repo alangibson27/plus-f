@@ -12,29 +12,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
         val table = Table(
           ("description", "ticks", "address"),
           ("last tick before first byte of first line", 14335, 16384),
-          ("last tick before first byte of second line", 14559, 16640)
-        )
-
-        forAll(table) { (_, ticks, address) =>
-          // given
-          val clock = new Clock
-          val memory = new SpectrumMemory(clock)
-          memory.configure(Model._48K)
-
-          // when
-          clock.tick(ticks) // last tick before first line
-          memory.set(address, 100)
-
-          // then
-          memory.getScreenBytes()(address) shouldBe 100
-        }
-      }
-
-      "not write it to the display memory if the ula has already reached that line" in {
-        val table = Table(
-          ("description", "ticks", "address"),
-          ("first tick of first line", 14336, 16384),
-          ("first tick of second line", 14560, 16640)
+          ("last tick before first byte of second line (minus 2 ticks for memory contention)", 14557, 16640)
         )
 
         forAll(table) { (_, ticks, address) =>
@@ -48,7 +26,29 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
           memory.set(address, 100)
 
           // then
-          memory.getScreenBytes()(address) shouldBe 0
+          memory.getScreenBytes()(address - 0x4000) shouldBe 100
+        }
+      }
+
+      "not write it to the display memory if the ula has already reached that line" in {
+        val table = Table(
+          ("description", "ticks", "address"),
+          ("first tick of first line", 14336, 16384),
+          ("first tick of second line (minus 2 ticks for memory contention)", 14558, 16640)
+        )
+
+        forAll(table) { (_, ticks, address) =>
+          // given
+          val clock = new Clock
+          val memory = new SpectrumMemory(clock)
+          memory.configure(Model._48K)
+
+          // when
+          clock.tick(ticks)
+          memory.set(address, 100)
+
+          // then
+          memory.getScreenBytes()(address - 0x4000) shouldBe 0
         }
       }
     }

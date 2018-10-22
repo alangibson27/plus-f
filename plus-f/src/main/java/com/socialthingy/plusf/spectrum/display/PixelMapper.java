@@ -1,7 +1,5 @@
 package com.socialthingy.plusf.spectrum.display;
 
-import com.socialthingy.plusf.z80.Memory;
-
 public class PixelMapper {
     public static final int SCREEN_WIDTH = 256;
     public static final int SCREEN_HEIGHT = 192;
@@ -24,13 +22,13 @@ public class PixelMapper {
     }
 
     protected int colourLineAddress(final int y) {
-        return 0x5800 + (0x20 * (y >> 3));
+        return 0x1800 + 0x20 * (y >> 3);
     }
 
     protected int lineAddress(final int y) {
         final int hi = y & 0b00111000;
         final int lo = y & 0b00000111;
-        return 0x4000 + ((y >> 6) * 0x800) + (((hi >> 3) | (lo << 3)) * 32);
+        return (y >> 6) * 0x800 + (hi >> 3 | lo << 3) * 32;
     }
 
     public int[] getPixels(final int[] memory, final boolean flashActive) {

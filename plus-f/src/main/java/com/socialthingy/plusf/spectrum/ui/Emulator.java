@@ -3,6 +3,8 @@ package com.socialthingy.plusf.spectrum.ui;
 import com.codahale.metrics.MetricRegistry;
 import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
+import com.socialthingy.plusf.spectrum.display.DisplayComponent;
+import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
 import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
@@ -31,7 +33,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -78,7 +79,7 @@ public class Emulator extends JFrame implements Runnable {
     private boolean turboLoadEnabled;
 
     public Emulator() {
-        this(new UserPreferences(), DisplayFactory.create());
+        this(new UserPreferences(), new DisplayComponent(new PixelMapper()));
     }
 
     protected Emulator(final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
@@ -525,7 +526,7 @@ public class Emulator extends JFrame implements Runnable {
                     final EmulatorState[] states = new EmulatorState[8];
                     final int[] screenBytes = memory.getScreenBytes();
                     for (int i = 0; i < 8; i++) {
-                        states[i] = new EmulatorState(screenBytes, 0x4000 + (i * 0x360), 0x360, Collections.emptyList(), ula.flashActive());
+                        states[i] = new EmulatorState(screenBytes, i * 0x360, 0x360, ula.getBorderColours(), ula.flashActive());
                     }
                     peer.send(states);
                 }
@@ -534,8 +535,15 @@ public class Emulator extends JFrame implements Runnable {
                 if (shouldRepaint()) {
                     soundSystem.getBeeper().play();
                     lastRepaint = System.currentTimeMillis();
-                    display.updateScreen(memory, ula);
-                    display.updateBorder(ula, currentSpeed == EmulatorSpeed.TURBO);
+
+                    if (memory.screenChanged() || ula.flashStatusChanged()) {
+                        memory.markScreenDrawn();
+                        display.updateScreen(memory.getScreenBytes(), ula.flashActive());
+                    }
+
+                    if (ula.borderNeedsRedrawing() || currentSpeed == EmulatorSpeed.TURBO) {
+                        display.updateBorder(ula.getBorderColours());
+                    }
                     SwingUtilities.invokeLater(display::repaint);
                 }
 

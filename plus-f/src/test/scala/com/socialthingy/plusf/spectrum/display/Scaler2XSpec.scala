@@ -1,24 +1,19 @@
-package com.socialthingy.plusf.spectrum.ui
+package com.socialthingy.plusf.spectrum.display
 
 import java.util
 
-import com.socialthingy.plusf.spectrum.display.{PixelMapper, SpectrumColour}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, GivenWhenThen, Inspectors, Matchers}
 
-class DisplayComponentTest
+class Scaler2XSpec
   extends FlatSpec
   with GivenWhenThen with Matchers with TableDrivenPropertyChecks with Inspectors with MockitoSugar {
-  val displayComponents = Table(
-    "display component class",
-    classOf[SwingDoubleSizeDisplay]
-  )
 
   val black = SpectrumColour.dullColour(0)
   val white = SpectrumColour.dullColour(7)
 
-  "SwingDoubleSizeDisplay" should "map source pixels to the target display correctly" in {
+  "Scaler2X" should "map source pixels to the target display correctly" in {
     Given("a bitmap with black pixels at each corner and white pixels everywhere else")
     val source = Array.ofDim[Int](0xc384)
     util.Arrays.fill(source, white)
@@ -28,9 +23,8 @@ class DisplayComponentTest
     source((258 * 192) + 256) = black
 
     When("the display is rendered")
-    val display = new SwingDoubleSizeDisplay(mock[PixelMapper])
-
-    display.scale(source)
+    val dest = Array.ofDim[Int](0x30000)
+    Scaler2X.scale(source, dest)
 
     Then("the pixels at each corner should be black and all other pixels should be white")
     val blackPixels = List(
@@ -40,9 +34,9 @@ class DisplayComponentTest
       0x2fc00, 0x2fe00, 0x2fe01, // bottom left
       0x2fdff, 0x2fffe, 0x2ffff  // bottom right
     )
-    forEvery(blackPixels) { pixel => display.targetPixels(pixel) shouldBe black }
+    forEvery(blackPixels) { pixel => dest(pixel) shouldBe black }
 
     val whitePixels = (0 until 0x18000) filterNot blackPixels.contains
-    forEvery(whitePixels) { pixel => display.targetPixels(pixel) shouldBe white }
+    forEvery(whitePixels) { pixel => dest(pixel) shouldBe white }
   }
 }
