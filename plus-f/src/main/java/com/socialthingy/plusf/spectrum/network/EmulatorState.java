@@ -1,19 +1,17 @@
 package com.socialthingy.plusf.spectrum.network;
 
-import java.util.List;
-
 public class EmulatorState {
     private int[] memory;
     private int memoryBase;
     private int memoryLength;
-    private List<Long> borderChanges;
+    private int[] borderColours;
     private boolean flashActive;
 
-    public EmulatorState(final int[] memory, final int memoryBase, final int memoryLength, final List<Long> borderChanges, final boolean flashActive) {
+    public EmulatorState(final int[] memory, final int memoryBase, final int memoryLength, final int[] borderColours, final boolean flashActive) {
         this.memory = memory;
         this.memoryBase = memoryBase;
         this.memoryLength = memoryLength;
-        this.borderChanges = borderChanges;
+        this.borderColours = borderColours;
         this.flashActive = flashActive;
     }
 
@@ -29,8 +27,8 @@ public class EmulatorState {
         return memoryLength;
     }
 
-    public List<Long> getBorderChanges() {
-        return borderChanges;
+    public int[] getBorderColours() {
+        return borderColours;
     }
 
     public boolean isFlashActive() {

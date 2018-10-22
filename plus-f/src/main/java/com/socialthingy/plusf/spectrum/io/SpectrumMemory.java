@@ -23,7 +23,7 @@ public class SpectrumMemory extends Memory implements IO {
     private int[][] romPages;
     private int[][] ramPages;
     private int[] swapPage = new int[SpectrumMemory.PAGE_SIZE];
-    private int[] displayMemory = new int[0x10000];
+    private int[] displayMemory = new int[0x1b00];
     private int romPage;
     private int screenPage;
     private int highPageInMemory;
@@ -33,19 +33,15 @@ public class SpectrumMemory extends Memory implements IO {
         clock.addResetHandler(this::resetDisplayMemory);
     }
 
-    public void setDisplayMemoryDirectly(final int[] src, final int addr, final int len) {
-        System.arraycopy(src, addr, displayMemory, addr, len);
-    }
-
     private void resetDisplayMemory() {
         screenChanged = true;
         if (currentModel == Model._48K) {
-            System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x4000, 0x1b00);
+            System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x0000, 0x1b00);
         } else {
             if (screenPage == 5) {
-                System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x4000, 0x1b00);
+                System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x0000, 0x1b00);
             } else {
-                System.arraycopy(addressableMemory, HIGH_PAGE * PAGE_SIZE, displayMemory, 0x4000, 0x1b00);
+                System.arraycopy(addressableMemory, HIGH_PAGE * PAGE_SIZE, displayMemory, 0x0000, 0x1b00);
             }
         }
     }
@@ -102,7 +98,7 @@ public class SpectrumMemory extends Memory implements IO {
             switch (currentModel) {
                 case _48K:
                     if (addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
-                        writeToDisplayIfBeforeScanlineReached(addr, value);
+                        writeToDisplayIfBeforeScanlineReached(addr - 0x4000, value);
                     }
                     break;
 
@@ -110,7 +106,7 @@ public class SpectrumMemory extends Memory implements IO {
                     switch (page) {
                         case 1:
                             if (screenPage == 5 && addr >= SpectrumMemory.PAGE_SIZE && addr < 0x5b00) {
-                                writeToDisplayIfBeforeScanlineReached(addr, value);
+                                writeToDisplayIfBeforeScanlineReached(addr - 0x4000, value);
                             }
 
                             if (highPageInMemory == 5) {
@@ -125,7 +121,7 @@ public class SpectrumMemory extends Memory implements IO {
 
                         case 3:
                             if (screenPage == highPageInMemory && addr >= SpectrumMemory.HIGH_PAGE && addr < 0xdb00) {
-                                writeToDisplayIfBeforeScanlineReached(addr, value);
+                                writeToDisplayIfBeforeScanlineReached(addr - 0xc000, value);
                             }
 
                             if (highPageInMemory == 2) {

@@ -2,13 +2,16 @@ package com.socialthingy.plusf.spectrum.network;
 
 import com.socialthingy.p2p.Deserialiser;
 import com.socialthingy.p2p.Serialiser;
+import com.socialthingy.plusf.spectrum.display.PixelMapper;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+
+import static com.socialthingy.plusf.spectrum.display.DisplayComponent.BOTTOM_BORDER_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.DisplayComponent.TOP_BORDER_HEIGHT;
 
 public class EmulatorStateHandler implements Serialiser, Deserialiser {
-    private final int[] memory = new int[0x10000];
+    private final int[] memory = new int[0x1b00];
 
     @Override
     public Object deserialise(final ByteBuffer in) {
@@ -18,11 +21,12 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
             memory[memoryBase + i] = in.get() & 0xff;
         }
         final boolean isFlashActive = in.get() != 0;
-        final List<Long> borderChanges = new ArrayList<>();
-        while (in.remaining() >= 8) {
-            borderChanges.add(in.getLong());
+        final int[] borderColours = new int[TOP_BORDER_HEIGHT + PixelMapper.SCREEN_HEIGHT + BOTTOM_BORDER_HEIGHT];
+        int line = 0;
+        while (in.remaining() >= 4) {
+            borderColours[line++] = in.getInt();
         }
-        return new EmulatorState(memory, 0x4000, 0x1b00, borderChanges, isFlashActive);
+        return new EmulatorState(memory, 0x0000, 0x1b00, borderColours, isFlashActive);
     }
 
     @Override
@@ -36,6 +40,6 @@ public class EmulatorStateHandler implements Serialiser, Deserialiser {
         }
 
         out.put(state.isFlashActive() ? (byte) 1 : 0);
-        state.getBorderChanges().forEach(out::putLong);
+        Arrays.stream(state.getBorderColours()).forEach(out::putInt);
     }
 }
