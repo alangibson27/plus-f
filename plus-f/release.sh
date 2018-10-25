@@ -31,7 +31,16 @@ function buildShadowJar {
   # Common JAR
   ${GRADLE} clean
   mkdir ${SCRIPT_DIR}/build
-  ${GRADLE} writeVersionFile shadowJar
+  ${GRADLE} check shadowJar
+}
+
+function checkVersionUpdated {
+  VERSION=$(cat ${SCRIPT_DIR}/build/version)
+  found=$(git tag | grep -c release-${VERSION})
+  if [ "$found" != "0" ]; then
+    echo "Version ${VERSION} already released"
+    exit 1
+  fi
 }
 
 function tagRelease {
@@ -44,7 +53,7 @@ function tagRelease {
 
 function buildLinuxAndUniversal {
   # Linux and Universal builds
-  ${GRADLE} distZip debPackage rpmPackage
+  ${GRADLE} distZip debPackage rpmPackage -X check
   for i in $(ls build/distributions/plus-f-*); do
     if ! [[ $i =~ .+tar ]]; then
       name=$(echo $i | sed -E "s/(.+plus-f.+)(\....)/Plus-F\2/")
@@ -60,10 +69,11 @@ function buildWindows {
   export VERSION  
 
   # Windows build
+  ${GRADLE} distZip -X check
   mkdir -p ${WINDOWS_DIST_DIR}
 
   # Create launch4j package
-  ${SCRIPT_DIR}/package/windows/template-launch4j.sh > ${WINDOWS_DIST_DIR}/launch4j.xml
+  i{SCRIPT_DIR}/package/windows/template-launch4j.sh > ${WINDOWS_DIST_DIR}/launch4j.xml
   ${LAUNCH4J_DIR}/launch4j ${WINDOWS_DIST_DIR}/launch4j.xml
   cp -rf ${WINDOWS_JRE_DIR} ${WINDOWS_DIST_DIR}
 
@@ -73,7 +83,9 @@ function buildWindows {
   ${AWS_CMD} s3 cp ${WINDOWS_DIST_DIR}/Plus-F-Install.exe s3://download.socialthingy.com/Plus-F.exe
 }
 
+${GRADLE} writeVersionFile
 checkCommittedOnMaster
+checkVersionUpdated
 buildShadowJar
 tagRelease
 buildLinuxAndUniversal
