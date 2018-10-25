@@ -1,7 +1,7 @@
 package com.socialthingy.plusf
 
 import com.socialthingy.plusf.z80.FlagsRegister.Flag
-import com.socialthingy.plusf.z80.{ByteRegister, IO, Memory, Processor}
+import com.socialthingy.plusf.z80._
 import org.mockito.Matchers._
 import org.mockito.Mockito.{verify, when => mockitoWhen}
 import org.mockito.{Matchers => MockitoMatchers}
@@ -14,7 +14,7 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
 
   trait Machine {
     var instructionPointer = 0x0
-    val memory = new Memory()
+    val memory: Memory = new SimpleMemory()
 
     val io = {
       val stub = mock[IO]

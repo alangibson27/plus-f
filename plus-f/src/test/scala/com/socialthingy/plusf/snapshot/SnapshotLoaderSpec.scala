@@ -4,15 +4,15 @@ import java.io.IOException
 
 import com.socialthingy.plusf.ProcessorSpec
 import com.socialthingy.plusf.spectrum.Clock
-import com.socialthingy.plusf.spectrum.io.SpectrumMemory
+import com.socialthingy.plusf.spectrum.io.SwitchableMemory
 import com.socialthingy.plusf.spectrum.Model
 import org.scalatest.Matchers
 
 class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
 
   trait Spectrum extends Machine {
-    override val memory = new SpectrumMemory(new Clock())
-    memory.configure(Model._48K)
+    override val memory = new SwitchableMemory(new Clock())
+    memory.setModel(Model._48K)
   }
 
   "Snapshot loader" should "load a z80 v1 snapshot" in new Spectrum {

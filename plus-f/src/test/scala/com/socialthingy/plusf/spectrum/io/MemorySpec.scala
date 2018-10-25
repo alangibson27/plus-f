@@ -18,15 +18,14 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
         forAll(table) { (_, ticks, address) =>
           // given
           val clock = new Clock
-          val memory = new SpectrumMemory(clock)
-          memory.configure(Model._48K)
+          val memory = new Memory48K(clock)
 
           // when
           clock.tick(ticks)
           memory.set(address, 100)
 
           // then
-          memory.getScreenBytes()(address - 0x4000) shouldBe 100
+          memory.getDisplayMemory()(address - 0x4000) shouldBe 100
         }
       }
 
@@ -40,15 +39,15 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
         forAll(table) { (_, ticks, address) =>
           // given
           val clock = new Clock
-          val memory = new SpectrumMemory(clock)
-          memory.configure(Model._48K)
+          val memory = new SwitchableMemory(clock)
+          memory.setModel(Model._48K)
 
           // when
           clock.tick(ticks)
           memory.set(address, 100)
 
           // then
-          memory.getScreenBytes()(address - 0x4000) shouldBe 0
+          memory.getDisplayMemory()(address - 0x4000) shouldBe 0
         }
       }
     }
@@ -56,8 +55,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
   "+2 memory" when {
     "configured" should {
-      val memory = new SpectrumMemory(new Clock())
-      memory.configure(Model.PLUS_2)
+      val memory = new MemoryPlus2(new Clock())
 
       "have the editor ROM in slot 0" in {
         memory.get(0x0000) shouldBe 0xf3
@@ -66,8 +64,8 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
     "switching ROM from page 0 to 1 and back again" should {
       "work properly" in new ConfiguredMemory {
-        memory.setRomPage(1)
-        memory.setRomPage(0)
+        memory.setActiveRomBank(1)
+        memory.setActiveRomBank(0)
 
         memory.get(0x0001) shouldBe 0x01
       }
@@ -81,7 +79,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "not make change when ROM 1 is present" in new ConfiguredMemory {
-        memory.setRomPage(1)
+        memory.setActiveRomBank(1)
 
         memory.set(0x0001, 0xff)
 
@@ -91,7 +89,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
     "slot 1 is written to" should {
       "replicate writes when page 5 is in slot 1 and slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(5)
+        memory.setActiveHighBank(5)
 
         memory.set(0x4001, 0xff)
 
@@ -100,7 +98,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "not replicate writes when page 5 is in slot 1 another page is in slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(7)
+        memory.setActiveHighBank(7)
 
         memory.set(0x4001, 0xff)
 
@@ -110,7 +108,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
       "record the screen as being changed if page 5 is the displayable screen" +
         "and the low part of slot 1 is written to" in new ConfiguredMemory {
-        memory.setScreenPage(5)
+        memory.setActiveScreenBank(5)
         memory.markScreenDrawn()
 
         memory.set(0x4001, 0xff)
@@ -121,7 +119,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
       "not record the screen as being changed if page 7 is the displayable screen" +
         "and the low part of slot 1 is written to" in new ConfiguredMemory {
-        memory.setScreenPage(7)
+        memory.setActiveScreenBank(7)
         memory.markScreenDrawn()
 
         memory.set(0x4001, 0xff)
@@ -131,10 +129,10 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "put the current state of page 5 into slot 3 when page 5 is subsequently swapped into slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(0)
+        memory.setActiveHighBank(0)
 
         memory.set(0x4001, 0xbe)
-        memory.setHighPageInMemory(5)
+        memory.setActiveHighBank(5)
 
         memory.get(0xc001) shouldBe 0xbe
       }
@@ -142,7 +140,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
     "slot 2 is written to" should {
       "replicate writes when page 2 is in slot 2 and slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(2)
+        memory.setActiveHighBank(2)
 
         memory.set(0x8001, 0xff)
 
@@ -151,7 +149,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "not replicate writes when page 2 is in slot 2 and another page is in slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(0)
+        memory.setActiveHighBank(0)
 
         memory.set(0x8001, 0xff)
 
@@ -160,10 +158,10 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "put the current state of page 2 into slot 3 when page 2 is subsequently swapped into slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(0)
+        memory.setActiveHighBank(0)
 
         memory.set(0x8001, 0xbe)
-        memory.setHighPageInMemory(2)
+        memory.setActiveHighBank(2)
 
         memory.get(0xc001) shouldBe 0xbe
       }
@@ -171,7 +169,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
     "slot 3 is written to" should {
       "replicate writes when page 5 is in slot 1 and slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(5)
+        memory.setActiveHighBank(5)
 
         memory.set(0xc001, 0xff)
 
@@ -180,7 +178,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "not replicate writes when page 5 is in slot 1 another page is in slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(7)
+        memory.setActiveHighBank(7)
 
         memory.set(0xc001, 0xff)
 
@@ -189,7 +187,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "replicate writes when page 2 is in slot 2 and slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(2)
+        memory.setActiveHighBank(2)
 
         memory.set(0xc001, 0xff)
 
@@ -198,7 +196,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "not replicate writes when page 2 is in slot 2 and another page is in slot 3" in new ConfiguredMemory {
-        memory.setHighPageInMemory(4)
+        memory.setActiveHighBank(4)
 
         memory.set(0xc001, 0xff)
 
@@ -207,9 +205,9 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "record the screen as being changed if page 5 is in slot 3 and page 5 is the visible screen" in new ConfiguredMemory {
-        memory.setScreenPage(5)
+        memory.setActiveScreenBank(5)
         memory.markScreenDrawn()
-        memory.setHighPageInMemory(5)
+        memory.setActiveHighBank(5)
 
         memory.set(0xc001, 0xff)
 
@@ -219,9 +217,9 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "record the screen as being changed if page 7 is in slot 3 and page 7 is the visible screen" in new ConfiguredMemory {
-        memory.setScreenPage(7)
+        memory.setActiveScreenBank(7)
         memory.markScreenDrawn()
-        memory.setHighPageInMemory(7)
+        memory.setActiveHighBank(7)
 
         memory.set(0xc001, 0xff)
 
@@ -231,9 +229,9 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "not record the screen as being changed if page 5 is in slot 3 and page 7 is the visible screen" in new ConfiguredMemory {
-        memory.setScreenPage(7)
+        memory.setActiveScreenBank(7)
         memory.markScreenDrawn()
-        memory.setHighPageInMemory(5)
+        memory.setActiveHighBank(5)
 
         memory.set(0xc001, 0xff)
 
@@ -242,9 +240,9 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
       }
 
       "not record the screen as being changed if page 7 is in slot 3 and page 5 is the visible screen" in new ConfiguredMemory {
-        memory.setScreenPage(5)
+        memory.setActiveScreenBank(5)
         memory.markScreenDrawn()
-        memory.setHighPageInMemory(7)
+        memory.setActiveHighBank(7)
 
         memory.set(0xc001, 0xff)
 
@@ -255,12 +253,12 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
     "a page is written to, swapped out and swapped back in" should {
       "preserve the written changes" in new ConfiguredMemory {
-        memory.setHighPageInMemory(4)
+        memory.setActiveHighBank(4)
 
         memory.set(0xc001, 0xff)
-        memory.setHighPageInMemory(7)
+        memory.setActiveHighBank(7)
         memory.set(0xc001, 0xfe)
-        memory.setHighPageInMemory(4)
+        memory.setActiveHighBank(4)
 
         memory.get(0xc001) shouldBe 0xff
       }
@@ -268,7 +266,6 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
   }
 
   trait ConfiguredMemory {
-    val memory = new SpectrumMemory(new Clock())
-    memory.configure(Model.PLUS_2)
+    val memory = new MemoryPlus2(new Clock())
   }
 }

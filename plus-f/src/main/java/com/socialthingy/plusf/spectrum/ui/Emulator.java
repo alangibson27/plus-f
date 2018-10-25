@@ -7,7 +7,7 @@ import com.socialthingy.plusf.spectrum.display.DisplayComponent;
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
-import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
+import com.socialthingy.plusf.spectrum.io.SwitchableMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.spectrum.joystick.Joystick;
 import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
@@ -74,7 +74,7 @@ public class Emulator extends JFrame implements Runnable {
     private final SwingJoystick hostJoystick;
     private final SoundSystem soundSystem = new SoundSystem();
     private final Clock clock = new Clock();
-    protected final SpectrumMemory memory = new SpectrumMemory(clock); // visible for testing
+    protected final SwitchableMemory memory = new SwitchableMemory(clock); // visible for testing
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
 
@@ -87,7 +87,7 @@ public class Emulator extends JFrame implements Runnable {
         this.display = suppliedDisplay;
 
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        memory.configure(currentModel);
+        memory.setModel(currentModel);
 
         final IOMultiplexer ioMux = new IOMultiplexer();
         processor = new Processor(this.memory, ioMux);
@@ -524,9 +524,9 @@ public class Emulator extends JFrame implements Runnable {
 
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final EmulatorState[] states = new EmulatorState[8];
-                    final int[] screenBytes = memory.getScreenBytes();
+                    final int[] displayMemory = memory.getDisplayMemory();
                     for (int i = 0; i < 8; i++) {
-                        states[i] = new EmulatorState(screenBytes, i * 0x360, 0x360, ula.getBorderColours(), ula.flashActive());
+                        states[i] = new EmulatorState(displayMemory, i * 0x360, 0x360, ula.getBorderColours(), ula.flashActive());
                     }
                     peer.send(states);
                 }
@@ -538,7 +538,7 @@ public class Emulator extends JFrame implements Runnable {
 
                     if (memory.screenChanged() || ula.flashStatusChanged()) {
                         memory.markScreenDrawn();
-                        display.updateScreen(memory.getScreenBytes(), ula.flashActive());
+                        display.updateScreen(memory.getDisplayMemory(), ula.flashActive());
                     }
 
                     if (ula.borderNeedsRedrawing() || currentSpeed == EmulatorSpeed.TURBO) {
@@ -758,7 +758,7 @@ public class Emulator extends JFrame implements Runnable {
 
     protected void resetComputer() {
         final Model model = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        memory.configure(model);
+        memory.setModel(model);
         computer.reset();
         processor.reset();
         ula.reset();
