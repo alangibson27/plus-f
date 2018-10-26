@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.snapshot;
 
+import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.io.SwitchableMemory;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.Processor;
@@ -32,6 +33,26 @@ public class SnapshotLoader {
     private int interruptMode;
     private int[][] memoryPages;
 
+    private enum HWMode {
+        HW_48K(0), HW_48K_IF1(1), HW_128K(3), UNSUPPORTED(-1);
+
+        private int modeNumber;
+
+        HWMode(final int modeNumber) {
+            this.modeNumber = modeNumber;
+        }
+
+        public static HWMode from(final int modeNumber) {
+            for (HWMode mode: values()) {
+                if (mode.modeNumber == modeNumber) {
+                    return mode;
+                }
+            }
+
+            return UNSUPPORTED;
+        }
+    }
+
     public SnapshotLoader(final InputStream inputStream) {
         this.inputStream = inputStream;
         memoryPages = new int[12][];
@@ -46,8 +67,8 @@ public class SnapshotLoader {
             final int headerLength = Word.from(inputStream.read(), inputStream.read());
             pcValue = Word.from(inputStream.read(), inputStream.read());
 
-            final int hwMode = inputStream.read();
-            if (hwMode != 0) {
+            final HWMode hwMode = HWMode.from(inputStream.read());
+            if (hwMode == HWMode.UNSUPPORTED || hwMode == HWMode.HW_128K) {
                 throw new IOException("Unsupported machine version. Only 48k snapshots supported.");
             }
 
@@ -102,16 +123,15 @@ public class SnapshotLoader {
         final int[] wholeMemory = new int[0xc000];
         if (memoryIsCompressed) {
             loadMemoryFromCompressedBinary(0x0000, 0xc000, wholeMemory);
+            final int[] endMarker = new int[]{
+                    inputStream.read(), inputStream.read(), inputStream.read(), inputStream.read()
+            };
+
+            if (endMarker[0] != 0x00 || endMarker[1] != 0xed || endMarker[2] != 0xed || endMarker[3] != 0x00) {
+                throw new IOException(".z80 file format invalid");
+            }
         } else {
-            loadMemoryFromBinary(0x0000, wholeMemory);
-        }
-
-        final int[] endMarker = new int[]{
-                inputStream.read(), inputStream.read(), inputStream.read(), inputStream.read()
-        };
-
-        if (endMarker[0] != 0x00 || endMarker[1] != 0xed || endMarker[2] != 0xed || endMarker[3] != 0x00) {
-            throw new IOException(".z80 file format invalid");
+            loadMemoryFromBinary(wholeMemory);
         }
 
         System.arraycopy(wholeMemory, 0x4000, memoryPages[4], 0x0000, 0x4000);
@@ -185,6 +205,7 @@ public class SnapshotLoader {
 
         processor.setInterruptMode(interruptMode);
 
+        memory.setModel(Model._48K);
         memory.copyIntoPage(memoryPages[4], 2);
         memory.copyIntoPage(memoryPages[5], 3);
         memory.copyIntoPage(memoryPages[8], 1);
@@ -214,7 +235,10 @@ public class SnapshotLoader {
         }
     }
 
-    private void loadMemoryFromBinary(final int base, final int[] memory) {
+    private void loadMemoryFromBinary(final int[] memory) throws IOException {
+        for (int i = 0; i < 0xc000; i++) {
+            memory[i] = inputStream.read();
+        }
     }
 
     private void skipByte() throws IOException {
