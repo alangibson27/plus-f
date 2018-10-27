@@ -4,26 +4,33 @@ import java.io.IOException
 
 import com.socialthingy.plusf.ProcessorSpec
 import com.socialthingy.plusf.spectrum.Clock
-import com.socialthingy.plusf.spectrum.io.SwitchableMemory
-import com.socialthingy.plusf.spectrum.Model
+import com.socialthingy.plusf.spectrum.io.ULA
+import com.socialthingy.plusf.z80.{IO, Memory, Processor}
+import org.mockito.Mockito.verify
 import org.scalatest.Matchers
+import org.scalatest.mockito.MockitoSugar
 
-class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
+class SnapshotLoaderSpec extends ProcessorSpec with Matchers with MockitoSugar {
 
-  trait Spectrum extends Machine {
-    override val memory = new SwitchableMemory(new Clock())
-    memory.setModel(Model._48K)
+  trait Spectrum {
+    val ula = mock[ULA]
+    val clock = new Clock()
+    val processor = new Processor(mock[Memory], mock[IO])
+
+    def registerValue(name: String) = processor.register(name).get()
   }
 
   "Snapshot loader" should "load a z80 v1 snapshot" in new Spectrum {
     // given
-    val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80"))
+    val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80"))
 
     // when
-    val borderColour = loader.read(processor, memory)
+    val memory = snapshot.getMemory(clock)
+    snapshot.setBorderColour(ula)
+    snapshot.setProcessorState(processor)
 
     // then
-    borderColour shouldBe 7
+    verify(ula).setBorderColour(7)
 
     registerValue("a") shouldBe 0xc9
     registerValue("f") shouldBe 0x82
@@ -63,13 +70,15 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
 
   it should "load z80 v3 snapshot" in new Spectrum {
     // given
-    val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80-v3"))
+    val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80-v3"))
 
     // when
-    val borderColour = loader.read(processor, memory)
+    val memory = snapshot.getMemory(clock)
+    snapshot.setBorderColour(ula)
+    snapshot.setProcessorState(processor)
 
     // then
-    borderColour shouldBe 7
+    verify(ula).setBorderColour(7)
 
     registerValue("a") shouldBe 0xdd
     registerValue("f") shouldBe 0x82
@@ -106,8 +115,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers {
 
   it should "reject a snapshot for a non-48k machine" in new Spectrum {
     intercept[IOException] {
-      val loader = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80-128k"))
-      loader.read(processor, memory)
+      new Snapshot(getClass.getResourceAsStream("/screenfiller.z80-128k"))
     }
   }
 }

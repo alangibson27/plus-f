@@ -2,14 +2,14 @@ package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.z80.IO;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class IOMultiplexer implements IO {
-    private List<IO> devices = new ArrayList<>();
+    private final List<IO> devices;
 
-    public void register(final IO device) {
-        devices.add(device);
+    public IOMultiplexer(final IO ... devices) {
+        this.devices = Arrays.asList(devices);
     }
 
     @Override

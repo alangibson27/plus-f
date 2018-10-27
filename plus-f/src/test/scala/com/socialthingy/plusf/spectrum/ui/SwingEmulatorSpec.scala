@@ -6,14 +6,14 @@ import javax.swing.JRadioButtonMenuItem
 
 import com.socialthingy.plusf.spectrum.UserPreferences
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
-import com.socialthingy.plusf.spectrum.display.{DisplayComponent, PixelMapper, Scaler2X}
 import com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_WIDTH
 import com.socialthingy.plusf.spectrum.display.Scaler2X.SCALE
+import com.socialthingy.plusf.spectrum.display.{DisplayComponent, PixelMapper}
 import org.fest.swing.core.KeyPressInfo
 import org.fest.swing.core.KeyPressInfo.keyCode
 import org.fest.swing.fixture.{FrameFixture, JMenuItemFixture}
-import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest._
+import org.scalatest.prop.TableDrivenPropertyChecks
 
 import scala.language.implicitConversions
 
@@ -22,7 +22,7 @@ object UITest extends Tag("UITest")
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
   val display = new TestDisplayComponent(new PixelMapper)
-  var emulator: Emulator = null
+  var emulator: InspectableEmulator = null
   var fixture: FrameFixture = null
   val prefs = {
     val p = new UserPreferences()
@@ -36,7 +36,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   before {
     if (emulator == null) {
-      emulator = new Emulator(prefs, display)
+      emulator = new InspectableEmulator(prefs, display)
       fixture = new FrameFixture(emulator)
       emulator.run()
       Thread.sleep(1000)
@@ -111,7 +111,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     fixture.typeProgram("POKE 16384, 255")
 
     // then
-    emulator.memory.get(16384) shouldBe 255
+    emulator.peek(16384) shouldBe 255
   }
 
   it should "handle Sinclair joystick input correctly" taggedAs(UITest) in {
@@ -127,7 +127,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     fixture.typeProgram("O16384,B")
 
     // then
-    emulator.memory.get(16384) shouldBe 30
+    emulator.peek(16384) shouldBe 30
   }
 
   implicit class EmulatorOps(e: FrameFixture) {
@@ -173,4 +173,9 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 class TestDisplayComponent(mapper: PixelMapper) extends DisplayComponent(mapper) {
   def getBorderColours: Array[Int] = borderImageDataBuffer
   def getTargetPixels: Array[Int] = imageDataBuffer
+}
+
+class InspectableEmulator(prefs: UserPreferences, display: DisplayComponent)
+  extends Emulator(prefs, display) {
+  def peek(addr: Int): Int = computer.peek(addr)
 }
