@@ -9,7 +9,7 @@ import com.socialthingy.plusf.z80.SimpleMemory;
 import java.io.IOException;
 import java.io.InputStream;
 
-abstract class BaseSpectrumMemory extends SimpleMemory implements IO {
+public abstract class SpectrumMemory extends SimpleMemory implements IO {
     private static final int SCANLINES_BEFORE_DISPLAY = 64;
     protected static final int PAGE_SIZE = 0x4000;
 
@@ -20,16 +20,17 @@ abstract class BaseSpectrumMemory extends SimpleMemory implements IO {
     protected final int lastTickOfDisplay;
     protected boolean screenChanged = true;
 
-    protected BaseSpectrumMemory(final Model model, final Clock clock) {
+    protected SpectrumMemory(final Model model, final Clock clock) {
         ticksPerScanline = model.ticksPerScanline;
         firstTickOfDisplay = 64 * ticksPerScanline;
         lastTickOfDisplay = (64 + 192) * ticksPerScanline;
         this.clock = clock;
+        clock.setResetHandler(this::resetDisplayMemory);
     }
 
     protected abstract void resetDisplayMemory();
 
-    protected int[] getDisplayMemory() {
+    public int[] getDisplayMemory() {
         return displayMemory;
     }
 
@@ -85,15 +86,15 @@ abstract class BaseSpectrumMemory extends SimpleMemory implements IO {
         copyInto(sourceRamPage, pageInMemory * PAGE_SIZE);
     }
 
-    protected boolean screenChanged() {
+    public boolean screenChanged() {
         return screenChanged;
     }
 
-    protected void markScreenDrawn() {
+    public void markScreenDrawn() {
         screenChanged = false;
     }
 
-    protected void copyIntoPage(final int[] source, final int destination) {
+    public void copyIntoPage(final int[] source, final int destination) {
         copyInto(source, destination * PAGE_SIZE);
     }
 }

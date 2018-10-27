@@ -3,17 +3,17 @@ package com.socialthingy.plusf.spectrum.io;
 import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 
-public class MemoryPlus2 extends BaseSpectrumMemory {
-    private static final int ROM_PAGE = 0;
-    private static final int LOW_PAGE = 1;
-    private static final int MIDDLE_PAGE = 2;
-    private static final int HIGH_PAGE = 3;
+public class MemoryPlus2 extends SpectrumMemory {
+    public static final int ROM_PAGE = 0;
+    public static final int LOW_PAGE = 1;
+    public static final int MIDDLE_PAGE = 2;
+    public static final int HIGH_PAGE = 3;
 
     private final Clock clock;
     private boolean pagingDisabled = false;
     private int[][] romBanks;
     private int[][] ramBanks;
-    private int[] swapBank = new int[BaseSpectrumMemory.PAGE_SIZE];
+    private int[] swapBank = new int[SpectrumMemory.PAGE_SIZE];
     private int activeRomBank;
     private int activeScreenBank;
     private int activeHighBank;
@@ -163,8 +163,12 @@ public class MemoryPlus2 extends BaseSpectrumMemory {
         System.arraycopy(sourceBank, 0x0000, targetBank, 0x0000, PAGE_SIZE);
     }
 
+    public void copyIntoBank(final int[] source, final int targetBank) {
+        copyBankIntoBank(source, ramBanks[targetBank]);
+    }
+
     @Override
-    protected void copyIntoPage(final int[] source, final int destination) {
+    public void copyIntoPage(final int[] source, final int destination) {
         super.copyIntoPage(source, destination);
 
         final int pageInMemory = destination >> 14;

@@ -1,14 +1,13 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
+import com.socialthingy.plusf.snapshot.Snapshot;
 import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.display.DisplayComponent;
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
-import com.socialthingy.plusf.spectrum.io.IOMultiplexer;
-import com.socialthingy.plusf.spectrum.io.SwitchableMemory;
-import com.socialthingy.plusf.spectrum.io.ULA;
+import com.socialthingy.plusf.spectrum.io.*;
 import com.socialthingy.plusf.spectrum.joystick.Joystick;
 import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
 import com.socialthingy.plusf.spectrum.joystick.SinclairJoystickInterface;
@@ -53,7 +52,7 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 public class Emulator extends JFrame implements Runnable {
     private final Logger log = LoggerFactory.getLogger(Emulator.class);
 
-    private final Computer computer;
+    protected Computer computer;
     private final DisplayComponent display;
     private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
@@ -65,8 +64,6 @@ public class Emulator extends JFrame implements Runnable {
     private ScheduledFuture<?> cycleTimer;
     private EmulatorSpeed currentSpeed;
     private JLabel speedIndicator;
-    private final ULA ula;
-    private final Processor processor;
     private long lastRepaint;
     private final Joystick guestJoystick;
     private final KempstonJoystickInterface kempstonJoystickInterface;
@@ -74,7 +71,6 @@ public class Emulator extends JFrame implements Runnable {
     private final SwingJoystick hostJoystick;
     private final SoundSystem soundSystem = new SoundSystem();
     private final Clock clock = new Clock();
-    protected final SwitchableMemory memory = new SwitchableMemory(clock); // visible for testing
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
 
@@ -87,13 +83,8 @@ public class Emulator extends JFrame implements Runnable {
         this.display = suppliedDisplay;
 
         currentModel = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        memory.setModel(currentModel);
-
-        final IOMultiplexer ioMux = new IOMultiplexer();
-        processor = new Processor(this.memory, ioMux);
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
-        ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock);
 
         hostJoystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
@@ -103,19 +94,6 @@ public class Emulator extends JFrame implements Runnable {
         hostInputMultiplexer.deactivateJoystick();
         kempstonJoystickInterface.connect(guestJoystick);
 
-        ioMux.register(ula);
-        ioMux.register(memory);
-        ioMux.register(soundSystem.getAyChip());
-        ioMux.register(kempstonJoystickInterface);
-
-        computer = new Computer(
-            processor,
-            ula,
-            this.memory,
-            Model._48K,
-            new MetricRegistry()
-        );
-
         peer = new EmulatorPeerAdapter(gs -> {
             if (gs.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
                 guestJoystick.deserialise(gs.getEventValue());
@@ -124,9 +102,40 @@ public class Emulator extends JFrame implements Runnable {
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
+        computer = newComputer(currentModel);
 
         setTitle("+F Spectrum Emulator");
         initialiseUI();
+    }
+
+    private Computer newComputer(final Model model) {
+        return newComputer(model, null);
+    }
+
+    private Computer newComputer(final Model model, final Snapshot snapshot) {
+        final SpectrumMemory memory;
+        if (snapshot == null) {
+            memory = model == Model._48K ? new Memory48K(clock) : new MemoryPlus2(clock);
+        } else {
+            memory = snapshot.getMemory(clock);
+        }
+
+        final ULA ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock);
+        final IOMultiplexer ioMux = new IOMultiplexer(ula, memory, soundSystem.getAyChip(), kempstonJoystickInterface);
+
+        final Processor processor = new Processor(memory, ioMux);
+        if (snapshot != null) {
+            snapshot.setProcessorState(processor);
+            snapshot.setBorderColour(ula);
+        }
+
+        return new Computer(
+            processor,
+            memory,
+            ula,
+            model,
+            new MetricRegistry()
+        );
     }
 
     private void initialiseUI() {
@@ -524,9 +533,9 @@ public class Emulator extends JFrame implements Runnable {
 
                 if (peer.isConnected() && currentSpeed == EmulatorSpeed.NORMAL && sendToPeer) {
                     final EmulatorState[] states = new EmulatorState[8];
-                    final int[] displayMemory = memory.getDisplayMemory();
+                    final int[] displayMemory = computer.getDisplayMemory();
                     for (int i = 0; i < 8; i++) {
-                        states[i] = new EmulatorState(displayMemory, i * 0x360, 0x360, ula.getBorderColours(), ula.flashActive());
+                        states[i] = new EmulatorState(displayMemory, i * 0x360, 0x360, computer.getBorderColours(), computer.flashActive());
                     }
                     peer.send(states);
                 }
@@ -536,13 +545,13 @@ public class Emulator extends JFrame implements Runnable {
                     soundSystem.getBeeper().play();
                     lastRepaint = System.currentTimeMillis();
 
-                    if (memory.screenChanged() || ula.flashStatusChanged()) {
-                        memory.markScreenDrawn();
-                        display.updateScreen(memory.getDisplayMemory(), ula.flashActive());
+                    if (computer.screenRedrawRequired()) {
+                        computer.markScreenDrawn();
+                        display.updateScreen(computer.getDisplayMemory(), computer.flashActive());
                     }
 
-                    if (ula.borderNeedsRedrawing() || currentSpeed == EmulatorSpeed.TURBO) {
-                        display.updateBorder(ula.getBorderColours());
+                    if (computer.borderNeedsRedrawing() || currentSpeed == EmulatorSpeed.TURBO) {
+                        display.updateBorder(computer.getBorderColours());
                     }
                     SwingUtilities.invokeLater(display::repaint);
                 }
@@ -555,13 +564,14 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void handleTurboLoading() {
-        if (!turboLoadActive && ula.ulaAccessed() && turboLoadEnabled
+        final boolean ulaAccessed = computer.ulaAccessed();
+        if (!turboLoadActive && ulaAccessed && turboLoadEnabled
                 && tapePlayer.isPlaying() && currentSpeed != EmulatorSpeed.TURBO) {
             turboLoadActive = true;
             setSpeed(EmulatorSpeed.TURBO);
         }
 
-        if (turboLoadActive && (!ula.ulaAccessed() || !tapePlayer.isPlaying())) {
+        if (turboLoadActive && (!ulaAccessed || !tapePlayer.isPlaying())) {
             turboLoadActive = false;
             setSpeed(EmulatorSpeed.NORMAL);
         }
@@ -662,8 +672,11 @@ public class Emulator extends JFrame implements Runnable {
         } else if (ZipUtils.INSTANCE.isZipFile(selectedFile)) {
             loadFromZip(selectedFile);
         } else {
-            final int borderColour = computer.loadSnapshot(selectedFile);
-            ula.setBorderColour(borderColour);
+            try (final FileInputStream fis = new FileInputStream(selectedFile)) {
+                final Snapshot snapshot = new Snapshot(fis);
+                computer = newComputer(snapshot.getModel(), snapshot);
+                resetComputer();
+            }
         }
     }
 
@@ -735,6 +748,7 @@ public class Emulator extends JFrame implements Runnable {
             if (result == JOptionPane.YES_OPTION) {
                 prefs.set(MODEL, newModel.name());
                 currentModel = newModel;
+                computer = newComputer(currentModel);
                 resetComputer();
             }
         });
@@ -751,19 +765,15 @@ public class Emulator extends JFrame implements Runnable {
             );
 
             if (result == JOptionPane.YES_OPTION) {
+                computer = newComputer(currentModel);
                 resetComputer();
             }
         });
     }
 
     protected void resetComputer() {
-        final Model model = Model.valueOf(prefs.getOrElse(MODEL, Model._48K.name()));
-        memory.setModel(model);
-        computer.reset();
-        processor.reset();
-        ula.reset();
-        tapePlayer.ejectTape();
         keyboard.reset();
+        soundSystem.reset();
         cycleTimer.cancel(false);
         turboLoadActive = false;
         setSpeed(EmulatorSpeed.NORMAL);

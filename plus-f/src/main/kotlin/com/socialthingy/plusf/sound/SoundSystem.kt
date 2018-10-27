@@ -37,6 +37,13 @@ class SoundSystem {
         lineOut.start()
     }
 
+    fun reset() {
+        if (isEnabled) {
+            setEnabled(false)
+            setEnabled(true)
+        }
+    }
+
     private fun createBeepSampler(): VariableRateMonoReader {
         val s = VariableRateMonoReader()
         s.rate.set(frameRate.toDouble())

@@ -3,7 +3,7 @@ package com.socialthingy.plusf.spectrum.io;
 import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 
-public class Memory48K extends BaseSpectrumMemory {
+public class Memory48K extends SpectrumMemory {
     private static final int PAGE_SIZE = 0x4000;
     private static final int ROM_PAGE = 0;
 

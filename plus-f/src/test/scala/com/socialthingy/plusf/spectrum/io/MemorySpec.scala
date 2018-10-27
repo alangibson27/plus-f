@@ -39,8 +39,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
         forAll(table) { (_, ticks, address) =>
           // given
           val clock = new Clock
-          val memory = new SwitchableMemory(clock)
-          memory.setModel(Model._48K)
+          val memory = new Memory48K(clock)
 
           // when
           clock.tick(ticks)

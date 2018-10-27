@@ -36,7 +36,9 @@ function buildShadowJar {
 
 function checkVersionUpdated {
   VERSION=$(cat ${SCRIPT_DIR}/build/version)
+  set +e
   found=$(git tag | grep -c release-${VERSION})
+  set -e
   if [ "$found" != "0" ]; then
     echo "Version ${VERSION} already released"
     exit 1
@@ -53,7 +55,7 @@ function tagRelease {
 
 function buildLinuxAndUniversal {
   # Linux and Universal builds
-  ${GRADLE} distZip debPackage rpmPackage -X check
+  ${GRADLE} distZip debPackage rpmPackage -x check
   for i in $(ls build/distributions/plus-f-*); do
     if ! [[ $i =~ .+tar ]]; then
       name=$(echo $i | sed -E "s/(.+plus-f.+)(\....)/Plus-F\2/")
@@ -69,7 +71,7 @@ function buildWindows {
   export VERSION  
 
   # Windows build
-  ${GRADLE} distZip -X check
+  ${GRADLE} distZip -x check
   mkdir -p ${WINDOWS_DIST_DIR}
 
   # Create launch4j package

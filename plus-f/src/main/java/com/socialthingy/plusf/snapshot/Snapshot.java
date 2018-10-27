@@ -1,13 +1,17 @@
 package com.socialthingy.plusf.snapshot;
 
+import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
-import com.socialthingy.plusf.spectrum.io.SwitchableMemory;
+import com.socialthingy.plusf.spectrum.io.MemoryPlus2;
+import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
+import com.socialthingy.plusf.spectrum.io.Memory48K;
+import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.Processor;
 
 import java.io.*;
 
-public class SnapshotLoader {
+public class Snapshot {
     private InputStream inputStream;
     private int aValue;
     private int fValue;
@@ -32,6 +36,9 @@ public class SnapshotLoader {
     private int iff1;
     private int interruptMode;
     private int[][] memoryPages;
+    private int borderColour;
+    private Model model;
+    private int lastWriteTo0x7ffd;
 
     private enum HWMode {
         HW_48K(0), HW_48K_IF1(1), HW_128K(3), UNSUPPORTED(-1);
@@ -53,16 +60,40 @@ public class SnapshotLoader {
         }
     }
 
-    public SnapshotLoader(final InputStream inputStream) {
+    public Snapshot(final InputStream inputStream) throws IOException {
         this.inputStream = inputStream;
         memoryPages = new int[12][];
         for (int i = 0; i < 12; i++) {
             memoryPages[i] = new int[0x4000];
         }
+        read();
     }
 
-    public int read(final Processor processor, final SwitchableMemory memory) throws IOException {
+    public SpectrumMemory getMemory(final Clock clock) {
+        if (model == Model._48K) {
+            final Memory48K memory = new Memory48K(clock);
+            memory.copyIntoPage(memoryPages[4], 2);
+            memory.copyIntoPage(memoryPages[5], 3);
+            memory.copyIntoPage(memoryPages[8], 1);
+
+            return memory;
+        } else {
+            final MemoryPlus2 memory = new MemoryPlus2(clock);
+            for (int i = 3; i <= 10; i++) {
+                memory.copyIntoBank(memoryPages[i], i - 3);
+            }
+            memory.copyIntoPage(memoryPages[8], MemoryPlus2.LOW_PAGE);
+            memory.copyIntoPage(memoryPages[5], MemoryPlus2.MIDDLE_PAGE);
+            memory.copyIntoPage(memoryPages[0], MemoryPlus2.HIGH_PAGE);
+
+            memory.write(0xfd, 0x7f, lastWriteTo0x7ffd);
+            return memory;
+        }
+    }
+
+    private void read() throws IOException {
         final SnapshotInfo snapshotInfo = extractCommonHeaders();
+        borderColour = snapshotInfo.borderColour;
         if (pcValue == 0x0000) {
             final int headerLength = Word.from(inputStream.read(), inputStream.read());
             pcValue = Word.from(inputStream.read(), inputStream.read());
@@ -72,7 +103,9 @@ public class SnapshotLoader {
                 throw new IOException("Unsupported machine version. Only 48k snapshots supported.");
             }
 
-            skipByte(); // byte 35
+            model = Model._48K;
+
+            lastWriteTo0x7ffd = inputStream.read(); // byte 35
             skipByte(); // byte 36
             skipByte(); // byte 37
             skipByte(); // byte 38
@@ -111,12 +144,9 @@ public class SnapshotLoader {
                 blockStart = inputStream.read();
             }
         } else {
+            model = Model._48K;
             extractV1Memory(snapshotInfo.memoryIsCompressed);
         }
-
-        commitChanges(processor, memory);
-
-        return snapshotInfo.borderColour;
     }
 
     private void extractV1Memory(final boolean memoryIsCompressed) throws IOException {
@@ -177,7 +207,7 @@ public class SnapshotLoader {
         return new SnapshotInfo(memoryIsCompressed, borderColour);
     }
 
-    private void commitChanges(final Processor processor, final SwitchableMemory memory) {
+    public void setProcessorState(final Processor processor) {
         processor.register("a").set(aValue);
         processor.register("f").set(fValue);
         processor.register("c").set(cValue);
@@ -204,11 +234,14 @@ public class SnapshotLoader {
         processor.setIff(1, iff1 > 0);
 
         processor.setInterruptMode(interruptMode);
+    }
 
-        memory.setModel(Model._48K);
-        memory.copyIntoPage(memoryPages[4], 2);
-        memory.copyIntoPage(memoryPages[5], 3);
-        memory.copyIntoPage(memoryPages[8], 1);
+    public void setBorderColour(final ULA ula) {
+        ula.setBorderColour(borderColour);
+    }
+
+    public Model getModel() {
+        return model;
     }
 
     private void loadMemoryFromCompressedBinary(final int base, final int length, final int[] memory) throws IOException {
