@@ -1,10 +1,13 @@
 package com.socialthingy.plusf.spectrum.io
 
-import com.socialthingy.plusf.spectrum.{Clock, Model}
+import com.socialthingy.plusf.spectrum.Clock
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpec}
 
-class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
+class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks with MockitoSugar {
+
+  val ula = mock[ULA]
 
   "timed display update" when {
     "display byte is written" should {
@@ -18,7 +21,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
         forAll(table) { (_, ticks, address) =>
           // given
           val clock = new Clock
-          val memory = new Memory48K(clock)
+          val memory = new Memory48K(ula, clock)
 
           // when
           clock.tick(ticks)
@@ -39,7 +42,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
         forAll(table) { (_, ticks, address) =>
           // given
           val clock = new Clock
-          val memory = new Memory48K(clock)
+          val memory = new Memory48K(ula, clock)
 
           // when
           clock.tick(ticks)
@@ -54,7 +57,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
   "+2 memory" when {
     "configured" should {
-      val memory = new MemoryPlus2(new Clock())
+      val memory = new MemoryPlus2(ula, new Clock())
 
       "have the editor ROM in slot 0" in {
         memory.get(0x0000) shouldBe 0xf3
@@ -265,6 +268,6 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
   }
 
   trait ConfiguredMemory {
-    val memory = new MemoryPlus2(new Clock())
+    val memory = new MemoryPlus2(ula, new Clock())
   }
 }

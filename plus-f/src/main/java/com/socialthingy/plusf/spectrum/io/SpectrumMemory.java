@@ -16,15 +16,13 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
     protected final Clock clock;
     protected int[] displayMemory = new int[0x1b00];
     private final int ticksPerScanline;
-    protected final int firstTickOfDisplay;
-    protected final int lastTickOfDisplay;
     protected boolean screenChanged = true;
+    protected final ULA ula;
 
-    protected SpectrumMemory(final Model model, final Clock clock) {
-        ticksPerScanline = model.ticksPerScanline;
-        firstTickOfDisplay = 64 * ticksPerScanline;
-        lastTickOfDisplay = (64 + 192) * ticksPerScanline;
+    protected SpectrumMemory(final ULA ula, final Clock clock, final Model model) {
+        this.ula = ula;
         this.clock = clock;
+        this.ticksPerScanline = model.ticksPerScanline;
         clock.setResetHandler(this::resetDisplayMemory);
     }
 

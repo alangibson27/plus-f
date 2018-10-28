@@ -85,7 +85,7 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
 
   trait Spectrum {
     val keyboard = new Keyboard()
-    val ula = new ULA(keyboard, new TapePlayer(), mock[Beeper], new Clock)
+    val ula = new ULA(keyboard, new TapePlayer(), mock[Beeper], new Clock, 69888)
   }
 
   implicit class BinaryOps(i: String) {

@@ -9,7 +9,6 @@ public class MemoryPlus2 extends SpectrumMemory {
     public static final int MIDDLE_PAGE = 2;
     public static final int HIGH_PAGE = 3;
 
-    private final Clock clock;
     private boolean pagingDisabled = false;
     private int[][] romBanks;
     private int[][] ramBanks;
@@ -18,9 +17,8 @@ public class MemoryPlus2 extends SpectrumMemory {
     private int activeScreenBank;
     private int activeHighBank;
 
-    public MemoryPlus2(final Clock clock) {
-        super(Model.PLUS_2, clock);
-        this.clock = clock;
+    public MemoryPlus2(final ULA ula, final Clock clock) {
+        super(ula, clock, Model.PLUS_2);
 
         romBanks = new int[Model.PLUS_2.romFileNames.length][];
         int pageIdx = 0;
@@ -75,10 +73,8 @@ public class MemoryPlus2 extends SpectrumMemory {
 
     @Override
     protected void handleMemoryContention(final int page) {
-        if (clock.getTicks() >= firstTickOfDisplay &&
-                clock.getTicks() < lastTickOfDisplay &&
-                (page == 1 || (page == 3 && (activeHighBank & 1) == 1))) {
-            clock.tick(2);
+        if (page == 1 || page == 3 && (activeHighBank & 1) == 1) {
+            ula.handleContention();
         }
     }
 

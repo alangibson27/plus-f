@@ -7,8 +7,8 @@ public class Memory48K extends SpectrumMemory {
     private static final int PAGE_SIZE = 0x4000;
     private static final int ROM_PAGE = 0;
 
-    public Memory48K(final Clock clock) {
-        super(Model._48K, clock);
+    public Memory48K(final ULA ula, final Clock clock) {
+        super(ula, clock, Model._48K);
         copyBankIntoPage(readRom(Model._48K.romFileNames[0]), ROM_PAGE);
     }
 
@@ -19,9 +19,8 @@ public class Memory48K extends SpectrumMemory {
 
     @Override
     protected void handleMemoryContention(final int page) {
-        if (clock.getTicks() >= firstTickOfDisplay &&
-                clock.getTicks() < lastTickOfDisplay && page == 1) {
-            clock.tick(2);
+        if (page == 1) {
+            ula.handleContention();
         }
     }
 

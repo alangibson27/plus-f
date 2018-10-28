@@ -12,10 +12,14 @@ import static com.socialthingy.plusf.spectrum.display.DisplayComponent.TOP_BORDE
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
     private final Keyboard keyboard;
+    private final Clock clock;
+    private final Beeper beeper;
+    private final int ticksPerScanline;
+    private final int firstTickOfDisplay;
+    private final int lastTickOfDisplay;
 
     private int earBit;
     private int tapeCyclesAdvanced;
-    private final Clock clock;
     private int cyclesSinceBeeperUpdate;
     protected boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
@@ -25,13 +29,15 @@ public class ULA implements IO {
     private int unchangedBorderCycles = 0;
     private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
-    private final Beeper beeper;
 
-    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, Clock clock) {
+    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final int ticksPerScanline) {
         this.clock = clock;
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.beeper = beeper;
+        this.ticksPerScanline = ticksPerScanline;
+        this.firstTickOfDisplay = 64 * ticksPerScanline;
+        this.lastTickOfDisplay = (64 + 192) * ticksPerScanline;
     }
 
     public boolean ulaAccessed() {
@@ -85,6 +91,13 @@ public class ULA implements IO {
         ulaAccessed = false;
     }
 
+    public void handleContention() {
+        if (clock.getTicks() >= firstTickOfDisplay &&
+                clock.getTicks() < lastTickOfDisplay) {
+            clock.tick(2);
+        }
+    }
+
     public boolean borderNeedsRedrawing() {
         return unchangedBorderCycles < 2 && borderColourChanged;
     }
@@ -108,7 +121,7 @@ public class ULA implements IO {
             beeper.update(beeperIsOn);
         }
 
-        final int scanline = clock.getTicks() / 224;
+        final int scanline = clock.getTicks() / ticksPerScanline;
         if (scanline < borderColours.length) {
             borderColours[scanline] = currentBorderColour;
         }

@@ -69,16 +69,16 @@ public class Snapshot {
         read();
     }
 
-    public SpectrumMemory getMemory(final Clock clock) {
+    public SpectrumMemory getMemory(final ULA ula, final Clock clock) {
         if (model == Model._48K) {
-            final Memory48K memory = new Memory48K(clock);
+            final Memory48K memory = new Memory48K(ula, clock);
             memory.copyIntoPage(memoryPages[4], 2);
             memory.copyIntoPage(memoryPages[5], 3);
             memory.copyIntoPage(memoryPages[8], 1);
 
             return memory;
         } else {
-            final MemoryPlus2 memory = new MemoryPlus2(clock);
+            final MemoryPlus2 memory = new MemoryPlus2(ula, clock);
             for (int i = 3; i <= 10; i++) {
                 memory.copyIntoBank(memoryPages[i], i - 3);
             }

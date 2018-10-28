@@ -113,14 +113,14 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private Computer newComputer(final Model model, final Snapshot snapshot) {
+        final ULA ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock, model.ticksPerScanline);
         final SpectrumMemory memory;
         if (snapshot == null) {
-            memory = model == Model._48K ? new Memory48K(clock) : new MemoryPlus2(clock);
+            memory = model == Model._48K ? new Memory48K(ula, clock) : new MemoryPlus2(ula, clock);
         } else {
-            memory = snapshot.getMemory(clock);
+            memory = snapshot.getMemory(ula, clock);
         }
 
-        final ULA ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock);
         final IOMultiplexer ioMux = new IOMultiplexer(ula, memory, soundSystem.getAyChip(), kempstonJoystickInterface);
 
         final Processor processor = new Processor(memory, ioMux);
