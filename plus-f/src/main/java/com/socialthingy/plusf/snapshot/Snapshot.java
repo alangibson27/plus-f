@@ -82,9 +82,6 @@ public class Snapshot {
             for (int i = 3; i <= 10; i++) {
                 memory.copyIntoBank(memoryPages[i], i - 3);
             }
-            memory.copyIntoPage(memoryPages[8], MemoryPlus2.LOW_PAGE);
-            memory.copyIntoPage(memoryPages[5], MemoryPlus2.MIDDLE_PAGE);
-            memory.copyIntoPage(memoryPages[0], MemoryPlus2.HIGH_PAGE);
 
             memory.write(0xfd, 0x7f, lastWriteTo0x7ffd);
             return memory;

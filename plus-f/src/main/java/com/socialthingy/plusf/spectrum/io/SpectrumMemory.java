@@ -92,8 +92,4 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
     public void markScreenDrawn() {
         screenChanged = false;
     }
-
-    public void copyIntoPage(final int[] source, final int destination) {
-        copyInto(source, destination * PAGE_SIZE);
-    }
 }

@@ -15,7 +15,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks w
         val table = Table(
           ("description", "ticks", "address"),
           ("last tick before first byte of first line", 14335, 16384),
-          ("last tick before first byte of second line (minus 2 ticks for memory contention)", 14557, 16640)
+          ("last tick before first byte of second line", 14559, 16640)
         )
 
         forAll(table) { (_, ticks, address) =>
@@ -36,7 +36,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks w
         val table = Table(
           ("description", "ticks", "address"),
           ("first tick of first line", 14336, 16384),
-          ("first tick of second line (minus 2 ticks for memory contention)", 14558, 16640)
+          ("first tick of second line", 14560, 16640)
         )
 
         forAll(table) { (_, ticks, address) =>

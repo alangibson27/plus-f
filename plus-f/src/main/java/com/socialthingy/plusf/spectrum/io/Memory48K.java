@@ -37,4 +37,8 @@ public class Memory48K extends SpectrumMemory {
             }
         }
     }
+
+    public void copyIntoPage(final int[] source, final int destination) {
+        copyInto(source, destination * PAGE_SIZE);
+    }
 }

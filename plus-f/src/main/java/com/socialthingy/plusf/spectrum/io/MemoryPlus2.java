@@ -12,7 +12,6 @@ public class MemoryPlus2 extends SpectrumMemory {
     private boolean pagingDisabled = false;
     private int[][] romBanks;
     private int[][] ramBanks;
-    private int[] swapBank = new int[SpectrumMemory.PAGE_SIZE];
     private int activeRomBank;
     private int activeScreenBank;
     private int activeHighBank;
@@ -22,7 +21,7 @@ public class MemoryPlus2 extends SpectrumMemory {
 
         romBanks = new int[Model.PLUS_2.romFileNames.length][];
         int pageIdx = 0;
-        for (String romFileName: Model.PLUS_2.romFileNames) {
+        for (String romFileName : Model.PLUS_2.romFileNames) {
             romBanks[pageIdx++] = readRom(romFileName);
         }
 
@@ -40,11 +39,7 @@ public class MemoryPlus2 extends SpectrumMemory {
     @Override
     protected void resetDisplayMemory() {
         screenChanged = true;
-        if (activeScreenBank == 5) {
-            System.arraycopy(addressableMemory, LOW_PAGE * PAGE_SIZE, displayMemory, 0x0000, 0x1b00);
-        } else {
-            System.arraycopy(addressableMemory, HIGH_PAGE * PAGE_SIZE, displayMemory, 0x0000, 0x1b00);
-        }
+        System.arraycopy(ramBanks[activeScreenBank], 0, displayMemory, 0, 0x1b00);
     }
 
     @Override
@@ -63,10 +58,9 @@ public class MemoryPlus2 extends SpectrumMemory {
             final int newHighPage = value & 0b00000111;
             final int newScreenPage = (value & 0b00001000) == 0 ? 5 : 7;
             final int newRomPage = (value & 0b00010000) == 0 ? 0 : 1;
-            setActiveHighBank(newHighPage);
-            setActiveScreenBank(newScreenPage);
-            setActiveRomBank(newRomPage);
-
+            activeHighBank = newHighPage;
+            activeScreenBank = newScreenPage;
+            activeRomBank = newRomPage;
             pagingDisabled = (value & 0b00100000) != 0;
         }
     }
@@ -79,50 +73,52 @@ public class MemoryPlus2 extends SpectrumMemory {
     }
 
     @Override
+    public int get(int addr) {
+        addr &= 0xffff;
+        final int page = addr >> 14;
+        final int offsetInPage = addr & 0x3fff;
+        handleMemoryContention(page);
+
+        switch (page) {
+            case ROM_PAGE:
+                return romBanks[activeRomBank][offsetInPage];
+            case LOW_PAGE:
+                return ramBanks[5][offsetInPage];
+            case MIDDLE_PAGE:
+                return ramBanks[2][offsetInPage];
+            default:
+                return ramBanks[activeHighBank][offsetInPage];
+        }
+    }
+
+    @Override
     public void set(int addr, final int value) {
         addr &= 0xffff;
         final int page = addr >> 14;
+        final int offsetInPage = addr & 0x3fff;
         handleMemoryContention(page);
 
-        if (page != 0) {
-            super.set(addr, value);
-
-            switch (page) {
-                case 1:
-                    if (activeScreenBank == 5 && addr >= PAGE_SIZE && addr < 0x5b00) {
-                        writeToDisplayIfBeforeScanlineReached(addr, value);
-                    }
-
-                    if (activeHighBank == 5) {
-                        super.set(addr + PAGE_SIZE * 2, value);
-                    }
-                    break;
-
-                case 2:
-                    if (activeHighBank == 2) {
-                        super.set(addr + PAGE_SIZE, value);
-                    }
-
-                case 3:
-                    if (activeScreenBank == activeHighBank && addr >= HIGH_PAGE && addr < 0xdb00) {
-                        writeToDisplayIfBeforeScanlineReached(addr, value);
-                    }
-
-                    if (activeHighBank == 2) {
-                        super.set(addr - PAGE_SIZE, value);
-                    } else if (activeHighBank == 5) {
-                        super.set(addr - PAGE_SIZE * 2, value);
-                    }
-                    break;
-            }
+        switch (page) {
+            case LOW_PAGE:
+                ramBanks[5][offsetInPage] = value;
+                if (activeScreenBank == 5 && offsetInPage < 0x1b00) {
+                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                }
+                break;
+            case MIDDLE_PAGE:
+                ramBanks[2][offsetInPage] = value;
+                break;
+            case HIGH_PAGE:
+                ramBanks[activeHighBank][offsetInPage] = value;
+                if (activeScreenBank == activeHighBank && offsetInPage < 0x1b00) {
+                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                }
+                break;
         }
     }
 
     void setActiveRomBank(final int newRomPage) {
-        if (activeRomBank != newRomPage) {
-            copyBankIntoPage(romBanks[newRomPage], ROM_PAGE);
-            activeRomBank = newRomPage;
-        }
+        activeRomBank = newRomPage;
     }
 
     void setActiveScreenBank(final int newScreenPage) {
@@ -137,52 +133,10 @@ public class MemoryPlus2 extends SpectrumMemory {
     }
 
     void setActiveHighBank(final int newHighPageInMemory) {
-        if (activeHighBank != newHighPageInMemory) {
-            if (newHighPageInMemory == 2) {
-                copyPageIntoBank(MIDDLE_PAGE, ramBanks[2]);
-            } else if (newHighPageInMemory == 5) {
-                copyPageIntoBank(LOW_PAGE, ramBanks[5]);
-            }
-            copyPageIntoBank(HIGH_PAGE, swapBank);
-            copyBankIntoPage(ramBanks[newHighPageInMemory], HIGH_PAGE);
-            copyBankIntoBank(swapBank, ramBanks[activeHighBank]);
-
-            activeHighBank = newHighPageInMemory;
-        }
-    }
-
-    private void copyPageIntoBank(final int page, final int[] targetBank) {
-        copyFrom(page * PAGE_SIZE, targetBank);
-    }
-
-    private void copyBankIntoBank(final int[] sourceBank, final int[] targetBank) {
-        System.arraycopy(sourceBank, 0x0000, targetBank, 0x0000, PAGE_SIZE);
+        activeHighBank = newHighPageInMemory;
     }
 
     public void copyIntoBank(final int[] source, final int targetBank) {
-        copyBankIntoBank(source, ramBanks[targetBank]);
-    }
-
-    @Override
-    public void copyIntoPage(final int[] source, final int destination) {
-        super.copyIntoPage(source, destination);
-
-        final int pageInMemory = destination >> 14;
-        final int ramBankNumber;
-        switch (pageInMemory) {
-            case LOW_PAGE:
-                ramBankNumber = activeScreenBank;
-                break;
-
-            case MIDDLE_PAGE:
-                ramBankNumber = 2;
-                break;
-
-            default:
-                ramBankNumber = activeHighBank;
-                break;
-        }
-
-        System.arraycopy(source, 0, ramBanks[ramBankNumber], 0, source.length);
+        System.arraycopy(source, 0x0000, ramBanks[targetBank], 0x0000, PAGE_SIZE);
     }
 }
