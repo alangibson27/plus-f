@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public abstract class SpectrumMemory extends SimpleMemory implements IO {
-    private static final int SCANLINES_BEFORE_DISPLAY = 64;
     protected static final int PAGE_SIZE = 0x4000;
 
     protected final Clock clock;
     protected int[] displayMemory = new int[0x1b00];
     private final int ticksPerScanline;
+    private final int scanlinesBeforeDisplay;
     protected boolean screenChanged = true;
     protected final ULA ula;
 
@@ -23,6 +23,7 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
         this.ula = ula;
         this.clock = clock;
         this.ticksPerScanline = model.ticksPerScanline;
+        this.scanlinesBeforeDisplay = model.scanlinesBeforeDisplay;
         clock.setResetHandler(this::resetDisplayMemory);
     }
 
@@ -74,7 +75,7 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     protected void writeToDisplayIfBeforeScanlineReached(int addr, final int value) {
         addr &= 0x3fff;
-        if (clock.getTicks() < (SCANLINES_BEFORE_DISPLAY + yCoord(addr)) * ticksPerScanline) {
+        if (addr < 6912 && clock.getTicks() < (scanlinesBeforeDisplay + yCoord(addr)) * ticksPerScanline) {
             screenChanged = true;
             displayMemory[addr] = value;
         }
