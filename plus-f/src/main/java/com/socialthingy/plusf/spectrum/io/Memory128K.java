@@ -3,7 +3,7 @@ package com.socialthingy.plusf.spectrum.io;
 import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 
-public class MemoryPlus2 extends SpectrumMemory {
+public class Memory128K extends SpectrumMemory {
     public static final int ROM_PAGE = 0;
     public static final int LOW_PAGE = 1;
     public static final int MIDDLE_PAGE = 2;
@@ -16,23 +16,23 @@ public class MemoryPlus2 extends SpectrumMemory {
     private int activeScreenBank;
     private int activeHighBank;
 
-    public MemoryPlus2(final ULA ula, final Clock clock) {
-        super(ula, clock, Model.PLUS_2);
+    public Memory128K(final ULA ula, final Clock clock, final Model model) {
+        super(ula, clock, model);
 
-        romBanks = new int[Model.PLUS_2.romFileNames.length][];
+        romBanks = new int[model.romFileNames.length][];
         int pageIdx = 0;
-        for (String romFileName : Model.PLUS_2.romFileNames) {
+        for (String romFileName : model.romFileNames) {
             romBanks[pageIdx++] = readRom(romFileName);
         }
 
-        ramBanks = new int[Model.PLUS_2.ramPageCount][];
-        for (int i = 0; i < Model.PLUS_2.ramPageCount; i++) {
+        ramBanks = new int[model.ramPageCount][];
+        for (int i = 0; i < model.ramPageCount; i++) {
             ramBanks[i] = new int[PAGE_SIZE];
         }
 
         activeRomBank = 0;
-        activeScreenBank = Model.PLUS_2.screenPage;
-        activeHighBank = Model.PLUS_2.highPage;
+        activeScreenBank = model.screenPage;
+        activeHighBank = model.highPage;
         copyBankIntoPage(romBanks[0], ROM_PAGE);
     }
 

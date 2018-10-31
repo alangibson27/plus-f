@@ -2,7 +2,7 @@ package com.socialthingy.plusf.snapshot;
 
 import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
-import com.socialthingy.plusf.spectrum.io.MemoryPlus2;
+import com.socialthingy.plusf.spectrum.io.Memory128K;
 import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.Memory48K;
 import com.socialthingy.plusf.spectrum.io.ULA;
@@ -78,7 +78,7 @@ public class Snapshot {
 
             return memory;
         } else {
-            final MemoryPlus2 memory = new MemoryPlus2(ula, clock);
+            final Memory128K memory = new Memory128K(ula, clock, Model._128K);
             for (int i = 3; i <= 10; i++) {
                 memory.copyIntoBank(memoryPages[i], i - 3);
             }

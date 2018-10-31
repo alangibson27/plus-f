@@ -116,7 +116,7 @@ public class Emulator extends JFrame implements Runnable {
         final ULA ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock, model.ticksPerScanline);
         final SpectrumMemory memory;
         if (snapshot == null) {
-            memory = model == Model._48K ? new Memory48K(ula, clock) : new MemoryPlus2(ula, clock);
+            memory = model == Model._48K ? new Memory48K(ula, clock) : new Memory128K(ula, clock, model);
         } else {
             memory = snapshot.getMemory(ula, clock);
         }
@@ -264,7 +264,7 @@ public class Emulator extends JFrame implements Runnable {
         });
 
         final JMenu aboutMenu = new JMenu("About");
-        final JMenuItem aboutItem = menuItemFor("About Plus-F", this::aboutDialog, Optional.empty());
+        final JMenuItem aboutItem = menuItemFor("About Plus-F", e -> AboutDialog.aboutDialog(this), Optional.empty());
         aboutMenu.add(aboutItem);
         menuBar.add(aboutMenu);
 
@@ -486,24 +486,6 @@ public class Emulator extends JFrame implements Runnable {
 
     private void disconnect(final ActionEvent e) {
         peer.disconnect();
-    }
-
-    private void aboutDialog(final ActionEvent e) {
-        final Properties versionFile = new Properties();
-        String version;
-        try (final InputStream is = getClass().getResourceAsStream("/version.properties")) {
-            versionFile.load(is);
-            version = String.format("Plus-F version %s", versionFile.getProperty("version"));
-        } catch (IOException ex) {
-            version = "Plus-F";
-        }
-        JOptionPane.showMessageDialog(
-            this,
-            version,
-            "Plus-F",
-            JOptionPane.INFORMATION_MESSAGE,
-            new ImageIcon(Icons.windowIcon)
-        );
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
