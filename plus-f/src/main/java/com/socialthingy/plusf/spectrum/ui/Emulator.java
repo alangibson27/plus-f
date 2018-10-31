@@ -129,6 +129,7 @@ public class Emulator extends JFrame implements Runnable {
             snapshot.setBorderColour(ula);
         }
 
+        soundSystem.getBeeper().setModel(model);
         return new Computer(
             processor,
             memory,

@@ -2,14 +2,19 @@ package com.socialthingy.plusf.sound
 
 import com.jsyn.data.FloatSample
 import com.jsyn.unitgen.*
+import com.socialthingy.plusf.spectrum.Model
 
 open class Beeper(private val sampler: VariableRateMonoReader) {
-    val updatePeriod: Double = 3500000.0 / sampler.rate.get()
+    var updatePeriod: Double = 3500000.0 / sampler.rate.get()
 
     private val beeperStates = FloatArray(900)
     private var beeperIdx = 0
     private var allStatesHigh = true
     private var isEnabled = false
+
+    fun setModel(model: Model) {
+        updatePeriod = model.clockFrequencyHz / sampler.rate.get()
+    }
 
     fun setEnabled(enabled: Boolean) {
         isEnabled = enabled
