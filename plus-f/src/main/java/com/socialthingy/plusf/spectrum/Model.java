@@ -4,7 +4,8 @@ public enum Model {
     _48K("48K", 69888, 224, 64, 3500000, "/48.rom"),
     _128K("128K", 70908, 228, 63, 3546900, 8, 5, 2, 0, "/128-0.rom", "/128-1.rom"),
     _128K_SPANISH("128K Spanish", 70908, 228, 63, 3546900, 8, 5, 2, 0, "/128-spanish-0.rom", "/128-spanish-1.rom"),
-    PLUS_2("+2", 70908, 228, 63, 3546900, 8, 5, 2, 0, "/plus2-0.rom", "/plus2-1.rom");
+    PLUS_2("+2", 70908, 228, 63, 3546900, 8, 5, 2, 0, "/plus2-0.rom", "/plus2-1.rom"),
+    PLUS_2A("+2A", 70908, 228, 63, 3546900, 8, 5, 2, 0, "/plus3-0.rom", "/plus3-1.rom", "/plus3-2.rom", "/plus3-3.rom");
 
     public final String displayName;
     public final double tstateLengthMs;

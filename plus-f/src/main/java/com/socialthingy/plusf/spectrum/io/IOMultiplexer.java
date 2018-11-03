@@ -18,19 +18,20 @@ public class IOMultiplexer implements IO {
     }
 
     public int read(int low, int high) {
-        int result = 0;
         for (IO device: devices) {
             if (device.recognises(low, high)) {
-                result = device.read(low, high);
+                return device.read(low, high);
             }
         }
-        return result;
+
+        return 0xff;
     }
 
     public void write(int low, int high, int value) {
         for (IO device: devices) {
             if (device.recognises(low, high)) {
                 device.write(low, high, value);
+                return;
             }
         }
     }

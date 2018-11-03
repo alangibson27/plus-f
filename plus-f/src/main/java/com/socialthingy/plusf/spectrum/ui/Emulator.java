@@ -34,7 +34,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -116,7 +115,22 @@ public class Emulator extends JFrame implements Runnable {
         final ULA ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock, model.ticksPerScanline);
         final SpectrumMemory memory;
         if (snapshot == null) {
-            memory = model == Model._48K ? new Memory48K(ula, clock) : new Memory128K(ula, clock, model);
+            switch (model) {
+                case _128K:
+                case _128K_SPANISH:
+                case PLUS_2:
+                    memory = new Memory128K(ula, clock, model);
+                    break;
+
+                case PLUS_2A:
+                    memory = new MemoryPlus2A(ula, clock);
+                    break;
+
+                case _48K:
+                default:
+                    memory = new Memory48K(ula, clock);
+                    break;
+            }
         } else {
             memory = snapshot.getMemory(ula, clock);
         }

@@ -9,12 +9,12 @@ public class Memory128K extends SpectrumMemory {
     public static final int MIDDLE_PAGE = 2;
     public static final int HIGH_PAGE = 3;
 
-    private boolean pagingDisabled = false;
-    private int[][] romBanks;
-    private int[][] ramBanks;
-    private int activeRomBank;
-    private int activeScreenBank;
-    private int activeHighBank;
+    protected boolean pagingDisabled = false;
+    protected int[][] romBanks;
+    protected int[][] ramBanks;
+    protected int activeRomBank;
+    protected int activeScreenBank;
+    protected int activeHighBank;
 
     public Memory128K(final ULA ula, final Clock clock, final Model model) {
         super(ula, clock, model);
