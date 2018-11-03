@@ -7,7 +7,16 @@ public class MemoryPlus2A extends Memory128K {
     private boolean specialPagingMode = false;
     private int[] activeSpecialBanks = new int[4];
 
-    public MemoryPlus2A(ULA ula, Clock clock) {
+    MemoryPlus2A(final ULA ula, final Clock clock, final boolean addBankMarkerValues) {
+        this(ula, clock);
+        if (addBankMarkerValues) {
+            for (int i = 0; i < 8; i++) {
+                ramBanks[i][0] = i;
+            }
+        }
+    }
+
+    public MemoryPlus2A(final ULA ula, final Clock clock) {
         super(ula, clock, Model.PLUS_2A);
     }
 

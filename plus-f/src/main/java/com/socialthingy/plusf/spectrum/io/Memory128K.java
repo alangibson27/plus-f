@@ -117,25 +117,6 @@ public class Memory128K extends SpectrumMemory {
         }
     }
 
-    void setActiveRomBank(final int newRomPage) {
-        activeRomBank = newRomPage;
-    }
-
-    void setActiveScreenBank(final int newScreenPage) {
-        if (newScreenPage != 5 && newScreenPage != 7) {
-            throw new IllegalArgumentException();
-        }
-
-        if (activeScreenBank != newScreenPage) {
-            activeScreenBank = newScreenPage;
-            screenChanged = true;
-        }
-    }
-
-    void setActiveHighBank(final int newHighPageInMemory) {
-        activeHighBank = newHighPageInMemory;
-    }
-
     public void copyIntoBank(final int[] source, final int targetBank) {
         System.arraycopy(source, 0x0000, ramBanks[targetBank], 0x0000, PAGE_SIZE);
     }
