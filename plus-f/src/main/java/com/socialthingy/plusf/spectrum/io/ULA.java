@@ -8,6 +8,8 @@ import com.socialthingy.plusf.z80.IO;
 
 import static com.socialthingy.plusf.spectrum.display.DisplayComponent.BOTTOM_BORDER_HEIGHT;
 import static com.socialthingy.plusf.spectrum.display.DisplayComponent.TOP_BORDER_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_WIDTH;
 
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
@@ -23,10 +25,17 @@ public class ULA implements IO {
     private int cyclesSinceBeeperUpdate;
     protected boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
+
     private int currentBorderColour;
     protected int[] borderColours = new int[TOP_BORDER_HEIGHT + PixelMapper.SCREEN_HEIGHT + BOTTOM_BORDER_HEIGHT];
     protected boolean borderColourChanged = true;
     private int unchangedBorderCycles = 0;
+
+    private SpectrumMemory memory;
+    private int lastScanlineRendered = 63;
+    private final PixelMapper pixelMapper = new PixelMapper();
+    private final int[] pixels = new int[(SCREEN_WIDTH + 2) * (SCREEN_HEIGHT + 2)];
+
     private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
 
@@ -38,6 +47,10 @@ public class ULA implements IO {
         this.ticksPerScanline = ticksPerScanline;
         this.firstTickOfDisplay = 64 * ticksPerScanline;
         this.lastTickOfDisplay = (64 + 192) * ticksPerScanline;
+    }
+
+    public void setMemory(final SpectrumMemory memory) {
+        this.memory = memory;
     }
 
     public boolean ulaAccessed() {
@@ -89,6 +102,7 @@ public class ULA implements IO {
         }
         clock.reset();
         ulaAccessed = false;
+        lastScanlineRendered = 63;
     }
 
     public void handleContention() {
@@ -130,6 +144,18 @@ public class ULA implements IO {
         if (tapePlayer.isPlaying()) {
             tapeCyclesAdvanced += tstates;
         }
+
+        final int newScanline = clock.getTicks() / ticksPerScanline;
+        if (newScanline != lastScanlineRendered && newScanline >= 64 && newScanline < 64 + 192) {
+            for (int sl = lastScanlineRendered + 1; sl <= newScanline; sl++) {
+                pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, sl, flashActive);
+            }
+        }
+        lastScanlineRendered = newScanline;
+    }
+
+    public int[] getPixels() {
+        return pixels;
     }
 
     public void reset() {
@@ -139,5 +165,6 @@ public class ULA implements IO {
         tapeCyclesAdvanced = 0;
         flashActive = false;
         cyclesUntilFlashChange = 16;
+        lastScanlineRendered = 63;
     }
 }

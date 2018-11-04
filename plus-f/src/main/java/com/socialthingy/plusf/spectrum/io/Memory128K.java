@@ -102,7 +102,7 @@ public class Memory128K extends SpectrumMemory {
             case LOW_PAGE:
                 ramBanks[5][offsetInPage] = value;
                 if (activeScreenBank == 5 && offsetInPage < 0x1b00) {
-                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                    writeToDisplayMemory(addr, value);
                 }
                 break;
             case MIDDLE_PAGE:
@@ -111,7 +111,7 @@ public class Memory128K extends SpectrumMemory {
             case HIGH_PAGE:
                 ramBanks[activeHighBank][offsetInPage] = value;
                 if (activeScreenBank == activeHighBank && offsetInPage < 0x1b00) {
-                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                    writeToDisplayMemory(addr, value);
                 }
                 break;
         }

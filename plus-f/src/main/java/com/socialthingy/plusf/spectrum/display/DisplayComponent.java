@@ -90,6 +90,10 @@ public class DisplayComponent extends JComponent {
         Scaler2X.scale(pixelMapper.getPixels(displayMemory, flashActive), imageDataBuffer);
     }
 
+    public void updateScreen2(final int[] pixels) {
+        Scaler2X.scale(pixels, imageDataBuffer);
+    }
+
     public void updateBorder(final int[] borderColours) {
         final int[] fullBorder = new int[borderColours.length];
         int dest = 0;

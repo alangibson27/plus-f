@@ -121,6 +121,10 @@ public class Computer {
         return ula.getBorderColours();
     }
 
+    public int[] getScreenPixels() {
+        return ula.getPixels();
+    }
+
     public boolean ulaAccessed() {
         return ula.ulaAccessed();
     }

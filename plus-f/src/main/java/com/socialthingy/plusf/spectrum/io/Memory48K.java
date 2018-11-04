@@ -33,7 +33,7 @@ public class Memory48K extends SpectrumMemory {
         if (page != ROM_PAGE) {
             super.set(addr, value);
             if (addr >= PAGE_SIZE && addr < 0x5b00) {
-                writeToDisplayIfBeforeScanlineReached(addr, value);
+                writeToDisplayMemory(addr, value);
             }
         }
     }

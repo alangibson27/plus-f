@@ -108,7 +108,7 @@ public class MemoryPlus2A extends Memory128K {
             handleMemoryContention(page);
 
             if (activeScreenBank == activeSpecialBanks[page] && offsetInPage < 0x1b00) {
-                writeToDisplayIfBeforeScanlineReached(addr, value);
+                writeToDisplayMemory(addr, value);
             }
 
             ramBanks[activeSpecialBanks[page]][offsetInPage] = value;

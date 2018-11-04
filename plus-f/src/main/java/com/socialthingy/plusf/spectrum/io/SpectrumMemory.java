@@ -73,12 +73,12 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     protected abstract void handleMemoryContention(int page);
 
-    protected void writeToDisplayIfBeforeScanlineReached(int addr, final int value) {
+    protected void writeToDisplayMemory(int addr, final int value) {
         addr &= 0x3fff;
-        if (addr < 6912 && clock.getTicks() < (scanlinesBeforeDisplay + yCoord(addr)) * ticksPerScanline) {
-            screenChanged = true;
+//        if (addr < 6912 && clock.getTicks() < (scanlinesBeforeDisplay + yCoord(addr)) * ticksPerScanline) {
+//            screenChanged = true;
             displayMemory[addr] = value;
-        }
+//        }
     }
 
     protected void copyBankIntoPage(final int[] sourceRamPage, final int pageInMemory) {

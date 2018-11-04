@@ -134,6 +134,7 @@ public class Emulator extends JFrame implements Runnable {
         } else {
             memory = snapshot.getMemory(ula, clock);
         }
+        ula.setMemory(memory);
 
         final IOMultiplexer ioMux = new IOMultiplexer(ula, memory, soundSystem.getAyChip(), kempstonJoystickInterface);
 
@@ -544,7 +545,7 @@ public class Emulator extends JFrame implements Runnable {
 
                     if (computer.screenRedrawRequired()) {
                         computer.markScreenDrawn();
-                        display.updateScreen(computer.getDisplayMemory(), computer.flashActive());
+                        display.updateScreen2(computer.getScreenPixels());
                     }
 
                     if (computer.borderNeedsRedrawing() || currentSpeed == EmulatorSpeed.TURBO) {

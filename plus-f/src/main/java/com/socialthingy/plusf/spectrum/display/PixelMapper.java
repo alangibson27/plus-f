@@ -58,4 +58,26 @@ public class PixelMapper {
 
         return displayBytes;
     }
+
+    public void renderScanline(
+            final int[] displayMemory,
+            final int[] pixels,
+            final int scanline,
+            final boolean flashActive
+    ) {
+        int targetIdx = (SCREEN_WIDTH + 2) * (scanline - 63) + 1;
+        int pixelSource = lineAddress(scanline - 64);
+        int attrSource = colourLineAddress(scanline - 64);
+
+        for (int attr = 0; attr < 32; attr++) {
+            final SpectrumColour colour = colours[displayMemory[attrSource++]];
+            final int ink = flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk();
+            final int paper = flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper();
+
+            final int pixelGroup = displayMemory[pixelSource++];
+            for (int pixel = 128; pixel > 0; pixel >>= 1) {
+                pixels[targetIdx++] = (pixelGroup & pixel) > 0 ? ink : paper;
+            }
+        }
+    }
 }
