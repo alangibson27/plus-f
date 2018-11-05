@@ -2,6 +2,7 @@ package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.sound.Beeper;
 import com.socialthingy.plusf.spectrum.Clock;
+import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.z80.IO;
@@ -17,6 +18,7 @@ public class ULA implements IO {
     private final Clock clock;
     private final Beeper beeper;
     private final int ticksPerScanline;
+    private final int scanlinesBeforeDisplay;
 
     private int earBit;
     private int tapeCyclesAdvanced;
@@ -29,21 +31,24 @@ public class ULA implements IO {
     protected boolean borderColourChanged = true;
     private int unchangedBorderCycles = 0;
 
-    private int lastScanlineRendered = 63;
-    private final PixelMapper pixelMapper = new PixelMapper();
+    private int lastScanlineRendered;
+    private final PixelMapper pixelMapper;
     private final int[] pixels = new int[(SCREEN_WIDTH + 2) * (SCREEN_HEIGHT + 2)];
     private final SpectrumMemory memory;
 
     private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
 
-    public ULA(final SpectrumMemory memory, final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final int ticksPerScanline) {
+    public ULA(final SpectrumMemory memory, final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final Model model) {
         this.memory = memory;
         this.clock = clock;
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.beeper = beeper;
-        this.ticksPerScanline = ticksPerScanline;
+        this.ticksPerScanline = model.ticksPerScanline;
+        this.scanlinesBeforeDisplay = model.scanlinesBeforeDisplay;
+        this.lastScanlineRendered = scanlinesBeforeDisplay - 1;
+        this.pixelMapper = new PixelMapper(scanlinesBeforeDisplay);
     }
 
     public boolean ulaAccessed() {
@@ -132,7 +137,8 @@ public class ULA implements IO {
         }
 
         final int newScanline = clock.getTicks() / ticksPerScanline;
-        if (newScanline != lastScanlineRendered && newScanline >= 64 && newScanline < 64 + 192) {
+        if (newScanline != lastScanlineRendered &&
+                newScanline >= scanlinesBeforeDisplay && newScanline < scanlinesBeforeDisplay + 192) {
             for (int sl = lastScanlineRendered + 1; sl <= newScanline; sl++) {
                 pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, sl, flashActive);
             }
@@ -151,6 +157,6 @@ public class ULA implements IO {
         tapeCyclesAdvanced = 0;
         flashActive = false;
         cyclesUntilFlashChange = 16;
-        lastScanlineRendered = 63;
+        lastScanlineRendered = scanlinesBeforeDisplay - 1;
     }
 }
