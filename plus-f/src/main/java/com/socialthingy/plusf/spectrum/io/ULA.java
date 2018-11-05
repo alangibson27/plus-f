@@ -17,8 +17,6 @@ public class ULA implements IO {
     private final Clock clock;
     private final Beeper beeper;
     private final int ticksPerScanline;
-    private final int firstTickOfDisplay;
-    private final int lastTickOfDisplay;
 
     private int earBit;
     private int tapeCyclesAdvanced;
@@ -31,26 +29,21 @@ public class ULA implements IO {
     protected boolean borderColourChanged = true;
     private int unchangedBorderCycles = 0;
 
-    private SpectrumMemory memory;
     private int lastScanlineRendered = 63;
     private final PixelMapper pixelMapper = new PixelMapper();
     private final int[] pixels = new int[(SCREEN_WIDTH + 2) * (SCREEN_HEIGHT + 2)];
+    private final SpectrumMemory memory;
 
     private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
 
-    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final int ticksPerScanline) {
+    public ULA(final SpectrumMemory memory, final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final int ticksPerScanline) {
+        this.memory = memory;
         this.clock = clock;
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.beeper = beeper;
         this.ticksPerScanline = ticksPerScanline;
-        this.firstTickOfDisplay = 64 * ticksPerScanline;
-        this.lastTickOfDisplay = (64 + 192) * ticksPerScanline;
-    }
-
-    public void setMemory(final SpectrumMemory memory) {
-        this.memory = memory;
     }
 
     public boolean ulaAccessed() {
@@ -103,13 +96,6 @@ public class ULA implements IO {
         clock.reset();
         ulaAccessed = false;
         lastScanlineRendered = 63;
-    }
-
-    public void handleContention() {
-        if (clock.getTicks() >= firstTickOfDisplay &&
-                clock.getTicks() < lastTickOfDisplay) {
-            clock.tick(2);
-        }
     }
 
     public boolean borderNeedsRedrawing() {

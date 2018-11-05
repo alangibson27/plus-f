@@ -1,11 +1,10 @@
 package com.socialthingy.plusf.spectrum.io
 
 import com.socialthingy.plusf.spectrum.{Clock, Model}
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpec}
 
-class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks with MockitoSugar {
+class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
   val highBank0 = 0
   val highBank2 = 2
@@ -21,9 +20,9 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks w
   val clock = new Clock
   val memoryTable = Table(
     ("memory type", "memory"),
-    ("48k", new Memory48K(mock[ULA], clock)),
-    ("128k", new Memory128K(mock[ULA], clock, Model._128K)),
-    ("+2A", new MemoryPlus2A(mock[ULA], clock))
+    ("48k", new Memory48K(clock)),
+    ("128k", new Memory128K(clock, Model._128K)),
+    ("+2A", new MemoryPlus2A(clock))
   )
 
   forAll(memoryTable) { (memoryType, memory) =>
@@ -59,7 +58,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks w
           forAll(table) { (_, ticks, address) =>
             // given
             val clock = new Clock
-            val memory = new Memory48K(mock[ULA], clock)
+            val memory = new Memory48K(clock)
 
             // when
             clock.tick(ticks)
@@ -75,8 +74,8 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks w
 
   val pageableMemoryTable = Table(
     ("memory type", "memory"),
-    ("128k", () => { clock.reset(); new Memory128K(mock[ULA], clock, Model._128K) }),
-    ("+2A", () => { clock.reset(); new MemoryPlus2A(mock[ULA], clock) })
+    ("128k", () => { clock.reset(); new Memory128K(clock, Model._128K) }),
+    ("+2A", () => { clock.reset(); new MemoryPlus2A(clock) })
   )
 
   forAll(pageableMemoryTable) { (memoryType, memoryCreator) =>
@@ -351,7 +350,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks w
   "+2A memory" should {
     forAll(specialPagingModeTable) { (mode, modeValue, page0, page1, page2, page3) =>
       s"switch to special mode $mode correctly" in {
-        val memory = new MemoryPlus2A(mock[ULA], clock, true)
+        val memory = new MemoryPlus2A(clock, true)
 
         memory.write(0xfd, 0x1f, plus2SpecialPagingMode + modeValue)
 
@@ -364,7 +363,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks w
 
     forAll(romPagingModeTable) { (romBank, lowBit, highBit, marker) =>
       s"select ROM $romBank correctly" in {
-        val memory = new MemoryPlus2A(mock[ULA], clock)
+        val memory = new MemoryPlus2A(clock)
 
         memory.write(0xfd, 0x7f, lowBit << 4)
         memory.write(0xfd, 0x1f, highBit << 2)

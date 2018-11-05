@@ -7,8 +7,8 @@ public class MemoryPlus2A extends Memory128K {
     private boolean specialPagingMode = false;
     private int[] activeSpecialBanks = new int[4];
 
-    MemoryPlus2A(final ULA ula, final Clock clock, final boolean addBankMarkerValues) {
-        this(ula, clock);
+    MemoryPlus2A(final Clock clock, final boolean addBankMarkerValues) {
+        this(clock);
         if (addBankMarkerValues) {
             for (int i = 0; i < 8; i++) {
                 ramBanks[i][0] = i;
@@ -16,8 +16,8 @@ public class MemoryPlus2A extends Memory128K {
         }
     }
 
-    public MemoryPlus2A(final ULA ula, final Clock clock) {
-        super(ula, clock, Model.PLUS_2A);
+    public MemoryPlus2A(final Clock clock) {
+        super(clock, Model.PLUS_2A);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MemoryPlus2A extends Memory128K {
             final int offsetInPage = addr & 0x3fff;
 
             if ((activeSpecialBanks[page] & 1) == 1) {
-                ula.handleContention();
+                handleContention();
             }
 
             return ramBanks[activeSpecialBanks[page]][offsetInPage];

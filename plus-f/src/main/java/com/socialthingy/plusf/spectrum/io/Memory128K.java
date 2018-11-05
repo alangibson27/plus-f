@@ -16,8 +16,8 @@ public class Memory128K extends SpectrumMemory {
     protected int activeScreenBank;
     protected int activeHighBank;
 
-    public Memory128K(final ULA ula, final Clock clock, final Model model) {
-        super(ula, clock, model);
+    public Memory128K(final Clock clock, final Model model) {
+        super(clock, model);
 
         romBanks = new int[model.romFileNames.length][];
         int pageIdx = 0;
@@ -68,7 +68,7 @@ public class Memory128K extends SpectrumMemory {
     @Override
     protected void handleMemoryContention(final int page) {
         if (page == 1 || page == 3 && (activeHighBank & 1) == 1) {
-            ula.handleContention();
+            handleContention();
         }
     }
 

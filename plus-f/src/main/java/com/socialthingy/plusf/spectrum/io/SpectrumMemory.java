@@ -14,20 +14,25 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     protected final Clock clock;
     protected int[] displayMemory = new int[0x1b00];
-    private final int ticksPerScanline;
-    private final int scanlinesBeforeDisplay;
+    private final int firstTickOfDisplay;
+    private final int lastTickOfDisplay;
     protected boolean screenChanged = true;
-    protected final ULA ula;
 
-    protected SpectrumMemory(final ULA ula, final Clock clock, final Model model) {
-        this.ula = ula;
+    protected SpectrumMemory(final Clock clock, final Model model) {
+        this.firstTickOfDisplay = 64 * model.ticksPerScanline;
+        this.lastTickOfDisplay = (64 + 192) * model.ticksPerScanline;
         this.clock = clock;
-        this.ticksPerScanline = model.ticksPerScanline;
-        this.scanlinesBeforeDisplay = model.scanlinesBeforeDisplay;
         clock.setResetHandler(this::resetDisplayMemory);
     }
 
     protected abstract void resetDisplayMemory();
+
+    protected void handleContention() {
+        if (clock.getTicks() >= firstTickOfDisplay &&
+                clock.getTicks() < lastTickOfDisplay) {
+            clock.tick(2);
+        }
+    }
 
     public int[] getDisplayMemory() {
         return displayMemory;
@@ -45,12 +50,6 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     @Override
     public void write(int low, int high, int value) {}
-
-    protected int yCoord(final int addr) {
-        final int hi = addr >> 8;
-        final int lo = addr & 0xff;
-        return ((hi & 24) << 2) + ((lo & 224) >> 2) + (hi & 7);
-    }
 
     protected int[] readRom(final String romFileName) {
         try (final InputStream is = Memory.class.getResourceAsStream(romFileName)) {
@@ -75,10 +74,7 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     protected void writeToDisplayMemory(int addr, final int value) {
         addr &= 0x3fff;
-//        if (addr < 6912 && clock.getTicks() < (scanlinesBeforeDisplay + yCoord(addr)) * ticksPerScanline) {
-//            screenChanged = true;
-            displayMemory[addr] = value;
-//        }
+        displayMemory[addr] = value;
     }
 
     protected void copyBankIntoPage(final int[] sourceRamPage, final int pageInMemory) {

@@ -112,30 +112,29 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private Computer newComputer(final Model model, final Snapshot snapshot) {
-        final ULA ula = new ULA(keyboard, tapePlayer, soundSystem.getBeeper(), clock, model.ticksPerScanline);
         final SpectrumMemory memory;
         if (snapshot == null) {
             switch (model) {
                 case _128K:
                 case _128K_SPANISH:
                 case PLUS_2:
-                    memory = new Memory128K(ula, clock, model);
+                    memory = new Memory128K(clock, model);
                     break;
 
                 case PLUS_2A:
-                    memory = new MemoryPlus2A(ula, clock);
+                    memory = new MemoryPlus2A(clock);
                     break;
 
                 case _48K:
                 default:
-                    memory = new Memory48K(ula, clock);
+                    memory = new Memory48K(clock);
                     break;
             }
         } else {
-            memory = snapshot.getMemory(ula, clock);
+            memory = snapshot.getMemory(clock);
         }
-        ula.setMemory(memory);
 
+        final ULA ula = new ULA(memory, keyboard, tapePlayer, soundSystem.getBeeper(), clock, model.ticksPerScanline);
         final IOMultiplexer ioMux = new IOMultiplexer(ula, memory, soundSystem.getAyChip(), kempstonJoystickInterface);
 
         final Processor processor = new Processor(memory, ioMux);
