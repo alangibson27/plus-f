@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80
 
+import com.socialthingy.plusf.spectrum.Clock
 import com.socialthingy.plusf.z80.operations.OperationTable
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
@@ -9,7 +10,7 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
 
   val memory = new SimpleMemory
   val io = mock[IO]
-  val processor = new Processor(memory, io)
+  val processor = new Processor(memory, io, new Clock)
   val table = OperationTable.build(processor, memory, io)
   val edTable = OperationTable.buildEdGroup(processor, memory, io)
   val cbTable = OperationTable.buildCbGroup(processor, memory)

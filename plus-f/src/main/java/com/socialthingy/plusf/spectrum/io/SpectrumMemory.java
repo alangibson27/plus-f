@@ -18,6 +18,7 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
     protected final int lastTickOfDisplay;
     protected final int ticksPerScanline;
     protected boolean screenChanged = true;
+    protected int contentionTicks = 0;
 
     protected SpectrumMemory(final Clock clock, final Model model) {
         this.firstTickOfDisplay = model.scanlinesBeforeDisplay * model.ticksPerScanline;
@@ -39,26 +40,32 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
             switch (patternStart % 8) {
                 case 0:
+                    contentionTicks += 6;
                     clock.tick(6);
                     break;
 
                 case 1:
+                    contentionTicks += 5;
                     clock.tick(5);
                     break;
 
                 case 2:
+                    contentionTicks += 4;
                     clock.tick(4);
                     break;
 
                 case 3:
+                    contentionTicks += 3;
                     clock.tick(3);
                     break;
 
                 case 4:
+                    contentionTicks += 2;
                     clock.tick(2);
                     break;
 
                 case 5:
+                    contentionTicks += 1;
                     clock.tick(1);
                     break;
             }
@@ -118,5 +125,13 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     public void markScreenDrawn() {
         screenChanged = false;
+    }
+
+    public int getContentionTicks() {
+        return contentionTicks;
+    }
+
+    public void resetContention() {
+        contentionTicks = 0;
     }
 }

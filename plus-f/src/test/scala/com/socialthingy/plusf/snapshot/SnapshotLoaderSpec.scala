@@ -15,7 +15,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers with MockitoSugar {
   trait Spectrum {
     val ula = mock[ULA]
     val clock = new Clock()
-    val processor = new Processor(mock[Memory], mock[IO])
+    val processor = new Processor(mock[Memory], mock[IO], clock)
 
     def registerValue(name: String) = processor.register(name).get()
   }

@@ -134,7 +134,10 @@ public class ULA implements IO {
     }
 
     public void advanceCycle(final int tstates) {
-        cyclesSinceBeeperUpdate += tstates;
+        final int tstatesIncludingContention = tstates + memory.getContentionTicks();
+        memory.resetContention();
+
+        cyclesSinceBeeperUpdate += tstatesIncludingContention;
         if (cyclesSinceBeeperUpdate >= beeper.getUpdatePeriod()) {
             cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.getUpdatePeriod();
             beeper.update(beeperIsOn);
@@ -146,7 +149,7 @@ public class ULA implements IO {
         }
 
         if (tapePlayer.isPlaying()) {
-            tapeCyclesAdvanced += tstates;
+            tapeCyclesAdvanced += tstatesIncludingContention;
         }
 
         if (scanline != lastScanlineRendered &&

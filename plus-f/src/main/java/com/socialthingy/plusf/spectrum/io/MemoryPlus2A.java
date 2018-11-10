@@ -128,34 +128,40 @@ public class MemoryPlus2A extends Memory128K {
 
             switch (patternStart % 8) {
                 case 0:
+                    contentionTicks += 1;
                     clock.tick(1);
                     break;
 
                 case 2:
+                    contentionTicks += 7;
                     clock.tick(7);
                     break;
 
                 case 3:
+                    contentionTicks += 6;
                     clock.tick(6);
                     break;
 
                 case 4:
+                    contentionTicks += 5;
                     clock.tick(5);
                     break;
 
                 case 5:
+                    contentionTicks += 4;
                     clock.tick(4);
                     break;
 
                 case 6:
+                    contentionTicks += 3;
                     clock.tick(3);
                     break;
 
                 case 7:
+                    contentionTicks += 2;
                     clock.tick(2);
                     break;
             }
-//            clock.tick(2);
         }
     }
 

@@ -137,12 +137,11 @@ public class Emulator extends JFrame implements Runnable {
         final ULA ula = new ULA(memory, keyboard, tapePlayer, soundSystem.getBeeper(), clock, model);
         final IOMultiplexer ioMux = new IOMultiplexer(ula, memory, soundSystem.getAyChip(), kempstonJoystickInterface);
 
-        final Processor processor = new Processor(memory, ioMux);
+        final Processor processor = new Processor(memory, ioMux, clock);
         if (snapshot != null) {
             snapshot.setProcessorState(processor);
             snapshot.setBorderColour(ula);
         }
-        processor.setClock(clock);
 
         soundSystem.getBeeper().setModel(model);
         return new Computer(
@@ -165,13 +164,6 @@ public class Emulator extends JFrame implements Runnable {
         menuBar.add(fileMenu);
 
         final JMenu computerMenu = new JMenu("Computer");
-        computerMenu.add(
-            menuItemFor(
-                "Debug",
-                e -> computer.startDebugging(),
-                Optional.empty()
-            )
-        );
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
 
         final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");

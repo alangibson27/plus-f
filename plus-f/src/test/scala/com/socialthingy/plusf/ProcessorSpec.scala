@@ -1,5 +1,6 @@
 package com.socialthingy.plusf
 
+import com.socialthingy.plusf.spectrum.Clock
 import com.socialthingy.plusf.z80.FlagsRegister.Flag
 import com.socialthingy.plusf.z80._
 import org.mockito.Matchers._
@@ -22,7 +23,7 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
       stub
     }
 
-    val processor = new Processor(memory, io)
+    val processor = new Processor(memory, io, new Clock)
 
     def interruptsAreEnabled(): Unit = {
       processor.setIff(0, true)

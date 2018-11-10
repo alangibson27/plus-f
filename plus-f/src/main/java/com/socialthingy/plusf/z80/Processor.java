@@ -11,6 +11,7 @@ public class Processor {
 
     private final Map<String, Register> registers = new HashMap<>();
     private final Memory memory;
+    private final Clock clock;
     private final Operation[] operations;
     private final Operation[] edOperations;
     private final Operation[] cbOperations;
@@ -35,9 +36,9 @@ public class Processor {
     private boolean interruptRequested = false;
     private int lastTime;
     private Operation lastOp;
-    private Clock clock;
 
-    public Processor(final Memory memory, final IO io) {
+    public Processor(final Memory memory, final IO io, final Clock clock) {
+        this.clock = clock;
         this.memory = memory;
 
         prepareRegisters();
@@ -51,10 +52,6 @@ public class Processor {
 
         this.im1ResponseOp = new OpRst(this, 0x0038);
         this.nmiResponseOp = new OpRst(this, 0x0066);
-    }
-
-    public void setClock(final Clock clock) {
-        this.clock = clock;
     }
 
     private void prepareRegisters() {
@@ -146,19 +143,18 @@ public class Processor {
     }
 
     public Operation execute() throws ExecutionException {
-        return execute(fetch());
-    }
-
-    public Operation execute(final Operation op) throws ExecutionException {
         final boolean enableIffAfterExecution = enableIff;
         final int pc = pcReg.get();
+        final Operation op = fetch();
         if (op == null) {
             throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
         }
+        final int fetchTicks = ((pcReg.get() - pc) & 0xffff) * 4;
 
         this.lastOp = op;
         try {
             this.lastTime = op.execute();
+            clock.tick(lastTime - fetchTicks);
 
             if (enableIffAfterExecution) {
                 enableIff = false;
@@ -171,25 +167,7 @@ public class Processor {
         }
     }
 
-    private void printCalcStack() {
-        final int stkBot = Word.from(memory.get(23651), memory.get(23652));
-        final int stkEnd = Word.from(memory.get(23653), memory.get(23654));
-
-        System.out.println("Calculator stack (from bottom):");
-        for (int i = stkBot; i < stkEnd; i += 5) {
-            System.out.printf(
-                "[%04x] %02x %02x %02x %02x %02x\n",
-                i,
-                memory.get(i),
-                memory.get(i + 1),
-                memory.get(i + 2),
-                memory.get(i + 3),
-                memory.get(i + 4)
-            );
-        }
-    }
-
-    public Operation fetch() {
+    private Operation fetch() {
         if (iffs[0] && interruptRequested) {
             rReg.increment(1);
             if (halting) {
