@@ -1,8 +1,9 @@
 package com.socialthingy.plusf.spectrum.input
 
 import com.socialthingy.plusf.sound.{AYChip, Beeper}
-import com.socialthingy.plusf.spectrum.{Clock, Model, TapePlayer}
+import com.socialthingy.plusf.spectrum.{Model, TapePlayer}
 import com.socialthingy.plusf.spectrum.io.{Keyboard, SpectrumMemory, ULA}
+import com.socialthingy.plusf.z80.Clock
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}

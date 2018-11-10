@@ -3,9 +3,8 @@ package com.socialthingy.plusf.snapshot
 import java.io.IOException
 
 import com.socialthingy.plusf.ProcessorSpec
-import com.socialthingy.plusf.spectrum.Clock
 import com.socialthingy.plusf.spectrum.io.ULA
-import com.socialthingy.plusf.z80.{IO, Memory, Processor}
+import com.socialthingy.plusf.z80.{Clock, IO, Memory, Processor}
 import org.mockito.Mockito.verify
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar

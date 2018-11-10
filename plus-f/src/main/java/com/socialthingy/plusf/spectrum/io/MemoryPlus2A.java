@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.spectrum.Clock;
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 
 public class MemoryPlus2A extends Memory128K {

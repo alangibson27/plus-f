@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.z80;
 
-import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.operations.*;
 

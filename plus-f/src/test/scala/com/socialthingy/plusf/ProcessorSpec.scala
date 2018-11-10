@@ -1,8 +1,7 @@
 package com.socialthingy.plusf
 
-import com.socialthingy.plusf.spectrum.Clock
 import com.socialthingy.plusf.z80.FlagsRegister.Flag
-import com.socialthingy.plusf.z80._
+import com.socialthingy.plusf.z80.{Clock, _}
 import org.mockito.Matchers._
 import org.mockito.Mockito.{verify, when => mockitoWhen}
 import org.mockito.{Matchers => MockitoMatchers}

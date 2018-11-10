@@ -1,6 +1,6 @@
 package com.socialthingy.plusf.snapshot;
 
-import com.socialthingy.plusf.spectrum.Clock;
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.io.Memory128K;
 import com.socialthingy.plusf.spectrum.io.SpectrumMemory;

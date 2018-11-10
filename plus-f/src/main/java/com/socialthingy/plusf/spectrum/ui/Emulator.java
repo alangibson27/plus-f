@@ -18,6 +18,7 @@ import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.wos.Archive;
 import com.socialthingy.plusf.wos.WosTree;
 import com.socialthingy.plusf.wos.ZipUtils;
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Processor;
 import kotlin.Pair;
 import org.slf4j.Logger;

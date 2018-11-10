@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.sound.Beeper;
-import com.socialthingy.plusf.spectrum.Clock;
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.spectrum.display.PixelMapper;

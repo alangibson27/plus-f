@@ -1,4 +1,4 @@
-package com.socialthingy.plusf.spectrum;
+package com.socialthingy.plusf.z80;
 
 public class Clock {
     private int ticks;

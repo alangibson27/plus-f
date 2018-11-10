@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.spectrum.io
 
-import com.socialthingy.plusf.spectrum.{Clock, Model}
+import com.socialthingy.plusf.spectrum.Model
+import com.socialthingy.plusf.z80.Clock
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{Matchers, WordSpec}
 
