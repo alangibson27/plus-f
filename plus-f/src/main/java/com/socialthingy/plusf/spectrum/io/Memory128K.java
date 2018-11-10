@@ -77,16 +77,19 @@ public class Memory128K extends SpectrumMemory {
         addr &= 0xffff;
         final int page = addr >> 14;
         final int offsetInPage = addr & 0x3fff;
-        handleMemoryContention(page);
 
         switch (page) {
             case ROM_PAGE:
                 return romBanks[activeRomBank][offsetInPage];
             case LOW_PAGE:
+                handleMemoryContention(page);
                 return ramBanks[5][offsetInPage];
             case MIDDLE_PAGE:
                 return ramBanks[2][offsetInPage];
             default:
+                if ((activeHighBank & 0b1) == 1) {
+                    handleMemoryContention(page);
+                }
                 return ramBanks[activeHighBank][offsetInPage];
         }
     }
@@ -96,10 +99,10 @@ public class Memory128K extends SpectrumMemory {
         addr &= 0xffff;
         final int page = addr >> 14;
         final int offsetInPage = addr & 0x3fff;
-        handleMemoryContention(page);
 
         switch (page) {
             case LOW_PAGE:
+                handleMemoryContention(page);
                 ramBanks[5][offsetInPage] = value;
                 if (activeScreenBank == 5 && offsetInPage < 0x1b00) {
                     writeToDisplayMemory(addr, value);
@@ -109,6 +112,9 @@ public class Memory128K extends SpectrumMemory {
                 ramBanks[2][offsetInPage] = value;
                 break;
             case HIGH_PAGE:
+                if ((activeHighBank & 0b1) == 1) {
+                    handleMemoryContention(page);
+                }
                 ramBanks[activeHighBank][offsetInPage] = value;
                 if (activeScreenBank == activeHighBank && offsetInPage < 0x1b00) {
                     writeToDisplayMemory(addr, value);

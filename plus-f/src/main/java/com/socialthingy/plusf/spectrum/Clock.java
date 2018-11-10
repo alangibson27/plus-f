@@ -12,7 +12,9 @@ public class Clock {
     }
 
     public void tick(final int ticks) {
-        this.ticks += ticks;
+        if (ticks > 0) {
+            this.ticks += ticks;
+        }
     }
 
     public int getTicks() {

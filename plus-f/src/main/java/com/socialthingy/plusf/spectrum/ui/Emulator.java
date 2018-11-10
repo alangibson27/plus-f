@@ -142,13 +142,13 @@ public class Emulator extends JFrame implements Runnable {
             snapshot.setProcessorState(processor);
             snapshot.setBorderColour(ula);
         }
+        processor.setClock(clock);
 
         soundSystem.getBeeper().setModel(model);
         return new Computer(
             processor,
             memory,
             ula,
-            model,
             new MetricRegistry()
         );
     }
@@ -165,6 +165,13 @@ public class Emulator extends JFrame implements Runnable {
         menuBar.add(fileMenu);
 
         final JMenu computerMenu = new JMenu("Computer");
+        computerMenu.add(
+            menuItemFor(
+                "Debug",
+                e -> computer.startDebugging(),
+                Optional.empty()
+            )
+        );
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
 
         final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");

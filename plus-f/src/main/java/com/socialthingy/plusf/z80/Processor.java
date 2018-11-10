@@ -1,15 +1,13 @@
 package com.socialthingy.plusf.z80;
 
+import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.operations.*;
 
 import java.io.PrintStream;
 import java.util.*;
 
-import static java.lang.Boolean.valueOf;
-
 public class Processor {
-    private static final boolean DEBUG_ENABLED = valueOf(System.getProperty("debugger", "false"));
 
     private final Map<String, Register> registers = new HashMap<>();
     private final Memory memory;
@@ -37,11 +35,7 @@ public class Processor {
     private boolean interruptRequested = false;
     private int lastTime;
     private Operation lastOp;
-    private int lastPc;
-
-    private int cyclesUntilBreak = -1;
-    private Set<Integer> breakpoints = new HashSet<>();
-    private Set<Range> rangeBreakpoints = new HashSet<>();
+    private Clock clock;
 
     public Processor(final Memory memory, final IO io) {
         this.memory = memory;
@@ -57,6 +51,10 @@ public class Processor {
 
         this.im1ResponseOp = new OpRst(this, 0x0038);
         this.nmiResponseOp = new OpRst(this, 0x0066);
+    }
+
+    public void setClock(final Clock clock) {
+        this.clock = clock;
     }
 
     private void prepareRegisters() {
@@ -148,36 +146,17 @@ public class Processor {
     }
 
     public Operation execute() throws ExecutionException {
+        return execute(fetch());
+    }
+
+    public Operation execute(final Operation op) throws ExecutionException {
         final boolean enableIffAfterExecution = enableIff;
         final int pc = pcReg.get();
-        final Operation op = fetch();
         if (op == null) {
             throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
         }
 
-        if (DEBUG_ENABLED) {
-            if (breakpoints.contains(pc)) {
-                cyclesUntilBreak = 0;
-            }
-
-            if (!rangeBreakpoints.isEmpty() && cyclesUntilBreak != 0) {
-                for (Range range : rangeBreakpoints) {
-                    if (!range.contains(lastPc) && range.contains(pc)) {
-                        cyclesUntilBreak = 0;
-                        break;
-                    }
-                }
-            }
-
-            if (cyclesUntilBreak == 0) {
-                debugConsole(pc, op);
-            } else if (cyclesUntilBreak > 0) {
-                cyclesUntilBreak--;
-            }
-        }
-
         this.lastOp = op;
-        this.lastPc = pc;
         try {
             this.lastTime = op.execute();
 
@@ -189,105 +168,6 @@ public class Processor {
             return op;
         } catch (Exception ex) {
             throw new ExecutionException(op, ex);
-        }
-    }
-
-    private void debugConsole(final int pc, final Operation currentOp) {
-        // start at 0xeac0
-        System.out.printf("Stopped at %04x\n", pc);
-        final Scanner in = new Scanner(System.in);
-        while (true) {
-            System.out.printf("[%04x] %s\n", pc, lastOp != null ? currentOp.toString() : "");
-            System.out.print("> ");
-            final String command = in.next();
-            if ("run".equals(command)) {
-                cyclesUntilBreak = -1;
-                break;
-            }
-
-            if (command.startsWith("n")) {
-                if (in.hasNextInt()) {
-                    cyclesUntilBreak = in.nextInt();
-                }
-                break;
-            }
-
-            if ("set".equals(command)) {
-                final String register = in.next();
-                final String value = in.next();
-
-                register(register).set(Integer.decode(value));
-            }
-
-            if ("last".equals(command)) {
-                System.out.printf("Last operation: [%04x] %s\n", lastPc, lastOp.toString());
-            }
-
-            if ("skip".equals(command)) {
-                cyclesUntilBreak = 1;
-                break;
-            }
-
-            if ("calcstack".equals(command)) {
-                printCalcStack();
-            }
-
-            if ("break".equals(command)) {
-                breakpoints.add(Integer.decode(in.next()));
-            }
-
-            if ("rangebreak".equals(command)) {
-                rangeBreakpoints.add(new Range(Integer.decode(in.next()), Integer.decode(in.next())));
-            }
-
-            if ("clearbreak".equals(command)) {
-                breakpoints.clear();
-                rangeBreakpoints.clear();
-            }
-
-            if ("memory".equals(command)) {
-                final int start = Integer.decode(in.next());
-                final int end = Integer.decode(in.next());
-
-                for (int i = start; i < end; i += 8) {
-                    System.out.printf(
-                        "%04x: %02x %02x %02x %02x %02x %02x %02x %02x\n",
-                        i,
-                        memory.get(i),
-                        memory.get(i + 1),
-                        memory.get(i + 2),
-                        memory.get(i + 3),
-                        memory.get(i + 4),
-                        memory.get(i + 5),
-                        memory.get(i + 6),
-                        memory.get(i + 7)
-                    );
-                }
-            }
-
-            if ("print".equals(command)) {
-                final String reg = in.next();
-                if (register(reg) != null) {
-                    System.out.printf("%04x\n", register(reg).get());
-                } else if ("iff".equals(reg)) {
-                    System.out.printf("iff1: %d\n", iffs[0] ? 0 : 1);
-                    System.out.printf("iff2: %d\n", iffs[1] ? 0 : 1);
-                }
-            }
-
-            if ("memsearch".equals(command)) {
-                final int value = Integer.decode(in.next()) & 0xffff;
-                final int v1 = value >> 8;
-                final int v2 = value & 0xff;
-
-                final List<Integer> results = new ArrayList<>();
-                for (int i = 0; i < 0xffff; i++) {
-                    if (memory.get(i) == v1 && memory.get(i + 1) == v2) {
-                        results.add(i);
-                    }
-                }
-                results.forEach(addr -> System.out.printf("%04x", addr));
-            }
         }
     }
 
@@ -309,7 +189,7 @@ public class Processor {
         }
     }
 
-    private Operation fetch() {
+    public Operation fetch() {
         if (iffs[0] && interruptRequested) {
             rReg.increment(1);
             if (halting) {
@@ -380,7 +260,9 @@ public class Processor {
     }
 
     private int fromMemory(final int addr) {
-        return memory.get(addr);
+        final int val = memory.get(addr);
+        clock.tick(4);
+        return val;
     }
 
     private Operation fromOpTable(final Operation[] opTable, final int index) {
@@ -494,25 +376,6 @@ public class Processor {
         interruptRequested = false;
         lastTime = 0;
         lastOp = null;
-        lastPc = 0;
-        cyclesUntilBreak = -1;
     }
 
-    public void startDebugging() {
-        cyclesUntilBreak = 0;
-    }
-
-    private class Range {
-        private final int start;
-        private final int end;
-
-        Range(final int start, final int end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        boolean contains(final int address) {
-            return address >= start && address <= end;
-        }
-    }
 }

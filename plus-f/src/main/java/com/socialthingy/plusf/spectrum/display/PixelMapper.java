@@ -71,9 +71,10 @@ public class PixelMapper {
             final int scanline,
             final boolean flashActive
     ) {
-        int targetIdx = (SCREEN_WIDTH + 2) * (scanline - scanlinesBeforeDisplay + 1) + 1;
-        int pixelSource = lineAddress(scanline - scanlinesBeforeDisplay);
-        int attrSource = colourLineAddress(scanline - scanlinesBeforeDisplay);
+        final int y = scanline - scanlinesBeforeDisplay;
+        int targetIdx = (SCREEN_WIDTH + 2) * (y + 1) + 1;
+        int pixelSource = lineAddress(y);
+        int attrSource = colourLineAddress(y);
 
         for (int attr = 0; attr < 32; attr++) {
             final SpectrumColour colour = colours[displayMemory[attrSource++]];

@@ -19,6 +19,7 @@ public class ULA implements IO {
     private final Beeper beeper;
     private final int ticksPerScanline;
     private final int scanlinesBeforeDisplay;
+    private final int ticksPerCycle;
 
     private int earBit;
     private int tapeCyclesAdvanced;
@@ -47,8 +48,13 @@ public class ULA implements IO {
         this.beeper = beeper;
         this.ticksPerScanline = model.ticksPerScanline;
         this.scanlinesBeforeDisplay = model.scanlinesBeforeDisplay;
-        this.lastScanlineRendered = scanlinesBeforeDisplay - 1;
+        this.lastScanlineRendered = scanlinesBeforeDisplay;
+        this.ticksPerCycle = model.tstatesPerRefresh;
         this.pixelMapper = new PixelMapper(scanlinesBeforeDisplay);
+    }
+
+    public Clock getClock() {
+        return clock;
     }
 
     public boolean ulaAccessed() {
@@ -62,6 +68,10 @@ public class ULA implements IO {
 
     @Override
     public int read(int low, int high) {
+        if (high >= 0x40 && high < 0x80) {
+            memory.handleMemoryContention(1);
+        }
+
         ulaAccessed = true;
         if (tapeCyclesAdvanced > 0) {
             earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
@@ -73,6 +83,10 @@ public class ULA implements IO {
 
     @Override
     public void write(int low, int high, int value) {
+        if (high >= 0x40 && high < 0x80) {
+            memory.handleMemoryContention(1);
+        }
+
         if (low == 0xfe) {
             final int newBorderColour = value & 0b111;
             if (currentBorderColour != newBorderColour) {
@@ -131,19 +145,17 @@ public class ULA implements IO {
             borderColours[scanline] = currentBorderColour;
         }
 
-        clock.tick(tstates);
         if (tapePlayer.isPlaying()) {
             tapeCyclesAdvanced += tstates;
         }
 
-        final int newScanline = clock.getTicks() / ticksPerScanline;
-        if (newScanline != lastScanlineRendered &&
-                newScanline >= scanlinesBeforeDisplay && newScanline < scanlinesBeforeDisplay + 192) {
-            for (int sl = lastScanlineRendered + 1; sl <= newScanline; sl++) {
+        if (scanline != lastScanlineRendered &&
+                scanline > scanlinesBeforeDisplay && scanline <= scanlinesBeforeDisplay + 192) {
+            for (int sl = lastScanlineRendered; sl < scanline; sl++) {
                 pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, sl, flashActive);
             }
         }
-        lastScanlineRendered = newScanline;
+        lastScanlineRendered = scanline;
     }
 
     public int[] getPixels() {
@@ -157,6 +169,10 @@ public class ULA implements IO {
         tapeCyclesAdvanced = 0;
         flashActive = false;
         cyclesUntilFlashChange = 16;
-        lastScanlineRendered = scanlinesBeforeDisplay - 1;
+        lastScanlineRendered = scanlinesBeforeDisplay;
+    }
+
+    public boolean moreStatesUntilRefresh() {
+        return clock.getTicks() < ticksPerCycle;
     }
 }

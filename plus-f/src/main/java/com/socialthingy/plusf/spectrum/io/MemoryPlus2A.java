@@ -117,6 +117,48 @@ public class MemoryPlus2A extends Memory128K {
         }
     }
 
+    @Override
+    protected void handleContention() {
+        if (clock.getTicks() > firstTickOfDisplay &&
+                clock.getTicks() < lastTickOfDisplay) {
+            final int patternStart = clock.getTicks() - (firstTickOfDisplay + 1);
+            if (patternStart % ticksPerScanline > 130) {
+                return;
+            }
+
+            switch (patternStart % 8) {
+                case 0:
+                    clock.tick(1);
+                    break;
+
+                case 2:
+                    clock.tick(7);
+                    break;
+
+                case 3:
+                    clock.tick(6);
+                    break;
+
+                case 4:
+                    clock.tick(5);
+                    break;
+
+                case 5:
+                    clock.tick(4);
+                    break;
+
+                case 6:
+                    clock.tick(3);
+                    break;
+
+                case 7:
+                    clock.tick(2);
+                    break;
+            }
+//            clock.tick(2);
+        }
+    }
+
     private boolean port0x7ffd(final int low, final int high) {
         return (high & 0b11000000) == 0b01000000 && (low & 0b10) == 0b00;
     }
