@@ -15,7 +15,6 @@ public class OpAndAImmediate extends AndOperation {
     @Override
     public void execute() {
         and(processor.fetchNextByte());
-        clock.tick(3);
     }
 
     @Override

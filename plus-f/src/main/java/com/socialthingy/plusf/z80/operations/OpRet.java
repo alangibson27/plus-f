@@ -11,7 +11,6 @@ public class OpRet extends RetOperation {
     @Override
     public void execute() {
         ret();
-        clock.tick(6);
     }
 
     @Override

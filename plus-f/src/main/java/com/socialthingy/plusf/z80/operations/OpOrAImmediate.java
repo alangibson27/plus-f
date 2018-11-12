@@ -15,7 +15,6 @@ public class OpOrAImmediate extends OrOperation {
     @Override
     public void execute() {
         or(processor.fetchNextByte());
-        clock.tick(3);
     }
 
     @Override

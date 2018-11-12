@@ -14,7 +14,7 @@ public class OpRst extends CallOperation {
     @Override
     public void execute() {
         call(address);
-        clock.tick(7);
+        clock.tick(1);
     }
 
     @Override

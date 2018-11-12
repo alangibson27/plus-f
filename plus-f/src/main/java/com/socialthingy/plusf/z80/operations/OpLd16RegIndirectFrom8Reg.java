@@ -20,7 +20,6 @@ public class OpLd16RegIndirectFrom8Reg extends Operation {
     @Override
     public void execute() {
         memory.set( destReference.get(), source.get());
-        clock.tick(3);
     }
 
     @Override

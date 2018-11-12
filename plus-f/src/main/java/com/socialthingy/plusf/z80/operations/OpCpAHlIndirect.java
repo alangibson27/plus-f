@@ -19,7 +19,6 @@ public class OpCpAHlIndirect extends ArithmeticOperation {
     @Override
     public void execute() {
         sub(memory.get(hlReg.get()), false);
-        clock.tick(3);
     }
 
     @Override

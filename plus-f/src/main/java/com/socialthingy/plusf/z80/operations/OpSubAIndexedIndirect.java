@@ -23,7 +23,7 @@ public class OpSubAIndexedIndirect extends ArithmeticOperation {
     @Override
     public void execute() {
         accumulator.set(sub(memory.get(indexRegister.withOffset(processor.fetchNextByte())), true));
-        clock.tick(11);
+        clock.tick(5);
     }
 
     @Override

@@ -19,7 +19,7 @@ public class OpLdIndexedIndirect8Reg extends Operation {
     @Override
     public void execute() {
         memory.set( indexRegister.withOffset(processor.fetchNextByte()), source.get());
-        clock.tick(11);
+        clock.tick(5);
     }
 
     @Override

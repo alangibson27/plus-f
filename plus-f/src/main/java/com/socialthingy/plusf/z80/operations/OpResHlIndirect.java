@@ -21,8 +21,9 @@ public class OpResHlIndirect extends BitModificationOperation {
     @Override
     public void execute() {
         final int address = hlReg.get();
-        memory.set(address, reset(memory.get(address)));
-        clock.tick(7);
+        final int result = reset(memory.get(address));
+        clock.tick(1);
+        memory.set(address, result);
     }
 
     @Override

@@ -4,12 +4,12 @@ import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.SimpleMemory;
+import com.socialthingy.plusf.z80.UncontendedMemory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public abstract class SpectrumMemory extends SimpleMemory implements IO {
+public abstract class SpectrumMemory extends UncontendedMemory implements IO {
     protected static final int PAGE_SIZE = 0x4000;
 
     protected final Clock clock;
@@ -18,9 +18,9 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
     protected final int lastTickOfDisplay;
     protected final int ticksPerScanline;
     protected boolean screenChanged = true;
-    protected int contentionTicks = 0;
 
     protected SpectrumMemory(final Clock clock, final Model model) {
+        super(clock);
         this.firstTickOfDisplay = model.scanlinesBeforeDisplay * model.ticksPerScanline;
         this.lastTickOfDisplay = (model.scanlinesBeforeDisplay + 192) * model.ticksPerScanline;
         this.ticksPerScanline = model.ticksPerScanline;
@@ -40,32 +40,26 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
             switch (patternStart % 8) {
                 case 0:
-                    contentionTicks += 6;
                     clock.tick(6);
                     break;
 
                 case 1:
-                    contentionTicks += 5;
                     clock.tick(5);
                     break;
 
                 case 2:
-                    contentionTicks += 4;
                     clock.tick(4);
                     break;
 
                 case 3:
-                    contentionTicks += 3;
                     clock.tick(3);
                     break;
 
                 case 4:
-                    contentionTicks += 2;
                     clock.tick(2);
                     break;
 
                 case 5:
-                    contentionTicks += 1;
                     clock.tick(1);
                     break;
             }
@@ -125,13 +119,5 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     public void markScreenDrawn() {
         screenChanged = false;
-    }
-
-    public int getContentionTicks() {
-        return contentionTicks;
-    }
-
-    public void resetContention() {
-        contentionTicks = 0;
     }
 }

@@ -80,16 +80,20 @@ public class Memory128K extends SpectrumMemory {
 
         switch (page) {
             case ROM_PAGE:
+                clock.tick(3);
                 return romBanks[activeRomBank][offsetInPage];
             case LOW_PAGE:
                 handleMemoryContention(page);
+                clock.tick(3);
                 return ramBanks[5][offsetInPage];
             case MIDDLE_PAGE:
+                clock.tick(3);
                 return ramBanks[2][offsetInPage];
             default:
                 if ((activeHighBank & 0b1) == 1) {
                     handleMemoryContention(page);
                 }
+                clock.tick(3);
                 return ramBanks[activeHighBank][offsetInPage];
         }
     }
@@ -103,18 +107,21 @@ public class Memory128K extends SpectrumMemory {
         switch (page) {
             case LOW_PAGE:
                 handleMemoryContention(page);
+                clock.tick(3);
                 ramBanks[5][offsetInPage] = value;
                 if (activeScreenBank == 5 && offsetInPage < 0x1b00) {
                     writeToDisplayMemory(addr, value);
                 }
                 break;
             case MIDDLE_PAGE:
+                clock.tick(3);
                 ramBanks[2][offsetInPage] = value;
                 break;
             case HIGH_PAGE:
                 if ((activeHighBank & 0b1) == 1) {
                     handleMemoryContention(page);
                 }
+                clock.tick(3);
                 ramBanks[activeHighBank][offsetInPage] = value;
                 if (activeScreenBank == activeHighBank && offsetInPage < 0x1b00) {
                     writeToDisplayMemory(addr, value);

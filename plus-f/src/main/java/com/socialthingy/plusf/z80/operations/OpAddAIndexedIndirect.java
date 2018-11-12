@@ -22,8 +22,9 @@ public class OpAddAIndexedIndirect extends ArithmeticOperation {
 
     @Override
     public void execute() {
-        add(memory.get(indexRegister.withOffset(processor.fetchNextByte())));
-        clock.tick(11);
+        final int addr = indexRegister.withOffset(processor.fetchNextByte());
+        clock.tick(5);
+        add(memory.get(addr));
     }
 
     @Override

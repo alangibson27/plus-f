@@ -27,10 +27,8 @@ public class OpRetConditional extends RetOperation {
     public void execute() {
         if (flagsRegister.get(flag) == retState) {
             ret();
-            clock.tick(7);
-        } else {
-            clock.tick(1);
         }
+        clock.tick(1);
     }
 
     @Override

@@ -21,8 +21,8 @@ public class OpRrHlIndirect extends RotateOperation {
         final int address = hlReg.get();
         final int result = rrValue(memory.get(address));
         setSignZeroAndParity(result);
+        clock.tick(1);
         memory.set( address, result);
-        clock.tick(7);
     }
 
     @Override

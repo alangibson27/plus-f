@@ -19,7 +19,6 @@ public class OpPop16Reg extends Operation {
     @Override
     public void execute() {
         register.set(Word.from(processor.popByte(), processor.popByte()));
-        clock.tick(6);
     }
 
     @Override

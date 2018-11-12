@@ -36,9 +36,9 @@ abstract class BlockInOperation extends Operation {
     protected int adjustPC() {
         if (bReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 13;
+            return 10;
         } else {
-            return 8;
+            return 5;
         }
     }
 }

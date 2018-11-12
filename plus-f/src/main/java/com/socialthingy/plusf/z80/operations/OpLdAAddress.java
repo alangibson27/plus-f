@@ -20,7 +20,6 @@ public class OpLdAAddress extends Operation {
     public void execute() {
         final int address = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
         aReg.set(memory.get(address));
-        clock.tick(9);
     }
 
     @Override

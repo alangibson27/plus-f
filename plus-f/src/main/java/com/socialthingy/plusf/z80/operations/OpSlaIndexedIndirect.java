@@ -20,7 +20,9 @@ public class OpSlaIndexedIndirect extends SlaOperation {
     @Override
     public void execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
-        memory.set( address, shift(memory.get(address)));
-        clock.tick(11);
+        clock.tick(1);
+        final int result = shift(memory.get(address));
+        clock.tick(1);
+        memory.set(address, result);
     }
 }

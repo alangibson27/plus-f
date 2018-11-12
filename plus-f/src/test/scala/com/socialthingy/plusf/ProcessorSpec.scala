@@ -14,7 +14,6 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
 
   trait Machine {
     var instructionPointer = 0x0
-    val memory: Memory = new SimpleMemory()
 
     val io = {
       val stub = mock[IO]
@@ -23,6 +22,7 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
     }
 
     val clock = new Clock
+    val memory: Memory = new UncontendedMemory(clock)
     val processor = new Processor(memory, io, clock)
 
     def interruptsAreEnabled(): Unit = {

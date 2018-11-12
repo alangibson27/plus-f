@@ -15,7 +15,6 @@ public class OpXorAImmediate extends XorOperation {
     @Override
     public void execute() {
         xor(processor.fetchNextByte());
-        clock.tick(3);
     }
 
     @Override

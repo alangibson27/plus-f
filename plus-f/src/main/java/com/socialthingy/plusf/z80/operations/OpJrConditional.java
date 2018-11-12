@@ -31,9 +31,7 @@ public class OpJrConditional extends Operation {
         final byte offset = (byte) processor.fetchNextByte();
         if (flagsRegister.get(flag) == whenSet) {
             pcReg.set(pcReg.get() + offset);
-            clock.tick(8);
-        } else {
-            clock.tick(3);
+            clock.tick(5);
         }
     }
 

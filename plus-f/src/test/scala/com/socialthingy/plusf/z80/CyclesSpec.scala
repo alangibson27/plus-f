@@ -186,6 +186,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     s"executing operation ${opcode.map(x => x.toHexString).mkString(" ")}" should s"take $cycles cycles" in new Machine {
       opcode foreach { nextInstructionIs(_) }
 
+      clock.reset()
       processor.execute()
 
       clock.getTicks() shouldBe cycles
@@ -200,6 +201,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("bc", 0x0001)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -214,6 +216,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("bc", 0x0010)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -226,6 +229,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x38, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -238,6 +242,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x38, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -250,6 +255,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x30, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -262,6 +268,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x30, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -274,6 +281,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x28, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -286,6 +294,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x28, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -298,6 +307,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x20, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -310,6 +320,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x20, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -322,6 +333,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("b", 1)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -334,6 +346,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("b", 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -346,6 +359,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xcc, 0xef, 0xbe)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -358,6 +372,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xcc, 0xef, 0xbe)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -370,6 +385,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xc8)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -382,6 +398,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xc8)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -394,6 +411,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb2)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -406,6 +424,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb2)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -418,6 +437,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xba)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -430,6 +450,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xba)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -442,6 +463,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb3)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -454,6 +476,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb3)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -466,6 +489,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xbb)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
@@ -478,6 +502,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xbb)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then

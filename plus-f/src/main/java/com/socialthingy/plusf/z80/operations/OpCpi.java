@@ -12,7 +12,7 @@ public class OpCpi extends BlockOperation {
     @Override
     public void execute() {
         blockCompare();
-        clock.tick(8);
+        clock.tick(2);
     }
 
     @Override

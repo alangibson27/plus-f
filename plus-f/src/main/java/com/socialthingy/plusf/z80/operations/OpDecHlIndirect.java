@@ -20,8 +20,8 @@ public class OpDecHlIndirect extends DecOperation {
     public void execute() {
         final int address = hlReg.get();
         final int result = decrement(memory.get(address));
+        clock.tick(1);
         memory.set( address, result);
-        clock.tick(7);
     }
 
     @Override

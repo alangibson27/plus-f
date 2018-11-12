@@ -19,7 +19,6 @@ public class OpPopIndexed extends Operation {
     @Override
     public void execute() {
         indexRegister.set(Word.from(processor.popByte(), processor.popByte()));
-        clock.tick(6);
     }
 
     @Override

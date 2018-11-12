@@ -22,8 +22,10 @@ public class OpSetIndexedIndirect extends BitModificationOperation {
     public void execute() {
         final int offset = processor.fetchRelative(-2);
         final int address = indexRegister.withOffset(offset);
-        memory.set( address, set(memory.get(address)));
-        clock.tick(11);
+        clock.tick(1);
+        final int result = set(memory.get(address));
+        clock.tick(1);
+        memory.set(address, result);
     }
 
     @Override

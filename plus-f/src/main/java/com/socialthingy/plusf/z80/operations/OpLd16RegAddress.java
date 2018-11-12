@@ -19,7 +19,6 @@ public class OpLd16RegAddress extends Operation {
     public void execute() {
         final int source = processor.fetchNextWord();
         dest.set(Word.from(memory.get(source), memory.get(source + 1)));
-        clock.tick(12);
     }
 
     @Override

@@ -20,7 +20,6 @@ public class OpLdAddress16Reg extends Operation {
         final int value = register.get();
         memory.set( address, value & 0x00ff);
         memory.set( (address + 1) & 0xffff, (value & 0xff00) >> 8);
-        clock.tick(12);
     }
 
     @Override

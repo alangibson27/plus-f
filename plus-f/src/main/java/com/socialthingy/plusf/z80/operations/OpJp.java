@@ -18,7 +18,6 @@ public class OpJp extends Operation {
     @Override
     public void execute() {
         pcReg.set(processor.fetchNextWord());
-        clock.tick(6);
     }
 
     @Override

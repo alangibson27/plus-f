@@ -16,7 +16,7 @@ public class OpPush16Reg extends Operation {
     public void execute() {
         processor.pushByte(register.getHigh());
         processor.pushByte(register.getLow());
-        clock.tick(7);
+        clock.tick(1);
     }
 
     @Override

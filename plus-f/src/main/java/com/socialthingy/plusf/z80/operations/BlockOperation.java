@@ -31,14 +31,14 @@ abstract class BlockOperation extends Operation {
     protected int adjustPC() {
         if (bcReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 13;
+            return 7;
         } else {
-            return 8;
+            return 2;
         }
     }
 
     protected void blockTransfer() {
-        final int hlContents =memory.get(hlReg.get());
+        final int hlContents = memory.get(hlReg.get());
         final int undocumentedValue = (accumulator.get() + hlContents) & 0xff;
         memory.set(deReg.get(), hlContents);
         deReg.set(deReg.get() + increment);

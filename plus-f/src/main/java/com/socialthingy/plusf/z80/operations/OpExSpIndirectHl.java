@@ -26,9 +26,10 @@ public class OpExSpIndirectHl extends Operation {
         lReg.set(memory.get(spLow));
         hReg.set(memory.get(spHigh));
 
+        clock.tick(3);
+
         memory.set( spLow, oldL);
         memory.set( spHigh, oldH);
-        clock.tick(15);
     }
 
     @Override

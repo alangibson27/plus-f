@@ -19,8 +19,9 @@ public class OpAndIndexedIndirect extends AndOperation {
 
     @Override
     public void execute() {
-        and(memory.get(indexRegister.withOffset(processor.fetchNextByte())));
-        clock.tick(11);
+        final int addr = indexRegister.withOffset(processor.fetchNextByte());
+        clock.tick(5);
+        and(memory.get(addr));
     }
 
     @Override

@@ -18,7 +18,6 @@ public class OpXorAHlIndirect extends XorOperation {
     @Override
     public void execute() {
         xor(memory.get(hlReg.get()));
-        clock.tick(3);
     }
 
     @Override

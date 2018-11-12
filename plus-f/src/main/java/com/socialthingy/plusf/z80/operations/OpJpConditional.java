@@ -31,7 +31,6 @@ public class OpJpConditional extends Operation {
         if (flags.get(flag) == whenSet) {
             pcReg.set(destination);
         }
-        clock.tick(6);
     }
 
     @Override

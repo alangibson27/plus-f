@@ -19,7 +19,6 @@ public class OpLdAddressHl extends Operation {
         final int address = processor.fetchNextWord();
         memory.set(address, hlReg.getLow());
         memory.set(address + 1, hlReg.getHigh());
-        clock.tick(12);
     }
 
     @Override

@@ -18,8 +18,9 @@ public class OpSlaHlIndirect extends SlaOperation {
     @Override
     public void execute() {
         final int address = hlReg.get();
-        memory.set( address, shift(memory.get(address)));
-        clock.tick(7);
+        final int result = shift(memory.get(address));
+        clock.tick(1);
+        memory.set(address, result);
     }
 
     @Override

@@ -12,7 +12,6 @@ public class OpAddAImmediate extends ArithmeticOperation {
     @Override
     public void execute() {
         super.add(processor.fetchNextByte());
-        clock.tick(3);
     }
 
     @Override

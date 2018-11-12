@@ -18,7 +18,6 @@ public class OpAndAHlIndirect extends AndOperation {
     @Override
     public void execute() {
         and(memory.get(hlReg.get()));
-        clock.tick(3);
     }
 
     @Override

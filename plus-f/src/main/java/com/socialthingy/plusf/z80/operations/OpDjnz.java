@@ -23,9 +23,9 @@ public class OpDjnz extends Operation {
         final int bValue = bReg.set(bReg.get() - 1);
         if (bValue > 0) {
             pcReg.set(pcReg.get() + offset);
-            clock.tick(9);
+            clock.tick(6);
         } else {
-            clock.tick(4);
+            clock.tick(1);
         }
     }
 

@@ -10,8 +10,9 @@ public class OpCall extends CallOperation {
 
     @Override
     public void execute() {
-        call(processor.fetchNextWord());
-        clock.tick(13);
+        final int target = processor.fetchNextWord();
+        call(target);
+        clock.tick(1);
     }
 
     @Override

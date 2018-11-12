@@ -26,7 +26,7 @@ public class OpRld extends RotateOperation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
 
-        clock.tick(10);
+        clock.tick(4);
     }
 
     @Override

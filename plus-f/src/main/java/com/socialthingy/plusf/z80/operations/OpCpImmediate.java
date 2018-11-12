@@ -11,7 +11,6 @@ public class OpCpImmediate extends ArithmeticOperation {
     @Override
     public void execute() {
         sub(processor.fetchNextByte(), false);
-        clock.tick(3);
     }
 
     @Override

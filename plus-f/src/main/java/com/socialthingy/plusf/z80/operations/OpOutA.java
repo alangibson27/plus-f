@@ -17,7 +17,7 @@ public class OpOutA extends Operation {
     @Override
     public void execute() {
         io.write(processor.fetchNextByte(), accumulator.get(), accumulator.get());
-        clock.tick(7);
+        clock.tick(4);
     }
 
     @Override

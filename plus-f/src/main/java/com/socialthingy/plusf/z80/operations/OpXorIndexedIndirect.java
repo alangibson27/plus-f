@@ -20,7 +20,7 @@ public class OpXorIndexedIndirect extends XorOperation {
     @Override
     public void execute() {
         xor(memory.get(indexRegister.withOffset(processor.fetchNextByte())));
-        clock.tick(11);
+        clock.tick(5);
     }
 
     @Override

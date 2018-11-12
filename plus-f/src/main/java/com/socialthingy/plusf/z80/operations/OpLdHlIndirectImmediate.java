@@ -17,7 +17,6 @@ public class OpLdHlIndirectImmediate extends Operation {
     @Override
     public void execute() {
         memory.set(destReference.get(), processor.fetchNextByte());
-        clock.tick(6);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class OpLdd extends BlockOperation {
     @Override
     public void execute() {
         blockTransfer();
-        clock.tick(8);
+        clock.tick(2);
     }
 
     @Override

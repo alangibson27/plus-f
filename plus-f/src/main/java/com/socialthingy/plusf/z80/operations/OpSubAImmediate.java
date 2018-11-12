@@ -13,7 +13,6 @@ public class OpSubAImmediate extends ArithmeticOperation {
     public void execute() {
         accumulator.set(sub(processor.fetchNextByte(), true));
         flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
-        clock.tick(3);
     }
 
     @Override

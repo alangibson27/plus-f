@@ -20,7 +20,6 @@ public class OpAddAHlIndirect extends ArithmeticOperation {
     @Override
     public void execute() {
         add(memory.get(hlReg.get()));
-        clock.tick(3);
     }
 
     @Override

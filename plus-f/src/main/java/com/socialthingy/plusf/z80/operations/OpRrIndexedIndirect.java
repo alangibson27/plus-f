@@ -21,9 +21,10 @@ public class OpRrIndexedIndirect extends RotateOperation {
     @Override
     public void execute() {
         final int address = indexRegister.withOffset(processor.fetchRelative(-2));
+        clock.tick(1);
         final int result = rrValue(memory.get(address));
         setSignZeroAndParity(result);
+        clock.tick(1);
         memory.set( address, result);
-        clock.tick(11);
     }
 }

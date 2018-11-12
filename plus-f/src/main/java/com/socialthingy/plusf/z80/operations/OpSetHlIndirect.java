@@ -22,8 +22,9 @@ public class OpSetHlIndirect extends BitModificationOperation {
     @Override
     public void execute() {
         final int address = hlReg.get();
-        memory.set( address, set(memory.get(address)));
-        clock.tick(7);
+        final int result = set(memory.get(address));
+        clock.tick(1);
+        memory.set(address, result);
     }
 
     @Override

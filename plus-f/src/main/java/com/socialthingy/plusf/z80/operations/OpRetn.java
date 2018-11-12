@@ -12,7 +12,6 @@ public class OpRetn extends RetOperation {
     public void execute() {
         processor.setIff(0, processor.getIff(1));
         ret();
-        clock.tick(6);
     }
 
     @Override

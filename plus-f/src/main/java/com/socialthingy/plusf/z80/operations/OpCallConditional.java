@@ -28,9 +28,7 @@ public class OpCallConditional extends CallOperation {
         final int address = processor.fetchNextWord();
         if (flagsRegister.get(flag) == callState) {
             call(address);
-            clock.tick(13);
-        } else {
-            clock.tick(6);
+            clock.tick(1);
         }
     }
 

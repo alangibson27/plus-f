@@ -19,7 +19,7 @@ public class OpJr extends Operation {
     public void execute() {
         final byte offset = (byte) processor.fetchNextByte();
         pcReg.set(pcReg.get() + offset);
-        clock.tick(8);
+        clock.tick(5);
     }
 
     @Override

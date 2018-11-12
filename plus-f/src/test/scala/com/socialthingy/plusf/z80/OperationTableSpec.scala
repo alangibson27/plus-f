@@ -7,9 +7,9 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class OperationTableSpec extends FlatSpec with Matchers with TableDrivenPropertyChecks with MockitoSugar {
 
-  val memory = new SimpleMemory
   val io = mock[IO]
   val clock = new Clock
+  val memory = new UncontendedMemory(clock)
   val processor = new Processor(memory, io, clock)
   val table = OperationTable.build(processor, clock, memory, io)
   val edTable = OperationTable.buildEdGroup(processor, clock, memory, io)

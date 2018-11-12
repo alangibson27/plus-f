@@ -20,7 +20,7 @@ public class OpLdIndexedIndirectImmediate extends Operation {
         final int offset = processor.fetchNextByte();
         final int value = processor.fetchNextByte();
         memory.set( indexRegister.withOffset(offset), value);
-        clock.tick(11);
+        clock.tick(2);
     }
 
     @Override

@@ -18,7 +18,6 @@ public class OpOrAHlIndirect extends OrOperation {
     @Override
     public void execute() {
         or(memory.get(hlReg.get()));
-        clock.tick(3);
     }
 
     @Override

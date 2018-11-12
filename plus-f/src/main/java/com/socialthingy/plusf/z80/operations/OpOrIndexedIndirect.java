@@ -20,7 +20,7 @@ public class OpOrIndexedIndirect extends OrOperation {
     @Override
     public void execute() {
         or(memory.get(indexRegister.withOffset(processor.fetchNextByte())));
-        clock.tick(11);
+        clock.tick(5);
     }
 
     @Override

@@ -17,7 +17,6 @@ public class OpLdIndexedImmediate extends Operation {
     public void execute() {
         final int value = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
         indexRegister.set(value);
-        clock.tick(6);
     }
 
     @Override

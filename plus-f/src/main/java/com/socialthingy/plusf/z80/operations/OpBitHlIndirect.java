@@ -22,7 +22,7 @@ public class OpBitHlIndirect extends BitOperation {
     @Override
     public void execute() {
         checkBit(memory.get(hlReg.get()));
-        clock.tick(4);
+        clock.tick(1);
     }
 
     @Override

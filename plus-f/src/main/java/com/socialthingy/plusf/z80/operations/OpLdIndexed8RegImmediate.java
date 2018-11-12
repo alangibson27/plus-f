@@ -19,7 +19,6 @@ public class OpLdIndexed8RegImmediate extends Operation {
     @Override
     public void execute() {
         dest.set(processor.fetchNextByte());
-        clock.tick(3);
     }
 
     @Override

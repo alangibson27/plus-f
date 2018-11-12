@@ -20,7 +20,7 @@ public class OpPushIndexed extends Operation {
         final int value = indexRegister.get();
         processor.pushByte((value & 0xff00) >> 8);
         processor.pushByte(value & 0x00ff);
-        clock.tick(7);
+        clock.tick(1);
     }
 
     @Override

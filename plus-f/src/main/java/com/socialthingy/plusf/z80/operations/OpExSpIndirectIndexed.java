@@ -26,9 +26,10 @@ public class OpExSpIndirectIndexed extends Operation {
             Word.from(memory.get(spLow), memory.get(spHigh))
         );
 
+        clock.tick(3);
+
         memory.set( spLow, oldIndex & 0x00ff);
         memory.set( spHigh, (oldIndex & 0xff00) >> 8);
-        clock.tick(15);
     }
 
     @Override

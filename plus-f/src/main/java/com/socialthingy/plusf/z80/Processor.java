@@ -232,7 +232,7 @@ public class Processor {
 
     private int fromMemory(final int addr) {
         final int val = memory.get(addr);
-        clock.tick(4);
+        clock.tick(1);
         return val;
     }
 

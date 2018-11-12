@@ -21,9 +21,10 @@ public class OpIncIndexedIndirect extends IncOperation {
     @Override
     public void execute() {
         final int address = indexRegister.withOffset(processor.fetchNextByte());
+        clock.tick(5);
         final int result = increment(memory.get(address));
+        clock.tick(1);
         memory.set(address, result);
-        clock.tick(15);
     }
 
     @Override
