@@ -1,18 +1,16 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
+import com.socialthingy.plusf.z80.*;
 import com.socialthingy.plusf.z80.FlagsRegister.Flag;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
 
-public class OpLdAI implements Operation {
+public class OpLdAI extends Operation {
     private final Processor processor;
     private final Register iReg;
     private final Register aReg;
     private final FlagsRegister flags;
 
-    public OpLdAI(final Processor processor) {
+    public OpLdAI(final Processor processor, final Clock clock) {
+        super(clock);
         this.processor = processor;
         this.iReg = processor.register("i");
         this.aReg = processor.register("a");
@@ -20,7 +18,7 @@ public class OpLdAI implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int iValue = iReg.get();
         aReg.set(iValue);
         flags.set(Flag.P, processor.getIff(1));
@@ -29,7 +27,7 @@ public class OpLdAI implements Operation {
         flags.set(Flag.N, false);
         flags.set(Flag.H, false);
         flags.setUndocumentedFlagsFromValue(iValue);
-        return 9;
+        clock.tick(1);
     }
 
     @Override

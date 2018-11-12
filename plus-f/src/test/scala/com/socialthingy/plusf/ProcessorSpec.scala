@@ -22,7 +22,8 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
       stub
     }
 
-    val processor = new Processor(memory, io, new Clock)
+    val clock = new Clock
+    val processor = new Processor(memory, io, clock)
 
     def interruptsAreEnabled(): Unit = {
       processor.setIff(0, true)

@@ -1,19 +1,20 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpCpir extends BlockOperation {
-    public OpCpir(final Processor processor, final Memory memory) {
-        super(processor, memory, 1);
+    public OpCpir(final Processor processor, final Clock clock, final Memory memory) {
+        super(processor, clock, memory, 1);
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         if (blockCompare() == 0) {
-            return 16;
+            clock.tick(8);
         } else {
-            return adjustPC();
+            clock.tick(adjustPC());
         }
     }
 

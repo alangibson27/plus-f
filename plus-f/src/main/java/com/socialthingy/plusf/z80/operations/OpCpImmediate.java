@@ -1,16 +1,17 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpCpImmediate extends ArithmeticOperation {
-    public OpCpImmediate(final Processor processor) {
-        super(processor, false);
+    public OpCpImmediate(final Processor processor, final Clock clock) {
+        super(processor, clock, false);
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         sub(processor.fetchNextByte(), false);
-        return 7;
+        clock.tick(3);
     }
 
     @Override

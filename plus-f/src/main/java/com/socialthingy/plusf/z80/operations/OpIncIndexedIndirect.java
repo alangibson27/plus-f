@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.IndexRegister;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
@@ -10,19 +11,19 @@ public class OpIncIndexedIndirect extends IncOperation {
     private final Memory memory;
     private final IndexRegister indexRegister;
 
-    public OpIncIndexedIndirect(final Processor processor, final Memory memory, final IndexRegister indexRegister) {
-        super(processor);
+    public OpIncIndexedIndirect(final Processor processor, final Clock clock, final Memory memory, final IndexRegister indexRegister) {
+        super(processor, clock);
         this.processor = processor;
         this.memory = memory;
         this.indexRegister = indexRegister;
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int address = indexRegister.withOffset(processor.fetchNextByte());
         final int result = increment(memory.get(address));
         memory.set(address, result);
-        return 23;
+        clock.tick(15);
     }
 
     @Override

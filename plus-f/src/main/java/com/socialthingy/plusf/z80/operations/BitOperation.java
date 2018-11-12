@@ -1,14 +1,16 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 
-abstract class BitOperation implements Operation {
+abstract class BitOperation extends Operation {
     protected final FlagsRegister flagsRegister;
     protected final int bitPosition;
 
-    BitOperation(final Processor processor, final int bitPosition) {
+    BitOperation(final Processor processor, final Clock clock, final int bitPosition) {
+        super(clock);
         this.flagsRegister = processor.flagsRegister();
         this.bitPosition = bitPosition;
     }

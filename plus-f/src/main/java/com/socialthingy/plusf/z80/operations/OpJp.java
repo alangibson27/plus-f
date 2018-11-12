@@ -1,23 +1,24 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-public class OpJp implements Operation {
-
+public class OpJp extends Operation {
     private final Processor processor;
     private final Register pcReg;
 
-    public OpJp(final Processor processor) {
+    public OpJp(final Processor processor, final Clock clock) {
+        super(clock);
         this.processor = processor;
         this.pcReg = processor.register("pc");
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         pcReg.set(processor.fetchNextWord());
-        return 10;
+        clock.tick(6);
     }
 
     @Override

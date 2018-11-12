@@ -1,23 +1,25 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-public class OpLdIndexed8RegImmediate implements Operation {
+public class OpLdIndexed8RegImmediate extends Operation {
 
     private final Processor processor;
     private final Register dest;
 
-    public OpLdIndexed8RegImmediate(final Processor processor, final Register dest) {
+    public OpLdIndexed8RegImmediate(final Processor processor, final Clock clock, final Register dest) {
+        super(clock);
         this.processor = processor;
         this.dest = dest;
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         dest.set(processor.fetchNextByte());
-        return 11;
+        clock.tick(3);
     }
 
     @Override

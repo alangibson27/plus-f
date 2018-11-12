@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
@@ -7,15 +8,14 @@ public class OpCpA8Reg extends ArithmeticOperation {
 
     private final Register register;
 
-    public OpCpA8Reg(final Processor processor, final Register register) {
-        super(processor, false);
+    public OpCpA8Reg(final Processor processor, final Clock clock, final Register register) {
+        super(processor, clock, false);
         this.register = register;
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         sub(register.get(), false);
-        return 4;
     }
 
     @Override

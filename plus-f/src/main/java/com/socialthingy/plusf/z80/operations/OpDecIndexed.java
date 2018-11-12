@@ -1,20 +1,22 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Register;
 
-public class OpDecIndexed implements Operation {
+public class OpDecIndexed extends Operation {
 
     private final Register register;
 
-    public OpDecIndexed(final Register register) {
+    public OpDecIndexed(final Clock clock, final Register register) {
+        super(clock);
         this.register = register;
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         register.set(register.get() - 1);
-        return 10;
+        clock.tick(2);
     }
 
     @Override

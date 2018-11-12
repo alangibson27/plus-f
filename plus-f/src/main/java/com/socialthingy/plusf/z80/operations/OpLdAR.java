@@ -1,17 +1,15 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLdAR implements Operation {
+public class OpLdAR extends Operation {
     private final Processor processor;
     private final Register rReg;
     private final Register aReg;
     private final FlagsRegister flagsRegister;
 
-    public OpLdAR(final Processor processor) {
+    public OpLdAR(final Processor processor, final Clock clock) {
+        super(clock);
         this.processor = processor;
         this.rReg = processor.register("r");
         this.aReg = processor.register("a");
@@ -19,7 +17,7 @@ public class OpLdAR implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int value = rReg.get();
         aReg.set(value);
         flagsRegister.set(FlagsRegister.Flag.S, (byte) value < 0);
@@ -28,7 +26,7 @@ public class OpLdAR implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, processor.getIff(1));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.setUndocumentedFlagsFromValue(value);
-        return 9;
+        clock.tick(1);
     }
 
     @Override

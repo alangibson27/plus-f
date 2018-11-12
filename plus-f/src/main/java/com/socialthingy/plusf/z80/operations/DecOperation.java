@@ -1,17 +1,19 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
 
-abstract class DecOperation implements Operation {
+abstract class DecOperation extends Operation {
 
     private final FlagsRegister flagsRegister;
 
-    protected DecOperation(final Processor processor) {
+    protected DecOperation(final Processor processor, final Clock clock) {
+        super(clock);
         this.flagsRegister = processor.flagsRegister();
     }
 

@@ -1,23 +1,20 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpRld extends RotateOperation {
 
     private final Memory memory;
     private final Register hlReg;
 
-    public OpRld(final Processor processor, final Memory memory) {
-        super(processor);
+    public OpRld(final Processor processor, final Clock clock, final Memory memory) {
+        super(processor, clock);
         this.memory = memory;
         this.hlReg = processor.register("hl");
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int address = hlReg.get();
         final int memoryValue = memory.get(address);
 
@@ -29,7 +26,7 @@ public class OpRld extends RotateOperation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
 
-        return 18;
+        clock.tick(10);
     }
 
     @Override

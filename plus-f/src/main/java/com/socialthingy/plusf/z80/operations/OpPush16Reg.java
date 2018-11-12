@@ -1,24 +1,22 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.BytePairRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpPush16Reg implements Operation {
+public class OpPush16Reg extends Operation {
     private final BytePairRegister register;
     private final Processor processor;
 
-    public OpPush16Reg(final Processor processor, final Register register) {
+    public OpPush16Reg(final Processor processor, final Clock clock, final Register register) {
+        super(clock);
         this.processor = processor;
         this.register = BytePairRegister.class.cast(register);
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         processor.pushByte(register.getHigh());
         processor.pushByte(register.getLow());
-        return 11;
+        clock.tick(7);
     }
 
     @Override

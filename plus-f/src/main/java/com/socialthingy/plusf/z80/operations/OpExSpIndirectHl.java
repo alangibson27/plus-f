@@ -1,18 +1,15 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpExSpIndirectHl implements Operation {
-
+public class OpExSpIndirectHl extends Operation {
     private final Register spReg;
     private final Register hReg;
     private final Register lReg;
     private final Memory memory;
 
-    public OpExSpIndirectHl(final Processor processor, final Memory memory) {
+    public OpExSpIndirectHl(final Processor processor, final Clock clock, final Memory memory) {
+        super(clock);
         this.spReg = processor.register("sp");
         this.hReg = processor.register("h");
         this.lReg = processor.register("l");
@@ -20,7 +17,7 @@ public class OpExSpIndirectHl implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int oldH = hReg.get();
         final int oldL = lReg.get();
 
@@ -31,7 +28,7 @@ public class OpExSpIndirectHl implements Operation {
 
         memory.set( spLow, oldL);
         memory.set( spHigh, oldH);
-        return 19;
+        clock.tick(15);
     }
 
     @Override

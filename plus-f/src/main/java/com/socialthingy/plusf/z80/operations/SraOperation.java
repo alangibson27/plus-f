@@ -1,11 +1,12 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Processor;
 
 abstract class SraOperation extends ShiftOperation {
 
-    protected SraOperation(final Processor processor) {
-        super(processor);
+    protected SraOperation(final Processor processor, final Clock clock) {
+        super(processor, clock);
     }
 
     protected int shift(final int value) {

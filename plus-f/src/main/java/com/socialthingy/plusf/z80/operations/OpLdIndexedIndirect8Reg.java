@@ -2,14 +2,14 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.*;
 
-public class OpLdIndexedIndirect8Reg implements Operation {
-
+public class OpLdIndexedIndirect8Reg extends Operation {
     private final Processor processor;
     private final Memory memory;
     private final IndexRegister indexRegister;
     private final Register source;
 
-    public OpLdIndexedIndirect8Reg(final Processor processor, final Memory memory, final Register indexRegister, final Register source) {
+    public OpLdIndexedIndirect8Reg(final Processor processor, final Clock clock, final Memory memory, final Register indexRegister, final Register source) {
+        super(clock);
         this.processor = processor;
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
@@ -17,9 +17,9 @@ public class OpLdIndexedIndirect8Reg implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         memory.set( indexRegister.withOffset(processor.fetchNextByte()), source.get());
-        return 19;
+        clock.tick(11);
     }
 
     @Override

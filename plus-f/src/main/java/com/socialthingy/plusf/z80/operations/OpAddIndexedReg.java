@@ -1,27 +1,25 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 import static com.socialthingy.plusf.util.Bitwise.FULL_CARRY_BIT;
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
 
-public class OpAddIndexedReg implements Operation {
+public class OpAddIndexedReg extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register indexRegister;
     private final Register sourceReg;
 
-    public OpAddIndexedReg(final Processor processor, final Register indexRegister, final Register sourceReg) {
+    public OpAddIndexedReg(final Processor processor, final Clock clock, final Register indexRegister, final Register sourceReg) {
+        super(clock);
         this.flagsRegister = processor.flagsRegister();
         this.indexRegister = indexRegister;
         this.sourceReg = sourceReg;
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int result = Bitwise.addWord(indexRegister.get(), sourceReg.get());
         final int answer = result & 0xffff;
         indexRegister.set(answer);
@@ -29,7 +27,7 @@ public class OpAddIndexedReg implements Operation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, (result & FULL_CARRY_BIT) != 0);
         flagsRegister.setUndocumentedFlagsFromValue(answer >> 8);
-        return 15;
+        clock.tick(7);
     }
 
     @Override

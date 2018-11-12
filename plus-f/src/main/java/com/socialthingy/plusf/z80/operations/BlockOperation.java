@@ -5,7 +5,7 @@ import com.socialthingy.plusf.z80.*;
 
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
 
-abstract class BlockOperation implements Operation {
+abstract class BlockOperation extends Operation {
 
     protected final FlagsRegister flagsRegister;
     private final Register accumulator;
@@ -16,7 +16,8 @@ abstract class BlockOperation implements Operation {
     private final Memory memory;
     private final int increment;
 
-    protected BlockOperation(final Processor processor, final Memory memory, final int increment) {
+    protected BlockOperation(final Processor processor, final Clock clock, final Memory memory, final int increment) {
+        super(clock);
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
         this.pcReg = processor.register("pc");
@@ -30,9 +31,9 @@ abstract class BlockOperation implements Operation {
     protected int adjustPC() {
         if (bcReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 21;
+            return 13;
         } else {
-            return 16;
+            return 8;
         }
     }
 

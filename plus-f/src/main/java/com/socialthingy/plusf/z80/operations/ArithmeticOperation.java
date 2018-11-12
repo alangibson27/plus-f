@@ -1,22 +1,20 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.z80.FlagsRegister;
+import com.socialthingy.plusf.z80.*;
 import com.socialthingy.plusf.z80.FlagsRegister.Flag;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
 
 import static com.socialthingy.plusf.util.Bitwise.FULL_CARRY_BIT;
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
 
-abstract class ArithmeticOperation implements Operation {
+abstract class ArithmeticOperation extends Operation {
     protected final Register accumulator;
     protected final FlagsRegister flagsRegister;
     protected final Processor processor;
     protected final boolean useCarryFlag;
 
-    ArithmeticOperation(final Processor processor, final boolean useCarryFlag) {
+    ArithmeticOperation(final Processor processor, final Clock clock, final boolean useCarryFlag) {
+        super(clock);
         this.processor = processor;
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");

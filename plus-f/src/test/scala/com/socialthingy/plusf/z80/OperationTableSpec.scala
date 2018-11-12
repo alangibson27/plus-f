@@ -9,11 +9,12 @@ class OperationTableSpec extends FlatSpec with Matchers with TableDrivenProperty
 
   val memory = new SimpleMemory
   val io = mock[IO]
-  val processor = new Processor(memory, io, new Clock)
-  val table = OperationTable.build(processor, memory, io)
-  val edTable = OperationTable.buildEdGroup(processor, memory, io)
-  val cbTable = OperationTable.buildCbGroup(processor, memory)
-  val ixTable = OperationTable.buildIndexedGroup(processor, memory, processor.register("ix").asInstanceOf[IndexRegister])
+  val clock = new Clock
+  val processor = new Processor(memory, io, clock)
+  val table = OperationTable.build(processor, clock, memory, io)
+  val edTable = OperationTable.buildEdGroup(processor, clock, memory, io)
+  val cbTable = OperationTable.buildCbGroup(processor, clock, memory)
+  val ixTable = OperationTable.buildIndexedGroup(processor, clock, memory, processor.register("ix").asInstanceOf[IndexRegister])
 
   val singleOpcodeOperations = Table(
     ("opcode", "operation"),

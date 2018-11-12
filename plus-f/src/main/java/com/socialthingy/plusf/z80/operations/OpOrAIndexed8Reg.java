@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
@@ -7,15 +8,14 @@ public class OpOrAIndexed8Reg extends OrOperation {
 
     private final Register register;
 
-    public OpOrAIndexed8Reg(final Processor processor, final Register register) {
-        super(processor);
+    public OpOrAIndexed8Reg(final Processor processor, final Clock clock, final Register register) {
+        super(processor, clock);
         this.register = register;
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         or(register.get());
-        return 8;
     }
 
     @Override

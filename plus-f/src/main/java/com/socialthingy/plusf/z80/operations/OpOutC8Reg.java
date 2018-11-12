@@ -2,13 +2,14 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.*;
 
-public class OpOutC8Reg implements Operation {
+public class OpOutC8Reg extends Operation {
     private final Register bReg;
     private final Register cReg;
     private final Register sourceRegister;
     private final IO io;
 
-    public OpOutC8Reg(final Processor processor, final IO io, final Register register) {
+    public OpOutC8Reg(final Processor processor, final IO io, final Clock clock, final Register register) {
+        super(clock);
         this.io = io;
         this.sourceRegister = register;
         this.bReg = processor.register("b");
@@ -16,9 +17,9 @@ public class OpOutC8Reg implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         io.write(cReg.get(), bReg.get(), sourceRegister.get());
-        return 12;
+        clock.tick(4);
     }
 
     @Override

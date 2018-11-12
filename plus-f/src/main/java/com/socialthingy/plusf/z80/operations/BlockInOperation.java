@@ -2,7 +2,7 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.*;
 
-abstract class BlockInOperation implements Operation {
+abstract class BlockInOperation extends Operation {
     protected final Processor processor;
     protected final Memory memory;
     protected final IO io;
@@ -12,7 +12,8 @@ abstract class BlockInOperation implements Operation {
     protected final FlagsRegister flagsRegister;
     protected final Register pcReg;
 
-    protected BlockInOperation(final Processor processor, final Memory memory, final IO io) {
+    protected BlockInOperation(final Processor processor, final Clock clock, final Memory memory, final IO io) {
+        super(clock);
         this.processor = processor;
         this.memory = memory;
         this.io = io;
@@ -35,9 +36,9 @@ abstract class BlockInOperation implements Operation {
     protected int adjustPC() {
         if (bReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 21;
+            return 13;
         } else {
-            return 16;
+            return 8;
         }
     }
 }

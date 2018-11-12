@@ -1,25 +1,23 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.IO;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpInA implements Operation {
+public class OpInA extends Operation {
     private final Processor processor;
     private final IO io;
     private final Register accumulator;
 
-    public OpInA(final Processor processor, final IO io) {
+    public OpInA(final Processor processor, final Clock clock, final IO io) {
+        super(clock);
         this.processor = processor;
         this.io = io;
         this.accumulator = processor.register("a");
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         accumulator.set(io.read(processor.fetchNextByte(), accumulator.get()));
-        return 11;
+        clock.tick(7);
     }
 
     @Override

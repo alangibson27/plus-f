@@ -1,9 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.IndexRegister;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpAddAIndexedIndirect extends ArithmeticOperation {
 
@@ -11,8 +8,8 @@ public class OpAddAIndexedIndirect extends ArithmeticOperation {
     private final IndexRegister indexRegister;
     private final String toString;
 
-    public OpAddAIndexedIndirect(final Processor processor, final Memory memory, final Register indexRegister, final boolean useCarryFlag) {
-        super(processor, useCarryFlag);
+    public OpAddAIndexedIndirect(final Processor processor, final Clock clock, final Memory memory, final Register indexRegister, final boolean useCarryFlag) {
+        super(processor, clock, useCarryFlag);
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
 
@@ -24,9 +21,9 @@ public class OpAddAIndexedIndirect extends ArithmeticOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         add(memory.get(indexRegister.withOffset(processor.fetchNextByte())));
-        return 19;
+        clock.tick(11);
     }
 
     @Override

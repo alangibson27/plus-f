@@ -19,7 +19,7 @@ public class Processor {
     private final Operation[] fdOperations;
     private final Operation[] fdCbOperations;
 
-    private final Nop nop = new Nop();
+    private final Nop nop;
     private final RRegister rReg = new RRegister();
     private final ByteRegister iReg = new ByteRegister("i");
     private final WordRegister pcReg = new WordRegister("pc");
@@ -33,24 +33,24 @@ public class Processor {
     private boolean iffs[] = new boolean[2];
     private int interruptMode = 1;
     private boolean interruptRequested = false;
-    private int lastTime;
     private Operation lastOp;
 
     public Processor(final Memory memory, final IO io, final Clock clock) {
         this.clock = clock;
         this.memory = memory;
+        this.nop = new Nop(clock);
 
         prepareRegisters();
-        operations = OperationTable.build(this, memory, io);
-        edOperations = OperationTable.buildEdGroup(this, memory, io);
-        cbOperations = OperationTable.buildCbGroup(this, memory);
-        ddOperations = OperationTable.buildIndexedGroup(this, memory, (IndexRegister) registers.get("ix"));
-        fdOperations = OperationTable.buildIndexedGroup(this, memory, (IndexRegister) registers.get("iy"));
-        ddCbOperations = OperationTable.buildIndexedBitwiseGroup(this, memory, (IndexRegister) registers.get("ix"));
-        fdCbOperations = OperationTable.buildIndexedBitwiseGroup(this, memory, (IndexRegister) registers.get("iy"));
+        operations = OperationTable.build(this, clock, memory, io);
+        edOperations = OperationTable.buildEdGroup(this, clock, memory, io);
+        cbOperations = OperationTable.buildCbGroup(this, clock, memory);
+        ddOperations = OperationTable.buildIndexedGroup(this, clock, memory, (IndexRegister) registers.get("ix"));
+        fdOperations = OperationTable.buildIndexedGroup(this, clock, memory, (IndexRegister) registers.get("iy"));
+        ddCbOperations = OperationTable.buildIndexedBitwiseGroup(this, clock, memory, (IndexRegister) registers.get("ix"));
+        fdCbOperations = OperationTable.buildIndexedBitwiseGroup(this, clock, memory, (IndexRegister) registers.get("iy"));
 
-        this.im1ResponseOp = new OpRst(this, 0x0038);
-        this.nmiResponseOp = new OpRst(this, 0x0066);
+        this.im1ResponseOp = new OpRst(this, clock, 0x0038);
+        this.nmiResponseOp = new OpRst(this, clock, 0x0066);
     }
 
     private void prepareRegisters() {
@@ -137,10 +137,6 @@ public class Processor {
         return this.fReg;
     }
 
-    public int lastTime() {
-        return lastTime;
-    }
-
     public Operation execute() throws ExecutionException {
         final boolean enableIffAfterExecution = enableIff;
         final int pc = pcReg.get();
@@ -148,12 +144,10 @@ public class Processor {
         if (op == null) {
             throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
         }
-        final int fetchTicks = ((pcReg.get() - pc) & 0xffff) * 4;
 
         this.lastOp = op;
         try {
-            this.lastTime = op.execute();
-            clock.tick(lastTime - fetchTicks);
+            op.execute();
 
             if (enableIffAfterExecution) {
                 enableIff = false;
@@ -181,7 +175,7 @@ public class Processor {
                 final int jumpBase = Word.from(0xff, iReg.get());
                 final int jumpLow = memory.get(jumpBase);
                 final int jumpHigh = memory.get(jumpBase + 1);
-                return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
+                return new OpCallDirect(this, clock, Word.from(jumpLow, jumpHigh));
             }
         } else {
             return fetchFromMemory(pcReg.get());
@@ -351,7 +345,6 @@ public class Processor {
         iffs[1] = false;
         interruptMode = 1;
         interruptRequested = false;
-        lastTime = 0;
         lastOp = null;
     }
 

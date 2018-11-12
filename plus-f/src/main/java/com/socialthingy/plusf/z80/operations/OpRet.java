@@ -1,16 +1,17 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpRet extends RetOperation {
-    public OpRet(final Processor processor) {
-        super(processor);
+    public OpRet(final Processor processor, final Clock clock) {
+        super(processor, clock);
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         ret();
-        return 10;
+        clock.tick(6);
     }
 
     @Override

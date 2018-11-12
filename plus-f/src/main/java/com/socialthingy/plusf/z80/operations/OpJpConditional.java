@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpJpConditional implements Operation {
+public class OpJpConditional extends Operation {
     private final Processor processor;
     private final FlagsRegister flags;
     private final Register pcReg;
@@ -13,7 +10,8 @@ public class OpJpConditional implements Operation {
     private final boolean whenSet;
     private final String toString;
 
-    public OpJpConditional(final Processor processor, final FlagsRegister.Flag flag, final boolean whenSet) {
+    public OpJpConditional(final Processor processor, final Clock clock, final FlagsRegister.Flag flag, final boolean whenSet) {
+        super(clock);
         this.pcReg = processor.register("pc");
         this.flags = FlagsRegister.class.cast(processor.register("f"));
         this.processor = processor;
@@ -28,12 +26,12 @@ public class OpJpConditional implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int destination = processor.fetchNextWord();
         if (flags.get(flag) == whenSet) {
             pcReg.set(destination);
         }
-        return 10;
+        clock.tick(6);
     }
 
     @Override

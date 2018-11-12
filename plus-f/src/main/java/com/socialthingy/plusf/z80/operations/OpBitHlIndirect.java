@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
@@ -10,8 +11,8 @@ public class OpBitHlIndirect extends BitOperation {
     private final Register hlReg;
     private final String toString;
 
-    public OpBitHlIndirect(final Processor processor, final Memory memory, final int bitPosition) {
-        super(processor, bitPosition);
+    public OpBitHlIndirect(final Processor processor, final Clock clock, final Memory memory, final int bitPosition) {
+        super(processor, clock, bitPosition);
         this.memory = memory;
         this.hlReg = processor.register("hl");
 
@@ -19,9 +20,9 @@ public class OpBitHlIndirect extends BitOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         checkBit(memory.get(hlReg.get()));
-        return 12;
+        clock.tick(4);
     }
 
     @Override

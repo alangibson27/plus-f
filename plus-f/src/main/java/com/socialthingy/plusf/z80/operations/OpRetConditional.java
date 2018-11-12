@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Processor;
 
@@ -9,8 +10,8 @@ public class OpRetConditional extends RetOperation {
     private final boolean retState;
     private final String toString;
 
-    public OpRetConditional(final Processor processor, final FlagsRegister.Flag flag, final boolean retState) {
-        super(processor);
+    public OpRetConditional(final Processor processor, final Clock clock, final FlagsRegister.Flag flag, final boolean retState) {
+        super(processor, clock);
         this.flagsRegister = processor.flagsRegister();
         this.flag = flag;
         this.retState = retState;
@@ -23,12 +24,12 @@ public class OpRetConditional extends RetOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         if (flagsRegister.get(flag) == retState) {
             ret();
-            return 11;
+            clock.tick(7);
         } else {
-            return 5;
+            clock.tick(1);
         }
     }
 

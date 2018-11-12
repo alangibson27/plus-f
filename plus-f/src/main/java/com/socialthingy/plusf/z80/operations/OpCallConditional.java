@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Processor;
 
@@ -9,8 +10,8 @@ public class OpCallConditional extends CallOperation {
     private final boolean callState;
     private final String toString;
 
-    public OpCallConditional(final Processor processor, final FlagsRegister.Flag flag, final boolean callState) {
-        super(processor);
+    public OpCallConditional(final Processor processor, final Clock clock, final FlagsRegister.Flag flag, final boolean callState) {
+        super(processor, clock);
         this.flagsRegister = processor.flagsRegister();
         this.flag = flag;
         this.callState = callState;
@@ -23,13 +24,13 @@ public class OpCallConditional extends CallOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         final int address = processor.fetchNextWord();
         if (flagsRegister.get(flag) == callState) {
             call(address);
-            return 5;
+            clock.tick(13);
         } else {
-            return 3;
+            clock.tick(6);
         }
     }
 

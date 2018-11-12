@@ -1,16 +1,14 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-abstract class OrOperation implements Operation {
+abstract class OrOperation extends Operation {
     protected final FlagsRegister flagsRegister;
     protected final Register accumulator;
 
-    OrOperation(final Processor processor) {
+    OrOperation(final Processor processor, final Clock clock) {
+        super(clock);
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
     }

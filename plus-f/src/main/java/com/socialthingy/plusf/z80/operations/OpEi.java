@@ -1,19 +1,20 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 
-public class OpEi implements Operation {
+public class OpEi extends Operation {
     private final Processor processor;
 
-    public OpEi(final Processor processor) {
+    public OpEi(final Processor processor, final Clock clock) {
+        super(clock);
         this.processor = processor;
     }
 
     @Override
-    public int execute() {
+    public void execute() {
         processor.enableInterrupts();
-        return 4;
     }
 
     @Override
