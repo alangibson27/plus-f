@@ -12,17 +12,25 @@ import scala.util.Random
 
 trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with MockitoSugar {
 
+  class StubIO(clock: Clock) extends IO {
+    override def recognises(low: Int, high: Int): Boolean = true
+
+    override def read(low: Int, high: Int): Int = {
+      clock.tick(4)
+      Random.nextInt(256)
+    }
+
+    override def write(low: Int, high: Int, value: Int): Unit = {
+      clock.tick(4)
+    }
+  }
+
   trait Machine {
     var instructionPointer = 0x0
 
-    val io = {
-      val stub = mock[IO]
-      mockitoWhen(stub.read(anyInt(), anyInt())).thenReturn(Random.nextInt(256))
-      stub
-    }
-
     val clock = new Clock
-    val memory: Memory = new UncontendedMemory(clock)
+    val io = new StubIO(clock)
+    val memory = new UncontendedMemory(clock)
     val processor = new Processor(memory, io, clock)
 
     def interruptsAreEnabled(): Unit = {

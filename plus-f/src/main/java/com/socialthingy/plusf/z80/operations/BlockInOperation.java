@@ -29,16 +29,15 @@ abstract class BlockInOperation extends Operation {
         final int value = io.read(cReg.get(), bVal);
         final int hlValue = hlReg.get();
         memory.set( hlValue, value);
+        clock.tick(1);
         bReg.set((bVal - 1) & 0xff);
         hlReg.set((hlValue + hlDirection) & 0xffff);
     }
 
-    protected int adjustPC() {
+    protected void adjustPC() {
         if (bReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 10;
-        } else {
-            return 5;
+            clock.tick(5);
         }
     }
 }

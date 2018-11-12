@@ -17,7 +17,6 @@ public class OpInA extends Operation {
     @Override
     public void execute() {
         accumulator.set(io.read(processor.fetchNextByte(), accumulator.get()));
-        clock.tick(4);
     }
 
     @Override

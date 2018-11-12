@@ -30,7 +30,6 @@ public class OpIn8RegC extends Operation {
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(value));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.setUndocumentedFlagsFromValue(destRegister.get());
-        clock.tick(4);
     }
 
     @Override

@@ -28,16 +28,16 @@ abstract class BlockOutOperation extends Operation {
         final int bVal = (bReg.get() - 1) & 0xff;
         bReg.set(bVal);
         final int hlValue = hlReg.get();
-        io.write(cReg.get(), bVal, memory.get(hlValue));
+        final int toWrite = memory.get(hlValue);
+        clock.tick(1);
+        io.write(cReg.get(), bVal, toWrite);
         hlReg.set((hlValue + hlDirection) & 0xffff);
     }
 
-    protected int adjustPC() {
+    protected void adjustPC() {
         if (bReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 10;
-        } else {
-            return 5;
+            clock.tick(5);
         }
     }
 }

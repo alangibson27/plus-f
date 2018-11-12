@@ -17,7 +17,6 @@ public class OpOutCZero extends Operation {
     @Override
     public void execute() {
         io.write(cReg.get(), bReg.get(), 0);
-        clock.tick(4);
     }
 
     @Override

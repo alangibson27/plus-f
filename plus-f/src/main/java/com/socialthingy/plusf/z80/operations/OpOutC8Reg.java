@@ -19,7 +19,6 @@ public class OpOutC8Reg extends Operation {
     @Override
     public void execute() {
         io.write(cReg.get(), bReg.get(), sourceRegister.get());
-        clock.tick(4);
     }
 
     @Override

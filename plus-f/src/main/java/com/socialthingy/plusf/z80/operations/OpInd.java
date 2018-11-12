@@ -12,7 +12,6 @@ public class OpInd extends BlockInOperation {
         readThenDecrementB(-1);
         flagsRegister.set(FlagsRegister.Flag.Z, bReg.get() == 0);
         flagsRegister.set(FlagsRegister.Flag.N, true);
-        clock.tick(5);
     }
 
     @Override

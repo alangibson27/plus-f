@@ -12,7 +12,7 @@ public class OpOtdr extends BlockOutOperation {
         decrementBThenWrite(-1);
         flagsRegister.set(FlagsRegister.Flag.Z, true);
         flagsRegister.set(FlagsRegister.Flag.N, true);
-        clock.tick(adjustPC());
+        adjustPC();
     }
 
     @Override

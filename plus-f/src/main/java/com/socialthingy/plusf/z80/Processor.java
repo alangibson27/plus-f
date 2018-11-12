@@ -162,6 +162,7 @@ public class Processor {
 
     private Operation fetch() {
         if (iffs[0] && interruptRequested) {
+            clock.tick(5);
             rReg.increment(1);
             if (halting) {
                 pcReg.getAndInc();
@@ -170,13 +171,18 @@ public class Processor {
             setIffState(false);
 
             if (interruptMode == 1) {
+                clock.tick(2);
                 return im1ResponseOp;
             } else {
+                clock.tick(7);
                 final int jumpBase = Word.from(0xff, iReg.get());
                 final int jumpLow = memory.get(jumpBase);
                 final int jumpHigh = memory.get(jumpBase + 1);
                 return new OpCallDirect(this, clock, Word.from(jumpLow, jumpHigh));
             }
+        } else if (halting) {
+            clock.tick(4);
+            return nop;
         } else {
             return fetchFromMemory(pcReg.get());
         }
