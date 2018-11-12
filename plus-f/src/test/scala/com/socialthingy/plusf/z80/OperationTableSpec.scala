@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.z80
 
-import Clock
 import com.socialthingy.plusf.z80.operations.OperationTable
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks

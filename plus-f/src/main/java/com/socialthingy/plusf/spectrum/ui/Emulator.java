@@ -136,7 +136,7 @@ public class Emulator extends JFrame implements Runnable {
         }
 
         final ULA ula = new ULA(memory, keyboard, tapePlayer, soundSystem.getBeeper(), clock, model);
-        final IOMultiplexer ioMux = new IOMultiplexer(ula, memory, soundSystem.getAyChip(), kempstonJoystickInterface);
+        final IOMultiplexer ioMux = new IOMultiplexer(memory, ula, soundSystem.getAyChip(), kempstonJoystickInterface);
 
         final Processor processor = new Processor(memory, ioMux, clock);
         if (snapshot != null) {

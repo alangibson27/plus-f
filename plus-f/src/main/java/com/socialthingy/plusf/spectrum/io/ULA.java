@@ -68,9 +68,7 @@ public class ULA implements IO {
 
     @Override
     public int read(int low, int high) {
-        if (high >= 0x40 && high < 0x80) {
-            memory.handleMemoryContention(1);
-        }
+        memory.handleMemoryContention(1);
 
         ulaAccessed = true;
         if (tapeCyclesAdvanced > 0) {
@@ -83,9 +81,7 @@ public class ULA implements IO {
 
     @Override
     public void write(int low, int high, int value) {
-        if (high >= 0x40 && high < 0x80) {
-            memory.handleMemoryContention(1);
-        }
+        memory.handleMemoryContention(1);
 
         if (low == 0xfe) {
             final int newBorderColour = value & 0b111;
@@ -114,7 +110,7 @@ public class ULA implements IO {
         }
         clock.reset();
         ulaAccessed = false;
-        lastScanlineRendered = 63;
+        lastScanlineRendered = scanlinesBeforeDisplay - 1;
     }
 
     public boolean borderNeedsRedrawing() {
@@ -134,10 +130,9 @@ public class ULA implements IO {
     }
 
     public void advanceCycle(final int tstates) {
-        final int tstatesIncludingContention = tstates + memory.getContentionTicks();
         memory.resetContention();
 
-        cyclesSinceBeeperUpdate += tstatesIncludingContention;
+        cyclesSinceBeeperUpdate += tstates;
         if (cyclesSinceBeeperUpdate >= beeper.getUpdatePeriod()) {
             cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.getUpdatePeriod();
             beeper.update(beeperIsOn);
@@ -149,7 +144,7 @@ public class ULA implements IO {
         }
 
         if (tapePlayer.isPlaying()) {
-            tapeCyclesAdvanced += tstatesIncludingContention;
+            tapeCyclesAdvanced += tstates;
         }
 
         if (scanline != lastScanlineRendered &&
