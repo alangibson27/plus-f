@@ -34,6 +34,7 @@ public class Processor {
     private int interruptMode = 1;
     private boolean interruptRequested = false;
     private Operation lastOp;
+    private boolean fetchedFromInterrupt;
 
     public Processor(final Memory memory, final IO io, final Clock clock) {
         this.clock = clock;
@@ -162,6 +163,7 @@ public class Processor {
 
     private Operation fetch() {
         if (iffs[0] && interruptRequested) {
+            fetchedFromInterrupt = true;
             clock.tick(5);
             rReg.increment(1);
             if (halting) {
@@ -181,9 +183,11 @@ public class Processor {
                 return new OpCallDirect(this, clock, Word.from(jumpLow, jumpHigh));
             }
         } else if (halting) {
+            fetchedFromInterrupt = false;
             clock.tick(4);
             return nop;
         } else {
+            fetchedFromInterrupt = false;
             return fetchFromMemory(pcReg.get());
         }
     }
@@ -209,7 +213,7 @@ public class Processor {
                 final int opCode2 = fromMemory(pc++);
                 if (opCode2 == 0xcb) {
                     pc++;
-                    op = fromOpTable(ddCbOperations, fromMemory(pc++));
+                    op = fromOpTable(ddCbOperations, fromMemory(pc++, 0));
                 } else {
                     op = fromOpTable(ddOperations, opCode2);
                 }
@@ -219,7 +223,7 @@ public class Processor {
                 final int opCode3 = fromMemory(pc++);
                 if (opCode3 == 0xcb) {
                     pc++;
-                    op = fromOpTable(fdCbOperations, fromMemory(pc++));
+                    op = fromOpTable(fdCbOperations, fromMemory(pc++, 0));
                 } else {
                     op = fromOpTable(fdOperations, opCode3);
                 }
@@ -237,8 +241,12 @@ public class Processor {
     }
 
     private int fromMemory(final int addr) {
+        return fromMemory(addr,1);
+    }
+
+    private int fromMemory(final int addr, final int extraTicks) {
         final int val = memory.get(addr);
-        clock.tick(1);
+        clock.tick(extraTicks);
         return val;
     }
 
@@ -248,6 +256,10 @@ public class Processor {
 
     public int fetchNextByte() {
         return memory.get(pcReg.getAndInc());
+    }
+
+    public int fetchCurrentByte() {
+        return memory.get(pcReg.get());
     }
 
     public int getInterruptMode() {
@@ -354,4 +366,7 @@ public class Processor {
         lastOp = null;
     }
 
+    public boolean fetchedFromInterrupt() {
+        return fetchedFromInterrupt;
+    }
 }

@@ -132,19 +132,9 @@ public class ULA implements IO {
     }
 
     public void advanceCycle(final int tstates) {
-        cyclesSinceBeeperUpdate += tstates;
-        if (cyclesSinceBeeperUpdate >= beeper.getUpdatePeriod()) {
-            cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.getUpdatePeriod();
-            beeper.update(beeperIsOn);
-        }
-
         final int scanline = clock.getTicks() / ticksPerScanline;
         if (scanline < borderColours.length) {
             borderColours[scanline] = currentBorderColour;
-        }
-
-        if (tapePlayer.isPlaying()) {
-            tapeCyclesAdvanced += tstates;
         }
 
         if (scanline != lastScanlineRendered &&
@@ -154,6 +144,16 @@ public class ULA implements IO {
             }
         }
         lastScanlineRendered = scanline;
+
+        cyclesSinceBeeperUpdate += tstates;
+        if (cyclesSinceBeeperUpdate >= beeper.getUpdatePeriod()) {
+            cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.getUpdatePeriod();
+            beeper.update(beeperIsOn);
+        }
+
+        if (tapePlayer.isPlaying()) {
+            tapeCyclesAdvanced += tstates;
+        }
     }
 
     public int[] getPixels() {

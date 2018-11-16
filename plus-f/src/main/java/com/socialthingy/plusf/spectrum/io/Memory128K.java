@@ -127,6 +127,9 @@ public class Memory128K extends SpectrumMemory {
                     writeToDisplayMemory(addr, value);
                 }
                 break;
+            default:
+                clock.tick(3);
+                break;
         }
     }
 

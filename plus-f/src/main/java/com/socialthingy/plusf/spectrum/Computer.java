@@ -8,6 +8,13 @@ import com.socialthingy.plusf.z80.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class Computer {
     private static final Logger log = LoggerFactory.getLogger(Computer.class);
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
@@ -16,6 +23,7 @@ public class Computer {
     private final Processor processor;
     private final ULA ula;
     private final SpectrumMemory memory;
+    private boolean dumping;
 
     public Computer(
         final Processor processor,
@@ -39,13 +47,23 @@ public class Computer {
         processor.requestInterrupt();
 
         final Timer.Context timer = processorExecuteTimer.time();
+        final List<ExecutedOperation> executedOperations;
+        if (dumping) {
+            executedOperations = new ArrayList<>();
+        } else {
+            executedOperations = null;
+        }
+
         ula.newCycle();
         try {
             while (ula.moreStatesUntilRefresh()) {
                 final int ticksBefore = ula.getClock().getTicks();
-
+                final ExecutedOperation executed = new ExecutedOperation();
+                executed.startTime = ticksBefore;
+                executed.address = processor.register("pc").get();
                 try {
-                    processor.execute();
+                    executed.operation = processor.execute();
+                    executed.fromInterrupt = processor.fetchedFromInterrupt();
                 } catch (ExecutionException ex) {
                     log.warn(String.format("Processor error encountered. Last operation: %s", ex.getOperation().toString()), ex);
                 } catch (Exception ex) {
@@ -57,11 +75,38 @@ public class Computer {
                     }
                 }
 
-                ula.advanceCycle(ula.getClock().getTicks() - ticksBefore);
+                final int duration = ula.getClock().getTicks() - ticksBefore;
+                executed.duration = duration;
+                ula.advanceCycle(duration);
+
+                if (dumping) {
+                    executedOperations.add(executed);
+                }
             }
         } finally {
             timer.stop();
         }
+
+        if (dumping) {
+            final List<String> lines = executedOperations.stream().map(e -> String.format(
+                    "[T+%d] 0x%04X (%d) %s %s",
+                    e.startTime,
+                    e.address,
+                    e.duration,
+                    e.fromInterrupt ? "I" : "N",
+                    e.operation.toString()
+            )).collect(Collectors.toList());
+            try {
+                Files.write(new File("/var/tmp/plusf.dump").toPath(), lines);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            dumping = false;
+        }
+    }
+
+    public void startDumping() {
+        this.dumping = true;
     }
 
     public boolean screenRedrawRequired() {
@@ -98,5 +143,13 @@ public class Computer {
 
     public int peek(final int addr) {
         return memory.get(addr);
+    }
+
+    private class ExecutedOperation {
+        private Operation operation;
+        private int address;
+        private int startTime;
+        private int duration;
+        private boolean fromInterrupt;
     }
 }

@@ -192,7 +192,7 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
       clock.getTicks() shouldBe cycles
     }
   }
-  
+
   "execute on a block operation when bc decrements to zero" should "return the correct number of cycles" in new Machine {
     // given
     nextInstructionIs(0xed, 0xb0)

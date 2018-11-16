@@ -166,6 +166,7 @@ public class Emulator extends JFrame implements Runnable {
 
         final JMenu computerMenu = new JMenu("Computer");
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
+        computerMenu.add(menuItemFor("Dump next cycle", e -> computer.startDumping(), Optional.of(KeyEvent.VK_Z)));
 
         final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");
         sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
