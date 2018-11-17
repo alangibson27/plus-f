@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 
 public class Memory128K extends SpectrumMemory {
@@ -16,8 +15,8 @@ public class Memory128K extends SpectrumMemory {
     protected int activeScreenBank;
     protected int activeHighBank;
 
-    public Memory128K(final Clock clock, final Model model) {
-        super(clock, model);
+    public Memory128K(final Model model) {
+        super(model);
 
         romBanks = new int[model.romFileNames.length][];
         int pageIdx = 0;
@@ -37,7 +36,7 @@ public class Memory128K extends SpectrumMemory {
     }
 
     @Override
-    protected void resetDisplayMemory() {
+    public void resetDisplayMemory() {
         screenChanged = true;
         System.arraycopy(ramBanks[activeScreenBank], 0, displayMemory, 0, 0x1b00);
     }
@@ -66,13 +65,6 @@ public class Memory128K extends SpectrumMemory {
     }
 
     @Override
-    protected void handleMemoryContention(final int page) {
-        if (page == 1 || page == 3 && (activeHighBank & 1) == 1) {
-            handleContention();
-        }
-    }
-
-    @Override
     public int get(int addr) {
         addr &= 0xffff;
         final int page = addr >> 14;
@@ -80,20 +72,12 @@ public class Memory128K extends SpectrumMemory {
 
         switch (page) {
             case ROM_PAGE:
-                clock.tick(3);
                 return romBanks[activeRomBank][offsetInPage];
             case LOW_PAGE:
-                handleMemoryContention(page);
-                clock.tick(3);
                 return ramBanks[5][offsetInPage];
             case MIDDLE_PAGE:
-                clock.tick(3);
                 return ramBanks[2][offsetInPage];
             default:
-                if ((activeHighBank & 0b1) == 1) {
-                    handleMemoryContention(page);
-                }
-                clock.tick(3);
                 return ramBanks[activeHighBank][offsetInPage];
         }
     }
@@ -106,31 +90,27 @@ public class Memory128K extends SpectrumMemory {
 
         switch (page) {
             case LOW_PAGE:
-                handleMemoryContention(page);
-                clock.tick(3);
                 ramBanks[5][offsetInPage] = value;
                 if (activeScreenBank == 5 && offsetInPage < 0x1b00) {
                     writeToDisplayMemory(addr, value);
                 }
                 break;
             case MIDDLE_PAGE:
-                clock.tick(3);
                 ramBanks[2][offsetInPage] = value;
                 break;
             case HIGH_PAGE:
-                if ((activeHighBank & 0b1) == 1) {
-                    handleMemoryContention(page);
-                }
-                clock.tick(3);
                 ramBanks[activeHighBank][offsetInPage] = value;
                 if (activeScreenBank == activeHighBank && offsetInPage < 0x1b00) {
                     writeToDisplayMemory(addr, value);
                 }
                 break;
-            default:
-                clock.tick(3);
-                break;
         }
+    }
+
+    @Override
+    public boolean contendedAddress(final int addr) {
+        final int page = addr >> 14;
+        return page == 1 || (page == 3 && (activeHighBank & 0b1) == 1);
     }
 
     public void copyIntoBank(final int[] source, final int targetBank) {

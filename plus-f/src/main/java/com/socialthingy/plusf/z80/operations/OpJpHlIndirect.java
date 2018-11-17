@@ -1,23 +1,20 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Clock;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpJpHlIndirect extends Operation {
 
     private final Register hlReg;
     private final Register pcReg;
 
-    public OpJpHlIndirect(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpJpHlIndirect(final Processor processor) {
         this.hlReg = processor.register("hl");
         this.pcReg = processor.register("pc");
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         pcReg.set(hlReg.get());
     }
 

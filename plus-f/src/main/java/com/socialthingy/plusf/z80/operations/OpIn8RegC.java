@@ -10,8 +10,7 @@ public class OpIn8RegC extends Operation {
     private final Register destRegister;
     private final IO io;
 
-    public OpIn8RegC(final Processor processor, final Clock clock, final IO io, final Register register) {
-        super(clock);
+    public OpIn8RegC(final Processor processor, final IO io, final Register register) {
         this.flagsRegister = processor.flagsRegister();
         this.io = io;
         this.destRegister = register;
@@ -20,8 +19,14 @@ public class OpIn8RegC extends Operation {
     }
 
     @Override
-    public void execute() {
-        final int value = io.read(cReg.get(), bReg.get());
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        final int lowByte = cReg.get();
+        final int highByte = bReg.get();
+        contentionModel.applyIOContention(lowByte, highByte);
+
+        final int value = io.read(lowByte, highByte);
         destRegister.set(value);
 
         flagsRegister.set(FlagsRegister.Flag.S, (byte) value < 0);

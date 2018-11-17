@@ -8,8 +8,7 @@ public class OpLd8RegIndexedIndirect extends Operation {
     private final Register dest;
     private final IndexRegister indexRegister;
 
-    public OpLd8RegIndexedIndirect(final Processor processor, final Clock clock, final Memory memory, final Register dest, final Register indexRegister) {
-        super(clock);
+    public OpLd8RegIndexedIndirect(final Processor processor, final Memory memory, final Register dest, final Register indexRegister) {
         this.processor = processor;
         this.memory = memory;
         this.dest = dest;
@@ -17,9 +16,18 @@ public class OpLd8RegIndexedIndirect extends Operation {
     }
 
     @Override
-    public void execute() {
-        dest.set(memory.get(indexRegister.withOffset(processor.fetchNextByte())));
-        clock.tick(5);
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int addr = indexRegister.withOffset(processor.fetchNextByte());
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(addr, 3);
+        dest.set(memory.get(addr));
     }
 
     @Override

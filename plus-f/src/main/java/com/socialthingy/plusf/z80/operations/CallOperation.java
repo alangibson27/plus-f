@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.WordRegister;
@@ -9,8 +8,7 @@ abstract class CallOperation extends Operation {
     protected final Processor processor;
     private final WordRegister pcReg;
 
-    protected CallOperation(final Processor processor, final Clock clock) {
-        super(clock);
+    protected CallOperation(final Processor processor) {
         this.processor = processor;
         this.pcReg = WordRegister.class.cast(processor.register("pc"));
     }

@@ -1,7 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
@@ -12,8 +11,7 @@ abstract class DecOperation extends Operation {
 
     private final FlagsRegister flagsRegister;
 
-    protected DecOperation(final Processor processor, final Clock clock) {
-        super(clock);
+    protected DecOperation(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
     }
 

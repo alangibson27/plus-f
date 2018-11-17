@@ -1,24 +1,22 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Clock;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpLdIA extends Operation {
     private final Register iReg;
     private final Register aReg;
 
-    public OpLdIA(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpLdIA(final Processor processor) {
         this.iReg = processor.register("i");
         this.aReg = processor.register("a");
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(irValue, 1);
         iReg.set(aReg.get());
-        clock.tick(1);
     }
 
     @Override

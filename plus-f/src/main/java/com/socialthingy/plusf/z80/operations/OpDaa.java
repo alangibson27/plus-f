@@ -7,14 +7,14 @@ public class OpDaa extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register accumulator;
 
-    public OpDaa(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpDaa(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         final boolean fullCarry = flagsRegister.get(FlagsRegister.Flag.C);
         final boolean halfCarry = flagsRegister.get(FlagsRegister.Flag.H);
         final char[] digits = String.format("%02X", accumulator.get()).toCharArray();

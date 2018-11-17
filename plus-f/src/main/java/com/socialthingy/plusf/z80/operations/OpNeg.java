@@ -9,14 +9,15 @@ public class OpNeg extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register accumulator;
 
-    public OpNeg(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpNeg(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
         final int result = Bitwise.sub(0, accumulator.get());
         final int answer = result & 0xff;
         accumulator.set(answer);

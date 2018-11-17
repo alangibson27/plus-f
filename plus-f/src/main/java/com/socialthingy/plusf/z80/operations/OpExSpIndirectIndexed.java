@@ -9,26 +9,33 @@ public class OpExSpIndirectIndexed extends Operation {
     private final IndexRegister indexRegister;
     private final Memory memory;
 
-    public OpExSpIndirectIndexed(final Processor processor, final Clock clock, final Register indexRegister, final Memory memory) {
-        super(clock);
+    public OpExSpIndirectIndexed(final Processor processor, final Register indexRegister, final Memory memory) {
         this.spReg = processor.register("sp");
         this.indexRegister = IndexRegister.class.cast(indexRegister);
         this.memory = memory;
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        final int spAddr = spReg.get();
+        contentionModel.applyContention(spAddr, 3);
+        contentionModel.applyContention(spAddr + 1, 3);
+        contentionModel.applyContention(spAddr + 1, 1);
+        contentionModel.applyContention(spAddr + 1, 3);
+        contentionModel.applyContention(spAddr, 3);
+        contentionModel.applyContention(spAddr, 1);
+        contentionModel.applyContention(spAddr, 1);
+
         final int oldIndex = indexRegister.get();
 
-        final int spLow = spReg.get();
-        final int spHigh = 0xffff & (spLow + 1);
+        final int spHigh = 0xffff & (spAddr + 1);
         indexRegister.set(
-            Word.from(memory.get(spLow), memory.get(spHigh))
+            Word.from(memory.get(spAddr), memory.get(spHigh))
         );
 
-        clock.tick(3);
-
-        memory.set( spLow, oldIndex & 0x00ff);
+        memory.set(spAddr, oldIndex & 0x00ff);
         memory.set( spHigh, (oldIndex & 0xff00) >> 8);
     }
 

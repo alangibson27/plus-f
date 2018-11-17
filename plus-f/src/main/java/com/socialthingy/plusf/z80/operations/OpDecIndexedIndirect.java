@@ -1,9 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Clock;
-import com.socialthingy.plusf.z80.IndexRegister;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
+import com.socialthingy.plusf.z80.*;
 
 public class OpDecIndexedIndirect extends DecOperation {
 
@@ -11,19 +8,28 @@ public class OpDecIndexedIndirect extends DecOperation {
     private final Memory memory;
     private final IndexRegister indexRegister;
 
-    public OpDecIndexedIndirect(final Processor processor, final Clock clock, final Memory memory, final IndexRegister indexRegister) {
-        super(processor, clock);
+    public OpDecIndexedIndirect(final Processor processor, final Memory memory, final IndexRegister indexRegister) {
+        super(processor);
         this.processor = processor;
         this.memory = memory;
         this.indexRegister = indexRegister;
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int address = indexRegister.withOffset(processor.fetchNextByte());
-        clock.tick(5);
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(address, 3);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 3);
         final int result = decrement(memory.get(address));
-        clock.tick(1);
         memory.set( address, result);
     }
 

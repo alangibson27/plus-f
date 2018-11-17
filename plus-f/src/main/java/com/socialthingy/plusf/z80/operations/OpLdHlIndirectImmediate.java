@@ -7,16 +7,19 @@ public class OpLdHlIndirectImmediate extends Operation {
     private final Register destReference;
     private final Memory memory;
 
-    public OpLdHlIndirectImmediate(final Processor processor, final Clock clock, final Memory memory) {
-        super(clock);
+    public OpLdHlIndirectImmediate(final Processor processor, final Memory memory) {
         this.processor = processor;
         this.destReference = processor.register("hl");
         this.memory = memory;
     }
 
     @Override
-    public void execute() {
-        memory.set(destReference.get(), processor.fetchNextByte());
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int addr = destReference.get();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        contentionModel.applyContention(addr, 3);
+        memory.set(addr, processor.fetchNextByte());
     }
 
     @Override

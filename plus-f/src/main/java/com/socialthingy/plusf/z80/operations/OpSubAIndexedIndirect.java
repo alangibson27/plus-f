@@ -8,8 +8,8 @@ public class OpSubAIndexedIndirect extends ArithmeticOperation {
     private final IndexRegister indexRegister;
     private final String toString;
 
-    public OpSubAIndexedIndirect(final Processor processor, final Clock clock, final Memory memory, final Register indexRegister, final boolean useCarryFlag) {
-        super(processor, clock, useCarryFlag);
+    public OpSubAIndexedIndirect(final Processor processor, final Memory memory, final Register indexRegister, final boolean useCarryFlag) {
+        super(processor, useCarryFlag);
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
 
@@ -21,9 +21,18 @@ public class OpSubAIndexedIndirect extends ArithmeticOperation {
     }
 
     @Override
-    public void execute() {
-        accumulator.set(sub(memory.get(indexRegister.withOffset(processor.fetchNextByte())), true));
-        clock.tick(5);
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int addr = indexRegister.withOffset(processor.fetchNextByte());
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(addr, 3);
+        accumulator.set(sub(memory.get(addr), true));
     }
 
     @Override

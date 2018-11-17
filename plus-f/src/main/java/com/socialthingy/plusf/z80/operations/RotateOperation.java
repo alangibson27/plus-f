@@ -7,8 +7,7 @@ abstract class RotateOperation extends Operation {
     protected final FlagsRegister flagsRegister;
     protected final Register accumulator;
 
-    RotateOperation(final Processor processor, final Clock clock) {
-        super(clock);
+    RotateOperation(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
     }

@@ -24,6 +24,7 @@ public class Computer {
     private final ULA ula;
     private final SpectrumMemory memory;
     private boolean dumping;
+    private List<ExecutedOperation> executedOperations = new ArrayList<>();
 
     public Computer(
         final Processor processor,
@@ -47,12 +48,7 @@ public class Computer {
         processor.requestInterrupt();
 
         final Timer.Context timer = processorExecuteTimer.time();
-        final List<ExecutedOperation> executedOperations;
-        if (dumping) {
-            executedOperations = new ArrayList<>();
-        } else {
-            executedOperations = null;
-        }
+        executedOperations.clear();
 
         ula.newCycle();
         try {
@@ -67,7 +63,10 @@ public class Computer {
                 } catch (ExecutionException ex) {
                     log.warn(String.format("Processor error encountered. Last operation: %s", ex.getOperation().toString()), ex);
                 } catch (Exception ex) {
-                    log.warn("Unrecoverable error encountered", ex);
+                    log.warn("Unrecoverable error encountered, cycle will be dumped", ex);
+                    processor.register("pc").set(0);
+                    dumping = true;
+                    break;
                 } finally {
                     if (newCycle) {
                         processor.cancelInterrupt();
@@ -79,9 +78,7 @@ public class Computer {
                 executed.duration = duration;
                 ula.advanceCycle(duration);
 
-                if (dumping) {
-                    executedOperations.add(executed);
-                }
+                executedOperations.add(executed);
             }
         } finally {
             timer.stop();
@@ -97,7 +94,7 @@ public class Computer {
                     e.operation.toString()
             )).collect(Collectors.toList());
             try {
-                Files.write(new File("/var/tmp/plusf.dump").toPath(), lines);
+                Files.write(new File(String.format("/var/tmp/plusf-%d.dump", System.currentTimeMillis())).toPath(), lines);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

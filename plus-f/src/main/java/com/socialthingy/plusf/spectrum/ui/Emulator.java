@@ -19,6 +19,7 @@ import com.socialthingy.plusf.wos.Archive;
 import com.socialthingy.plusf.wos.WosTree;
 import com.socialthingy.plusf.wos.ZipUtils;
 import com.socialthingy.plusf.z80.Clock;
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 import kotlin.Pair;
 import org.slf4j.Logger;
@@ -114,31 +115,36 @@ public class Emulator extends JFrame implements Runnable {
 
     private Computer newComputer(final Model model, final Snapshot snapshot) {
         final SpectrumMemory memory;
+        final ContentionModel contentionModel;
         if (snapshot == null) {
             switch (model) {
                 case _128K:
                 case _128K_SPANISH:
                 case PLUS_2:
-                    memory = new Memory128K(clock, model);
+                    memory = new Memory128K(model);
+                    contentionModel = new ContentionModel128K(clock, model, memory);
                     break;
 
                 case PLUS_2A:
-                    memory = new MemoryPlus2A(clock);
+                    memory = new MemoryPlus2A();
+                    contentionModel = new ContentionModelPlus2A(clock, memory);
                     break;
 
                 case _48K:
                 default:
-                    memory = new Memory48K(clock);
+                    memory = new Memory48K();
+                    contentionModel = new ContentionModel48K(clock, model, memory);
                     break;
             }
         } else {
             memory = snapshot.getMemory(clock);
+            contentionModel = new ContentionModel48K(clock, model, memory);
         }
 
         final ULA ula = new ULA(memory, keyboard, tapePlayer, soundSystem.getBeeper(), clock, model);
         final IOMultiplexer ioMux = new IOMultiplexer(memory, ula, soundSystem.getAyChip(), kempstonJoystickInterface);
 
-        final Processor processor = new Processor(memory, ioMux, clock);
+        final Processor processor = new Processor(memory, contentionModel, ioMux, clock);
         if (snapshot != null) {
             snapshot.setProcessorState(processor);
             snapshot.setBorderColour(ula);

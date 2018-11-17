@@ -7,16 +7,20 @@ public class OpOutA extends Operation {
     private final IO io;
     private final Register accumulator;
 
-    public OpOutA(final Processor processor, final IO io, final Clock clock) {
-        super(clock);
+    public OpOutA(final Processor processor, final IO io) {
         this.processor = processor;
         this.io = io;
         this.accumulator = processor.register("a");
     }
 
     @Override
-    public void execute() {
-        io.write(processor.fetchNextByte(), accumulator.get(), accumulator.get());
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        final int lowByte = processor.fetchNextByte();
+        final int highByte = accumulator.get();
+        contentionModel.applyIOContention(lowByte, highByte);
+        io.write(lowByte, highByte, highByte);
     }
 
     @Override

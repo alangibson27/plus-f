@@ -11,8 +11,7 @@ public class OpJrConditional extends Operation {
     private final boolean whenSet;
     private final String toString;
 
-    public OpJrConditional(final Processor processor, final Clock clock, final Flag flag, final boolean whenSet) {
-        super(clock);
+    public OpJrConditional(final Processor processor, final Flag flag, final boolean whenSet) {
         this.processor = processor;
         this.pcReg = processor.register("pc");
         this.flagsRegister = FlagsRegister.class.cast(processor.register("f"));
@@ -27,11 +26,17 @@ public class OpJrConditional extends Operation {
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
         final byte offset = (byte) processor.fetchNextByte();
         if (flagsRegister.get(flag) == whenSet) {
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
             pcReg.set(pcReg.get() + offset);
-            clock.tick(5);
         }
     }
 

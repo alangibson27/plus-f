@@ -8,19 +8,26 @@ public class OpLdIndexedIndirectImmediate extends Operation {
     private final Memory memory;
     private final IndexRegister indexRegister;
 
-    public OpLdIndexedIndirectImmediate(final Processor processor, final Clock clock, final Memory memory, final Register indexRegister) {
-        super(clock);
+    public OpLdIndexedIndirectImmediate(final Processor processor, final Memory memory, final Register indexRegister) {
         this.processor = processor;
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int offset = processor.fetchNextByte();
         final int value = processor.fetchNextByte();
-        memory.set( indexRegister.withOffset(offset), value);
-        clock.tick(2);
+        final int addr = indexRegister.withOffset(offset);
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 3, 3);
+        contentionModel.applyContention(initialPcValue + 3, 1);
+        contentionModel.applyContention(initialPcValue + 3, 1);
+        contentionModel.applyContention(addr, 3);
+
+        memory.set(addr , value);
     }
 
     @Override

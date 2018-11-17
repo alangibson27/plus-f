@@ -1,9 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Clock;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpExx extends Operation {
 
@@ -14,8 +11,7 @@ public class OpExx extends Operation {
     private final Register hlReg;
     private final Register hlPrimeReg;
 
-    public OpExx(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpExx(final Processor processor) {
         this.bcReg = processor.register("bc");
         this.bcPrimeReg = processor.register("bc'");
         this.deReg = processor.register("de");
@@ -25,7 +21,8 @@ public class OpExx extends Operation {
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         exchange(bcReg, bcPrimeReg);
         exchange(deReg, dePrimeReg);
         exchange(hlReg, hlPrimeReg);

@@ -7,8 +7,7 @@ abstract class AndOperation extends Operation {
     protected final FlagsRegister flagsRegister;
     protected final Register accumulator;
 
-    AndOperation(final Processor processor, final Clock clock) {
-        super(clock);
+    AndOperation(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
     }

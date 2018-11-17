@@ -4,7 +4,7 @@ import com.socialthingy.plusf.z80.FlagsRegister.Flag
 import com.socialthingy.plusf.z80.{Clock, _}
 import org.mockito.Matchers._
 import org.mockito.Mockito.{verify, when => mockitoWhen}
-import org.mockito.{Matchers => MockitoMatchers}
+import org.mockito.{Mockito, Matchers => MockitoMatchers}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
 
@@ -12,16 +12,14 @@ import scala.util.Random
 
 trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with MockitoSugar {
 
-  class StubIO(clock: Clock) extends IO {
+  class StubIO extends IO {
     override def recognises(low: Int, high: Int): Boolean = true
 
     override def read(low: Int, high: Int): Int = {
-      clock.tick(4)
       Random.nextInt(256)
     }
 
     override def write(low: Int, high: Int, value: Int): Unit = {
-      clock.tick(4)
     }
   }
 
@@ -29,9 +27,10 @@ trait ProcessorSpec extends FlatSpec with GivenWhenThen with Matchers with Mocki
     var instructionPointer = 0x0
 
     val clock = new Clock
-    val io = new StubIO(clock)
-    val memory = new UncontendedMemory(clock)
-    val processor = new Processor(memory, io, clock)
+    val io = mock[IO]
+    Mockito.when(io.read(anyInt(), anyInt())).thenReturn(256)
+    val memory = new UncontendedMemory()
+    val processor = new Processor(memory, new NoContentionModel(clock), io, clock)
 
     def interruptsAreEnabled(): Unit = {
       processor.setIff(0, true)

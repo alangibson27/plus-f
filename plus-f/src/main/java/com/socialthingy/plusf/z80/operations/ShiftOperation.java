@@ -9,8 +9,7 @@ import com.socialthingy.plusf.z80.Processor;
 abstract class ShiftOperation extends Operation {
     private final FlagsRegister flagsRegister;
 
-    protected ShiftOperation(final Processor processor, final Clock clock) {
-        super(clock);
+    protected ShiftOperation(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
     }
 

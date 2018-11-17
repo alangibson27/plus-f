@@ -1,25 +1,25 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Clock;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpAddAHlIndirect extends ArithmeticOperation {
 
     private final Memory memory;
     private final Register hlReg;
 
-    public OpAddAHlIndirect(final Processor processor, final Clock clock, final Memory memory, final boolean useCarryFlag) {
-        super(processor, clock, useCarryFlag);
+    public OpAddAHlIndirect(final Processor processor, final Memory memory, final boolean useCarryFlag) {
+        super(processor, useCarryFlag);
         this.memory = memory;
         this.hlReg = processor.register("hl");
     }
 
 
     @Override
-    public void execute() {
-        add(memory.get(hlReg.get()));
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int address = hlReg.get();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(address, 3);
+        add(memory.get(address));
     }
 
     @Override

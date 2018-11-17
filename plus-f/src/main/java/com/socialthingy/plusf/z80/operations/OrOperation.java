@@ -7,8 +7,7 @@ abstract class OrOperation extends Operation {
     protected final FlagsRegister flagsRegister;
     protected final Register accumulator;
 
-    OrOperation(final Processor processor, final Clock clock) {
-        super(clock);
+    OrOperation(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
     }

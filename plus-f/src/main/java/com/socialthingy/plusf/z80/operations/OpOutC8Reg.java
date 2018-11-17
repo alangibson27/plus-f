@@ -8,8 +8,7 @@ public class OpOutC8Reg extends Operation {
     private final Register sourceRegister;
     private final IO io;
 
-    public OpOutC8Reg(final Processor processor, final IO io, final Clock clock, final Register register) {
-        super(clock);
+    public OpOutC8Reg(final Processor processor, final IO io, final Register register) {
         this.io = io;
         this.sourceRegister = register;
         this.bReg = processor.register("b");
@@ -17,8 +16,13 @@ public class OpOutC8Reg extends Operation {
     }
 
     @Override
-    public void execute() {
-        io.write(cReg.get(), bReg.get(), sourceRegister.get());
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        final int lowByte = cReg.get();
+        final int highByte = bReg.get();
+        contentionModel.applyIOContention(lowByte, highByte);
+        io.write(lowByte, highByte, sourceRegister.get());
     }
 
     @Override

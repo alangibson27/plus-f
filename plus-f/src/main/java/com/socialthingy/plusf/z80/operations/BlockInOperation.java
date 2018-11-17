@@ -12,8 +12,7 @@ abstract class BlockInOperation extends Operation {
     protected final FlagsRegister flagsRegister;
     protected final Register pcReg;
 
-    protected BlockInOperation(final Processor processor, final Clock clock, final Memory memory, final IO io) {
-        super(clock);
+    protected BlockInOperation(final Processor processor, final Memory memory, final IO io) {
         this.processor = processor;
         this.memory = memory;
         this.io = io;
@@ -24,20 +23,20 @@ abstract class BlockInOperation extends Operation {
         this.pcReg = processor.register("pc");
     }
 
-    protected void readThenDecrementB(final int hlDirection) {
-        final int bVal = bReg.get();
-        final int value = io.read(cReg.get(), bVal);
+    protected void readThenDecrementB(final int lowByte, final int highByte, final int hlDirection) {
+        final int value = io.read(lowByte, highByte);
         final int hlValue = hlReg.get();
         memory.set( hlValue, value);
-        clock.tick(1);
-        bReg.set((bVal - 1) & 0xff);
+        bReg.set((highByte - 1) & 0xff);
         hlReg.set((hlValue + hlDirection) & 0xffff);
     }
 
-    protected void adjustPC() {
+    protected boolean continueLoop() {
         if (bReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            clock.tick(5);
+            return true;
         }
+
+        return false;
     }
 }

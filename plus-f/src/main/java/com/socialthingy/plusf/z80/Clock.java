@@ -2,13 +2,9 @@ package com.socialthingy.plusf.z80;
 
 public class Clock {
     private int ticks;
-    private Runnable resetHandler;
 
     public void reset() {
         this.ticks = 0;
-        if (resetHandler != null) {
-            resetHandler.run();
-        }
     }
 
     public void tick(final int ticks) {
@@ -19,9 +15,5 @@ public class Clock {
 
     public int getTicks() {
         return this.ticks;
-    }
-
-    public void setResetHandler(final Runnable resetHandler) {
-        this.resetHandler = resetHandler;
     }
 }

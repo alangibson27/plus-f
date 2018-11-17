@@ -68,9 +68,6 @@ public class ULA implements IO {
 
     @Override
     public int read(int low, int high) {
-        memory.handleMemoryContention(1);
-        clock.tick(4);
-
         ulaAccessed = true;
         if (tapeCyclesAdvanced > 0) {
             earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
@@ -82,9 +79,6 @@ public class ULA implements IO {
 
     @Override
     public void write(int low, int high, int value) {
-        memory.handleMemoryContention(1);
-        clock.tick(4);
-
         if (low == 0xfe) {
             final int newBorderColour = value & 0b111;
             if (currentBorderColour != newBorderColour) {
@@ -111,6 +105,7 @@ public class ULA implements IO {
             flashActive = !flashActive;
         }
         clock.reset();
+        memory.resetDisplayMemory();
         ulaAccessed = false;
         lastScanlineRendered = scanlinesBeforeDisplay - 1;
     }

@@ -8,8 +8,7 @@ public class OpLdAR extends Operation {
     private final Register aReg;
     private final FlagsRegister flagsRegister;
 
-    public OpLdAR(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpLdAR(final Processor processor) {
         this.processor = processor;
         this.rReg = processor.register("r");
         this.aReg = processor.register("a");
@@ -17,7 +16,10 @@ public class OpLdAR extends Operation {
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(irValue, 1);
         final int value = rReg.get();
         aReg.set(value);
         flagsRegister.set(FlagsRegister.Flag.S, (byte) value < 0);
@@ -26,7 +28,6 @@ public class OpLdAR extends Operation {
         flagsRegister.set(FlagsRegister.Flag.P, processor.getIff(1));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.setUndocumentedFlagsFromValue(value);
-        clock.tick(1);
     }
 
     @Override

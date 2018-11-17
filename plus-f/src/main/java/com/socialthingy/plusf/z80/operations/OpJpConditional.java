@@ -10,8 +10,7 @@ public class OpJpConditional extends Operation {
     private final boolean whenSet;
     private final String toString;
 
-    public OpJpConditional(final Processor processor, final Clock clock, final FlagsRegister.Flag flag, final boolean whenSet) {
-        super(clock);
+    public OpJpConditional(final Processor processor, final FlagsRegister.Flag flag, final boolean whenSet) {
         this.pcReg = processor.register("pc");
         this.flags = FlagsRegister.class.cast(processor.register("f"));
         this.processor = processor;
@@ -26,7 +25,10 @@ public class OpJpConditional extends Operation {
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        contentionModel.applyContention(initialPcValue + 2, 3);
         final int destination = processor.fetchNextWord();
         if (flags.get(flag) == whenSet) {
             pcReg.set(destination);

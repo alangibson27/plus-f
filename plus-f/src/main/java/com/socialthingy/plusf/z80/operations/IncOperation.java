@@ -12,8 +12,7 @@ abstract class IncOperation extends Operation {
 
     private final FlagsRegister flagsRegister;
 
-    protected IncOperation(final Processor processor, final Clock clock) {
-        super(clock);
+    protected IncOperation(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
     }
 

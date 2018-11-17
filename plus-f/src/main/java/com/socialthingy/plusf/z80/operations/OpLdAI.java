@@ -9,8 +9,7 @@ public class OpLdAI extends Operation {
     private final Register aReg;
     private final FlagsRegister flags;
 
-    public OpLdAI(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpLdAI(final Processor processor) {
         this.processor = processor;
         this.iReg = processor.register("i");
         this.aReg = processor.register("a");
@@ -18,7 +17,10 @@ public class OpLdAI extends Operation {
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(irValue, 1);
         final int iValue = iReg.get();
         aReg.set(iValue);
         flags.set(Flag.P, processor.getIff(1));
@@ -27,7 +29,6 @@ public class OpLdAI extends Operation {
         flags.set(Flag.N, false);
         flags.set(Flag.H, false);
         flags.setUndocumentedFlagsFromValue(iValue);
-        clock.tick(1);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
@@ -12,58 +11,17 @@ import java.io.InputStream;
 public abstract class SpectrumMemory extends UncontendedMemory implements IO {
     protected static final int PAGE_SIZE = 0x4000;
 
-    protected final Clock clock;
     protected int[] displayMemory = new int[0x1b00];
     protected final int firstTickOfDisplay;
     protected final int lastTickOfDisplay;
     protected final int ticksPerScanline;
     protected boolean screenChanged = true;
 
-    protected SpectrumMemory(final Clock clock, final Model model) {
-        super(clock);
+    protected SpectrumMemory(final Model model) {
+        super();
         this.firstTickOfDisplay = model.scanlinesBeforeDisplay * model.ticksPerScanline;
         this.lastTickOfDisplay = (model.scanlinesBeforeDisplay + 192) * model.ticksPerScanline;
         this.ticksPerScanline = model.ticksPerScanline;
-        this.clock = clock;
-        clock.setResetHandler(this::resetDisplayMemory);
-    }
-
-    protected abstract void resetDisplayMemory();
-
-    protected void handleContention() {
-        if (clock.getTicks() >= firstTickOfDisplay &&
-                clock.getTicks() < lastTickOfDisplay) {
-            final int patternStart = clock.getTicks() - (firstTickOfDisplay - 1);
-            if (patternStart % ticksPerScanline > 127) {
-                return;
-            }
-
-            switch (patternStart % 8) {
-                case 0:
-                    clock.tick(6);
-                    break;
-
-                case 1:
-                    clock.tick(5);
-                    break;
-
-                case 2:
-                    clock.tick(4);
-                    break;
-
-                case 3:
-                    clock.tick(3);
-                    break;
-
-                case 4:
-                    clock.tick(2);
-                    break;
-
-                case 5:
-                    clock.tick(1);
-                    break;
-            }
-        }
     }
 
     public int[] getDisplayMemory() {
@@ -98,11 +56,8 @@ public abstract class SpectrumMemory extends UncontendedMemory implements IO {
 
     @Override
     public int get(final int addr) {
-        handleMemoryContention(addr >> 14);
         return super.get(addr);
     }
-
-    protected abstract void handleMemoryContention(int page);
 
     protected void writeToDisplayMemory(int addr, final int value) {
         addr &= 0x3fff;
@@ -120,4 +75,10 @@ public abstract class SpectrumMemory extends UncontendedMemory implements IO {
     public void markScreenDrawn() {
         screenChanged = false;
     }
+
+    public boolean contendedAddress(final int addr) {
+        return addr >> 14 == 1;
+    }
+
+    public abstract void resetDisplayMemory();
 }

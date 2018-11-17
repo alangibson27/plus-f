@@ -11,15 +11,24 @@ public class OpAddIndexedReg extends Operation {
     private final Register indexRegister;
     private final Register sourceReg;
 
-    public OpAddIndexedReg(final Processor processor, final Clock clock, final Register indexRegister, final Register sourceReg) {
-        super(clock);
+    public OpAddIndexedReg(final Processor processor, final Register indexRegister, final Register sourceReg) {
         this.flagsRegister = processor.flagsRegister();
         this.indexRegister = indexRegister;
         this.sourceReg = sourceReg;
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+
         final int result = Bitwise.addWord(indexRegister.get(), sourceReg.get());
         final int answer = result & 0xffff;
         indexRegister.set(answer);
@@ -27,7 +36,6 @@ public class OpAddIndexedReg extends Operation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, (result & FULL_CARRY_BIT) != 0);
         flagsRegister.setUndocumentedFlagsFromValue(answer >> 8);
-        clock.tick(7);
     }
 
     @Override

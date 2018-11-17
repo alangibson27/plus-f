@@ -1,7 +1,7 @@
 package com.socialthingy.plusf.z80
 
 import com.socialthingy.plusf.ProcessorSpec
-import com.socialthingy.plusf.z80.operations.{Nop, OpHalt}
+import com.socialthingy.plusf.z80.operations.{Nop, OpHalt, OpInc8Reg}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
@@ -475,13 +475,13 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     var lastOp = processor.execute()
     registerValue("pc") shouldBe addressOfHalt
-    lastOp.isInstanceOf[OpHalt] shouldBe true
+    lastOp.isInstanceOf[Nop] shouldBe true
 
     processor.nmi()
     lastOp = processor.execute()
 
     // then
-    lastOp.isInstanceOf[OpHalt] shouldBe false
+    lastOp.isInstanceOf[OpInc8Reg] shouldBe true
     registerValue("a") shouldBe 0x01
     registerValue("pc") shouldBe 0x0067
   }
@@ -502,14 +502,14 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     var lastOp = processor.execute()
     registerValue("pc") shouldBe addressOfHalt
-    lastOp.isInstanceOf[OpHalt] shouldBe true
+    lastOp.isInstanceOf[Nop] shouldBe true
 
     anInterruptIsGenerated
     processor.execute()
     lastOp = processor.execute()
 
     // then
-    lastOp.isInstanceOf[OpHalt] shouldBe false
+    lastOp.isInstanceOf[OpInc8Reg] shouldBe true
     registerValue("a") shouldBe 0x01
     registerValue("pc") shouldBe 0x0039
   }
@@ -530,14 +530,14 @@ class InterruptSpec extends ProcessorSpec with TableDrivenPropertyChecks {
 
     var lastOp = processor.execute()
     registerValue("pc") shouldBe addressOfHalt
-    lastOp.isInstanceOf[OpHalt] shouldBe true
+    lastOp.isInstanceOf[Nop] shouldBe true
 
     anInterruptIsGenerated
     lastOp = processor.execute()
 
     // then
     registerValue("pc") shouldBe addressOfHalt
-    lastOp.isInstanceOf[OpHalt] shouldBe true
+    lastOp.isInstanceOf[Nop] shouldBe true
   }
   
   "retn" should "re-enable maskable interrupts" in new InterruptingMachine {

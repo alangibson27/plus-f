@@ -4,7 +4,7 @@ import java.io.IOException
 
 import com.socialthingy.plusf.ProcessorSpec
 import com.socialthingy.plusf.spectrum.io.ULA
-import com.socialthingy.plusf.z80.{Clock, IO, Memory, Processor}
+import com.socialthingy.plusf.z80._
 import org.mockito.Mockito.verify
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
@@ -14,7 +14,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers with MockitoSugar {
   trait Spectrum {
     val ula = mock[ULA]
     val clock = new Clock()
-    val processor = new Processor(mock[Memory], mock[IO], clock)
+    val processor = new Processor(mock[Memory], mock[ContentionModel], mock[IO], clock)
 
     def registerValue(name: String) = processor.register(name).get()
   }

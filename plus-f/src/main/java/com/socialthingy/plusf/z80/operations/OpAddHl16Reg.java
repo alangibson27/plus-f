@@ -11,15 +11,23 @@ public class OpAddHl16Reg extends Operation {
     private final Register hlReg;
     private final Register sourceReg;
 
-    public OpAddHl16Reg(final Processor processor, final Clock clock, final Register sourceReg) {
-        super(clock);
+    public OpAddHl16Reg(final Processor processor, final Register sourceReg) {
         this.flagsRegister = processor.flagsRegister();
         this.hlReg = processor.register("hl");
         this.sourceReg = sourceReg;
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+        contentionModel.applyContention(irValue, 1);
+
         final int result = Bitwise.addWord(hlReg.get(), sourceReg.get());
         final int answer = result & 0xffff;
         hlReg.set(answer);
@@ -27,7 +35,6 @@ public class OpAddHl16Reg extends Operation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, (result & FULL_CARRY_BIT) != 0);
         flagsRegister.setUndocumentedFlagsFromValue(answer >> 8);
-        clock.tick(7);
     }
 
     @Override

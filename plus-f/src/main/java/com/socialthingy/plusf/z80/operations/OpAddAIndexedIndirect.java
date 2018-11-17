@@ -8,8 +8,8 @@ public class OpAddAIndexedIndirect extends ArithmeticOperation {
     private final IndexRegister indexRegister;
     private final String toString;
 
-    public OpAddAIndexedIndirect(final Processor processor, final Clock clock, final Memory memory, final Register indexRegister, final boolean useCarryFlag) {
-        super(processor, clock, useCarryFlag);
+    public OpAddAIndexedIndirect(final Processor processor, final Memory memory, final Register indexRegister, final boolean useCarryFlag) {
+        super(processor, useCarryFlag);
         this.memory = memory;
         this.indexRegister = IndexRegister.class.cast(indexRegister);
 
@@ -21,9 +21,17 @@ public class OpAddAIndexedIndirect extends ArithmeticOperation {
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int addr = indexRegister.withOffset(processor.fetchNextByte());
-        clock.tick(5);
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(addr, 3);
         add(memory.get(addr));
     }
 

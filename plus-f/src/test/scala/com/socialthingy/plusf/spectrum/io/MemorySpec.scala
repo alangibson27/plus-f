@@ -21,9 +21,9 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
   val clock = new Clock
   val memoryTable = Table(
     ("memory type", "memory"),
-    ("48k", new Memory48K(clock)),
-    ("128k", new Memory128K(clock, Model._128K)),
-    ("+2A", new MemoryPlus2A(clock))
+    ("48k", new Memory48K()),
+    ("128k", new Memory128K(Model._128K)),
+    ("+2A", new MemoryPlus2A())
   )
 
   forAll(memoryTable) { (memoryType, memory) =>
@@ -59,7 +59,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
           forAll(table) { (_, ticks, address) =>
             // given
             val clock = new Clock
-            val memory = new Memory48K(clock)
+            val memory = new Memory48K()
 
             // when
             clock.tick(ticks)
@@ -75,8 +75,8 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
   val pageableMemoryTable = Table(
     ("memory type", "memory"),
-    ("128k", () => { clock.reset(); new Memory128K(clock, Model._128K) }),
-    ("+2A", () => { clock.reset(); new MemoryPlus2A(clock) })
+    ("128k", () => { clock.reset(); new Memory128K(Model._128K) }),
+    ("+2A", () => { clock.reset(); new MemoryPlus2A() })
   )
 
   forAll(pageableMemoryTable) { (memoryType, memoryCreator) =>
@@ -351,7 +351,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
   "+2A memory" should {
     forAll(specialPagingModeTable) { (mode, modeValue, page0, page1, page2, page3) =>
       s"switch to special mode $mode correctly" in {
-        val memory = new MemoryPlus2A(clock, true)
+        val memory = new MemoryPlus2A(true)
 
         memory.write(0xfd, 0x1f, plus2SpecialPagingMode + modeValue)
 
@@ -364,7 +364,7 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
     forAll(romPagingModeTable) { (romBank, lowBit, highBit, marker) =>
       s"select ROM $romBank correctly" in {
-        val memory = new MemoryPlus2A(clock)
+        val memory = new MemoryPlus2A()
 
         memory.write(0xfd, 0x7f, lowBit << 4)
         memory.write(0xfd, 0x1f, highBit << 2)

@@ -3,13 +3,12 @@ package com.socialthingy.plusf.z80;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.operations.*;
 
-import java.io.PrintStream;
 import java.util.*;
 
 public class Processor {
-
     private final Map<String, Register> registers = new HashMap<>();
     private final Memory memory;
+    private final ContentionModel contentionModel;
     private final Clock clock;
     private final Operation[] operations;
     private final Operation[] edOperations;
@@ -33,12 +32,12 @@ public class Processor {
     private boolean iffs[] = new boolean[2];
     private int interruptMode = 1;
     private boolean interruptRequested = false;
-    private Operation lastOp;
     private boolean fetchedFromInterrupt;
 
-    public Processor(final Memory memory, final IO io, final Clock clock) {
+    public Processor(final Memory memory, final ContentionModel contentionModel, final IO io, final Clock clock) {
         this.clock = clock;
         this.memory = memory;
+        this.contentionModel = contentionModel;
         this.nop = new Nop(clock);
 
         prepareRegisters();
@@ -50,8 +49,8 @@ public class Processor {
         ddCbOperations = OperationTable.buildIndexedBitwiseGroup(this, clock, memory, (IndexRegister) registers.get("ix"));
         fdCbOperations = OperationTable.buildIndexedBitwiseGroup(this, clock, memory, (IndexRegister) registers.get("iy"));
 
-        this.im1ResponseOp = new OpRst(this, clock, 0x0038);
-        this.nmiResponseOp = new OpRst(this, clock, 0x0066);
+        this.im1ResponseOp = new OpRst(this, 0x0038);
+        this.nmiResponseOp = new OpRst(this, 0x0066);
     }
 
     private void prepareRegisters() {
@@ -143,12 +142,12 @@ public class Processor {
         final int pc = pcReg.get();
         final Operation op = fetch();
         if (op == null) {
-            throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
+            throw new IllegalStateException(String.format("Unimplemented operation at %d: %02X %02X %02X %02X %02X", pc, memory.get(pc), memory.get((pc + 1) & 0xffff), memory.get((pc + 2) & 0xffff), memory.get((pc + 3) & 0xffff), memory.get((pc + 4) & 0xffff)));
         }
 
-        this.lastOp = op;
         try {
-            op.execute();
+            final int irValue = iReg.get() << 8 | (rReg.get() & 0xfe);
+            op.execute(contentionModel, pc, irValue);
 
             if (enableIffAfterExecution) {
                 enableIff = false;
@@ -180,7 +179,7 @@ public class Processor {
                 final int jumpBase = Word.from(0xff, iReg.get());
                 final int jumpLow = memory.get(jumpBase);
                 final int jumpHigh = memory.get(jumpBase + 1);
-                return new OpCallDirect(this, clock, Word.from(jumpLow, jumpHigh));
+                return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
         } else if (halting) {
             fetchedFromInterrupt = false;
@@ -213,7 +212,7 @@ public class Processor {
                 final int opCode2 = fromMemory(pc++);
                 if (opCode2 == 0xcb) {
                     pc++;
-                    op = fromOpTable(ddCbOperations, fromMemory(pc++, 0));
+                    op = fromOpTable(ddCbOperations, fromMemory(pc++));
                 } else {
                     op = fromOpTable(ddOperations, opCode2);
                 }
@@ -223,7 +222,7 @@ public class Processor {
                 final int opCode3 = fromMemory(pc++);
                 if (opCode3 == 0xcb) {
                     pc++;
-                    op = fromOpTable(fdCbOperations, fromMemory(pc++, 0));
+                    op = fromOpTable(fdCbOperations, fromMemory(pc++));
                 } else {
                     op = fromOpTable(fdOperations, opCode3);
                 }
@@ -241,13 +240,7 @@ public class Processor {
     }
 
     private int fromMemory(final int addr) {
-        return fromMemory(addr,1);
-    }
-
-    private int fromMemory(final int addr, final int extraTicks) {
-        final int val = memory.get(addr);
-        clock.tick(extraTicks);
-        return val;
+        return memory.get(addr);
     }
 
     private Operation fromOpTable(final Operation[] opTable, final int index) {
@@ -256,10 +249,6 @@ public class Processor {
 
     public int fetchNextByte() {
         return memory.get(pcReg.getAndInc());
-    }
-
-    public int fetchCurrentByte() {
-        return memory.get(pcReg.get());
     }
 
     public int getInterruptMode() {
@@ -301,7 +290,7 @@ public class Processor {
     public void nmi() {
         halting = false;
         iffs[0] = false;
-        nmiResponseOp.execute();
+        nmiResponseOp.execute(contentionModel, 0, 0);
     }
 
     public void enableInterrupts() {
@@ -323,35 +312,6 @@ public class Processor {
         pcReg.decAndGet();
     }
 
-    public void dump(final PrintStream out) {
-        if (lastOp != null) {
-            out.println("Last operation: " + this.lastOp.toString());
-        }
-        out.println(String.format("af: %04x bc: %04x de: %04x hl: %04x",
-                register("af").get(),
-                register("bc").get(),
-                register("de").get(),
-                register("hl").get()));
-        out.println(String.format("af':%04x bc':%04x de':%04x hl':%04x",
-                register("af'").get(),
-                register("bc'").get(),
-                register("de'").get(),
-                register("hl'").get()));
-        out.println(String.format("ix: %04x iy: %04x pc: %04x sp: %04x ir:%02x%02x",
-                register("ix").get(),
-                register("iy").get(),
-                register("pc").get(),
-                register("sp").get(),
-                register("i").get(),
-                register("r").get()));
-        out.println(String.format("iff1: %s  iff2: %s  im: %d",
-                getIff(0) ? "True" : "False",
-                getIff(1) ? "True" : "False",
-                getInterruptMode()));
-        out.println();
-        out.flush();
-    }
-
     public void reset() {
         for (Register reg: registers.values()) {
             reg.set(0);
@@ -363,7 +323,6 @@ public class Processor {
         iffs[1] = false;
         interruptMode = 1;
         interruptRequested = false;
-        lastOp = null;
     }
 
     public boolean fetchedFromInterrupt() {

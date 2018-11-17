@@ -13,8 +13,7 @@ abstract class ArithmeticOperation extends Operation {
     protected final Processor processor;
     protected final boolean useCarryFlag;
 
-    ArithmeticOperation(final Processor processor, final Clock clock, final boolean useCarryFlag) {
-        super(clock);
+    ArithmeticOperation(final Processor processor, final boolean useCarryFlag) {
         this.processor = processor;
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");

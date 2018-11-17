@@ -6,14 +6,14 @@ public class OpCcf extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register accumulator;
 
-    public OpCcf(final Processor processor, final Clock clock) {
-        super(clock);
+    public OpCcf(final Processor processor) {
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         final boolean oldCarry = flagsRegister.get(FlagsRegister.Flag.C);
         flagsRegister.set(FlagsRegister.Flag.H, oldCarry);
         flagsRegister.set(FlagsRegister.Flag.N, false);

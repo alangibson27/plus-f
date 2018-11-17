@@ -8,8 +8,7 @@ public class OpExSpIndirectHl extends Operation {
     private final Register lReg;
     private final Memory memory;
 
-    public OpExSpIndirectHl(final Processor processor, final Clock clock, final Memory memory) {
-        super(clock);
+    public OpExSpIndirectHl(final Processor processor, final Memory memory) {
         this.spReg = processor.register("sp");
         this.hReg = processor.register("h");
         this.lReg = processor.register("l");
@@ -17,19 +16,25 @@ public class OpExSpIndirectHl extends Operation {
     }
 
     @Override
-    public void execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        final int spAddr = spReg.get();
+        contentionModel.applyContention(spAddr, 3);
+        contentionModel.applyContention(spAddr + 1, 3);
+        contentionModel.applyContention(spAddr + 1, 1);
+        contentionModel.applyContention(spAddr + 1, 3);
+        contentionModel.applyContention(spAddr, 3);
+        contentionModel.applyContention(spAddr, 1);
+        contentionModel.applyContention(spAddr, 1);
         final int oldH = hReg.get();
         final int oldL = lReg.get();
 
-        final int spLow = spReg.get();
-        final int spHigh = 0xffff & (spLow + 1);
-        lReg.set(memory.get(spLow));
+        final int spHigh = 0xffff & (spAddr + 1);
+        lReg.set(memory.get(spAddr));
         hReg.set(memory.get(spHigh));
 
-        clock.tick(3);
-
-        memory.set( spLow, oldL);
-        memory.set( spHigh, oldH);
+        memory.set(spAddr, oldL);
+        memory.set(spHigh, oldH);
     }
 
     @Override

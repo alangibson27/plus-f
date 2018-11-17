@@ -11,13 +11,12 @@ abstract class BlockOperation extends Operation {
     private final Register accumulator;
     private final Register pcReg;
     private final Register bcReg;
-    private final Register deReg;
-    private final Register hlReg;
+    protected final Register deReg;
+    protected final Register hlReg;
     private final Memory memory;
     private final int increment;
 
-    protected BlockOperation(final Processor processor, final Clock clock, final Memory memory, final int increment) {
-        super(clock);
+    protected BlockOperation(final Processor processor, final Memory memory, final int increment) {
         this.flagsRegister = processor.flagsRegister();
         this.accumulator = processor.register("a");
         this.pcReg = processor.register("pc");
@@ -28,12 +27,12 @@ abstract class BlockOperation extends Operation {
         this.increment = increment;
     }
 
-    protected int adjustPC() {
+    protected boolean continueLoop() {
         if (bcReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 7;
+            return true;
         } else {
-            return 2;
+            return false;
         }
     }
 
