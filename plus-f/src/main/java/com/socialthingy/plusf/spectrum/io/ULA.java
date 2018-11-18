@@ -128,15 +128,13 @@ public class ULA implements IO {
 
     public void advanceCycle(final int tstates) {
         final int scanline = clock.getTicks() / ticksPerScanline;
-        if (scanline < borderColours.length) {
-            borderColours[scanline] = currentBorderColour;
+        if (scanline > 0 && scanline <= borderColours.length) {
+            borderColours[scanline - 1] = currentBorderColour;
         }
 
         if (scanline != lastScanlineRendered &&
                 scanline > scanlinesBeforeDisplay && scanline <= scanlinesBeforeDisplay + 192) {
-            for (int sl = lastScanlineRendered; sl < scanline; sl++) {
-                pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, sl, flashActive);
-            }
+            pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, scanline - 1, flashActive);
         }
         lastScanlineRendered = scanline;
 

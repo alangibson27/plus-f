@@ -9,7 +9,7 @@ import org.mockito.Mockito.verify
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
 
-class SnapshotLoaderSpec extends ProcessorSpec with Matchers with MockitoSugar {
+class SnapshotSpec extends ProcessorSpec with Matchers with MockitoSugar {
 
   trait Spectrum {
     val ula = mock[ULA]

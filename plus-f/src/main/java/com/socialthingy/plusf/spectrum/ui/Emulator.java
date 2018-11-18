@@ -137,8 +137,8 @@ public class Emulator extends JFrame implements Runnable {
                     break;
             }
         } else {
-            memory = snapshot.getMemory(clock);
-            contentionModel = new ContentionModel48K(clock, model, memory);
+            memory = snapshot.getMemory();
+            contentionModel = snapshot.getContentionModel(clock, memory);
         }
 
         final ULA ula = new ULA(memory, keyboard, tapePlayer, soundSystem.getBeeper(), clock, model);

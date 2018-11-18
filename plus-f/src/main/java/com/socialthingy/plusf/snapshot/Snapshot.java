@@ -1,12 +1,10 @@
 package com.socialthingy.plusf.snapshot;
 
+import com.socialthingy.plusf.spectrum.io.*;
 import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
-import com.socialthingy.plusf.spectrum.io.Memory128K;
-import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
-import com.socialthingy.plusf.spectrum.io.Memory48K;
-import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.util.Word;
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 import java.io.*;
@@ -69,7 +67,7 @@ public class Snapshot {
         read();
     }
 
-    public SpectrumMemory getMemory(final Clock clock) {
+    public SpectrumMemory getMemory() {
         if (model == Model._48K) {
             final Memory48K memory = new Memory48K();
             memory.copyIntoPage(memoryPages[4], 2);
@@ -85,6 +83,21 @@ public class Snapshot {
 
             memory.write(0xfd, 0x7f, lastWriteTo0x7ffd);
             return memory;
+        }
+    }
+
+    public ContentionModel getContentionModel(final Clock clock, final SpectrumMemory memory) {
+        switch (model) {
+            case PLUS_2A:
+                return new ContentionModelPlus2A(clock, memory);
+
+            case PLUS_2:
+            case _128K:
+            case _128K_SPANISH:
+                return new ContentionModel128K(clock, model, memory);
+
+            default:
+                return new ContentionModel48K(clock, model, memory);
         }
     }
 
