@@ -2,7 +2,7 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.*;
 
-public class OpOutC8Reg implements Operation {
+public class OpOutC8Reg extends Operation {
     private final Register bReg;
     private final Register cReg;
     private final Register sourceRegister;
@@ -16,9 +16,13 @@ public class OpOutC8Reg implements Operation {
     }
 
     @Override
-    public int execute() {
-        io.write(cReg.get(), bReg.get(), sourceRegister.get());
-        return 12;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        final int lowByte = cReg.get();
+        final int highByte = bReg.get();
+        contentionModel.applyIOContention(lowByte, highByte);
+        io.write(lowByte, highByte, sourceRegister.get());
     }
 
     @Override

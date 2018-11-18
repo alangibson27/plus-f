@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpRlca extends RotateOperation {
@@ -9,9 +10,9 @@ public class OpRlca extends RotateOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         accumulator.set(rlcValue(accumulator.get()));
-        return 4;
     }
 
     @Override

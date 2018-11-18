@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum;
 
-import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
@@ -9,55 +8,35 @@ import com.socialthingy.plusf.z80.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintStream;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Computer {
-
     private static final Logger log = LoggerFactory.getLogger(Computer.class);
     private static final String PROCESSOR_EXECUTE_TIMER_NAME = "processor.execute";
 
     private final Timer processorExecuteTimer;
     private final Processor processor;
-    private final MetricRegistry metricRegistry;
-    private final int tstatesPerRefresh;
     private final ULA ula;
     private final SpectrumMemory memory;
+    private boolean dumping;
+    private List<ExecutedOperation> executedOperations = new ArrayList<>();
 
     public Computer(
         final Processor processor,
         final SpectrumMemory memory,
         final ULA ula,
-        final Model model,
         final MetricRegistry metricRegistry
     ) {
         this.processor = processor;
         this.memory = memory;
-        this.metricRegistry = metricRegistry;
-        this.tstatesPerRefresh = model.tstatesPerRefresh;
         this.ula = ula;
 
         processorExecuteTimer = metricRegistry.timer(PROCESSOR_EXECUTE_TIMER_NAME);
-    }
-
-    protected void dump(final PrintStream out) {
-        processor.dump(out);
-
-        for (Map.Entry<String, Timer> timer: metricRegistry.getTimers().entrySet()) {
-            out.printf(
-                    "%s: count=%d avg=%f p99=%f max=%d rate=%f\n",
-                    timer.getKey(),
-                    timer.getValue().getCount(),
-                    timer.getValue().getSnapshot().getMean() / 1000000,
-                    timer.getValue().getSnapshot().get99thPercentile() / 1000000,
-                    timer.getValue().getSnapshot().getMax() / 1000000,
-                    timer.getValue().getOneMinuteRate()
-            );
-        }
-
-        for (Map.Entry<String, Counter> counter: metricRegistry.getCounters().entrySet()) {
-            out.printf("%s: count=%d\n", counter.getKey(), counter.getValue().getCount());
-        }
     }
 
     public Processor getProcessor() {
@@ -65,35 +44,66 @@ public class Computer {
     }
 
     public void singleCycle() {
-        int currentCycleTstates = 0;
+        boolean newCycle = true;
         processor.requestInterrupt();
 
         final Timer.Context timer = processorExecuteTimer.time();
+        executedOperations.clear();
+
         ula.newCycle();
         try {
-            while (currentCycleTstates < tstatesPerRefresh) {
+            while (ula.moreStatesUntilRefresh()) {
+                final int ticksBefore = ula.getClock().getTicks();
+                final ExecutedOperation executed = new ExecutedOperation();
+                executed.startTime = ticksBefore;
+                executed.address = processor.register("pc").get();
                 try {
-                    processor.execute();
+                    executed.operation = processor.execute();
+                    executed.fromInterrupt = processor.fetchedFromInterrupt();
                 } catch (ExecutionException ex) {
                     log.warn(String.format("Processor error encountered. Last operation: %s", ex.getOperation().toString()), ex);
                 } catch (Exception ex) {
-                    log.warn("Unrecoverable error encountered", ex);
+                    log.warn("Unrecoverable error encountered, cycle will be dumped", ex);
+                    processor.register("pc").set(0);
+                    dumping = true;
+                    break;
                 } finally {
-                    if (currentCycleTstates == 0) {
+                    if (newCycle) {
                         processor.cancelInterrupt();
+                        newCycle = false;
                     }
                 }
 
-                final int executedCycles = processor.lastTime();
-                currentCycleTstates += executedCycles;
-                ula.advanceCycle(executedCycles);
+                final int duration = ula.getClock().getTicks() - ticksBefore;
+                executed.duration = duration;
+                ula.advanceCycle(duration);
+
+                executedOperations.add(executed);
             }
         } finally {
             timer.stop();
         }
+
+        if (dumping) {
+            final List<String> lines = executedOperations.stream().map(e -> String.format(
+                    "[T+%d] 0x%04X (%d) %s %s",
+                    e.startTime,
+                    e.address,
+                    e.duration,
+                    e.fromInterrupt ? "I" : "N",
+                    e.operation.toString()
+            )).collect(Collectors.toList());
+            try {
+                Files.write(new File(String.format("/var/tmp/plusf-%d.dump", System.currentTimeMillis())).toPath(), lines);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            dumping = false;
+        }
     }
 
-    public void reset() {
+    public void startDumping() {
+        this.dumping = true;
     }
 
     public boolean screenRedrawRequired() {
@@ -116,9 +126,12 @@ public class Computer {
         return ula.borderNeedsRedrawing();
     }
 
-
     public int[] getBorderColours() {
         return ula.getBorderColours();
+    }
+
+    public int[] getScreenPixels() {
+        return ula.getPixels();
     }
 
     public boolean ulaAccessed() {
@@ -127,5 +140,13 @@ public class Computer {
 
     public int peek(final int addr) {
         return memory.get(addr);
+    }
+
+    private class ExecutedOperation {
+        private Operation operation;
+        private int address;
+        private int startTime;
+        private int duration;
+        private boolean fromInterrupt;
     }
 }

@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpCpImmediate extends ArithmeticOperation {
@@ -8,9 +9,10 @@ public class OpCpImmediate extends ArithmeticOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
         sub(processor.fetchNextByte(), false);
-        return 7;
     }
 
     @Override

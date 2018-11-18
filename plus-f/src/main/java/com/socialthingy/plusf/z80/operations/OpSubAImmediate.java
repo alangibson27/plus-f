@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpSubAImmediate extends ArithmeticOperation {
@@ -9,10 +10,11 @@ public class OpSubAImmediate extends ArithmeticOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
         accumulator.set(sub(processor.fetchNextByte(), true));
         flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
-        return 7;
     }
 
     @Override

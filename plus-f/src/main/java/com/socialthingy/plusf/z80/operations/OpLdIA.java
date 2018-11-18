@@ -1,10 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLdIA implements Operation {
+public class OpLdIA extends Operation {
     private final Register iReg;
     private final Register aReg;
 
@@ -14,9 +12,11 @@ public class OpLdIA implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(irValue, 1);
         iReg.set(aReg.get());
-        return 9;
     }
 
     @Override

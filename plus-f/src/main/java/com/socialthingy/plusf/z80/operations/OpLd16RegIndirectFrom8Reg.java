@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLd16RegIndirectFrom8Reg implements Operation {
-
+public class OpLd16RegIndirectFrom8Reg extends Operation {
     private final Register destReference;
     private final Register source;
     private final Memory memory;
@@ -17,9 +14,11 @@ public class OpLd16RegIndirectFrom8Reg implements Operation {
     }
 
     @Override
-    public int execute() {
-        memory.set( destReference.get(), source.get());
-        return 7;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int address = source.get();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(address, 3);
+        memory.set( destReference.get(), address);
     }
 
     @Override

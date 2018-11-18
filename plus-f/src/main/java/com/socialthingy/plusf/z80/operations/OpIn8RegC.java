@@ -3,7 +3,7 @@ package com.socialthingy.plusf.z80.operations;
 import com.socialthingy.plusf.util.Bitwise;
 import com.socialthingy.plusf.z80.*;
 
-public class OpIn8RegC implements Operation {
+public class OpIn8RegC extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register bReg;
     private final Register cReg;
@@ -19,8 +19,14 @@ public class OpIn8RegC implements Operation {
     }
 
     @Override
-    public int execute() {
-        final int value = io.read(cReg.get(), bReg.get());
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        final int lowByte = cReg.get();
+        final int highByte = bReg.get();
+        contentionModel.applyIOContention(lowByte, highByte);
+
+        final int value = io.read(lowByte, highByte);
         destRegister.set(value);
 
         flagsRegister.set(FlagsRegister.Flag.S, (byte) value < 0);
@@ -29,7 +35,6 @@ public class OpIn8RegC implements Operation {
         flagsRegister.set(FlagsRegister.Flag.P, Bitwise.hasParity(value));
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.setUndocumentedFlagsFromValue(destRegister.get());
-        return 12;
     }
 
     @Override

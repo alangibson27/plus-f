@@ -1,12 +1,9 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Word;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLd16RegAddress implements Operation {
+public class OpLd16RegAddress extends Operation {
     private final Processor processor;
     private final Memory memory;
     private final Register dest;
@@ -18,10 +15,15 @@ public class OpLd16RegAddress implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int source = processor.fetchNextWord();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 3, 3);
+        contentionModel.applyContention(source, 3);
+        contentionModel.applyContention(source + 1, 3);
         dest.set(Word.from(memory.get(source), memory.get(source + 1)));
-        return 20;
     }
 
     @Override

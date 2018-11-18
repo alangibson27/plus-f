@@ -1,12 +1,9 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpDaa implements Operation {
+public class OpDaa extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register accumulator;
 
@@ -16,7 +13,8 @@ public class OpDaa implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         final boolean fullCarry = flagsRegister.get(FlagsRegister.Flag.C);
         final boolean halfCarry = flagsRegister.get(FlagsRegister.Flag.H);
         final char[] digits = String.format("%02X", accumulator.get()).toCharArray();
@@ -27,7 +25,6 @@ public class OpDaa implements Operation {
         } else {
             daaAfterAdd(fullCarry, halfCarry, digits);
         }
-        return 4;
     }
 
     private void daaAfterAdd(final boolean fullCarry, final boolean halfCarry, final char[] digits) {

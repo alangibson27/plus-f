@@ -1,12 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpExSpIndirectHl implements Operation {
-
+public class OpExSpIndirectHl extends Operation {
     private final Register spReg;
     private final Register hReg;
     private final Register lReg;
@@ -20,18 +16,25 @@ public class OpExSpIndirectHl implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        final int spAddr = spReg.get();
+        contentionModel.applyContention(spAddr, 3);
+        contentionModel.applyContention(spAddr + 1, 3);
+        contentionModel.applyContention(spAddr + 1, 1);
+        contentionModel.applyContention(spAddr + 1, 3);
+        contentionModel.applyContention(spAddr, 3);
+        contentionModel.applyContention(spAddr, 1);
+        contentionModel.applyContention(spAddr, 1);
         final int oldH = hReg.get();
         final int oldL = lReg.get();
 
-        final int spLow = spReg.get();
-        final int spHigh = 0xffff & (spLow + 1);
-        lReg.set(memory.get(spLow));
+        final int spHigh = 0xffff & (spAddr + 1);
+        lReg.set(memory.get(spAddr));
         hReg.set(memory.get(spHigh));
 
-        memory.set( spLow, oldL);
-        memory.set( spHigh, oldH);
-        return 19;
+        memory.set(spAddr, oldL);
+        memory.set(spHigh, oldH);
     }
 
     @Override

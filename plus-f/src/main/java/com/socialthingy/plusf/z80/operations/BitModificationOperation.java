@@ -2,7 +2,7 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.Operation;
 
-abstract class BitModificationOperation implements Operation {
+abstract class BitModificationOperation extends Operation {
     private final int bitPosition;
 
     protected BitModificationOperation(final int bitPosition) {

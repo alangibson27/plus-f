@@ -5,7 +5,7 @@ import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.Register;
 
-abstract class RetOperation implements Operation {
+abstract class RetOperation extends Operation {
     protected final Processor processor;
     protected final Register pcReg;
 

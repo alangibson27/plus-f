@@ -1,33 +1,28 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.z80.IO;
 import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.SimpleMemory;
+import com.socialthingy.plusf.z80.UncontendedMemory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public abstract class SpectrumMemory extends SimpleMemory implements IO {
+public abstract class SpectrumMemory extends UncontendedMemory implements IO {
     protected static final int PAGE_SIZE = 0x4000;
 
-    protected final Clock clock;
     protected int[] displayMemory = new int[0x1b00];
-    private final int ticksPerScanline;
-    private final int scanlinesBeforeDisplay;
+    protected final int firstTickOfDisplay;
+    protected final int lastTickOfDisplay;
+    protected final int ticksPerScanline;
     protected boolean screenChanged = true;
-    protected final ULA ula;
 
-    protected SpectrumMemory(final ULA ula, final Clock clock, final Model model) {
-        this.ula = ula;
-        this.clock = clock;
+    protected SpectrumMemory(final Model model) {
+        super();
+        this.firstTickOfDisplay = model.scanlinesBeforeDisplay * model.ticksPerScanline;
+        this.lastTickOfDisplay = (model.scanlinesBeforeDisplay + 192) * model.ticksPerScanline;
         this.ticksPerScanline = model.ticksPerScanline;
-        this.scanlinesBeforeDisplay = model.scanlinesBeforeDisplay;
-        clock.setResetHandler(this::resetDisplayMemory);
     }
-
-    protected abstract void resetDisplayMemory();
 
     public int[] getDisplayMemory() {
         return displayMemory;
@@ -46,12 +41,6 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
     @Override
     public void write(int low, int high, int value) {}
 
-    protected int yCoord(final int addr) {
-        final int hi = addr >> 8;
-        final int lo = addr & 0xff;
-        return ((hi & 24) << 2) + ((lo & 224) >> 2) + (hi & 7);
-    }
-
     protected int[] readRom(final String romFileName) {
         try (final InputStream is = Memory.class.getResourceAsStream(romFileName)) {
             final int[] rom = new int[PAGE_SIZE];
@@ -67,18 +56,12 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
 
     @Override
     public int get(final int addr) {
-        handleMemoryContention(addr >> 14);
         return super.get(addr);
     }
 
-    protected abstract void handleMemoryContention(int page);
-
-    protected void writeToDisplayIfBeforeScanlineReached(int addr, final int value) {
+    protected void writeToDisplayMemory(int addr, final int value) {
         addr &= 0x3fff;
-        if (addr < 6912 && clock.getTicks() < (scanlinesBeforeDisplay + yCoord(addr)) * ticksPerScanline) {
-            screenChanged = true;
-            displayMemory[addr] = value;
-        }
+        displayMemory[addr] = value;
     }
 
     protected void copyBankIntoPage(final int[] sourceRamPage, final int pageInMemory) {
@@ -92,4 +75,10 @@ public abstract class SpectrumMemory extends SimpleMemory implements IO {
     public void markScreenDrawn() {
         screenChanged = false;
     }
+
+    public boolean contendedAddress(final int addr) {
+        return addr >> 14 == 1;
+    }
+
+    public abstract void resetDisplayMemory();
 }

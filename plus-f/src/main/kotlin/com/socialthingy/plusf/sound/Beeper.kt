@@ -7,7 +7,7 @@ import com.socialthingy.plusf.spectrum.Model
 open class Beeper(private val sampler: VariableRateMonoReader) {
     var updatePeriod: Double = 3500000.0 / sampler.rate.get()
 
-    private val beeperStates = FloatArray(900)
+    private val beeperStates = FloatArray(901)
     private var beeperIdx = 0
     private var allStatesHigh = true
     private var isEnabled = false
