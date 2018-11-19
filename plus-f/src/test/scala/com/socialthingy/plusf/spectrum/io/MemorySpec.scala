@@ -26,53 +26,6 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
     ("+2A", new MemoryPlus2A())
   )
 
-  forAll(memoryTable) { (memoryType, memory) =>
-    s"timed display update on $memoryType" when {
-      "display byte is written" should {
-        "write it to the display memory if the ula has not reached that line yet" in {
-          val table = Table(
-            ("description", "ticks", "address"),
-            ("last tick before first byte of first line", 14335, 16384),
-            ("last tick before first byte of second line", 14559, 16640)
-          )
-
-          forAll(table) { (_, ticks, address) =>
-            // given
-            clock.reset()
-
-            // when
-            clock.tick(ticks)
-            memory.set(address, 100)
-
-            // then
-            memory.getDisplayMemory()(address - 0x4000) shouldBe 100
-          }
-        }
-
-        "not write it to the display memory if the ula has already reached that line" in {
-          val table = Table(
-            ("description", "ticks", "address"),
-            ("first tick of first line", 14336, 16384),
-            ("first tick of second line", 14560, 16640)
-          )
-
-          forAll(table) { (_, ticks, address) =>
-            // given
-            val clock = new Clock
-            val memory = new Memory48K()
-
-            // when
-            clock.tick(ticks)
-            memory.set(address, 100)
-
-            // then
-            memory.getDisplayMemory()(address - 0x4000) shouldBe 0
-          }
-        }
-      }
-    }
-  }
-
   val pageableMemoryTable = Table(
     ("memory type", "memory"),
     ("128k", () => { clock.reset(); new Memory128K(Model._128K) }),
@@ -143,32 +96,6 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
           memory.get(0x4001) shouldBe 0xff
           memory.get(0xc001) shouldBe 0x00
-        }
-
-        "record the screen as being changed if bank 5 is the displayable screen" +
-          "and the low part of page 1 is written to" in {
-          val memory = memoryCreator()
-
-          memory.write(0xfd, 0x7f, highBank7 & screenBank5)
-          memory.markScreenDrawn()
-
-          memory.set(0x4001, 0xff)
-
-          memory.get(0x4001) shouldBe 0xff
-          memory.screenChanged shouldBe true
-        }
-
-        "not record the screen as being changed if bank 7 is the displayable screen" +
-          "and the low part of page 1 is written to" in {
-          val memory = memoryCreator()
-
-          memory.write(0xfd, 0x7f, highBank7 + screenBank7)
-          memory.markScreenDrawn()
-
-          memory.set(0x4001, 0xff)
-
-          memory.get(0x4001) shouldBe 0xff
-          memory.screenChanged shouldBe false
         }
 
         "put the current state of bank 5 into page 3 when bank 5 is subsequently swapped into page 3" in {
@@ -261,57 +188,6 @@ class MemorySpec extends WordSpec with Matchers with TableDrivenPropertyChecks {
 
           memory.get(0x8001) shouldBe 0x00
           memory.get(0xc001) shouldBe 0xff
-        }
-
-        "record the screen as being changed if bank 5 is in page 3 and bank 5 is the visible screen" in {
-          val memory = memoryCreator()
-
-          memory.write(0xfd, 0x7f, screenBank5 + highBank7)
-          memory.markScreenDrawn()
-          memory.write(0xfd, 0x7f, screenBank5 + highBank5)
-
-          memory.set(0xc001, 0xff)
-
-          memory.get(0xc001) shouldBe 0xff
-          memory.get(0x4001) shouldBe 0xff
-          memory.screenChanged shouldBe true
-        }
-
-        "record the screen as being changed if bank 7 is in page 3 and bank 7 is the visible screen" in {
-          val memory = memoryCreator()
-
-          memory.write(0xfd, 0x7f, screenBank7 + highBank7)
-          memory.markScreenDrawn()
-
-          memory.set(0xc001, 0xff)
-
-          memory.get(0xc001) shouldBe 0xff
-          memory.get(0x4001) shouldBe 0x00
-          memory.screenChanged shouldBe true
-        }
-
-        "not record the screen as being changed if bank 5 is in page 3 and bank 7 is the visible screen" in {
-          val memory = memoryCreator()
-
-          memory.write(0xfd, 0x7f, screenBank7 + highBank5)
-          memory.markScreenDrawn()
-
-          memory.set(0xc001, 0xff)
-
-          memory.get(0xc001) shouldBe 0xff
-          memory.screenChanged shouldBe false
-        }
-
-        "not record the screen as being changed if bank 7 is in page 3 and bank 5 is the visible screen" in {
-          val memory = memoryCreator()
-
-          memory.write(0xfd, 0x7f, screenBank5 + highBank7)
-          memory.markScreenDrawn()
-
-          memory.set(0xc001, 0xff)
-
-          memory.get(0xc001) shouldBe 0xff
-          memory.screenChanged shouldBe false
         }
       }
 

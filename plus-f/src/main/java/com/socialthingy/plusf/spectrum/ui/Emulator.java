@@ -548,11 +548,7 @@ public class Emulator extends JFrame implements Runnable {
                 if (shouldRepaint()) {
                     soundSystem.getBeeper().play();
                     lastRepaint = System.currentTimeMillis();
-
-                    if (computer.screenRedrawRequired()) {
-                        computer.markScreenDrawn();
-                        display.updateScreen2(computer.getScreenPixels());
-                    }
+                    display.updateScreen2(computer.getScreenPixels());
 
                     if (computer.borderNeedsRedrawing() || currentSpeed == EmulatorSpeed.TURBO) {
                         display.updateBorder(computer.getBorderColours());

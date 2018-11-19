@@ -24,7 +24,7 @@ class SnapshotSpec extends ProcessorSpec with Matchers with MockitoSugar {
     val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80"))
 
     // when
-    val memory = snapshot.getMemory(clock)
+    val memory = snapshot.getMemory()
     snapshot.setBorderColour(ula)
     snapshot.setProcessorState(processor)
 
@@ -72,7 +72,7 @@ class SnapshotSpec extends ProcessorSpec with Matchers with MockitoSugar {
     val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80-v3"))
 
     // when
-    val memory = snapshot.getMemory(clock)
+    val memory = snapshot.getMemory()
     snapshot.setBorderColour(ula)
     snapshot.setProcessorState(processor)
 

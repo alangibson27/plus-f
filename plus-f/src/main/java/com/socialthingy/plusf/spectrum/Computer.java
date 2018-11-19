@@ -106,14 +106,6 @@ public class Computer {
         this.dumping = true;
     }
 
-    public boolean screenRedrawRequired() {
-        return memory.screenChanged() || ula.flashStatusChanged();
-    }
-
-    public void markScreenDrawn() {
-        memory.markScreenDrawn();
-    }
-
     public int[] getDisplayMemory() {
         return memory.getDisplayMemory();
     }

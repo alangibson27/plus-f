@@ -64,7 +64,7 @@ public class ContentionModel48K extends ContentionModel {
     }
 
     protected void handleContention(final Clock clock) {
-        if (clock.getTicks() >= firstTickOfDisplay &&
+        if (clock.getTicks() >= firstTickOfDisplay - 1 &&
                 clock.getTicks() < lastTickOfDisplay) {
             final int patternStart = clock.getTicks() - (firstTickOfDisplay - 1);
             if (patternStart % ticksPerScanline > 127) {

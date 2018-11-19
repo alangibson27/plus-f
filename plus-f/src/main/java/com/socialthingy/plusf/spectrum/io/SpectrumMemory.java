@@ -15,7 +15,6 @@ public abstract class SpectrumMemory extends UncontendedMemory implements IO {
     protected final int firstTickOfDisplay;
     protected final int lastTickOfDisplay;
     protected final int ticksPerScanline;
-    protected boolean screenChanged = true;
 
     protected SpectrumMemory(final Model model) {
         super();
@@ -66,14 +65,6 @@ public abstract class SpectrumMemory extends UncontendedMemory implements IO {
 
     protected void copyBankIntoPage(final int[] sourceRamPage, final int pageInMemory) {
         copyInto(sourceRamPage, pageInMemory * PAGE_SIZE);
-    }
-
-    public boolean screenChanged() {
-        return screenChanged;
-    }
-
-    public void markScreenDrawn() {
-        screenChanged = false;
     }
 
     public boolean contendedAddress(final int addr) {

@@ -37,7 +37,6 @@ public class Memory128K extends SpectrumMemory {
 
     @Override
     public void resetDisplayMemory() {
-        screenChanged = true;
         System.arraycopy(ramBanks[activeScreenBank], 0, displayMemory, 0, 0x1b00);
     }
 

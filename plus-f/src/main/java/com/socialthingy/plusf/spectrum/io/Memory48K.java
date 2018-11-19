@@ -30,7 +30,6 @@ public class Memory48K extends SpectrumMemory {
 
     @Override
     public void resetDisplayMemory() {
-        screenChanged = true;
         System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x0000, 0x1b00);
     }
 }

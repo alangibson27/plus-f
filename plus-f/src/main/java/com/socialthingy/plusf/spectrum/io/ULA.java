@@ -114,10 +114,6 @@ public class ULA implements IO {
         return unchangedBorderCycles < 2 && borderColourChanged;
     }
 
-    public boolean flashStatusChanged() {
-        return cyclesUntilFlashChange == 16;
-    }
-
     public boolean flashActive() {
         return flashActive;
     }
