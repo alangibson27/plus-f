@@ -85,6 +85,9 @@ function buildWindows {
   ${AWS_CMD} s3 cp ${WINDOWS_DIST_DIR}/Plus-F-Install.exe s3://download.socialthingy.com/Plus-F.exe
 }
 
+if [ ! -e "build" ]; then
+  mkdir build
+fi
 ${GRADLE} writeVersionFile
 checkCommittedOnMaster
 checkVersionUpdated
