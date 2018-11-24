@@ -24,7 +24,6 @@ subprojects {
     apply plugin: 'scala'
     apply plugin: 'com.github.maiflai.scalatest'
     apply plugin: 'application'
-    apply plugin: 'javafx-gradle-plugin'
     
     sourceSets {
         test {

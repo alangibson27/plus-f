@@ -1,8 +1,9 @@
 package com.socialthingy.plusf.spectrum.input
 
 import com.socialthingy.plusf.sound.{AYChip, Beeper}
-import com.socialthingy.plusf.spectrum.{Clock, TapePlayer}
-import com.socialthingy.plusf.spectrum.io.{Keyboard, ULA}
+import com.socialthingy.plusf.spectrum.{Model, TapePlayer}
+import com.socialthingy.plusf.spectrum.io.{Keyboard, SpectrumMemory, ULA}
+import com.socialthingy.plusf.z80.Clock
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, GivenWhenThen, Matchers}
@@ -85,7 +86,7 @@ class KeyboardSpec extends FlatSpec with GivenWhenThen with TableDrivenPropertyC
 
   trait Spectrum {
     val keyboard = new Keyboard()
-    val ula = new ULA(keyboard, new TapePlayer(), mock[Beeper], new Clock, 69888)
+    val ula = new ULA(mock[SpectrumMemory], keyboard, new TapePlayer(), mock[Beeper], new Clock, Model._48K)
   }
 
   implicit class BinaryOps(i: String) {

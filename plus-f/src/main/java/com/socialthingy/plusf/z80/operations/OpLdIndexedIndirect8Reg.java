@@ -2,8 +2,7 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.*;
 
-public class OpLdIndexedIndirect8Reg implements Operation {
-
+public class OpLdIndexedIndirect8Reg extends Operation {
     private final Processor processor;
     private final Memory memory;
     private final IndexRegister indexRegister;
@@ -17,9 +16,18 @@ public class OpLdIndexedIndirect8Reg implements Operation {
     }
 
     @Override
-    public int execute() {
-        memory.set( indexRegister.withOffset(processor.fetchNextByte()), source.get());
-        return 19;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int addr = indexRegister.withOffset(processor.fetchNextByte());
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(addr, 3);
+        memory.set(addr, source.get());
     }
 
     @Override

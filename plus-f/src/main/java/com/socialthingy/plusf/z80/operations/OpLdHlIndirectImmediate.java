@@ -1,12 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLdHlIndirectImmediate implements Operation {
-
+public class OpLdHlIndirectImmediate extends Operation {
     private final Processor processor;
     private final Register destReference;
     private final Memory memory;
@@ -18,9 +14,12 @@ public class OpLdHlIndirectImmediate implements Operation {
     }
 
     @Override
-    public int execute() {
-        memory.set( destReference.get(), processor.fetchNextByte());
-        return 10;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int addr = destReference.get();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        contentionModel.applyContention(addr, 3);
+        memory.set(addr, processor.fetchNextByte());
     }
 
     @Override

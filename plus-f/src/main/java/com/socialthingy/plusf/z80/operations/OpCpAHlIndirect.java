@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpCpAHlIndirect extends ArithmeticOperation {
-
     private final Memory memory;
     private final Register hlReg;
 
@@ -16,9 +13,11 @@ public class OpCpAHlIndirect extends ArithmeticOperation {
     }
 
     @Override
-    public int execute() {
-        sub(memory.get(hlReg.get()), false);
-        return 7;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int address = hlReg.get();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(address, 3);
+        sub(memory.get(address), false);
     }
 
     @Override

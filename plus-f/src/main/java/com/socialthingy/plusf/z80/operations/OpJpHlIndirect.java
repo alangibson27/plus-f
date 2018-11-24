@@ -1,10 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpJpHlIndirect implements Operation {
+public class OpJpHlIndirect extends Operation {
 
     private final Register hlReg;
     private final Register pcReg;
@@ -15,9 +13,9 @@ public class OpJpHlIndirect implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         pcReg.set(hlReg.get());
-        return 4;
     }
 
     @Override

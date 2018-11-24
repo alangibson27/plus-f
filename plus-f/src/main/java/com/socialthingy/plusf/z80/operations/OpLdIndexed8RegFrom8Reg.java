@@ -1,10 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.ByteRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLdIndexed8RegFrom8Reg implements Operation {
+public class OpLdIndexed8RegFrom8Reg extends Operation {
     private final ByteRegister dest;
     private final ByteRegister source;
 
@@ -14,9 +12,10 @@ public class OpLdIndexed8RegFrom8Reg implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
         dest.set(source.get());
-        return 8;
     }
 
     @Override

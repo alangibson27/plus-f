@@ -1,8 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.IndexRegister;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
+import com.socialthingy.plusf.z80.*;
 
 public class OpDecIndexedIndirect extends DecOperation {
 
@@ -18,11 +16,21 @@ public class OpDecIndexedIndirect extends DecOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int address = indexRegister.withOffset(processor.fetchNextByte());
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(initialPcValue + 2, 1);
+        contentionModel.applyContention(address, 3);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 3);
         final int result = decrement(memory.get(address));
         memory.set( address, result);
-        return 23;
     }
 
     @Override

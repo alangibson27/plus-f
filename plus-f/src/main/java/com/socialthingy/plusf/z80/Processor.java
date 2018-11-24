@@ -3,16 +3,13 @@ package com.socialthingy.plusf.z80;
 import com.socialthingy.plusf.util.Word;
 import com.socialthingy.plusf.z80.operations.*;
 
-import java.io.PrintStream;
 import java.util.*;
 
-import static java.lang.Boolean.valueOf;
-
 public class Processor {
-    private static final boolean DEBUG_ENABLED = valueOf(System.getProperty("debugger", "false"));
-
     private final Map<String, Register> registers = new HashMap<>();
     private final Memory memory;
+    private final ContentionModel contentionModel;
+    private final Clock clock;
     private final Operation[] operations;
     private final Operation[] edOperations;
     private final Operation[] cbOperations;
@@ -21,7 +18,7 @@ public class Processor {
     private final Operation[] fdOperations;
     private final Operation[] fdCbOperations;
 
-    private final Nop nop = new Nop();
+    private final Nop nop;
     private final RRegister rReg = new RRegister();
     private final ByteRegister iReg = new ByteRegister("i");
     private final WordRegister pcReg = new WordRegister("pc");
@@ -35,25 +32,22 @@ public class Processor {
     private boolean iffs[] = new boolean[2];
     private int interruptMode = 1;
     private boolean interruptRequested = false;
-    private int lastTime;
-    private Operation lastOp;
-    private int lastPc;
+    private boolean fetchedFromInterrupt;
 
-    private int cyclesUntilBreak = -1;
-    private Set<Integer> breakpoints = new HashSet<>();
-    private Set<Range> rangeBreakpoints = new HashSet<>();
-
-    public Processor(final Memory memory, final IO io) {
+    public Processor(final Memory memory, final ContentionModel contentionModel, final IO io, final Clock clock) {
+        this.clock = clock;
         this.memory = memory;
+        this.contentionModel = contentionModel;
+        this.nop = new Nop(clock);
 
         prepareRegisters();
-        operations = OperationTable.build(this, memory, io);
-        edOperations = OperationTable.buildEdGroup(this, memory, io);
-        cbOperations = OperationTable.buildCbGroup(this, memory);
-        ddOperations = OperationTable.buildIndexedGroup(this, memory, (IndexRegister) registers.get("ix"));
-        fdOperations = OperationTable.buildIndexedGroup(this, memory, (IndexRegister) registers.get("iy"));
-        ddCbOperations = OperationTable.buildIndexedBitwiseGroup(this, memory, (IndexRegister) registers.get("ix"));
-        fdCbOperations = OperationTable.buildIndexedBitwiseGroup(this, memory, (IndexRegister) registers.get("iy"));
+        operations = OperationTable.build(this, clock, memory, io);
+        edOperations = OperationTable.buildEdGroup(this, clock, memory, io);
+        cbOperations = OperationTable.buildCbGroup(this, clock, memory);
+        ddOperations = OperationTable.buildIndexedGroup(this, clock, memory, (IndexRegister) registers.get("ix"));
+        fdOperations = OperationTable.buildIndexedGroup(this, clock, memory, (IndexRegister) registers.get("iy"));
+        ddCbOperations = OperationTable.buildIndexedBitwiseGroup(this, clock, memory, (IndexRegister) registers.get("ix"));
+        fdCbOperations = OperationTable.buildIndexedBitwiseGroup(this, clock, memory, (IndexRegister) registers.get("iy"));
 
         this.im1ResponseOp = new OpRst(this, 0x0038);
         this.nmiResponseOp = new OpRst(this, 0x0066);
@@ -143,43 +137,17 @@ public class Processor {
         return this.fReg;
     }
 
-    public int lastTime() {
-        return lastTime;
-    }
-
     public Operation execute() throws ExecutionException {
         final boolean enableIffAfterExecution = enableIff;
         final int pc = pcReg.get();
         final Operation op = fetch();
         if (op == null) {
-            throw new IllegalStateException(String.format("Unimplemented operation at %d", pc));
+            throw new IllegalStateException(String.format("Unimplemented operation at %d: %02X %02X %02X %02X %02X", pc, memory.get(pc), memory.get((pc + 1) & 0xffff), memory.get((pc + 2) & 0xffff), memory.get((pc + 3) & 0xffff), memory.get((pc + 4) & 0xffff)));
         }
 
-        if (DEBUG_ENABLED) {
-            if (breakpoints.contains(pc)) {
-                cyclesUntilBreak = 0;
-            }
-
-            if (!rangeBreakpoints.isEmpty() && cyclesUntilBreak != 0) {
-                for (Range range : rangeBreakpoints) {
-                    if (!range.contains(lastPc) && range.contains(pc)) {
-                        cyclesUntilBreak = 0;
-                        break;
-                    }
-                }
-            }
-
-            if (cyclesUntilBreak == 0) {
-                debugConsole(pc, op);
-            } else if (cyclesUntilBreak > 0) {
-                cyclesUntilBreak--;
-            }
-        }
-
-        this.lastOp = op;
-        this.lastPc = pc;
         try {
-            this.lastTime = op.execute();
+            final int irValue = iReg.get() << 8 | (rReg.get() & 0xfe);
+            op.execute(contentionModel, pc, irValue);
 
             if (enableIffAfterExecution) {
                 enableIff = false;
@@ -192,125 +160,10 @@ public class Processor {
         }
     }
 
-    private void debugConsole(final int pc, final Operation currentOp) {
-        // start at 0xeac0
-        System.out.printf("Stopped at %04x\n", pc);
-        final Scanner in = new Scanner(System.in);
-        while (true) {
-            System.out.printf("[%04x] %s\n", pc, lastOp != null ? currentOp.toString() : "");
-            System.out.print("> ");
-            final String command = in.next();
-            if ("run".equals(command)) {
-                cyclesUntilBreak = -1;
-                break;
-            }
-
-            if (command.startsWith("n")) {
-                if (in.hasNextInt()) {
-                    cyclesUntilBreak = in.nextInt();
-                }
-                break;
-            }
-
-            if ("set".equals(command)) {
-                final String register = in.next();
-                final String value = in.next();
-
-                register(register).set(Integer.decode(value));
-            }
-
-            if ("last".equals(command)) {
-                System.out.printf("Last operation: [%04x] %s\n", lastPc, lastOp.toString());
-            }
-
-            if ("skip".equals(command)) {
-                cyclesUntilBreak = 1;
-                break;
-            }
-
-            if ("calcstack".equals(command)) {
-                printCalcStack();
-            }
-
-            if ("break".equals(command)) {
-                breakpoints.add(Integer.decode(in.next()));
-            }
-
-            if ("rangebreak".equals(command)) {
-                rangeBreakpoints.add(new Range(Integer.decode(in.next()), Integer.decode(in.next())));
-            }
-
-            if ("clearbreak".equals(command)) {
-                breakpoints.clear();
-                rangeBreakpoints.clear();
-            }
-
-            if ("memory".equals(command)) {
-                final int start = Integer.decode(in.next());
-                final int end = Integer.decode(in.next());
-
-                for (int i = start; i < end; i += 8) {
-                    System.out.printf(
-                        "%04x: %02x %02x %02x %02x %02x %02x %02x %02x\n",
-                        i,
-                        memory.get(i),
-                        memory.get(i + 1),
-                        memory.get(i + 2),
-                        memory.get(i + 3),
-                        memory.get(i + 4),
-                        memory.get(i + 5),
-                        memory.get(i + 6),
-                        memory.get(i + 7)
-                    );
-                }
-            }
-
-            if ("print".equals(command)) {
-                final String reg = in.next();
-                if (register(reg) != null) {
-                    System.out.printf("%04x\n", register(reg).get());
-                } else if ("iff".equals(reg)) {
-                    System.out.printf("iff1: %d\n", iffs[0] ? 0 : 1);
-                    System.out.printf("iff2: %d\n", iffs[1] ? 0 : 1);
-                }
-            }
-
-            if ("memsearch".equals(command)) {
-                final int value = Integer.decode(in.next()) & 0xffff;
-                final int v1 = value >> 8;
-                final int v2 = value & 0xff;
-
-                final List<Integer> results = new ArrayList<>();
-                for (int i = 0; i < 0xffff; i++) {
-                    if (memory.get(i) == v1 && memory.get(i + 1) == v2) {
-                        results.add(i);
-                    }
-                }
-                results.forEach(addr -> System.out.printf("%04x", addr));
-            }
-        }
-    }
-
-    private void printCalcStack() {
-        final int stkBot = Word.from(memory.get(23651), memory.get(23652));
-        final int stkEnd = Word.from(memory.get(23653), memory.get(23654));
-
-        System.out.println("Calculator stack (from bottom):");
-        for (int i = stkBot; i < stkEnd; i += 5) {
-            System.out.printf(
-                "[%04x] %02x %02x %02x %02x %02x\n",
-                i,
-                memory.get(i),
-                memory.get(i + 1),
-                memory.get(i + 2),
-                memory.get(i + 3),
-                memory.get(i + 4)
-            );
-        }
-    }
-
     private Operation fetch() {
         if (iffs[0] && interruptRequested) {
+            fetchedFromInterrupt = true;
+            clock.tick(5);
             rReg.increment(1);
             if (halting) {
                 pcReg.getAndInc();
@@ -319,14 +172,21 @@ public class Processor {
             setIffState(false);
 
             if (interruptMode == 1) {
+                clock.tick(2);
                 return im1ResponseOp;
             } else {
+                clock.tick(7);
                 final int jumpBase = Word.from(0xff, iReg.get());
                 final int jumpLow = memory.get(jumpBase);
                 final int jumpHigh = memory.get(jumpBase + 1);
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));
             }
+        } else if (halting) {
+            fetchedFromInterrupt = false;
+            clock.tick(4);
+            return nop;
         } else {
+            fetchedFromInterrupt = false;
             return fetchFromMemory(pcReg.get());
         }
     }
@@ -430,7 +290,7 @@ public class Processor {
     public void nmi() {
         halting = false;
         iffs[0] = false;
-        nmiResponseOp.execute();
+        nmiResponseOp.execute(contentionModel, 0, 0);
     }
 
     public void enableInterrupts() {
@@ -452,35 +312,6 @@ public class Processor {
         pcReg.decAndGet();
     }
 
-    public void dump(final PrintStream out) {
-        if (lastOp != null) {
-            out.println("Last operation: " + this.lastOp.toString());
-        }
-        out.println(String.format("af: %04x bc: %04x de: %04x hl: %04x",
-                register("af").get(),
-                register("bc").get(),
-                register("de").get(),
-                register("hl").get()));
-        out.println(String.format("af':%04x bc':%04x de':%04x hl':%04x",
-                register("af'").get(),
-                register("bc'").get(),
-                register("de'").get(),
-                register("hl'").get()));
-        out.println(String.format("ix: %04x iy: %04x pc: %04x sp: %04x ir:%02x%02x",
-                register("ix").get(),
-                register("iy").get(),
-                register("pc").get(),
-                register("sp").get(),
-                register("i").get(),
-                register("r").get()));
-        out.println(String.format("iff1: %s  iff2: %s  im: %d",
-                getIff(0) ? "True" : "False",
-                getIff(1) ? "True" : "False",
-                getInterruptMode()));
-        out.println();
-        out.flush();
-    }
-
     public void reset() {
         for (Register reg: registers.values()) {
             reg.set(0);
@@ -492,27 +323,9 @@ public class Processor {
         iffs[1] = false;
         interruptMode = 1;
         interruptRequested = false;
-        lastTime = 0;
-        lastOp = null;
-        lastPc = 0;
-        cyclesUntilBreak = -1;
     }
 
-    public void startDebugging() {
-        cyclesUntilBreak = 0;
-    }
-
-    private class Range {
-        private final int start;
-        private final int end;
-
-        Range(final int start, final int end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        boolean contains(final int address) {
-            return address >= start && address <= end;
-        }
+    public boolean fetchedFromInterrupt() {
+        return fetchedFromInterrupt;
     }
 }

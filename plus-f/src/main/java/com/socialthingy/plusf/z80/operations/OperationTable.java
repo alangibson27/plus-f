@@ -7,11 +7,12 @@ public class OperationTable {
     
     public static Operation[] build(
         final Processor processor,
+        final Clock clock,
         final Memory memory,
         final IO io
     ) {
         final Operation[] operations = new Operation[0x100];
-        operations[0x00] = new Nop();
+        operations[0x00] = new Nop(clock);
 
         operations[0x01] = new OpLd16RegImmediate(processor, processor.register("bc"));
         operations[0x02] = new OpLd16RegIndirectFrom8Reg(memory, processor.register("bc"), processor.register("a"));
@@ -285,6 +286,7 @@ public class OperationTable {
 
     public static Operation[] buildEdGroup(
         final Processor processor,
+        final Clock clock,
         final Memory memory,
         final IO io
     ) {
@@ -386,6 +388,7 @@ public class OperationTable {
 
     public static Operation[] buildCbGroup(
         final Processor processor,
+        final Clock clock,
         final Memory memory
     ) {
         final Operation[] operations = new Operation[0x100];
@@ -667,6 +670,7 @@ public class OperationTable {
 
     public static Operation[] buildIndexedGroup(
         final Processor processor,
+        final Clock clock,
         final Memory memory,
         final IndexRegister indexRegister
     ) {
@@ -774,6 +778,7 @@ public class OperationTable {
 
     public static Operation[] buildIndexedBitwiseGroup(
         final Processor processor,
+        final Clock clock,
         final Memory memory,
         final IndexRegister indexRegister
     ) {

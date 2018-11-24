@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpRst extends CallOperation {
@@ -11,9 +12,13 @@ public class OpRst extends CallOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(irValue, 1);
+        final int sp = processor.register("sp").get();
+        contentionModel.applyContention(sp, 3);
+        contentionModel.applyContention(sp + 1, 3);
         call(address);
-        return 11;
     }
 
     @Override

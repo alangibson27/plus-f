@@ -1,8 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.IndexRegister;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
+import com.socialthingy.plusf.z80.*;
 
 public class OpResIndexedIndirect extends BitModificationOperation {
 
@@ -18,11 +16,20 @@ public class OpResIndexedIndirect extends BitModificationOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int offset = processor.fetchRelative(-2);
         final int address = indexRegister.withOffset(offset);
-        memory.set( address, reset(memory.get(address)));
-        return 23;
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 3, 3);
+        contentionModel.applyContention(initialPcValue + 3, 1);
+        contentionModel.applyContention(initialPcValue + 3, 1);
+        contentionModel.applyContention(address, 3);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 3);
+        final int result = reset(memory.get(address));
+        memory.set(address, result);
     }
 
     @Override

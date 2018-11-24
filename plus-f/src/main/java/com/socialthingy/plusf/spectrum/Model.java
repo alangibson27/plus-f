@@ -8,7 +8,6 @@ public enum Model {
     PLUS_2A("+2A", 70908, 228, 63, 3546900, 8, 5, 2, 0, "/plus3-0.rom", "/plus3-1.rom", "/plus3-2.rom", "/plus3-3.rom");
 
     public final String displayName;
-    public final double tstateLengthMs;
     public final int tstatesPerRefresh;
     public final int ramPageCount;
     public final int screenPage;
@@ -36,7 +35,6 @@ public enum Model {
         this.ticksPerScanline = ticksPerScanline;
         this.scanlinesBeforeDisplay = scanlinesBeforeDisplay;
         this.clockFrequencyHz = clockFrequencyHz;
-        this.tstateLengthMs = 0.02 / tstatesPerRefresh;
         this.ramPageCount = ramPageCount;
         this.screenPage = screenPage;
         this.midPage = midPage;
@@ -50,7 +48,6 @@ public enum Model {
         this.ticksPerScanline = ticksPerScanline;
         this.scanlinesBeforeDisplay = scanlinesBeforeDisplay;
         this.clockFrequencyHz = clockFrequencyHz;
-        this.tstateLengthMs = 0.02 / tstatesPerRefresh;
         this.romFileNames = new String[] {romFileName};
         this.ramPageCount = 0;
         this.screenPage = 0;

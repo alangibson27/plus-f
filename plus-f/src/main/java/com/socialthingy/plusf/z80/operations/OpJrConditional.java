@@ -1,13 +1,9 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
+import com.socialthingy.plusf.z80.*;
 import com.socialthingy.plusf.z80.FlagsRegister.Flag;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
 
-public class OpJrConditional implements Operation {
-
+public class OpJrConditional extends Operation {
     private final Processor processor;
     private final Register pcReg;
     private final FlagsRegister flagsRegister;
@@ -30,13 +26,17 @@ public class OpJrConditional implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
         final byte offset = (byte) processor.fetchNextByte();
         if (flagsRegister.get(flag) == whenSet) {
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
+            contentionModel.applyContention(initialPcValue + 1, 1);
             pcReg.set(pcReg.get() + offset);
-            return 12;
-        } else {
-            return 7;
         }
     }
 

@@ -5,8 +5,14 @@ public class PixelMapper {
     public static final int SCREEN_HEIGHT = 192;
     protected final SpectrumColour[] colours = new SpectrumColour[0x100];
     protected final int[] displayBytes;
+    private final int scanlinesBeforeDisplay;
 
     public PixelMapper() {
+        this(64);
+    }
+
+    public PixelMapper(final int scanlinesBeforeDisplay) {
+        this.scanlinesBeforeDisplay = scanlinesBeforeDisplay;
         this.displayBytes = new int[(SCREEN_WIDTH + 2) * (SCREEN_HEIGHT + 2)];
 
         for (int flash = 0; flash <= 1; flash++) {
@@ -57,5 +63,28 @@ public class PixelMapper {
         }
 
         return displayBytes;
+    }
+
+    public void renderScanline(
+            final int[] displayMemory,
+            final int[] pixels,
+            final int scanline,
+            final boolean flashActive
+    ) {
+        final int y = scanline - scanlinesBeforeDisplay;
+        int targetIdx = (SCREEN_WIDTH + 2) * (y + 1) + 1;
+        int pixelSource = lineAddress(y);
+        int attrSource = colourLineAddress(y);
+
+        for (int attr = 0; attr < 32; attr++) {
+            final SpectrumColour colour = colours[displayMemory[attrSource++]];
+            final int ink = flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk();
+            final int paper = flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper();
+
+            final int pixelGroup = displayMemory[pixelSource++];
+            for (int pixel = 128; pixel > 0; pixel >>= 1) {
+                pixels[targetIdx++] = (pixelGroup & pixel) > 0 ? ink : paper;
+            }
+        }
     }
 }
