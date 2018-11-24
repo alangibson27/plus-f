@@ -1,14 +1,13 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 
 public class MemoryPlus2A extends Memory128K {
     private boolean specialPagingMode = false;
     private int[] activeSpecialBanks = new int[4];
 
-    MemoryPlus2A(final ULA ula, final Clock clock, final boolean addBankMarkerValues) {
-        this(ula, clock);
+    MemoryPlus2A(final boolean addBankMarkerValues) {
+        this();
         if (addBankMarkerValues) {
             for (int i = 0; i < 8; i++) {
                 ramBanks[i][0] = i;
@@ -16,8 +15,8 @@ public class MemoryPlus2A extends Memory128K {
         }
     }
 
-    public MemoryPlus2A(final ULA ula, final Clock clock) {
-        super(ula, clock, Model.PLUS_2A);
+    public MemoryPlus2A() {
+        super(Model.PLUS_2A);
     }
 
     @Override
@@ -89,10 +88,6 @@ public class MemoryPlus2A extends Memory128K {
             final int page = addr >> 14;
             final int offsetInPage = addr & 0x3fff;
 
-            if ((activeSpecialBanks[page] & 1) == 1) {
-                ula.handleContention();
-            }
-
             return ramBanks[activeSpecialBanks[page]][offsetInPage];
         } else {
             return super.get(addr);
@@ -105,15 +100,36 @@ public class MemoryPlus2A extends Memory128K {
             addr &= 0xffff;
             final int page = addr >> 14;
             final int offsetInPage = addr & 0x3fff;
-            handleMemoryContention(page);
 
             if (activeScreenBank == activeSpecialBanks[page] && offsetInPage < 0x1b00) {
-                writeToDisplayIfBeforeScanlineReached(addr, value);
+                writeToDisplayMemory(addr, value);
             }
 
             ramBanks[activeSpecialBanks[page]][offsetInPage] = value;
         } else {
             super.set(addr, value);
+        }
+    }
+
+    @Override
+    public boolean contendedAddress(int addr) {
+        final int page = addr >> 14;
+        if (specialPagingMode) {
+            return activeSpecialBanks[page] >= 4;
+        } else {
+            switch (page) {
+                case 0:
+                    return activeRomBank >= 4;
+
+                case 1:
+                    return activeScreenBank >= 4;
+
+                case 2:
+                    return false;
+
+                default:
+                    return activeHighBank >= 4;
+            }
         }
     }
 

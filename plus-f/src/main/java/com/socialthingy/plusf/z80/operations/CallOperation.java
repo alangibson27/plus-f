@@ -4,7 +4,7 @@ import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 import com.socialthingy.plusf.z80.WordRegister;
 
-abstract class CallOperation implements Operation {
+abstract class CallOperation extends Operation {
     protected final Processor processor;
     private final WordRegister pcReg;
 

@@ -1,10 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpExx implements Operation {
+public class OpExx extends Operation {
 
     private final Register bcReg;
     private final Register bcPrimeReg;
@@ -23,11 +21,11 @@ public class OpExx implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         exchange(bcReg, bcPrimeReg);
         exchange(deReg, dePrimeReg);
         exchange(hlReg, hlPrimeReg);
-        return 4;
     }
 
     private void exchange(final Register reg1, final Register reg2) {

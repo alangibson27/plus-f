@@ -7,7 +7,7 @@ import com.socialthingy.plusf.z80.Processor;
 
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
 
-abstract class DecOperation implements Operation {
+abstract class DecOperation extends Operation {
 
     private final FlagsRegister flagsRegister;
 

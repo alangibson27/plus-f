@@ -2,10 +2,11 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.*;
 
-abstract class BlockOutOperation implements Operation {
+abstract class BlockOutOperation extends Operation {
     protected final Processor processor;
     protected final Memory memory;
     protected final IO io;
+    protected final Register bcReg;
     protected final Register bReg;
     protected final Register cReg;
     protected final Register hlReg;
@@ -21,22 +22,23 @@ abstract class BlockOutOperation implements Operation {
         this.hlReg = processor.register("hl");
         this.bReg = processor.register("b");
         this.pcReg = processor.register("pc");
+        this.bcReg = processor.register("bc");
     }
 
-    protected void decrementBThenWrite(final int hlDirection) {
-        final int bVal = (bReg.get() - 1) & 0xff;
-        bReg.set(bVal);
+    protected void decrementBThenWrite(final int lowByte, final int highByte, final int hlDirection) {
+        bReg.set(highByte - 1);
         final int hlValue = hlReg.get();
-        io.write(cReg.get(), bVal, memory.get(hlValue));
+        final int toWrite = memory.get(hlValue);
+        io.write(lowByte, bReg.get(), toWrite);
         hlReg.set((hlValue + hlDirection) & 0xffff);
     }
 
-    protected int adjustPC() {
+    protected boolean continueLoop() {
         if (bReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 21;
-        } else {
-            return 16;
+            return true;
         }
+
+        return false;
     }
 }

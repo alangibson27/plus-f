@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Memory;
 import com.socialthingy.plusf.z80.Processor;
 
@@ -9,11 +10,23 @@ public class OpCpdr extends BlockOperation {
     }
 
     @Override
-    public int execute() {
-        if (blockCompare() == 0) {
-            return 16;
-        } else {
-            return adjustPC();
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        final int hlAddr = hlReg.get();
+        contentionModel.applyContention(hlAddr, 3);
+        contentionModel.applyContention(hlAddr, 1);
+        contentionModel.applyContention(hlAddr, 1);
+        contentionModel.applyContention(hlAddr, 1);
+        contentionModel.applyContention(hlAddr, 1);
+        contentionModel.applyContention(hlAddr, 1);
+        if (blockCompare() > 0) {
+            contentionModel.applyContention(hlAddr, 1);
+            contentionModel.applyContention(hlAddr, 1);
+            contentionModel.applyContention(hlAddr, 1);
+            contentionModel.applyContention(hlAddr, 1);
+            contentionModel.applyContention(hlAddr, 1);
+            super.continueLoop();
         }
     }
 

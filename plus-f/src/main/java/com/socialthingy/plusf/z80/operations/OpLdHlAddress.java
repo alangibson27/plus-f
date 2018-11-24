@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.BytePairRegister;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLdHlAddress implements Operation {
+public class OpLdHlAddress extends Operation {
     private final Processor processor;
     private final Memory memory;
     private final BytePairRegister hlReg;
@@ -17,11 +14,16 @@ public class OpLdHlAddress implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int source = processor.fetchNextWord();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(source, 3);
+        contentionModel.applyContention(source + 1, 3);
+
         hlReg.setLow(memory.get(source));
         hlReg.setHigh(memory.get((source + 1) & 0xffff));
-        return 16;
     }
 
     @Override

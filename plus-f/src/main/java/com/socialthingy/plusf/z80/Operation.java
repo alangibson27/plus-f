@@ -1,5 +1,5 @@
 package com.socialthingy.plusf.z80;
 
-public interface Operation {
-    int execute();
+public abstract class Operation {
+    public abstract void execute(ContentionModel contentionModel, int initialPcValue, int irValue);
 }

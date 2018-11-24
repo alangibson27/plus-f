@@ -3,19 +3,18 @@ package com.socialthingy.plusf.snapshot
 import java.io.IOException
 
 import com.socialthingy.plusf.ProcessorSpec
-import com.socialthingy.plusf.spectrum.Clock
 import com.socialthingy.plusf.spectrum.io.ULA
-import com.socialthingy.plusf.z80.{IO, Memory, Processor}
+import com.socialthingy.plusf.z80._
 import org.mockito.Mockito.verify
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
 
-class SnapshotLoaderSpec extends ProcessorSpec with Matchers with MockitoSugar {
+class SnapshotSpec extends ProcessorSpec with Matchers with MockitoSugar {
 
   trait Spectrum {
     val ula = mock[ULA]
     val clock = new Clock()
-    val processor = new Processor(mock[Memory], mock[IO])
+    val processor = new Processor(mock[Memory], mock[ContentionModel], mock[IO], clock)
 
     def registerValue(name: String) = processor.register(name).get()
   }
@@ -25,7 +24,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers with MockitoSugar {
     val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80"))
 
     // when
-    val memory = snapshot.getMemory(ula, clock)
+    val memory = snapshot.getMemory()
     snapshot.setBorderColour(ula)
     snapshot.setProcessorState(processor)
 
@@ -73,7 +72,7 @@ class SnapshotLoaderSpec extends ProcessorSpec with Matchers with MockitoSugar {
     val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80-v3"))
 
     // when
-    val memory = snapshot.getMemory(ula, clock)
+    val memory = snapshot.getMemory()
     snapshot.setBorderColour(ula)
     snapshot.setProcessorState(processor)
 

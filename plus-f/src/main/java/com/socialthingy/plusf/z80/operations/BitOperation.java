@@ -4,7 +4,7 @@ import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 
-abstract class BitOperation implements Operation {
+abstract class BitOperation extends Operation {
     protected final FlagsRegister flagsRegister;
     protected final int bitPosition;
 

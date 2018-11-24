@@ -1,14 +1,11 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
 
-public class OpNeg implements Operation {
+public class OpNeg extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register accumulator;
 
@@ -18,7 +15,9 @@ public class OpNeg implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
         final int result = Bitwise.sub(0, accumulator.get());
         final int answer = result & 0xff;
         accumulator.set(answer);
@@ -29,7 +28,6 @@ public class OpNeg implements Operation {
         flagsRegister.set(FlagsRegister.Flag.N, true);
         flagsRegister.set(FlagsRegister.Flag.C, answer != 0);
         flagsRegister.setUndocumentedFlagsFromValue(answer);
-        return 8;
     }
 
     @Override

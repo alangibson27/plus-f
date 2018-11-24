@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '4.0.0'
+    id 'com.github.johnrengelman.shadow' version '4.0.2'
     id "org.jetbrains.kotlin.jvm" version "1.2.41"
 }
 
@@ -41,7 +41,7 @@ test {
     }
 }
 
-version = '1.6.5'
+version = '1.6.6-b'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
 
 shadowJar {
@@ -59,57 +59,8 @@ jar {
     }
 }
 
-task writeVersionFile {
-    def props = new Properties()
-    props.setProperty('version', project.version)
-    def propsWriter = new FileWriter('src/main/resources/version.properties')
-    try {
-        props.store(propsWriter, 'plus-f version')
-        propsWriter.flush()
-    } finally {
-        propsWriter.close()
+task printVersion {
+    doLast {
+        println project.version
     }
-
-    def bareWriter = new FileWriter('build/version')
-    try {
-        bareWriter.append(props.getProperty('version'))
-        bareWriter.append('\n')
-        bareWriter.flush()
-    } finally {
-        bareWriter.close()
-    }
-}
-
-task copyDependencies(type: Copy) {
-    destinationDir libsDir
-    from configurations.runtime
-}
-
-void createJavapackagerTask(String platform, boolean embedJre) {
-    task "${platform}Package" (type: Exec, dependsOn: [check, assemble, shadowJar]) {
-        def paramEmbeddedJRE = embedJre ? [] : ['-Bruntime=']
-
-        workingDir project.projectDir
-        commandLine = [
-                'javapackager',
-                '-deploy',
-                '-v',
-                '-nosign',
-                '-native', platform,
-                '-outdir', "${buildDir}/distributions",
-                '-outfile', project.name,
-                '-name', 'Plus-F',
-                '-description', 'ZX Spectrum Emulator with Network Play Capability',
-                '-appclass', mainClassName,
-                '-srcdir', libsDir,
-                '-srcfiles', shadowJar.archiveName,
-                "-BappVersion=${project.version}",
-                '-BlicenseType=MIT',
-                "-BmainJar=${shadowJar.archiveName}"
-        ] + paramEmbeddedJRE
-    }
-}
-
-for (String platform: ["deb", "rpm"]) {
-    createJavapackagerTask(platform, true)
 }

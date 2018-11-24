@@ -7,8 +7,20 @@ WINDOWS_JRE_DIR=${WINDOWS_JRE_DIR:-/opt/windows/jre-10.0.2}
 WINDOWS_DIST_DIR=${SCRIPT_DIR}/build/distributions/windows
 AWS_CMD=${AWS_CMD:-aws}
 GRADLE=${SCRIPT_DIR}/../gradlew
+JAVA_HOME=/opt/java/jdk-1.8.0_191
+VERSION=$(${GRADLE} printVersion --quiet)
 
 export SCRIPT_DIR
+export JAVA_HOME
+export VERSION
+
+function writeVersionFile {
+  if [[ ! -e "${SCRIPT_DIR}/src/main/resources" ]]; then
+    mkdir -p src/main/resources
+  fi
+
+  echo "version=${VERSION}" > ${SCRIPT_DIR}/src/main/resources/version.properties
+}
 
 function checkCommittedOnMaster {
   # Check we are on master
@@ -23,7 +35,7 @@ function checkCommittedOnMaster {
   git diff-index --quiet HEAD -- || { echo 'uncommitted files found!'; exit 1; }
 }
 
-function buildShadowJar {
+function buildDistributions {
   # Download jsyn dependency
   wget http://www.softsynth.com/jsyn/developers/archives/jsyn-20171016.jar
   mv jsyn-20171016.jar lib/
@@ -31,11 +43,29 @@ function buildShadowJar {
   # Common JAR
   ${GRADLE} clean
   mkdir ${SCRIPT_DIR}/build
-  ${GRADLE} check shadowJar
+  ${GRADLE} check shadowJar distZip
+}
+
+function nativePackage {
+    local platform=$1
+
+    ${JAVA_HOME}/bin/javapackager \
+    -deploy \
+    -v \
+    -nosign \
+    -native ${platform} \
+    -outdir ${SCRIPT_DIR}/build/distributions \
+    -outfile Plus-F \
+    -name Plus-F \
+    -description "ZX Spectrum Emulator with Network Play Capability" \
+    -appclass com.socialthingy.plusf.spectrum.ui.PlusF \
+    -srcfiles ${SCRIPT_DIR}/build/libs/plus-f-${VERSION}-all.jar \
+    -BappVersion=${VERSION} \
+    -BlicenseType=MIT \
+    -BmainJar=plus-f-${VERSION}-all.jar
 }
 
 function checkVersionUpdated {
-  VERSION=$(cat ${SCRIPT_DIR}/build/version)
   set +e
   found=$(git tag | grep -c release-${VERSION})
   set -e
@@ -47,7 +77,6 @@ function checkVersionUpdated {
 
 function tagRelease {
   # Tag the release
-  VERSION=$(cat ${SCRIPT_DIR}/build/version)
   echo "Tagging release as version ${VERSION}"
   git tag release-${VERSION} -m "Release version $VERSION"
   git push origin release-${VERSION}
@@ -55,23 +84,19 @@ function tagRelease {
 
 function buildLinuxAndUniversal {
   # Linux and Universal builds
-  ${GRADLE} distZip debPackage rpmPackage -x check
-  for i in $(ls build/distributions/plus-f-*); do
-    if ! [[ $i =~ .+tar ]]; then
-      name=$(echo $i | sed -E "s/(.+plus-f.+)(\....)/Plus-F\2/")
-      echo "Uploading $i to S3 as $name ..."
-      ${AWS_CMD} s3 cp $i s3://download.socialthingy.com/${name}
-      echo "Done"
-    fi
+  ${GRADLE} distZip -x check
+  nativePackage deb
+  nativePackage rpm
+  for i in $(find build/distributions -name "plus-f-*[zip|deb|rpm]"); do
+    name=$(echo $i | sed -E "s/(.+plus-f.+)(\....)/Plus-F\2/")
+    echo "Uploading $i to S3 as $name ..."
+    ${AWS_CMD} s3 cp $i s3://download.socialthingy.com/${name}
+    echo "Done"
   done
 }
 
 function buildWindows {
-  VERSION=$(cat ${SCRIPT_DIR}/build/version)
-  export VERSION  
-
   # Windows build
-  ${GRADLE} distZip -x check
   mkdir -p ${WINDOWS_DIST_DIR}
 
   # Create launch4j package
@@ -81,14 +106,22 @@ function buildWindows {
 
   # Create installer
   ${SCRIPT_DIR}/package/windows/template-iss.sh > ${WINDOWS_DIST_DIR}/plus-f.iss
-  wine "C:/Program Files/Inno Setup 5/ISCC.exe" Z:${WINDOWS_DIST_DIR}/plus-f.iss
+  wine "C:/Program Files (x86)/Inno Setup 5/ISCC.exe" Z:${WINDOWS_DIST_DIR}/plus-f.iss
   ${AWS_CMD} s3 cp ${WINDOWS_DIST_DIR}/Plus-F-Install.exe s3://download.socialthingy.com/Plus-F.exe
 }
 
-${GRADLE} writeVersionFile
+if [[ ! -e "build" ]]; then
+  mkdir build
+fi
+
+if [[ ! -e "lib" ]]; then
+  mkdir lib
+fi
+
+writeVersionFile
 checkCommittedOnMaster
 checkVersionUpdated
-buildShadowJar
+buildDistributions
 tagRelease
 buildLinuxAndUniversal
 buildWindows

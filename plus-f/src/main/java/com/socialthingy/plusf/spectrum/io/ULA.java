@@ -1,13 +1,16 @@
 package com.socialthingy.plusf.spectrum.io;
 
 import com.socialthingy.plusf.sound.Beeper;
-import com.socialthingy.plusf.spectrum.Clock;
+import com.socialthingy.plusf.z80.Clock;
+import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.TapePlayer;
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.z80.IO;
 
 import static com.socialthingy.plusf.spectrum.display.DisplayComponent.BOTTOM_BORDER_HEIGHT;
 import static com.socialthingy.plusf.spectrum.display.DisplayComponent.TOP_BORDER_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_HEIGHT;
+import static com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_WIDTH;
 
 public class ULA implements IO {
     private final TapePlayer tapePlayer;
@@ -15,29 +18,43 @@ public class ULA implements IO {
     private final Clock clock;
     private final Beeper beeper;
     private final int ticksPerScanline;
-    private final int firstTickOfDisplay;
-    private final int lastTickOfDisplay;
+    private final int scanlinesBeforeDisplay;
+    private final int ticksPerCycle;
 
     private int earBit;
     private int tapeCyclesAdvanced;
     private int cyclesSinceBeeperUpdate;
     protected boolean flashActive = false;
     private int cyclesUntilFlashChange = 16;
+
     private int currentBorderColour;
     protected int[] borderColours = new int[TOP_BORDER_HEIGHT + PixelMapper.SCREEN_HEIGHT + BOTTOM_BORDER_HEIGHT];
     protected boolean borderColourChanged = true;
     private int unchangedBorderCycles = 0;
+
+    private int lastScanlineRendered;
+    private final PixelMapper pixelMapper;
+    private final int[] pixels = new int[(SCREEN_WIDTH + 2) * (SCREEN_HEIGHT + 2)];
+    private final SpectrumMemory memory;
+
     private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
 
-    public ULA(final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final int ticksPerScanline) {
+    public ULA(final SpectrumMemory memory, final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final Model model) {
+        this.memory = memory;
         this.clock = clock;
         this.keyboard = keyboard;
         this.tapePlayer = tapePlayer;
         this.beeper = beeper;
-        this.ticksPerScanline = ticksPerScanline;
-        this.firstTickOfDisplay = 64 * ticksPerScanline;
-        this.lastTickOfDisplay = (64 + 192) * ticksPerScanline;
+        this.ticksPerScanline = model.ticksPerScanline;
+        this.scanlinesBeforeDisplay = model.scanlinesBeforeDisplay;
+        this.lastScanlineRendered = scanlinesBeforeDisplay;
+        this.ticksPerCycle = model.tstatesPerRefresh;
+        this.pixelMapper = new PixelMapper(scanlinesBeforeDisplay);
+    }
+
+    public Clock getClock() {
+        return clock;
     }
 
     public boolean ulaAccessed() {
@@ -88,22 +105,13 @@ public class ULA implements IO {
             flashActive = !flashActive;
         }
         clock.reset();
+        memory.resetDisplayMemory();
         ulaAccessed = false;
-    }
-
-    public void handleContention() {
-        if (clock.getTicks() >= firstTickOfDisplay &&
-                clock.getTicks() < lastTickOfDisplay) {
-            clock.tick(2);
-        }
+        lastScanlineRendered = scanlinesBeforeDisplay - 1;
     }
 
     public boolean borderNeedsRedrawing() {
         return unchangedBorderCycles < 2 && borderColourChanged;
-    }
-
-    public boolean flashStatusChanged() {
-        return cyclesUntilFlashChange == 16;
     }
 
     public boolean flashActive() {
@@ -115,21 +123,30 @@ public class ULA implements IO {
     }
 
     public void advanceCycle(final int tstates) {
+        final int scanline = clock.getTicks() / ticksPerScanline;
+        if (scanline > 0 && scanline <= borderColours.length) {
+            borderColours[scanline - 1] = currentBorderColour;
+        }
+
+        if (scanline != lastScanlineRendered &&
+                scanline > scanlinesBeforeDisplay && scanline <= scanlinesBeforeDisplay + 192) {
+            pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, scanline - 1, flashActive);
+        }
+        lastScanlineRendered = scanline;
+
         cyclesSinceBeeperUpdate += tstates;
         if (cyclesSinceBeeperUpdate >= beeper.getUpdatePeriod()) {
             cyclesSinceBeeperUpdate = cyclesSinceBeeperUpdate - (int) beeper.getUpdatePeriod();
             beeper.update(beeperIsOn);
         }
 
-        final int scanline = clock.getTicks() / ticksPerScanline;
-        if (scanline < borderColours.length) {
-            borderColours[scanline] = currentBorderColour;
-        }
-
-        clock.tick(tstates);
         if (tapePlayer.isPlaying()) {
             tapeCyclesAdvanced += tstates;
         }
+    }
+
+    public int[] getPixels() {
+        return pixels;
     }
 
     public void reset() {
@@ -139,5 +156,10 @@ public class ULA implements IO {
         tapeCyclesAdvanced = 0;
         flashActive = false;
         cyclesUntilFlashChange = 16;
+        lastScanlineRendered = scanlinesBeforeDisplay;
+    }
+
+    public boolean moreStatesUntilRefresh() {
+        return clock.getTicks() < ticksPerCycle;
     }
 }

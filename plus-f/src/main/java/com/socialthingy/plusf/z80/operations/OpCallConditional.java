@@ -1,5 +1,7 @@
 package com.socialthingy.plusf.z80.operations;
 
+import com.socialthingy.plusf.z80.Clock;
+import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Processor;
 
@@ -23,13 +25,17 @@ public class OpCallConditional extends CallOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int address = processor.fetchNextWord();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        contentionModel.applyContention(initialPcValue + 2, 3);
         if (flagsRegister.get(flag) == callState) {
+            contentionModel.applyContention(initialPcValue + 2, 1);
+            final int sp = processor.register("sp").get();
+            contentionModel.applyContention(sp - 1, 3);
+            contentionModel.applyContention(sp - 2, 3);
             call(address);
-            return 5;
-        } else {
-            return 3;
         }
     }
 

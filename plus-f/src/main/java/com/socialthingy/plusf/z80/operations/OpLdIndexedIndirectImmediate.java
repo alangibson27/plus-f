@@ -2,7 +2,7 @@ package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.z80.*;
 
-public class OpLdIndexedIndirectImmediate implements Operation {
+public class OpLdIndexedIndirectImmediate extends Operation {
 
     private final Processor processor;
     private final Memory memory;
@@ -15,11 +15,19 @@ public class OpLdIndexedIndirectImmediate implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int offset = processor.fetchNextByte();
         final int value = processor.fetchNextByte();
-        memory.set( indexRegister.withOffset(offset), value);
-        return 19;
+        final int addr = indexRegister.withOffset(offset);
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 3, 3);
+        contentionModel.applyContention(initialPcValue + 3, 1);
+        contentionModel.applyContention(initialPcValue + 3, 1);
+        contentionModel.applyContention(addr, 3);
+
+        memory.set(addr , value);
     }
 
     @Override

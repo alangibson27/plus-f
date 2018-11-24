@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.IO;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpOutCZero implements Operation {
+public class OpOutCZero extends Operation {
     private final IO io;
     private final Register cReg;
     private final Register bReg;
@@ -17,9 +14,13 @@ public class OpOutCZero implements Operation {
     }
 
     @Override
-    public int execute() {
-        io.write(cReg.get(), bReg.get(), 0);
-        return 12;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        final int lowByte = cReg.get();
+        final int highByte = bReg.get();
+        contentionModel.applyIOContention(lowByte, highByte);
+        io.write(lowByte, highByte, 0);
     }
 
     @Override

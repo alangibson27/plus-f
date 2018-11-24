@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.BytePairRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpPush16Reg implements Operation {
+public class OpPush16Reg extends Operation {
     private final BytePairRegister register;
     private final Processor processor;
 
@@ -15,10 +12,14 @@ public class OpPush16Reg implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(irValue, 1);
+        final int sp = processor.register("sp").get();
+        contentionModel.applyContention(sp - 1, 3);
+        contentionModel.applyContention(sp - 2, 3);
         processor.pushByte(register.getHigh());
         processor.pushByte(register.getLow());
-        return 11;
     }
 
     @Override

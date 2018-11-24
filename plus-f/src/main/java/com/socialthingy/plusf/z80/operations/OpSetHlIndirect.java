@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpSetHlIndirect extends BitModificationOperation {
-
     private final Register hlReg;
     private final Memory memory;
     private final String toString;
@@ -19,10 +16,15 @@ public class OpSetHlIndirect extends BitModificationOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int address = hlReg.get();
-        memory.set( address, set(memory.get(address)));
-        return 15;
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(address, 3);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 3);
+        final int result = set(memory.get(address));
+        memory.set(address, result);
     }
 
     @Override
