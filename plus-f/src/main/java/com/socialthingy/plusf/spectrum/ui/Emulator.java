@@ -76,7 +76,7 @@ public class Emulator extends JFrame implements Runnable {
     private boolean turboLoadEnabled;
 
     public Emulator() {
-        this(new UserPreferences(), new DisplayComponent(new PixelMapper()));
+        this(new UserPreferences(), new DisplayComponent());
     }
 
     protected Emulator(final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
@@ -548,7 +548,7 @@ public class Emulator extends JFrame implements Runnable {
                 if (shouldRepaint()) {
                     soundSystem.getBeeper().play();
                     lastRepaint = System.currentTimeMillis();
-                    display.updateScreen2(computer.getScreenPixels());
+                    display.updateScreen(computer.getScreenPixels());
 
                     if (computer.borderNeedsRedrawing() || currentSpeed == EmulatorSpeed.TURBO) {
                         display.updateBorder(computer.getBorderColours());

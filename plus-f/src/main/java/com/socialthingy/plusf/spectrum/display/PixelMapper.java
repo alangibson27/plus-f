@@ -66,8 +66,9 @@ public class PixelMapper {
     }
 
     public void renderScanline(
-            final int[] displayMemory,
-            final int[] pixels,
+            final int[] sourceDisplayMemory,
+            final int[] renderedPixels,
+            final int[] renderedDisplayMemory,
             final int scanline,
             final boolean flashActive
     ) {
@@ -77,13 +78,20 @@ public class PixelMapper {
         int attrSource = colourLineAddress(y);
 
         for (int attr = 0; attr < 32; attr++) {
-            final SpectrumColour colour = colours[displayMemory[attrSource++]];
+            final int srcColour = sourceDisplayMemory[attrSource];
+            renderedDisplayMemory[attrSource] = srcColour;
+            final SpectrumColour colour = colours[srcColour];
+            attrSource++;
+
             final int ink = flashActive && colour.isFlash() ? colour.getPaper() : colour.getInk();
             final int paper = flashActive && colour.isFlash() ? colour.getInk() : colour.getPaper();
 
-            final int pixelGroup = displayMemory[pixelSource++];
+            final int pixelGroup = sourceDisplayMemory[pixelSource];
+            renderedDisplayMemory[pixelSource] = pixelGroup;
+            pixelSource++;
+
             for (int pixel = 128; pixel > 0; pixel >>= 1) {
-                pixels[targetIdx++] = (pixelGroup & pixel) > 0 ? ink : paper;
+                renderedPixels[targetIdx++] = (pixelGroup & pixel) > 0 ? ink : paper;
             }
         }
     }

@@ -39,11 +39,9 @@ public class DisplayComponent extends JComponent {
     private Object renderingHint = VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
     private final BufferedImage borderImage;
     private final BufferedImage image;
-    private final PixelMapper pixelMapper;
     private boolean extendBorder;
 
-    public DisplayComponent(final PixelMapper pixelMapper) {
-        this.pixelMapper = pixelMapper;
+    public DisplayComponent() {
         this.image = new BufferedImage(SCALED_WIDTH, SCALED_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         this.imageDataBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         this.borderImage = new BufferedImage(1, (BORDER * 2) + SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
@@ -86,11 +84,7 @@ public class DisplayComponent extends JComponent {
         }
     }
 
-    public void updateScreen(final int[] displayMemory, final boolean flashActive) {
-        Scaler2X.scale(pixelMapper.getPixels(displayMemory, flashActive), imageDataBuffer);
-    }
-
-    public void updateScreen2(final int[] pixels) {
+    public void updateScreen(final int[] pixels) {
         Scaler2X.scale(pixels, imageDataBuffer);
     }
 

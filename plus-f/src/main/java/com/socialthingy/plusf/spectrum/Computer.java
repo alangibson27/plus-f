@@ -107,7 +107,7 @@ public class Computer {
     }
 
     public int[] getDisplayMemory() {
-        return memory.getDisplayMemory();
+        return ula.getRenderedDisplayMemory();
     }
 
     public boolean flashActive() {

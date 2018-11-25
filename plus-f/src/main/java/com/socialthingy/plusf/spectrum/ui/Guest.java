@@ -11,10 +11,7 @@ import com.socialthingy.plusf.spectrum.network.GuestStateType;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.InputStream;
-import java.io.IOException;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -27,12 +24,14 @@ public class Guest extends JFrame implements Runnable {
     private final SwingJoystick joystick;
     private final GuestPeerAdapter peer;
     private final DisplayComponent display;
+    private final PixelMapper pixelMapper;
     private EmulatorState lastHostData;
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
 
     public Guest() {
-        display = new DisplayComponent(new PixelMapper());
+        display = new DisplayComponent();
+        pixelMapper = new PixelMapper();
         joystick = new SwingJoystick();
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
@@ -135,7 +134,7 @@ public class Guest extends JFrame implements Runnable {
     private void refresh() {
         if (lastHostData != null) {
             EventQueue.invokeLater(() -> {
-                display.updateScreen(lastHostData.getMemory(), lastHostData.isFlashActive());
+                display.updateScreen(pixelMapper.getPixels(lastHostData.getMemory(), lastHostData.isFlashActive()));
                 display.updateBorder(lastHostData.getBorderColours());
                 display.repaint();
             });

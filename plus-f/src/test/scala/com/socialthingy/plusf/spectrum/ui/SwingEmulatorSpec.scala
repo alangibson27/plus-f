@@ -21,7 +21,7 @@ object UITest extends Tag("UITest")
 
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
-  val display = new TestDisplayComponent(new PixelMapper)
+  val display = new TestDisplayComponent()
   var emulator: InspectableEmulator = null
   var fixture: FrameFixture = null
   val prefs = {
@@ -170,7 +170,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
   def targetPixelAt(mainx: Int, mainy: Int, subx: Int, suby: Int) = (mainx * SCALE + subx) + ((mainy * SCALE + suby) * (SCREEN_WIDTH * SCALE))
 }
 
-class TestDisplayComponent(mapper: PixelMapper) extends DisplayComponent(mapper) {
+class TestDisplayComponent extends DisplayComponent {
   def getBorderColours: Array[Int] = borderImageDataBuffer
   def getTargetPixels: Array[Int] = imageDataBuffer
 }

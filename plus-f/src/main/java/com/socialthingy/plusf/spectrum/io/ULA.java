@@ -35,6 +35,7 @@ public class ULA implements IO {
     private int lastScanlineRendered;
     private final PixelMapper pixelMapper;
     private final int[] pixels = new int[(SCREEN_WIDTH + 2) * (SCREEN_HEIGHT + 2)];
+    private final int[] renderedDisplayMemory = new int[SCREEN_WIDTH * SCREEN_HEIGHT];
     private final SpectrumMemory memory;
 
     private boolean ulaAccessed = false;
@@ -130,7 +131,7 @@ public class ULA implements IO {
 
         if (scanline != lastScanlineRendered &&
                 scanline > scanlinesBeforeDisplay && scanline <= scanlinesBeforeDisplay + 192) {
-            pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, scanline - 1, flashActive);
+            pixelMapper.renderScanline(memory.getDisplayMemory(), pixels, renderedDisplayMemory, scanline - 1, flashActive);
         }
         lastScanlineRendered = scanline;
 
@@ -147,6 +148,10 @@ public class ULA implements IO {
 
     public int[] getPixels() {
         return pixels;
+    }
+
+    public int[] getRenderedDisplayMemory() {
+        return renderedDisplayMemory;
     }
 
     public void reset() {
