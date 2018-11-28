@@ -10,6 +10,7 @@ public class SinclairJoystickInterface extends JoystickInterface implements Obse
     private final Keyboard keyboard;
 
     public SinclairJoystickInterface(final Keyboard keyboard) {
+        super(JoystickInterfaceType.SINCLAIR_1);
         this.keyboard = keyboard;
     }
 

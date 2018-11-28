@@ -5,15 +5,12 @@ import com.socialthingy.plusf.snapshot.Snapshot;
 import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.display.DisplayComponent;
-import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.spectrum.input.HostInputMultiplexer;
 import com.socialthingy.plusf.spectrum.io.*;
-import com.socialthingy.plusf.spectrum.joystick.Joystick;
-import com.socialthingy.plusf.spectrum.joystick.KempstonJoystickInterface;
-import com.socialthingy.plusf.spectrum.joystick.SinclairJoystickInterface;
+import com.socialthingy.plusf.spectrum.joystick.*;
 import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
-import com.socialthingy.plusf.spectrum.network.GuestStateType;
+import com.socialthingy.plusf.spectrum.network.GuestState;
 import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.wos.Archive;
 import com.socialthingy.plusf.wos.WosTree;
@@ -42,18 +39,22 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
 import static com.socialthingy.plusf.spectrum.UserPreferences.*;
+import static com.socialthingy.plusf.spectrum.ui.MenuUtils.joystickItem;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.lang.String.format;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Optional.empty;
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
-public class Emulator extends JFrame implements Runnable {
+public class Emulator extends PlusFComponent implements Runnable {
     private final Logger log = LoggerFactory.getLogger(Emulator.class);
 
     protected Computer computer;
+    private final Frame window;
+    private final Runnable switchListener;
     private final DisplayComponent display;
     private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
@@ -69,17 +70,19 @@ public class Emulator extends JFrame implements Runnable {
     private final Joystick guestJoystick;
     private final KempstonJoystickInterface kempstonJoystickInterface;
     private final SinclairJoystickInterface sinclair1JoystickInterface;
-    private final SwingJoystick hostJoystick;
+    private final SwingJoystick joystick;
     private final SoundSystem soundSystem = new SoundSystem();
     private final Clock clock = new Clock();
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
 
-    public Emulator() {
-        this(new UserPreferences(), new DisplayComponent());
+    public Emulator(final Frame window, final Runnable switchListener) {
+        this(window, switchListener, new UserPreferences(), new DisplayComponent());
     }
 
-    protected Emulator(final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
+    protected Emulator(final Frame window, final Runnable switchListener, final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
+        this.switchListener = switchListener;
+        this.window = window;
         this.prefs = prefs;
         this.display = suppliedDisplay;
 
@@ -87,26 +90,56 @@ public class Emulator extends JFrame implements Runnable {
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
 
-        hostJoystick = new SwingJoystick();
+        joystick = new SwingJoystick();
         kempstonJoystickInterface = new KempstonJoystickInterface();
         sinclair1JoystickInterface = new SinclairJoystickInterface(keyboard);
         guestJoystick = new Joystick();
-        hostInputMultiplexer = new HostInputMultiplexer(keyboard, hostJoystick);
+        hostInputMultiplexer = new HostInputMultiplexer(keyboard, joystick);
         hostInputMultiplexer.deactivateJoystick();
         kempstonJoystickInterface.connect(guestJoystick);
 
-        peer = new EmulatorPeerAdapter(gs -> {
-            if (gs.getEventType() == GuestStateType.JOYSTICK_STATE.ordinal()) {
-                guestJoystick.deserialise(gs.getEventValue());
-            }
-        });
+        peer = new EmulatorPeerAdapter(this::receiveGuestState);
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         speedIndicator = new JLabel("Normal speed");
         computer = newComputer(currentModel);
 
-        setTitle("+F Spectrum Emulator");
         initialiseUI();
+    }
+
+    private void receiveGuestState(final GuestState guestState) {
+        guestJoystick.deserialise(guestState.getJoystickState());
+        final JoystickInterfaceType jt = JoystickInterfaceType.from(guestState.getJoystickType());
+        switch (jt) {
+            case KEMPSTON:
+                disconnectJoystickIfConnected(joystick, kempstonJoystickInterface);
+                sinclair1JoystickInterface.disconnectIfConnected(guestJoystick);
+                kempstonJoystickInterface.connect(guestJoystick);
+                break;
+
+            case SINCLAIR_1:
+                disconnectJoystickIfConnected(joystick, sinclair1JoystickInterface);
+                kempstonJoystickInterface.disconnectIfConnected(guestJoystick);
+                sinclair1JoystickInterface.connect(guestJoystick);
+                break;
+        }
+    }
+
+    private void disconnectJoystickIfConnected(
+        final Joystick joystick,
+        final JoystickInterface joystickInterface
+    ) {
+        if (joystickInterface.disconnectIfConnected(joystick)) {
+            hostInputMultiplexer.deactivateJoystick();
+            whilePaused(() -> {
+                JOptionPane.showMessageDialog(
+                        window,
+                        format("The other player has taken control of the %s joystick. Switching to keyboard.", joystickInterface.getType().displayName),
+                        "joystick Changed",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            });
+        }
     }
 
     private Computer newComputer(final Model model) {
@@ -160,135 +193,6 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void initialiseUI() {
-        System.out.println(java.awt.Toolkit.getDefaultToolkit().getColorModel());
-        setIconImage(Icons.windowIcon);
-
-        final JMenuBar menuBar = new JMenuBar();
-        final JMenu fileMenu = new JMenu("File");
-        fileMenu.add(menuItemFor("Load from file ...", this::load, Optional.of(KeyEvent.VK_L)));
-        fileMenu.add(menuItemFor("Load from WOS ...", this::loadFromWos, Optional.of(KeyEvent.VK_W)));
-        fileMenu.add(menuItemFor("Quit", this::quit, Optional.of(KeyEvent.VK_Q)));
-        menuBar.add(fileMenu);
-
-        final JMenu computerMenu = new JMenu("Computer");
-        computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
-        computerMenu.add(menuItemFor("Dump next cycle", e -> computer.startDumping(), Optional.of(KeyEvent.VK_Z)));
-
-        final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");
-        sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
-        sound.addActionListener(e -> {
-            prefs.set(SOUND_ENABLED, sound.isSelected());
-            soundSystem.setEnabled(sound.isSelected());
-        });
-        sound.setSelected(prefs.getOrElse(SOUND_ENABLED, true));
-        soundSystem.setEnabled(sound.isSelected());
-        computerMenu.add(sound);
-
-        addJoystickMenus(computerMenu);
-
-        final JMenu modelMenu = new JMenu("Model");
-        final ButtonGroup modelButtonGroup = new ButtonGroup();
-        for (Model model: Model.values()) {
-            final JRadioButtonMenuItem modelItem = new JRadioButtonMenuItem(
-                model.displayName,
-                model == currentModel
-            );
-            modelItem.addActionListener(item -> {
-                if (currentModel != model) {
-                    changeModel(model);
-                }
-            });
-            modelMenu.add(modelItem);
-            modelButtonGroup.add(modelItem);
-        }
-        computerMenu.add(modelMenu);
-
-        final JMenu speedMenu = new JMenu("Speed");
-        final ButtonGroup speedButtonGroup = new ButtonGroup();
-        for (EmulatorSpeed speed: EmulatorSpeed.values()) {
-            final JRadioButtonMenuItem speedItem = new JRadioButtonMenuItem(
-                speed.displayName,
-                speed == EmulatorSpeed.NORMAL
-            );
-            speedItem.addActionListener(item -> {
-                if (currentSpeed != speed) {
-                    setSpeed(speed);
-                }
-            });
-            speedItem.setAccelerator(KeyStroke.getKeyStroke(speed.shortcutKey, 0));
-            speedMenu.add(speedItem);
-            speedButtonGroup.add(speedItem);
-        }
-        computerMenu.add(speedMenu);
-        menuBar.add(computerMenu);
-
-        final JMenu displayMenu = new JMenu("Display");
-        final JCheckBoxMenuItem smoothRendering = new JCheckBoxMenuItem("Smooth Display Rendering");
-        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_MASK));
-        smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
-        smoothRendering.doClick();
-        displayMenu.add(smoothRendering);
-
-        final JCheckBoxMenuItem extendBorder = new JCheckBoxMenuItem("Extend Border");
-        extendBorder.addActionListener(e -> display.setExtendBorder(extendBorder.isSelected()));
-        displayMenu.add(extendBorder);
-        menuBar.add(displayMenu);
-
-        final JMenu tapeMenu = new JMenu("Tape");
-        final JCheckBoxMenuItem playTape = new JCheckBoxMenuItem("Play");
-        playTape.setModel(tapePlayer.getPlayButtonModel());
-        playTape.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0));
-        tapeMenu.add(playTape);
-
-        final JMenuItem stopTape = new JMenuItem("Stop");
-        stopTape.setModel(tapePlayer.getStopButtonModel());
-        stopTape.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0));
-        tapeMenu.add(stopTape);
-
-        final JMenuItem rewindTape = new JMenuItem("Rewind to Start");
-        rewindTape.setModel(tapePlayer.getRewindToStartButtonModel());
-        rewindTape.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
-        tapeMenu.add(rewindTape);
-
-        final JMenuItem tapeInfo = menuItemFor("Tape Information ...", this::tapeInfo, empty());
-        tapeInfo.setModel(tapePlayer.getTapePresentModel());
-        tapeMenu.add(tapeInfo);
-
-        final JMenuItem jumpToBlock = menuItemFor("Jump to Block ...", this::jumpToTapeBlock, empty());
-        jumpToBlock.setModel(tapePlayer.getJumpButtonModel());
-        tapeMenu.add(jumpToBlock);
-
-        final JCheckBoxMenuItem enableTurboLoad = new JCheckBoxMenuItem("Turbo-load");
-        enableTurboLoad.addItemListener(e -> {
-            prefs.set(TURBO_LOAD, enableTurboLoad.isSelected());
-            turboLoadEnabled = enableTurboLoad.isSelected();
-        });
-        if (prefs.getOrElse(TURBO_LOAD, true)) {
-            enableTurboLoad.doClick();
-        }
-        tapeMenu.add(enableTurboLoad);
-
-        menuBar.add(tapeMenu);
-
-        final JMenu networkMenu = new JMenu("Network");
-        final JMenuItem connectItem = menuItemFor("Connect", this::connect, Optional.of(KeyEvent.VK_C));
-        networkMenu.add(connectItem);
-        final JMenuItem disconnectItem = menuItemFor("Disconnect", this::disconnect, Optional.of(KeyEvent.VK_D));
-        networkMenu.add(disconnectItem);
-        menuBar.add(networkMenu);
-
-        connectItem.setEnabled(true);
-        disconnectItem.setEnabled(false);
-        peer.connectedProperty().addObserver((observable, arg) -> {
-            connectItem.setEnabled(!peer.connectedProperty().get());
-            disconnectItem.setEnabled(peer.connectedProperty().get());
-        });
-
-        final JMenu aboutMenu = new JMenu("About");
-        final JMenuItem aboutItem = menuItemFor("About Plus-F", e -> AboutDialog.aboutDialog(this), Optional.empty());
-        aboutMenu.add(aboutItem);
-        menuBar.add(aboutMenu);
-
         final TapeControls tapeControls = new TapeControls(tapePlayer);
         final JPanel statusBar = new JPanel(new GridLayout(1, 4));
         speedIndicator.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -298,94 +202,47 @@ public class Emulator extends JFrame implements Runnable {
         statusBar.add(tapeControls);
         statusBar.add(speedIndicator);
 
-        setJMenuBar(menuBar);
-        addKeyListener(hostInputMultiplexer);
         final Insets insets = new Insets(1, 1, 1, 1);
-        getContentPane().setLayout(new GridBagLayout());
-        getContentPane().add(
+        setLayout(new GridBagLayout());
+        add(
             display,
             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, CENTER, BOTH, insets, 0, 0)
         );
-        getContentPane().add(
+        add(
             statusBar,
             new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets, 0, 0)
         );
-        pack();
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    }
-
-    private JMenuItem joystickItem(final boolean host, final ButtonGroup group, final String type, final boolean selected) {
-        final JMenuItem item = new JRadioButtonMenuItem(type, selected);
-        item.setName((host ? "Host" : "Guest") + "Joystick" + type);
-        group.add(item);
-        return item;
     }
 
     private void addJoystickMenus(final JMenu computerMenu) {
-        final ButtonGroup hostJoystickButtonGroup = new ButtonGroup();
-        final ButtonGroup guestJoystickButtonGroup = new ButtonGroup();
+        final ButtonGroup JoystickButtonGroup = new ButtonGroup();
 
-        final JMenu hostJoystickMenu = new JMenu("Host Joystick");
-        computerMenu.add(hostJoystickMenu);
+        final JMenu JoystickMenu = new JMenu("Joystick");
+        computerMenu.add(JoystickMenu);
 
-        final JMenuItem noHostJoystick = joystickItem(true, hostJoystickButtonGroup, "None", true);
-        hostJoystickMenu.add(noHostJoystick);
-        final JMenuItem kempstonHostJoystick = joystickItem(true, hostJoystickButtonGroup, "Kempston", false);
-        hostJoystickMenu.add(kempstonHostJoystick);
-        final JMenuItem sinclairHostJoystick = joystickItem(true, hostJoystickButtonGroup, "Sinclair", false);
-        hostJoystickMenu.add(sinclairHostJoystick);
+        final JMenuItem noJoystick = joystickItem(JoystickButtonGroup, "None", true);
+        JoystickMenu.add(noJoystick);
+        final JMenuItem kempstonJoystick = joystickItem(JoystickButtonGroup, "Kempston", false);
+        JoystickMenu.add(kempstonJoystick);
+        final JMenuItem sinclairJoystick = joystickItem(JoystickButtonGroup, "Sinclair", false);
+        JoystickMenu.add(sinclairJoystick);
 
-        final JMenu guestJoystickMenu = new JMenu("Guest Joystick");
-        computerMenu.add(guestJoystickMenu);
-
-        final JMenuItem kempstonGuestJoystick = joystickItem(false, guestJoystickButtonGroup, "Kempston", true);
-        guestJoystickMenu.add(kempstonGuestJoystick);
-        final JMenuItem sinclairGuestJoystick = joystickItem(false, guestJoystickButtonGroup, "Sinclair", true);
-        guestJoystickMenu.add(sinclairGuestJoystick);
-
-        noHostJoystick.addActionListener(event -> {
+        noJoystick.addActionListener(event -> {
             hostInputMultiplexer.deactivateJoystick();
-            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
-            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
+            kempstonJoystickInterface.disconnectIfConnected(joystick);
+            sinclair1JoystickInterface.disconnectIfConnected(joystick);
         });
 
-        kempstonHostJoystick.addActionListener(event -> {
+        kempstonJoystick.addActionListener(event -> {
             hostInputMultiplexer.activateJoystick();
-            sinclair1JoystickInterface.disconnectIfConnected(hostJoystick);
-            if (kempstonJoystickInterface.isConnected(guestJoystick)) {
-                guestJoystickButtonGroup.setSelected(sinclairGuestJoystick.getModel(), true);
-                sinclair1JoystickInterface.connect(guestJoystick);
-            }
-            kempstonJoystickInterface.connect(hostJoystick);
+            sinclair1JoystickInterface.disconnectIfConnected(joystick);
+            kempstonJoystickInterface.connect(joystick);
         });
 
-        sinclairHostJoystick.addActionListener(event -> {
+        sinclairJoystick.addActionListener(event -> {
             hostInputMultiplexer.activateJoystick();
-            kempstonJoystickInterface.disconnectIfConnected(hostJoystick);
-            if (sinclair1JoystickInterface.isConnected(guestJoystick)) {
-                guestJoystickButtonGroup.setSelected(kempstonGuestJoystick.getModel(), true);
-                kempstonJoystickInterface.connect(guestJoystick);
-            }
-            sinclair1JoystickInterface.connect(hostJoystick);
-        });
-
-
-        kempstonGuestJoystick.addActionListener(event -> {
-            sinclair1JoystickInterface.disconnectIfConnected(guestJoystick);
-            if (kempstonJoystickInterface.isConnected(hostJoystick)) {
-                hostJoystickButtonGroup.setSelected(sinclairHostJoystick.getModel(), true);
-                sinclair1JoystickInterface.connect(hostJoystick);
-            }
-            kempstonJoystickInterface.connect(guestJoystick);
-        });
-
-        sinclairGuestJoystick.addActionListener(event -> {
-            kempstonJoystickInterface.disconnectIfConnected(guestJoystick);
-            if (sinclair1JoystickInterface.isConnected(hostJoystick)) {
-                hostJoystickButtonGroup.setSelected(kempstonHostJoystick.getModel(), true);
-                kempstonJoystickInterface.connect(hostJoystick);
-            }
-            sinclair1JoystickInterface.connect(guestJoystick);
+            kempstonJoystickInterface.disconnectIfConnected(joystick);
+            sinclair1JoystickInterface.connect(joystick);
         });
     }
 
@@ -468,7 +325,6 @@ public class Emulator extends JFrame implements Runnable {
 
     public void run() {
         soundSystem.start();
-        setVisible(true);
         setMinimumSize(getSize());
         setSpeed(EmulatorSpeed.NORMAL);
     }
@@ -478,19 +334,18 @@ public class Emulator extends JFrame implements Runnable {
             cycleTimer.cancel(true);
         }
         peer.shutdown();
-        setVisible(false);
-        dispose();
+        soundSystem.stop();
     }
 
     private void connect(final ActionEvent e) {
         final JPanel connectDetailsPanel = new JPanel(new GridLayout(2, 1, 5, 5));
-        connectDetailsPanel.add(new JLabel("Enter codename of the Guest"));
+        connectDetailsPanel.add(new JLabel("Name of Session to start"));
         final JCheckBox portForwardingEnabled = new JCheckBox("I have enabled port forwarding", true);
         connectDetailsPanel.add(portForwardingEnabled);
         final String codename = JOptionPane.showInputDialog(
                 this,
                 connectDetailsPanel,
-                "Connect to Guest",
+                "Start Session",
                 JOptionPane.QUESTION_MESSAGE
         );
 
@@ -501,7 +356,7 @@ public class Emulator extends JFrame implements Runnable {
             } else {
                 port = Optional.empty();
             }
-            peer.connect(this, codename, port);
+            peer.connect(window, codename, port);
         }
     }
 
@@ -510,7 +365,7 @@ public class Emulator extends JFrame implements Runnable {
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
-        speedIndicator.setText(String.format("%s speed", newSpeed.displayName));
+        speedIndicator.setText(format("%s speed", newSpeed.displayName));
         currentSpeed = newSpeed;
         if (cycleTimer != null) {
             cycleTimer.cancel(false);
@@ -596,7 +451,7 @@ public class Emulator extends JFrame implements Runnable {
                 } catch (TapeException | IOException ex) {
                     JOptionPane.showMessageDialog(
                         this,
-                        String.format("An error occurred while loading the file file:\n%s", ex.getMessage()),
+                        format("An error occurred while loading the file file:\n%s", ex.getMessage()),
                         "Loading Error",
                         JOptionPane.ERROR_MESSAGE
                     );
@@ -607,7 +462,7 @@ public class Emulator extends JFrame implements Runnable {
 
     private void loadFromWos(final ActionEvent e) {
         whilePaused(() -> {
-            final WosTree chooser = new WosTree(this);
+            final WosTree chooser = new WosTree(window);
             chooser.setSize(500, 600);
             chooser.setLocationRelativeTo(this);
             final Optional<Archive> result = chooser.selectArchive();
@@ -740,7 +595,7 @@ public class Emulator extends JFrame implements Runnable {
             final int result = JOptionPane.showConfirmDialog(
                 this,
                 "This will reset the computer. Do you want to continue?",
-                String.format("Change to %s", newModel.displayName),
+                format("Change to %s", newModel.displayName),
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
             );
@@ -794,5 +649,144 @@ public class Emulator extends JFrame implements Runnable {
             setSpeed(currentSpeed);
             soundSystem.setEnabled(wasEnabled);
         }
+    }
+
+    @Override
+    JMenuBar getMenuBar() {
+        final JMenuBar menuBar = new JMenuBar();
+        final JMenu fileMenu = new JMenu("File");
+        fileMenu.add(menuItemFor("Load from file ...", this::load, Optional.of(KeyEvent.VK_L)));
+        fileMenu.add(menuItemFor("Load from WOS ...", this::loadFromWos, Optional.of(KeyEvent.VK_W)));
+        fileMenu.add(menuItemFor("Quit", this::quit, Optional.of(KeyEvent.VK_Q)));
+        menuBar.add(fileMenu);
+
+        final JMenu computerMenu = new JMenu("Computer");
+        computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
+        computerMenu.add(menuItemFor("Dump next cycle", e -> computer.startDumping(), Optional.of(KeyEvent.VK_Z)));
+
+        final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");
+        sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
+        sound.addActionListener(e -> {
+            prefs.set(SOUND_ENABLED, sound.isSelected());
+            soundSystem.setEnabled(sound.isSelected());
+        });
+        sound.setSelected(prefs.getOrElse(SOUND_ENABLED, true));
+        soundSystem.setEnabled(sound.isSelected());
+        computerMenu.add(sound);
+
+        addJoystickMenus(computerMenu);
+
+        final JMenu modelMenu = new JMenu("Model");
+        final ButtonGroup modelButtonGroup = new ButtonGroup();
+        for (Model model: Model.values()) {
+            final JRadioButtonMenuItem modelItem = new JRadioButtonMenuItem(
+                    model.displayName,
+                    model == currentModel
+            );
+            modelItem.addActionListener(item -> {
+                if (currentModel != model) {
+                    changeModel(model);
+                }
+            });
+            modelMenu.add(modelItem);
+            modelButtonGroup.add(modelItem);
+        }
+        computerMenu.add(modelMenu);
+
+        final JMenu speedMenu = new JMenu("Speed");
+        final ButtonGroup speedButtonGroup = new ButtonGroup();
+        for (EmulatorSpeed speed: EmulatorSpeed.values()) {
+            final JRadioButtonMenuItem speedItem = new JRadioButtonMenuItem(
+                    speed.displayName,
+                    speed == EmulatorSpeed.NORMAL
+            );
+            speedItem.addActionListener(item -> {
+                if (currentSpeed != speed) {
+                    setSpeed(speed);
+                }
+            });
+            speedItem.setAccelerator(KeyStroke.getKeyStroke(speed.shortcutKey, 0));
+            speedMenu.add(speedItem);
+            speedButtonGroup.add(speedItem);
+        }
+        computerMenu.add(speedMenu);
+        menuBar.add(computerMenu);
+
+        final JMenu displayMenu = new JMenu("Display");
+        final JCheckBoxMenuItem smoothRendering = new JCheckBoxMenuItem("Smooth Display Rendering");
+        smoothRendering.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_MASK));
+        smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
+        smoothRendering.doClick();
+        displayMenu.add(smoothRendering);
+
+        final JCheckBoxMenuItem extendBorder = new JCheckBoxMenuItem("Extend Border");
+        extendBorder.addActionListener(e -> display.setExtendBorder(extendBorder.isSelected()));
+        displayMenu.add(extendBorder);
+        menuBar.add(displayMenu);
+
+        final JMenu tapeMenu = new JMenu("Tape");
+        final JCheckBoxMenuItem playTape = new JCheckBoxMenuItem("Play");
+        playTape.setModel(tapePlayer.getPlayButtonModel());
+        playTape.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0));
+        tapeMenu.add(playTape);
+
+        final JMenuItem stopTape = new JMenuItem("Stop");
+        stopTape.setModel(tapePlayer.getStopButtonModel());
+        stopTape.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F10, 0));
+        tapeMenu.add(stopTape);
+
+        final JMenuItem rewindTape = new JMenuItem("Rewind to Start");
+        rewindTape.setModel(tapePlayer.getRewindToStartButtonModel());
+        rewindTape.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+        tapeMenu.add(rewindTape);
+
+        final JMenuItem tapeInfo = menuItemFor("Tape Information ...", this::tapeInfo, empty());
+        tapeInfo.setModel(tapePlayer.getTapePresentModel());
+        tapeMenu.add(tapeInfo);
+
+        final JMenuItem jumpToBlock = menuItemFor("Jump to Block ...", this::jumpToTapeBlock, empty());
+        jumpToBlock.setModel(tapePlayer.getJumpButtonModel());
+        tapeMenu.add(jumpToBlock);
+
+        final JCheckBoxMenuItem enableTurboLoad = new JCheckBoxMenuItem("Turbo-load");
+        enableTurboLoad.addItemListener(e -> {
+            prefs.set(TURBO_LOAD, enableTurboLoad.isSelected());
+            turboLoadEnabled = enableTurboLoad.isSelected();
+        });
+        if (prefs.getOrElse(TURBO_LOAD, true)) {
+            enableTurboLoad.doClick();
+        }
+        tapeMenu.add(enableTurboLoad);
+
+        menuBar.add(tapeMenu);
+
+        final JMenu networkMenu = new JMenu("Network");
+        final JMenuItem connectItem = menuItemFor("Start Session", this::connect, Optional.of(KeyEvent.VK_C));
+        networkMenu.add(connectItem);
+        final JMenuItem joinItem = menuItemFor("Join Session", e -> switchListener.run(), Optional.of(KeyEvent.VK_J));
+        networkMenu.add(joinItem);
+        final JMenuItem disconnectItem = menuItemFor("End Session", this::disconnect, Optional.of(KeyEvent.VK_D));
+        networkMenu.add(disconnectItem);
+        menuBar.add(networkMenu);
+
+        connectItem.setEnabled(true);
+        disconnectItem.setEnabled(false);
+        peer.connectedProperty().addObserver((observable, arg) -> {
+            connectItem.setEnabled(!peer.connectedProperty().get());
+            joinItem.setEnabled(!peer.connectedProperty().get());
+            disconnectItem.setEnabled(peer.connectedProperty().get());
+        });
+
+        final JMenu aboutMenu = new JMenu("About");
+        final JMenuItem aboutItem = menuItemFor("About Plus-F", e -> AboutDialog.aboutDialog(this), Optional.empty());
+        aboutMenu.add(aboutItem);
+        menuBar.add(aboutMenu);
+
+        return menuBar;
+    }
+
+    @Override
+    KeyListener getKeyListener() {
+        return hostInputMultiplexer;
     }
 }

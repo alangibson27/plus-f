@@ -8,4 +8,14 @@ public enum JoystickInterfaceType {
     JoystickInterfaceType(final String displayName) {
         this.displayName = displayName;
     }
+
+    public static JoystickInterfaceType from(final int ordinal) {
+        for (JoystickInterfaceType type: JoystickInterfaceType.values()) {
+            if (type.ordinal() == ordinal) {
+                return type;
+            }
+        }
+
+        throw new IllegalArgumentException(String.valueOf(ordinal));
+    }
 }

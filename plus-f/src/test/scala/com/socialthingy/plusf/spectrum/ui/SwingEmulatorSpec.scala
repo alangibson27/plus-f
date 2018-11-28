@@ -2,8 +2,8 @@ package com.socialthingy.plusf.spectrum.ui
 
 import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent._
-import javax.swing.JRadioButtonMenuItem
 
+import javax.swing.{JFrame, JRadioButtonMenuItem}
 import com.socialthingy.plusf.spectrum.UserPreferences
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
 import com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_WIDTH
@@ -36,8 +36,13 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   before {
     if (emulator == null) {
-      emulator = new InspectableEmulator(prefs, display)
-      fixture = new FrameFixture(emulator)
+      val frame = new JFrame()
+      emulator = new InspectableEmulator(frame, prefs, display)
+
+      frame.setJMenuBar(emulator.getMenuBar)
+      frame.addKeyListener(emulator.getKeyListener)
+      frame.getContentPane.add(emulator)
+      fixture = new FrameFixture(frame)
       emulator.run()
       Thread.sleep(1000)
     }
@@ -175,7 +180,7 @@ class TestDisplayComponent extends DisplayComponent {
   def getTargetPixels: Array[Int] = imageDataBuffer
 }
 
-class InspectableEmulator(prefs: UserPreferences, display: DisplayComponent)
-  extends Emulator(prefs, display) {
+class InspectableEmulator(frame: JFrame, prefs: UserPreferences, display: DisplayComponent)
+  extends Emulator(frame, () => (), prefs, display) {
   def peek(addr: Int): Int = computer.peek(addr)
 }

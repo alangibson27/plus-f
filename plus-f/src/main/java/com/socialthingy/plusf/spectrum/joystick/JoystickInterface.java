@@ -4,6 +4,11 @@ import java.util.Optional;
 
 public class JoystickInterface {
     protected Optional<Joystick> joystick = Optional.empty();
+    private final JoystickInterfaceType type;
+
+    protected JoystickInterface(final JoystickInterfaceType type) {
+        this.type = type;
+    }
 
     public boolean isConnected(final Joystick joystick) {
         return this.joystick.isPresent() && this.joystick.get().equals(joystick);
@@ -20,5 +25,9 @@ public class JoystickInterface {
         }
 
         return false;
+    }
+
+    public JoystickInterfaceType getType() {
+        return type;
     }
 }

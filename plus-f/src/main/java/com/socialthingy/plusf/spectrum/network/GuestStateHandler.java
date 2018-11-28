@@ -14,7 +14,7 @@ public class GuestStateHandler implements Serialiser, Deserialiser {
     @Override
     public void serialise(final Object obj, final ByteBuffer out) {
         final GuestState state = (GuestState) obj;
-        out.putInt(state.getEventType());
-        out.putInt(state.getEventValue());
+        out.putInt(state.getJoystickState());
+        out.putInt(state.getJoystickType());
     }
 }
