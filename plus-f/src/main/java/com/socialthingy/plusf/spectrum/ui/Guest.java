@@ -137,6 +137,10 @@ public class Guest extends PlusFComponent implements Runnable {
         smoothRendering.addActionListener(e -> display.setSmoothRendering(smoothRendering.isSelected()));
         smoothRendering.doClick();
         displayMenu.add(smoothRendering);
+
+        final JCheckBoxMenuItem extendBorder = new JCheckBoxMenuItem("Extend Border");
+        extendBorder.addActionListener(e -> display.setExtendBorder(extendBorder.isSelected()));
+        displayMenu.add(extendBorder);
         menuBar.add(displayMenu);
 
         final ButtonGroup joystickButtonGroup = new ButtonGroup();

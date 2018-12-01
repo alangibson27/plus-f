@@ -75,6 +75,9 @@ public class Emulator extends PlusFComponent implements Runnable {
     private final Clock clock = new Clock();
     private boolean turboLoadActive;
     private boolean turboLoadEnabled;
+    private JMenuItem kempstonJoystickItem;
+    private JMenuItem sinclairJoystickItem;
+    private JMenuItem noJoystickItem;
 
     public Emulator(final Frame window, final Runnable switchListener) {
         this(window, switchListener, new UserPreferences(), new DisplayComponent());
@@ -112,12 +115,16 @@ public class Emulator extends PlusFComponent implements Runnable {
         final JoystickInterfaceType jt = JoystickInterfaceType.from(guestState.getJoystickType());
         switch (jt) {
             case KEMPSTON:
+                kempstonJoystickItem.setEnabled(false);
+                sinclairJoystickItem.setEnabled(true);
                 disconnectJoystickIfConnected(joystick, kempstonJoystickInterface);
                 sinclair1JoystickInterface.disconnectIfConnected(guestJoystick);
                 kempstonJoystickInterface.connect(guestJoystick);
                 break;
 
             case SINCLAIR_1:
+                kempstonJoystickItem.setEnabled(true);
+                sinclairJoystickItem.setEnabled(false);
                 disconnectJoystickIfConnected(joystick, sinclair1JoystickInterface);
                 kempstonJoystickInterface.disconnectIfConnected(guestJoystick);
                 sinclair1JoystickInterface.connect(guestJoystick);
@@ -130,6 +137,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         final JoystickInterface joystickInterface
     ) {
         if (joystickInterface.disconnectIfConnected(joystick)) {
+            noJoystickItem.setSelected(true);
             hostInputMultiplexer.deactivateJoystick();
             whilePaused(() -> {
                 JOptionPane.showMessageDialog(
@@ -214,32 +222,32 @@ public class Emulator extends PlusFComponent implements Runnable {
         );
     }
 
-    private void addJoystickMenus(final JMenu computerMenu) {
+    private void addJoystickMenu(final JMenu computerMenu) {
         final ButtonGroup JoystickButtonGroup = new ButtonGroup();
 
-        final JMenu JoystickMenu = new JMenu("Joystick");
-        computerMenu.add(JoystickMenu);
+        final JMenu joystickMenu = new JMenu("Joystick");
+        computerMenu.add(joystickMenu);
 
-        final JMenuItem noJoystick = joystickItem(JoystickButtonGroup, "None", true);
-        JoystickMenu.add(noJoystick);
-        final JMenuItem kempstonJoystick = joystickItem(JoystickButtonGroup, "Kempston", false);
-        JoystickMenu.add(kempstonJoystick);
-        final JMenuItem sinclairJoystick = joystickItem(JoystickButtonGroup, "Sinclair", false);
-        JoystickMenu.add(sinclairJoystick);
+        noJoystickItem = joystickItem(JoystickButtonGroup, "None", true);
+        joystickMenu.add(noJoystickItem);
+        kempstonJoystickItem = joystickItem(JoystickButtonGroup, "Kempston", false);
+        joystickMenu.add(kempstonJoystickItem);
+        sinclairJoystickItem = joystickItem(JoystickButtonGroup, "Sinclair", false);
+        joystickMenu.add(sinclairJoystickItem);
 
-        noJoystick.addActionListener(event -> {
+        noJoystickItem.addActionListener(event -> {
             hostInputMultiplexer.deactivateJoystick();
             kempstonJoystickInterface.disconnectIfConnected(joystick);
             sinclair1JoystickInterface.disconnectIfConnected(joystick);
         });
 
-        kempstonJoystick.addActionListener(event -> {
+        kempstonJoystickItem.addActionListener(event -> {
             hostInputMultiplexer.activateJoystick();
             sinclair1JoystickInterface.disconnectIfConnected(joystick);
             kempstonJoystickInterface.connect(joystick);
         });
 
-        sinclairJoystick.addActionListener(event -> {
+        sinclairJoystickItem.addActionListener(event -> {
             hostInputMultiplexer.activateJoystick();
             kempstonJoystickInterface.disconnectIfConnected(joystick);
             sinclair1JoystickInterface.connect(joystick);
@@ -362,6 +370,8 @@ public class Emulator extends PlusFComponent implements Runnable {
 
     private void disconnect(final ActionEvent e) {
         peer.disconnect();
+        kempstonJoystickItem.setEnabled(true);
+        sinclairJoystickItem.setEnabled(true);
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
@@ -674,7 +684,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         soundSystem.setEnabled(sound.isSelected());
         computerMenu.add(sound);
 
-        addJoystickMenus(computerMenu);
+        addJoystickMenu(computerMenu);
 
         final JMenu modelMenu = new JMenu("Model");
         final ButtonGroup modelButtonGroup = new ButtonGroup();
