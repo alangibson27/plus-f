@@ -1,19 +1,19 @@
 package com.socialthingy.plusf.spectrum.network;
 
 public class GuestState {
-    private int eventType;
-    private int eventValue;
+    private int joystickState;
+    private int joystickType;
 
-    public GuestState(final int eventType, final int eventValue) {
-        this.eventType = eventType;
-        this.eventValue = eventValue;
+    public GuestState(final int joystickState, final int joystickType) {
+        this.joystickState = joystickState;
+        this.joystickType = joystickType;
     }
 
-    public int getEventType() {
-        return eventType;
+    public int getJoystickState() {
+        return joystickState;
     }
 
-    public int getEventValue() {
-        return eventValue;
+    public int getJoystickType() {
+        return joystickType;
     }
 }

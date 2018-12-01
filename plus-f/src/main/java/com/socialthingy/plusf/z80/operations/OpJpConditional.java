@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpJpConditional implements Operation {
+public class OpJpConditional extends Operation {
     private final Processor processor;
     private final FlagsRegister flags;
     private final Register pcReg;
@@ -28,12 +25,14 @@ public class OpJpConditional implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        contentionModel.applyContention(initialPcValue + 2, 3);
         final int destination = processor.fetchNextWord();
         if (flags.get(flag) == whenSet) {
             pcReg.set(destination);
         }
-        return 10;
     }
 
     @Override

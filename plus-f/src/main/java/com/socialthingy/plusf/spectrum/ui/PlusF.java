@@ -1,90 +1,61 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import javax.swing.*;
-import java.awt.*;
-
-import static java.awt.GridBagConstraints.*;
+import java.util.Arrays;
 
 public class PlusF extends JFrame {
+    private PlusFComponent component;
 
-    private final JButton hostButton;
-    private final JButton guestButton;
-
-    public PlusF() {
-        hostButton = new IconButton(new ImageIcon(getClass().getResource("/icons/host.png")));
-        hostButton.addActionListener(l -> {
-            start(new Emulator());
-        });
-        hostButton.setFocusPainted(false);
-        final JLabel hostLabel = new JLabel("<html><b>Host</b><br/>For 1-player games, or starting a 2-player session</html>");
-        guestButton = new IconButton(new ImageIcon(getClass().getResource("/icons/guest.png")));
-        guestButton.addActionListener(l -> {
-            start(new Guest());
-        });
-        guestButton.setFocusPainted(false);
-        final JLabel guestLabel = new JLabel("<html><b>Guest</b><br/>For joining in a 2-player game</html>");
-
-        final Insets insets = new Insets(5, 5, 5, 5);
-        final Container contentPane = getContentPane();
-        contentPane.setLayout(new GridBagLayout());
-        contentPane.add(
-                new JLabel("<html><span style='font-size:32px'>Welcome to Plus-F!</span><html>"),
-                new GridBagConstraints(0, 0, 4, 1, 1.0, 0.0, CENTER, VERTICAL, insets, 0, 0)
-        );
-
-        contentPane.add(
-                new JLabel("Select which application you wish to run"),
-                new GridBagConstraints(0, 1, 4, 1, 1.0, 0.0, CENTER, VERTICAL, insets, 0, 0)
-        );
-
-        contentPane.add(new JPanel(), new GridBagConstraints(0, 2, 1, 2, 1.0, 0.0, WEST, HORIZONTAL, insets, 0, 0));
-        contentPane.add(hostButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, WEST, HORIZONTAL, insets, 0, 0));
-        contentPane.add(hostLabel, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0, CENTER, HORIZONTAL, insets, 0, 0));
-        contentPane.add(guestButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, WEST, HORIZONTAL, insets, 0, 0));
-        contentPane.add(guestLabel, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0, CENTER, HORIZONTAL, insets, 0, 0));
-        contentPane.add(new JPanel(), new GridBagConstraints(3, 2, 1, 2, 1.0, 0.0, EAST, HORIZONTAL, insets, 0, 0));
-
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        pack();
-
-        final Rectangle bounds = getGraphicsConfiguration().getBounds();
-        setLocation((bounds.width - getWidth()) / 2, (bounds.height - getHeight()) / 2);
-        setTitle("Plus-F");
+    private PlusF() {
+        setTitle("+F Spectrum Emulator");
         setIconImage(Icons.windowIcon);
-        setResizable(false);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     private void go() {
+        setComponent(new Emulator(this, new SwitchListener()));
         setVisible(true);
     }
 
-    private void start(final Runnable runnable) {
-        EventQueue.invokeLater(() -> {
-            hostButton.setEnabled(false);
-            guestButton.setEnabled(false);
-            setVisible(false);
-            dispose();
-            runnable.run();
-        });
+    private void setComponent(final PlusFComponent component) {
+        if (this.component != null) {
+            Arrays.stream(getKeyListeners()).forEach(this::removeKeyListener);
+            this.component.stop();
+        }
+
+        this.component = component;
+        setContentPane(component);
+        setJMenuBar(component.getMenuBar());
+        addKeyListener(component.getKeyListener());
+        component.run();
+        pack();
     }
 
-    public static void main(final String ... args) {
+    public static void main(final String... args) {
         System.setProperty("swing.plaf.metal.controlFont", "Sans-Serif");
         System.setProperty("swing.plaf.metal.userFont", "Sans-Serif");
+
         final PlusF plusF = new PlusF();
         plusF.go();
     }
 
-    private class IconButton extends JButton {
-        public IconButton(final Icon icon) {
-            super(icon);
-        }
-
+    private class SwitchListener implements Runnable {
         @Override
-        public void paintComponent(final Graphics g) {
-            g.clearRect(0, 0, getWidth(), getHeight());
-            final Icon i = getIcon();
-            getIcon().paintIcon(this, g, (getWidth() - i.getIconWidth()) / 2, (getHeight() - i.getIconHeight()) / 2);
+        public void run() {
+            final int result = JOptionPane.showConfirmDialog(
+                    PlusF.this,
+                    "This will reset the state of the computer. Continue?",
+                    "Continue?",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (result == JOptionPane.OK_OPTION) {
+                if (component instanceof Emulator) {
+                    setComponent(new Guest(PlusF.this, this));
+                } else {
+                    setComponent(new Emulator(PlusF.this, this));
+                }
+            }
         }
     }
 }

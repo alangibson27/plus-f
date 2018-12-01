@@ -1,8 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpBitHlIndirect extends BitOperation {
 
@@ -19,9 +17,13 @@ public class OpBitHlIndirect extends BitOperation {
     }
 
     @Override
-    public int execute() {
-        checkBit(memory.get(hlReg.get()));
-        return 12;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        final int addr = hlReg.get();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(addr, 3);
+        contentionModel.applyContention(addr, 1);
+        checkBit(memory.get(addr));
     }
 
     @Override

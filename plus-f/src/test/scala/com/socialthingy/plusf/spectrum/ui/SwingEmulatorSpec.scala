@@ -2,8 +2,8 @@ package com.socialthingy.plusf.spectrum.ui
 
 import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent._
-import javax.swing.JRadioButtonMenuItem
 
+import javax.swing.{JFrame, JRadioButtonMenuItem}
 import com.socialthingy.plusf.spectrum.UserPreferences
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
 import com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_WIDTH
@@ -21,7 +21,7 @@ object UITest extends Tag("UITest")
 
 class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with Inspectors with TableDrivenPropertyChecks {
 
-  val display = new TestDisplayComponent(new PixelMapper)
+  val display = new TestDisplayComponent()
   var emulator: InspectableEmulator = null
   var fixture: FrameFixture = null
   val prefs = {
@@ -36,8 +36,13 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
   before {
     if (emulator == null) {
-      emulator = new InspectableEmulator(prefs, display)
-      fixture = new FrameFixture(emulator)
+      val frame = new JFrame()
+      emulator = new InspectableEmulator(frame, prefs, display)
+
+      frame.setJMenuBar(emulator.getMenuBar)
+      frame.addKeyListener(emulator.getKeyListener)
+      frame.getContentPane.add(emulator)
+      fixture = new FrameFixture(frame)
       emulator.run()
       Thread.sleep(1000)
     }
@@ -170,12 +175,12 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
   def targetPixelAt(mainx: Int, mainy: Int, subx: Int, suby: Int) = (mainx * SCALE + subx) + ((mainy * SCALE + suby) * (SCREEN_WIDTH * SCALE))
 }
 
-class TestDisplayComponent(mapper: PixelMapper) extends DisplayComponent(mapper) {
+class TestDisplayComponent extends DisplayComponent {
   def getBorderColours: Array[Int] = borderImageDataBuffer
   def getTargetPixels: Array[Int] = imageDataBuffer
 }
 
-class InspectableEmulator(prefs: UserPreferences, display: DisplayComponent)
-  extends Emulator(prefs, display) {
+class InspectableEmulator(frame: JFrame, prefs: UserPreferences, display: DisplayComponent)
+  extends Emulator(frame, () => (), prefs, display) {
   def peek(addr: Int): Int = computer.peek(addr)
 }

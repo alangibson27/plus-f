@@ -5,14 +5,14 @@ import com.socialthingy.plusf.z80.*;
 
 import static com.socialthingy.plusf.util.Bitwise.HALF_CARRY_BIT;
 
-abstract class BlockOperation implements Operation {
+abstract class BlockOperation extends Operation {
 
     protected final FlagsRegister flagsRegister;
     private final Register accumulator;
     private final Register pcReg;
     private final Register bcReg;
-    private final Register deReg;
-    private final Register hlReg;
+    protected final Register deReg;
+    protected final Register hlReg;
     private final Memory memory;
     private final int increment;
 
@@ -27,17 +27,17 @@ abstract class BlockOperation implements Operation {
         this.increment = increment;
     }
 
-    protected int adjustPC() {
+    protected boolean continueLoop() {
         if (bcReg.get() != 0x0000) {
             pcReg.set(pcReg.get() - 2);
-            return 21;
+            return true;
         } else {
-            return 16;
+            return false;
         }
     }
 
     protected void blockTransfer() {
-        final int hlContents =memory.get(hlReg.get());
+        final int hlContents = memory.get(hlReg.get());
         final int undocumentedValue = (accumulator.get() + hlContents) & 0xff;
         memory.set(deReg.get(), hlContents);
         deReg.set(deReg.get() + increment);

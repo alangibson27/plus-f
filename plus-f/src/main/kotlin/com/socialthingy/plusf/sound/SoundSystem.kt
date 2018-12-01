@@ -37,6 +37,11 @@ class SoundSystem {
         lineOut.start()
     }
 
+    fun stop() {
+        synth.stop()
+        lineOut.stop()
+    }
+
     fun reset() {
         if (isEnabled) {
             setEnabled(false)

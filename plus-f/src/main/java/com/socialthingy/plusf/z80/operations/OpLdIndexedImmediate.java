@@ -1,12 +1,9 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Word;
-import com.socialthingy.plusf.z80.IndexRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpLdIndexedImmediate implements Operation {
+public class OpLdIndexedImmediate extends Operation {
     private final Processor processor;
     private final Register indexRegister;
 
@@ -16,10 +13,13 @@ public class OpLdIndexedImmediate implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(initialPcValue + 2, 3);
+        contentionModel.applyContention(initialPcValue + 3, 3);
         final int value = Word.from(processor.fetchNextByte(), processor.fetchNextByte());
         indexRegister.set(value);
-        return 14;
     }
 
     @Override

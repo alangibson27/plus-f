@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>http://plusf.socialthingy.com/release-notes/2.0/</loc>
+    <lastmod>2018-11-26T21:06:00+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://plusf.socialthingy.com/release-notes/1.6/</loc>
     <lastmod>2018-10-16T21:06:00+01:00</lastmod>
   </url>
@@ -88,11 +93,6 @@
   </url>
   
   <url>
-    <loc>http://plusf.socialthingy.com/connect/</loc>
-    <lastmod>2016-05-24T22:31:58+01:00</lastmod>
-  </url>
-  
-  <url>
     <loc>http://plusf.socialthingy.com/download/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
@@ -103,12 +103,12 @@
   </url>
   
   <url>
-    <loc>http://plusf.socialthingy.com/emulator/</loc>
+    <loc>http://plusf.socialthingy.com/network/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   
   <url>
-    <loc>http://plusf.socialthingy.com/guest/</loc>
+    <loc>http://plusf.socialthingy.com/play/</loc>
     <lastmod>2016-05-24T22:31:58+01:00</lastmod>
   </url>
   
@@ -143,13 +143,13 @@
   
   <url>
     <loc>http://plusf.socialthingy.com/</loc>
-    <lastmod>2018-10-16T21:06:00+01:00</lastmod>
+    <lastmod>2018-11-26T21:06:00+01:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>http://plusf.socialthingy.com/release-notes/</loc>
-    <lastmod>2018-10-16T21:06:00+01:00</lastmod>
+    <lastmod>2018-11-26T21:06:00+01:00</lastmod>
     <priority>0</priority>
   </url>
   

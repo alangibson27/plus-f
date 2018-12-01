@@ -1,9 +1,6 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Memory;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
 public class OpRld extends RotateOperation {
 
@@ -17,8 +14,17 @@ public class OpRld extends RotateOperation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
         final int address = hlReg.get();
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
+        contentionModel.applyContention(address, 3);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 1);
+        contentionModel.applyContention(address, 3);
+
         final int memoryValue = memory.get(address);
 
         memory.set( address, (lowNibble(memoryValue) << 4) + lowNibble(accumulator.get()));
@@ -29,7 +35,6 @@ public class OpRld extends RotateOperation {
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
 
-        return 18;
     }
 
     @Override

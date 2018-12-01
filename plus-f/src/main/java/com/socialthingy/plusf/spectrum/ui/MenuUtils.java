@@ -15,4 +15,11 @@ public class MenuUtils {
         );
         return loadItem;
     }
+
+    public static JMenuItem joystickItem(final ButtonGroup group, final String type, final boolean selected) {
+        final JMenuItem item = new JRadioButtonMenuItem(type, selected);
+        item.setName("Joystick" + type);
+        group.add(item);
+        return item;
+    }
 }

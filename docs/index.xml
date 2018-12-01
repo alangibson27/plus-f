@@ -6,10 +6,19 @@
     <description>Recent content on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Tue, 16 Oct 2018 21:06:00 +0100</lastBuildDate>
+    <lastBuildDate>Mon, 26 Nov 2018 21:06:00 +0100</lastBuildDate>
     
 	<atom:link href="http://plusf.socialthingy.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Version 2.0</title>
+      <link>http://plusf.socialthingy.com/release-notes/2.0/</link>
+      <pubDate>Mon, 26 Nov 2018 21:06:00 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/2.0/</guid>
+      <description> Revamped UI launches straight into Emulator Improved scanline timing to reduce flicker and improve rainbow effects  </description>
+    </item>
     
     <item>
       <title>Version 1.6</title>
@@ -176,17 +185,6 @@ I did have a little twist which I wanted to add, which at the time I started wri
     </item>
     
     <item>
-      <title>Connect</title>
-      <link>http://plusf.socialthingy.com/connect/</link>
-      <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
-      
-      <guid>http://plusf.socialthingy.com/connect/</guid>
-      <description>How to do it Network play works by player A running the Emulator and player B running the Guest:
- At least one player must to ensure that port forwarding is enabled on their router for UDP traffic, on ports 7000 and 7001. If both players can forward these ports, the chance of a successful connection is improved.
- Agree on who should run the Emulator. Generally, the player with the better network upload speeds should do this.</description>
-    </item>
-    
-    <item>
       <title>Download</title>
       <link>http://plusf.socialthingy.com/download/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
@@ -206,24 +204,25 @@ One of the most authoritative sources for Spectrum games the World of Spectrum A
     </item>
     
     <item>
-      <title>The Emulator</title>
-      <link>http://plusf.socialthingy.com/emulator/</link>
+      <title>Network</title>
+      <link>http://plusf.socialthingy.com/network/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/emulator/</guid>
-      <description>The +F Emulator can emulate either a 48k Spectrum or a Spectrum +2, and can load games from TAP, TZX or Z80 format files (TAP files have the best support). At present there is no sound support, and the graphics timing is not 100% accurate, so don&amp;rsquo;t expect programs which generate &amp;ldquo;rainbow&amp;rdquo; effects to work properly.
-So where is the symbol shift key? The CTRL key is used in place of the Spectrum&amp;rsquo;s symbol shift key.</description>
+      <guid>http://plusf.socialthingy.com/network/</guid>
+      <description>How to do it Network play works by player A starting a session and player B joining:
+ At least one player must to ensure that port forwarding is enabled on their router for UDP traffic, on ports 7000 and 7001. If both players can forward these ports, the chance of a successful connection is improved.
+ Agree on who should start the session. Generally, the player with the better network upload speeds should do this.</description>
     </item>
     
     <item>
-      <title>The Guest</title>
-      <link>http://plusf.socialthingy.com/guest/</link>
+      <title>Play</title>
+      <link>http://plusf.socialthingy.com/play/</link>
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
-      <guid>http://plusf.socialthingy.com/guest/</guid>
-      <description>The +F Guest is a program that receives screen updates from a +F Emulator across a network, and sends back keypresses translated to Kempston joystick movements. This means that a user of the guest can participate in a two-player game, provided the game has Kempston joystick support (most have).
-Keyboard Controls At present, controls are not redefinable and are fixed to the conventional ones below:
- Q: Up A: Down O: Left P: Right M: Fire  Menu items The Guest can also be controlled by the options in the menu bar at the top of the screen.</description>
+      <guid>http://plusf.socialthingy.com/play/</guid>
+      <description>+F can emulate a number of different models of Spectrum, and can load games from TAP, TZX or Z80 files. TZX files are the most authentic, TAP files are the most reliable. Only 48k Z80 snapshots are supported.
+So where is the symbol shift key? The CTRL key is used in place of the Spectrum&amp;rsquo;s symbol shift key.
+How to use it +F is controlled by the options in the menu bar at the top of the screen.</description>
     </item>
     
   </channel>

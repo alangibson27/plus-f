@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpJpIndexedIndirect implements Operation {
-
+public class OpJpIndexedIndirect extends Operation {
     private final Register pcReg;
     private final Register indexRegister;
 
@@ -15,9 +12,10 @@ public class OpJpIndexedIndirect implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 4);
         pcReg.set(indexRegister.get());
-        return 8;
     }
 
     @Override

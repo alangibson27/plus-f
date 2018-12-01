@@ -186,12 +186,13 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     s"executing operation ${opcode.map(x => x.toHexString).mkString(" ")}" should s"take $cycles cycles" in new Machine {
       opcode foreach { nextInstructionIs(_) }
 
+      clock.reset()
       processor.execute()
 
-      processor.lastTime() shouldBe cycles
+      clock.getTicks() shouldBe cycles
     }
   }
-  
+
   "execute on a block operation when bc decrements to zero" should "return the correct number of cycles" in new Machine {
     // given
     nextInstructionIs(0xed, 0xb0)
@@ -200,10 +201,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("bc", 0x0001)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 16
+    clock.getTicks() shouldBe 16
   }
   
   "execute on a block operation when bc decrements to non-zero" should "return the correct number of cycles" in new Machine {
@@ -214,10 +216,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("bc", 0x0010)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 21
+    clock.getTicks() shouldBe 21
   }
   
   "execute on jr c when carry is set" should "return the correct number of cycles" in new Machine {
@@ -226,10 +229,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x38, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 12
+    clock.getTicks() shouldBe 12
   }
 
   "execute on jr c when carry is reset" should "return the correct number of cycles" in new Machine {
@@ -238,10 +242,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x38, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 7
+    clock.getTicks() shouldBe 7
   }
 
   "execute on jr nc when carry is set" should "return the correct number of cycles" in new Machine {
@@ -250,10 +255,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x30, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 7
+    clock.getTicks() shouldBe 7
   }
 
   "execute on jr nc when carry is reset" should "return the correct number of cycles" in new Machine {
@@ -262,10 +268,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x30, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 12
+    clock.getTicks() shouldBe 12
   }
 
   "execute on jr z when z is set" should "return the correct number of cycles" in new Machine {
@@ -274,10 +281,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x28, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 12
+    clock.getTicks() shouldBe 12
   }
 
   "execute on jr z when z is reset" should "return the correct number of cycles" in new Machine {
@@ -286,10 +294,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x28, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 7
+    clock.getTicks() shouldBe 7
   }
 
   "execute on jr nz when z is set" should "return the correct number of cycles" in new Machine {
@@ -298,10 +307,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x20, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 7
+    clock.getTicks() shouldBe 7
   }
 
   "execute on jr nz when z is reset" should "return the correct number of cycles" in new Machine {
@@ -310,10 +320,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0x20, 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 12
+    clock.getTicks() shouldBe 12
   }
 
   "execute on djnz when b decrements to zero" should "return the correct number of cycles" in new Machine {
@@ -322,10 +333,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("b", 1)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 8
+    clock.getTicks() shouldBe 8
   }
 
   "execute on djnz when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
@@ -334,10 +346,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     registerContainsValue("b", 0x10)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 13
+    clock.getTicks() shouldBe 13
   }
 
   "execute on call z when z is set" should "return the correct number of cycles" in new Machine {
@@ -346,10 +359,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xcc, 0xef, 0xbe)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 5
+    clock.getTicks() shouldBe 17
   }
 
   "execute on call z when z is reset" should "return the correct number of cycles" in new Machine {
@@ -358,10 +372,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xcc, 0xef, 0xbe)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 3
+    clock.getTicks() shouldBe 10
   }
 
   "execute on ret z when z is set" should "return the correct number of cycles" in new Machine {
@@ -370,10 +385,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xc8)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 11
+    clock.getTicks() shouldBe 11
   }
 
   "execute on ret z when z is reset" should "return the correct number of cycles" in new Machine {
@@ -382,10 +398,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xc8)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 5
+    clock.getTicks() shouldBe 5
   }
 
   "execute on inir when b decrements to zero" should "return the correct number of cycles" in new Machine {
@@ -394,10 +411,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb2)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 16
+    clock.getTicks() shouldBe 16
   }
 
   "execute on inir when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
@@ -406,10 +424,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb2)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 21
+    clock.getTicks() shouldBe 21
   }
 
   "execute on indr when b decrements to zero" should "return the correct number of cycles" in new Machine {
@@ -418,10 +437,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xba)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 16
+    clock.getTicks() shouldBe 16
   }
 
   "execute on indr when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
@@ -430,10 +450,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xba)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 21
+    clock.getTicks() shouldBe 21
   }
 
   "execute on otir when b decrements to zero" should "return the correct number of cycles" in new Machine {
@@ -442,10 +463,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb3)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 16
+    clock.getTicks() shouldBe 16
   }
 
   "execute on otir when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
@@ -454,10 +476,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xb3)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 21
+    clock.getTicks() shouldBe 21
   }
 
   "execute on otdr when b decrements to zero" should "return the correct number of cycles" in new Machine {
@@ -466,10 +489,11 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xbb)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 16
+    clock.getTicks() shouldBe 16
   }
 
   "execute on otdr when b decrements to non-zero" should "return the correct number of cycles" in new Machine {
@@ -478,9 +502,10 @@ class CyclesSpec extends ProcessorSpec with TableDrivenPropertyChecks {
     nextInstructionIs(0xed, 0xbb)
 
     // when
+    clock.reset()
     processor.execute()
 
     // then
-    processor.lastTime() shouldBe 21
+    clock.getTicks() shouldBe 21
   }
 }

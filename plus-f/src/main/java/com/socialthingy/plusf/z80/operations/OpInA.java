@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.IO;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpInA implements Operation {
+public class OpInA extends Operation {
     private final Processor processor;
     private final IO io;
     private final Register accumulator;
@@ -17,9 +14,13 @@ public class OpInA implements Operation {
     }
 
     @Override
-    public int execute() {
-        accumulator.set(io.read(processor.fetchNextByte(), accumulator.get()));
-        return 11;
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
+        contentionModel.applyContention(initialPcValue + 1, 3);
+        final int lowByte = processor.fetchNextByte();
+        final int highByte = accumulator.get();
+        contentionModel.applyIOContention(lowByte, highByte);
+        accumulator.set(io.read(lowByte, highByte));
     }
 
     @Override

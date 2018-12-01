@@ -1,11 +1,8 @@
 package com.socialthingy.plusf.z80.operations;
 
-import com.socialthingy.plusf.z80.FlagsRegister;
-import com.socialthingy.plusf.z80.Operation;
-import com.socialthingy.plusf.z80.Processor;
-import com.socialthingy.plusf.z80.Register;
+import com.socialthingy.plusf.z80.*;
 
-public class OpCcf implements Operation {
+public class OpCcf extends Operation {
     private final FlagsRegister flagsRegister;
     private final Register accumulator;
 
@@ -15,13 +12,13 @@ public class OpCcf implements Operation {
     }
 
     @Override
-    public int execute() {
+    public void execute(ContentionModel contentionModel, int initialPcValue, int irValue) {
+        contentionModel.applyContention(initialPcValue, 4);
         final boolean oldCarry = flagsRegister.get(FlagsRegister.Flag.C);
         flagsRegister.set(FlagsRegister.Flag.H, oldCarry);
         flagsRegister.set(FlagsRegister.Flag.N, false);
         flagsRegister.set(FlagsRegister.Flag.C, !oldCarry);
         flagsRegister.setUndocumentedFlagsFromValue(accumulator.get());
-        return 4;
     }
 
     @Override

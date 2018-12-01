@@ -1,11 +1,12 @@
 package com.socialthingy.plusf.z80.operations;
 
 import com.socialthingy.plusf.util.Bitwise;
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.FlagsRegister;
 import com.socialthingy.plusf.z80.Operation;
 import com.socialthingy.plusf.z80.Processor;
 
-abstract class ShiftOperation implements Operation {
+abstract class ShiftOperation extends Operation {
     private final FlagsRegister flagsRegister;
 
     protected ShiftOperation(final Processor processor) {

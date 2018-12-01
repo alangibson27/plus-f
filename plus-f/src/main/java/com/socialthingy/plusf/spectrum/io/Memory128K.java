@@ -1,6 +1,5 @@
 package com.socialthingy.plusf.spectrum.io;
 
-import com.socialthingy.plusf.spectrum.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 
 public class Memory128K extends SpectrumMemory {
@@ -16,8 +15,8 @@ public class Memory128K extends SpectrumMemory {
     protected int activeScreenBank;
     protected int activeHighBank;
 
-    public Memory128K(final ULA ula, final Clock clock, final Model model) {
-        super(ula, clock, model);
+    public Memory128K(final Model model) {
+        super(model);
 
         romBanks = new int[model.romFileNames.length][];
         int pageIdx = 0;
@@ -37,8 +36,7 @@ public class Memory128K extends SpectrumMemory {
     }
 
     @Override
-    protected void resetDisplayMemory() {
-        screenChanged = true;
+    public void resetDisplayMemory() {
         System.arraycopy(ramBanks[activeScreenBank], 0, displayMemory, 0, 0x1b00);
     }
 
@@ -66,18 +64,10 @@ public class Memory128K extends SpectrumMemory {
     }
 
     @Override
-    protected void handleMemoryContention(final int page) {
-        if (page == 1 || page == 3 && (activeHighBank & 1) == 1) {
-            ula.handleContention();
-        }
-    }
-
-    @Override
     public int get(int addr) {
         addr &= 0xffff;
         final int page = addr >> 14;
         final int offsetInPage = addr & 0x3fff;
-        handleMemoryContention(page);
 
         switch (page) {
             case ROM_PAGE:
@@ -96,13 +86,12 @@ public class Memory128K extends SpectrumMemory {
         addr &= 0xffff;
         final int page = addr >> 14;
         final int offsetInPage = addr & 0x3fff;
-        handleMemoryContention(page);
 
         switch (page) {
             case LOW_PAGE:
                 ramBanks[5][offsetInPage] = value;
                 if (activeScreenBank == 5 && offsetInPage < 0x1b00) {
-                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                    writeToDisplayMemory(addr, value);
                 }
                 break;
             case MIDDLE_PAGE:
@@ -111,10 +100,16 @@ public class Memory128K extends SpectrumMemory {
             case HIGH_PAGE:
                 ramBanks[activeHighBank][offsetInPage] = value;
                 if (activeScreenBank == activeHighBank && offsetInPage < 0x1b00) {
-                    writeToDisplayIfBeforeScanlineReached(addr, value);
+                    writeToDisplayMemory(addr, value);
                 }
                 break;
         }
+    }
+
+    @Override
+    public boolean contendedAddress(final int addr) {
+        final int page = addr >> 14;
+        return page == 1 || (page == 3 && (activeHighBank & 0b1) == 1);
     }
 
     public void copyIntoBank(final int[] source, final int targetBank) {
