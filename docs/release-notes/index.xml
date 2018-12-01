@@ -6,10 +6,19 @@
     <description>Recent content in Release-notes on Plus-F</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Tue, 16 Oct 2018 21:06:00 +0100</lastBuildDate>
+    <lastBuildDate>Mon, 26 Nov 2018 21:06:00 +0100</lastBuildDate>
     
 	<atom:link href="http://plusf.socialthingy.com/release-notes/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Version 2.0</title>
+      <link>http://plusf.socialthingy.com/release-notes/2.0/</link>
+      <pubDate>Mon, 26 Nov 2018 21:06:00 +0100</pubDate>
+      
+      <guid>http://plusf.socialthingy.com/release-notes/2.0/</guid>
+      <description> Revamped UI launches straight into Emulator Improved scanline timing to reduce flicker and improve rainbow effects  </description>
+    </item>
     
     <item>
       <title>Version 1.6</title>
