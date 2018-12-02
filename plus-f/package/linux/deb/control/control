@@ -1,0 +1,7 @@
+Package: plus-f
+Section: unknown
+Maintainer: Alan Gibson <alangibson27@gmail.com>
+Priority: optional
+Architecture: amd64
+Provides: plus-f
+Description: Plus-F

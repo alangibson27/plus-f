@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Plus-F
+Comment=Plus-F
+Exec=/opt/Plus-F/bin/plus-f
+Icon=/opt/Plus-F/Plus-F.png
+Terminal=false
+Type=Application
+Categories=Unknown

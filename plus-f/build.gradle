@@ -44,7 +44,7 @@ test {
     }
 }
 
-version = '1.7.0'
+version = '2.0.0'
 mainClassName = 'com.socialthingy.plusf.spectrum.ui.PlusF'
 
 shadowJar {
@@ -65,5 +65,11 @@ jar {
 task printVersion {
     doLast {
         println project.version
+    }
+}
+
+startScripts {
+    doLast {
+        windowsScript.text = windowsScript.text.replace('set JAVA_EXE=java.exe', 'set JAVA_EXE=%APP_HOME%\\jre\\bin\\java.exe')
     }
 }
