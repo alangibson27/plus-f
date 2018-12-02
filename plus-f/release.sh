@@ -36,10 +36,6 @@ function checkCommittedOnMaster {
 }
 
 function buildDistributions {
-  # Download jsyn dependency
-  wget http://www.softsynth.com/jsyn/developers/archives/jsyn-20171016.jar
-  mv jsyn-20171016.jar lib/
-
   # Common JAR
   ${GRADLE} clean
   mkdir ${SCRIPT_DIR}/build

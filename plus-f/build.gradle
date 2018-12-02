@@ -16,11 +16,14 @@ plugins {
 apply plugin: 's3'
 
 repositories {
+    maven {
+        url "http://clojars.org/repo/"
+    }
     mavenCentral()
 }
 
 dependencies {
-    compile files('lib/jsyn-20171016.jar')
+    compile "com.jsyn:jsyn:20170815"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testCompile "org.easytesting:fest-swing:1.2.1"
