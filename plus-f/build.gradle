@@ -70,6 +70,6 @@ task printVersion {
 
 startScripts {
     doLast {
-        windowsScript.text = windowsScript.text.replace('set JAVA_EXE=java.exe', 'set JAVA_EXE=%APP_HOME%\\jre\\bin\\java.exe')
+        windowsScript.text = windowsScript.text.replace('set JAVA_EXE=java.exe', 'set JAVA_EXE=..\\runtime\\bin\\java.exe')
     }
 }
