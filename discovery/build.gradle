@@ -10,7 +10,6 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':plus-f')
     compile 'com.typesafe.akka:akka-actor_2.12:2.4.12'
     compile 'org.scala-lang:scala-library:2.12.4'
 

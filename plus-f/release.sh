@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -e
+set -x
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AWS_CMD=${AWS_CMD:-aws}
 GRADLE=${SCRIPT_DIR}/../gradlew
+${GRADLE} printVersion --quiet
 VERSION=$(${GRADLE} printVersion --quiet)
 
 export SCRIPT_DIR
@@ -61,8 +63,8 @@ function buildDeb {
   cp -r ${SCRIPT_DIR}/package/linux/deb/* ${DEB_DIR}
   echo "Version: ${VERSION}" >> ${DEB_DIR}/control/control
 
-  tar czf build/deb/data.tar.gz -C build/deb/data .
-  tar czf build/deb/control.tar.gz -C build/deb/control .
+  tar czf ${DEB_DIR}/data.tar.gz -C ${DEB_DIR}/data .
+  tar czf ${DEB_DIR}/control.tar.gz -C ${DEB_DIR}/control .
 
   ar r ${DEB_DIR}/Plus-F.deb ${DEB_DIR}/debian-binary ${DEB_DIR}/control.tar.gz ${DEB_DIR}/data.tar.gz
 
@@ -79,8 +81,8 @@ if [[ ! -e "build" ]]; then
 fi
 
 writeVersionFile
-checkCommittedOnMaster
-checkVersionUpdated
-tagRelease
+#checkCommittedOnMaster
+#checkVersionUpdated
+#tagRelease
 buildDeb
 buildUniversal
