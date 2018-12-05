@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:11.0.1-jdk
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "5c:3c:f5:6b:70:81:12:7b:db:e5:8d:ba:1c:38:5e:c4"
+      - checkout
+      - run: java -version
+      - run: curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+      - run: unzip awscli-bundle.zip
+      - run: ./awscli-bundle/install -b ~/bin/aws
+      - run: export PATH=~/bin:$PATH
+      - run: git config --global user.email "alangibson27@gmail.com"
+      - run: git config --global user.name "Alan Gibson (via CircleCI)"
+      - run: AWS_CMD=~/bin/aws plus-f/build.sh

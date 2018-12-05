@@ -82,7 +82,7 @@ fi
 
 ${GRADLE} :plus-f:check
 
-if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
+if [[ "${CIRCLE_BRANCH}" = "master" ]]; then
     writeVersionFile
     checkVersionUpdated
     tagRelease
