@@ -5,8 +5,8 @@ set -x
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AWS_CMD=${AWS_CMD:-aws}
 GRADLE=${SCRIPT_DIR}/../gradlew
-${GRADLE} printVersion --quiet
-VERSION=$(${GRADLE} printVersion --quiet)
+${GRADLE} tasks --quiet
+VERSION=$(${GRADLE} :plus-f:printVersion --quiet)
 
 export SCRIPT_DIR
 export VERSION
@@ -51,7 +51,7 @@ function tagRelease {
 
 function buildDeb {
   DEB_DIR=${SCRIPT_DIR}/build/deb
-  ${GRADLE} installDist -x check
+  ${GRADLE} :plus-f:installDist -x check
   sed -i '$ i JAVACMD=$APP_HOME/runtime/bin/java' ${SCRIPT_DIR}/build/install/plus-f/bin/plus-f
 
   rm -rf ${DEB_DIR} || true
@@ -72,7 +72,7 @@ function buildDeb {
 }
 
 function buildUniversal {
-  ${GRADLE} distZip -x check
+  ${GRADLE} :plus-f:distZip -x check
   ${AWS_CMD} s3 cp ${SCRIPT_DIR}/build/distributions/plus-f-${VERSION}.zip s3://download.socialthingy.com/Plus-F.zip
 }
 
@@ -80,9 +80,12 @@ if [[ ! -e "build" ]]; then
   mkdir build
 fi
 
-writeVersionFile
-#checkCommittedOnMaster
-#checkVersionUpdated
-#tagRelease
-buildDeb
-buildUniversal
+${GRADLE} :plus-f:check
+
+if [[ "${TRAVIS_BRANCH}" == "master" ]]; then
+    writeVersionFile
+    checkVersionUpdated
+    tagRelease
+    buildDeb
+    buildUniversal
+fi
