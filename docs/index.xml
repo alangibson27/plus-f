@@ -190,7 +190,8 @@ I did have a little twist which I wanted to add, which at the time I started wri
       <pubDate>Tue, 24 May 2016 22:31:58 +0100</pubDate>
       
       <guid>http://plusf.socialthingy.com/download/</guid>
-      <description>Available packages  64-bit Windows Installer  This is the simplest way to get up and running on a compatible Windows system. On Windows 10, you might see a warning from Windows SmartScreen when you run the installer. Just click the &amp;ldquo;More Info&amp;rdquo; text and then the &amp;ldquo;Run anyway&amp;rdquo; button.  Universal Zip Package  This download is suitable for all operating systems. You&amp;rsquo;ll need to install a recent version of Java 8 separately, in order to run.</description>
+      <description>Available packages  64-bit Windows Installer
+ This is the simplest way to get up and running on a compatible Windows system. On Windows 10, you might see a warning from Windows SmartScreen when you run the installer. Ultimately, it&amp;rsquo;s your choice whether to trust the application you have downloaded, feel free to browse the source at https://github.com/alangibson27/plus-f if you have any qualms. To dismiss the warning, click the &amp;ldquo;More Info&amp;rdquo; text and then the &amp;ldquo;Run anyway&amp;rdquo; button.</description>
     </item>
     
     <item>

@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent._
 
 import javax.swing.{JFrame, JRadioButtonMenuItem}
-import com.socialthingy.plusf.spectrum.UserPreferences
+import com.socialthingy.plusf.spectrum.{Model, UserPreferences}
 import com.socialthingy.plusf.spectrum.UserPreferences.MODEL
 import com.socialthingy.plusf.spectrum.display.PixelMapper.SCREEN_WIDTH
 import com.socialthingy.plusf.spectrum.display.Scaler2X.SCALE
@@ -43,44 +43,15 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
       frame.addKeyListener(emulator.getKeyListener)
       frame.getContentPane.add(emulator)
       fixture = new FrameFixture(frame)
+      fixture.show()
       emulator.run()
       Thread.sleep(1000)
     }
   }
 
   after {
-    fixture.menuItem(s"HostJoystickNone").click()
-    emulator.resetComputer()
+    emulator.reset()
     Thread.sleep(1000)
-  }
-
-  val joystickPermutations = Table(
-    ("New Host", "New Guest"),
-    ("Sinclair", "Kempston"),
-    ("Kempston", "Sinclair")
-  )
-
-  "Joystick menus" should "not assign a host joystick when the guest joystick is changed" taggedAs(UITest) in {
-    // when
-    fixture.menuItem("GuestJoystickSinclair").click()
-
-    // then
-    fixture.menuItem("HostJoystickNone").selected shouldBe true
-  }
-
-  forAll(joystickPermutations) { (newHostJoystick, newGuestJoystick) =>
-    it should s"switch the guest joystick to $newGuestJoystick when the host chooses $newHostJoystick" taggedAs(UITest) in {
-      // given
-      fixture.menuItem(s"HostJoystick$newGuestJoystick").click()
-      fixture.menuItem(s"GuestJoystick$newHostJoystick").click()
-
-      // when
-      fixture.menuItem(s"HostJoystick$newHostJoystick").click()
-
-      // then
-      fixture.menuItem(s"GuestJoystick$newHostJoystick").selected shouldBe false
-      fixture.menuItem(s"GuestJoystick$newGuestJoystick").selected shouldBe true
-    }
   }
 
   implicit class JMenuItemFixtureOps(item: JMenuItemFixture) {
@@ -90,7 +61,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     }
   }
 
-  "Emulator" should "run a simple 48k basic program which changes the border and sets some pixels" taggedAs(UITest) in {
+  "Emulator" should "run a simple 48k basic program which changes the border and sets some pixels" taggedAs UITest in {
     // given
     fixture.enter48kBasic()
 
@@ -100,7 +71,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
 
     // then
     forEvery(display.getBorderColours) { _ shouldBe 0xff000000 }
-    forEvery(0 to 6) { x =>
+    forEvery(1 to 6) { x =>
       display.getTargetPixels(targetPixelAt(x, 0, 0, 0)) shouldBe 0xff000000
       display.getTargetPixels(targetPixelAt(x, 0, 0, 1)) shouldBe 0xff000000
       display.getTargetPixels(targetPixelAt(x, 0, 1, 0)) shouldBe 0xff000000
@@ -108,7 +79,7 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     }
   }
 
-  it should "run a simple 128k basic program" taggedAs(UITest) in {
+  it should "run a simple 128k basic program" taggedAs UITest in {
     // given
     fixture.enter128kBasic()
 
@@ -119,16 +90,16 @@ class SwingEmulatorSpec extends FlatSpec with Matchers with BeforeAndAfter with 
     emulator.peek(16384) shouldBe 255
   }
 
-  it should "handle Sinclair joystick input correctly" taggedAs(UITest) in {
+  (it should "handle Sinclair joystick input correctly").taggedAs(UITest) in {
     // given
     fixture.enter48kBasic()
 
     // when
-    fixture.menuItem("HostJoystickSinclair").click()
+    fixture.menuItem("JoystickSinclair").click()
     fixture.typeProgram("LB=Q+A+O+P+M")
 
     // and
-    fixture.menuItem("HostJoystickNone").click()
+    fixture.menuItem("JoystickNone").click()
     fixture.typeProgram("O16384,B")
 
     // then
@@ -183,4 +154,8 @@ class TestDisplayComponent extends DisplayComponent {
 class InspectableEmulator(frame: JFrame, prefs: UserPreferences, display: DisplayComponent)
   extends Emulator(frame, () => (), prefs, display) {
   def peek(addr: Int): Int = computer.peek(addr)
+  def reset(): Unit = {
+    computer = newComputer(Model.PLUS_2)
+    resetComputer()
+  }
 }

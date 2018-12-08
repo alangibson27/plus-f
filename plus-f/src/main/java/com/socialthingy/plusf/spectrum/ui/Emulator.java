@@ -150,7 +150,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         }
     }
 
-    private Computer newComputer(final Model model) {
+    protected Computer newComputer(final Model model) {
         return newComputer(model, null);
     }
 
