@@ -59,7 +59,7 @@ function buildDeb {
         --add-modules java.base,java.desktop,java.logging,java.management,java.naming,java.sql,java.xml,jdk.unsupported \
         --output ${DEB_DIR}/data/opt/Plus-F/runtime
 
-  strip -p --strip-unneeded ${DEB_DIR}/data/opt/Plus-F/runtime/lib/server/libjvm.so
+  find ${DEB_DIR}/data/opt/Plus-F/runtime/ -name "*.so" | xargs strip -p --strip-unneeded
 
   mv ${SCRIPT_DIR}/build/install/plus-f/* ${DEB_DIR}/data/opt/Plus-F
   cp -r ${SCRIPT_DIR}/package/linux/deb/* ${DEB_DIR}
