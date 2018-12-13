@@ -54,7 +54,6 @@ public class Emulator extends PlusFComponent implements Runnable {
 
     protected Computer computer;
     private final Frame window;
-    private final Runnable switchListener;
     private final DisplayComponent display;
     private final UserPreferences prefs;
     private final TapePlayer tapePlayer;
@@ -79,12 +78,11 @@ public class Emulator extends PlusFComponent implements Runnable {
     private JMenuItem sinclairJoystickItem;
     private JMenuItem noJoystickItem;
 
-    public Emulator(final Frame window, final Runnable switchListener) {
-        this(window, switchListener, new UserPreferences(), new DisplayComponent());
+    public Emulator(final Frame window) {
+        this(window, new UserPreferences(), new DisplayComponent());
     }
 
-    protected Emulator(final Frame window, final Runnable switchListener, final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
-        this.switchListener = switchListener;
+    protected Emulator(final Frame window, final UserPreferences prefs, final DisplayComponent suppliedDisplay) {
         this.window = window;
         this.prefs = prefs;
         this.display = suppliedDisplay;
@@ -773,7 +771,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         final JMenu networkMenu = new JMenu("Network");
         final JMenuItem connectItem = menuItemFor("Start Session", this::connect, Optional.of(KeyEvent.VK_C));
         networkMenu.add(connectItem);
-        final JMenuItem joinItem = menuItemFor("Join Session", e -> switchListener.run(), Optional.of(KeyEvent.VK_J));
+        final JMenuItem joinItem = menuItemFor("Join Session", e -> notifyWillClose(true), Optional.of(KeyEvent.VK_J));
         networkMenu.add(joinItem);
         final JMenuItem disconnectItem = menuItemFor("End Session", this::disconnect, Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);

@@ -30,12 +30,10 @@ public class Guest extends PlusFComponent implements Runnable {
     private int count = 0;
     private final ScheduledThreadPoolExecutor cycleScheduler;
     private final Frame window;
-    private final Runnable switchListener;
     private JoystickInterfaceType joystickType = JoystickInterfaceType.KEMPSTON;
 
-    public Guest(final Frame window, final Runnable switchListener) {
+    public Guest(final Frame window) {
         this.window = window;
-        this.switchListener = switchListener;
         display = new DisplayComponent();
         pixelMapper = new PixelMapper();
         joystick = new SwingJoystick();
@@ -91,11 +89,9 @@ public class Guest extends PlusFComponent implements Runnable {
                 port = Optional.empty();
             }
             peer.connect(window, codename, port);
+        } else {
+            notifyWillClose(false);
         }
-    }
-
-    private void disconnect(final ActionEvent e) {
-        switchListener.run();
     }
 
     private void refresh() {
@@ -154,7 +150,7 @@ public class Guest extends PlusFComponent implements Runnable {
         joystickMenu.add(sinclairJoystick);
 
         final JMenu networkMenu = new JMenu("Network");
-        final JMenuItem disconnectItem = menuItemFor("End Session", this::disconnect, Optional.of(KeyEvent.VK_D));
+        final JMenuItem disconnectItem = menuItemFor("End Session", e -> notifyWillClose(true), Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);
         menuBar.add(networkMenu);
 
