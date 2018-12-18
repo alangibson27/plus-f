@@ -18,7 +18,7 @@ title = "Download"
 * [Universal Zip Package] (http://download.socialthingy.com/Plus-F.zip)
  * This download is suitable for all operating systems. You'll need to install
    a recent version of Java 11 separately, in order to run. You can download this
-   for free from https://jdk.java.net/11/
+   for free from [AdoptOpenJDK](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot)
 * [Debian Package] (http://download.socialthingy.com/Plus-F.deb)
  * Prebuilt amd64 package for Ubuntu and other Debian-based Linux distributions.
 
