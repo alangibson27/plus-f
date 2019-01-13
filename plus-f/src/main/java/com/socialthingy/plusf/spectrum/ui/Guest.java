@@ -1,12 +1,15 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.spectrum.Settings;
+import com.socialthingy.plusf.spectrum.UserPreferences;
 import com.socialthingy.plusf.spectrum.display.DisplayComponent;
 import com.socialthingy.plusf.spectrum.display.PixelMapper;
 import com.socialthingy.plusf.spectrum.joystick.JoystickInterfaceType;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.GuestState;
+import com.socialthingy.plusf.ui.JoystickKeys;
+import com.socialthingy.plusf.ui.RedefineKeysPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,12 +34,14 @@ public class Guest extends PlusFComponent implements Runnable {
     private final ScheduledThreadPoolExecutor cycleScheduler;
     private final Frame window;
     private JoystickInterfaceType joystickType = JoystickInterfaceType.KEMPSTON;
+    private UserPreferences prefs;
 
     public Guest(final Frame window) {
         this.window = window;
+        prefs = new UserPreferences();
         display = new DisplayComponent();
         pixelMapper = new PixelMapper();
-        joystick = new SwingJoystick();
+        joystick = new SwingJoystick(new JoystickKeys(prefs));
 
         cycleScheduler = new ScheduledThreadPoolExecutor(1);
         peer = new GuestPeerAdapter(hostData -> lastHostData = hostData);
@@ -142,6 +147,8 @@ public class Guest extends PlusFComponent implements Runnable {
         final ButtonGroup joystickButtonGroup = new ButtonGroup();
         final JMenu joystickMenu = new JMenu("Joystick");
         menuBar.add(joystickMenu);
+        final JMenuItem redefineKeysItem = menuItemFor("Redefine", this::redefineKeys, Optional.empty());
+        joystickMenu.add(redefineKeysItem);
         final JMenuItem kempstonJoystick = joystickItem(joystickButtonGroup, "Kempston", true);
         kempstonJoystick.addActionListener(e -> joystickType = JoystickInterfaceType.KEMPSTON);
         joystickMenu.add(kempstonJoystick);
@@ -164,6 +171,22 @@ public class Guest extends PlusFComponent implements Runnable {
     @Override
     KeyListener getKeyListener() {
         return new JoystickHandler();
+    }
+
+    private void redefineKeys(final ActionEvent e) {
+        final RedefineKeysPanel panel = new RedefineKeysPanel(joystick.getKeys());
+        final int result = JOptionPane.showConfirmDialog(
+                Guest.this,
+                panel,
+                "Redefine Keys",
+                JOptionPane.OK_CANCEL_OPTION
+        );
+
+        if (result == JOptionPane.OK_OPTION) {
+            final JoystickKeys keys = panel.getKeys();
+            joystick.setKeys(keys);
+            keys.save(prefs);
+        }
     }
 
     private class JoystickHandler implements KeyListener {

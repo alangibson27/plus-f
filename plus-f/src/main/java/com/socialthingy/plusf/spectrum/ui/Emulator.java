@@ -12,6 +12,8 @@ import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestState;
 import com.socialthingy.plusf.tape.*;
+import com.socialthingy.plusf.ui.JoystickKeys;
+import com.socialthingy.plusf.ui.RedefineKeysPanel;
 import com.socialthingy.plusf.wos.Archive;
 import com.socialthingy.plusf.wos.WosTree;
 import com.socialthingy.plusf.wos.ZipUtils;
@@ -91,7 +93,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         keyboard = new SwingKeyboard();
         tapePlayer = new TapePlayer();
 
-        joystick = new SwingJoystick();
+        joystick = new SwingJoystick(new JoystickKeys(prefs));
         kempstonJoystickInterface = new KempstonJoystickInterface();
         sinclair1JoystickInterface = new SinclairJoystickInterface(keyboard);
         guestJoystick = new Joystick();
@@ -226,6 +228,8 @@ public class Emulator extends PlusFComponent implements Runnable {
         final JMenu joystickMenu = new JMenu("Joystick");
         computerMenu.add(joystickMenu);
 
+        final JMenuItem redefineKeysItem = menuItemFor("Redefine", this::redefineKeys, Optional.empty());
+        joystickMenu.add(redefineKeysItem);
         noJoystickItem = joystickItem(JoystickButtonGroup, "None", true);
         joystickMenu.add(noJoystickItem);
         kempstonJoystickItem = joystickItem(JoystickButtonGroup, "Kempston", false);
@@ -464,6 +468,24 @@ public class Emulator extends PlusFComponent implements Runnable {
                         JOptionPane.ERROR_MESSAGE
                     );
                 }
+            }
+        });
+    }
+
+    private void redefineKeys(final ActionEvent e) {
+        whilePaused(() -> {
+            final RedefineKeysPanel panel = new RedefineKeysPanel(joystick.getKeys());
+            final int result = JOptionPane.showConfirmDialog(
+                Emulator.this,
+                    panel,
+                    "Redefine Keys",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (result == JOptionPane.OK_OPTION) {
+                final JoystickKeys keys = panel.getKeys();
+                joystick.setKeys(keys);
+                keys.save(prefs);
             }
         });
     }

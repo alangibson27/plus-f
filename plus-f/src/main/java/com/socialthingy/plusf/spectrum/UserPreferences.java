@@ -11,13 +11,14 @@ public class UserPreferences {
     public static final String MODEL = "initial-model";
     public static final String SOUND_ENABLED = "sound-enabled";
     public static final String TURBO_LOAD = "turbo-load";
+    public static final String JOYSTICK_UP = "joystick-up";
+    public static final String JOYSTICK_DOWN = "joystick-down";
+    public static final String JOYSTICK_LEFT = "joystick-left";
+    public static final String JOYSTICK_RIGHT = "joystick-right";
+    public static final String JOYSTICK_FIRE = "joystick-fire";
 
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
     private final Properties prefs;
-
-    public UserPreferences(final Properties source) {
-        prefs = source;
-    }
 
     public UserPreferences() {
         prefs = new Properties();
@@ -41,7 +42,7 @@ public class UserPreferences {
         return prefs.getProperty(key);
     }
 
-    public  void set(final String key, final boolean value) {
+    public void set(final String key, final boolean value) {
         set(key, String.valueOf(value));
     }
 
@@ -63,5 +64,17 @@ public class UserPreferences {
     public boolean getOrElse(final String key, final boolean ifUndefined) {
         final String value = getOrElse(key, String.valueOf(ifUndefined));
         return Boolean.valueOf(value);
+    }
+
+    public int getOrElse(final String key, final int ifUndefinedOrInvalid) {
+        try {
+            if (definedFor(key)) {
+                return Integer.parseInt(get(key));
+            } else {
+                return ifUndefinedOrInvalid;
+            }
+        } catch (NumberFormatException nfe) {
+            return ifUndefinedOrInvalid;
+        }
     }
 }

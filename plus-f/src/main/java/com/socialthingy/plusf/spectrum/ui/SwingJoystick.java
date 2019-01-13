@@ -2,6 +2,7 @@ package com.socialthingy.plusf.spectrum.ui;
 
 import com.socialthingy.plusf.spectrum.joystick.Control;
 import com.socialthingy.plusf.spectrum.joystick.Joystick;
+import com.socialthingy.plusf.ui.JoystickKeys;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,13 +11,24 @@ import java.util.Map;
 
 public class SwingJoystick extends Joystick implements KeyListener {
     private Map<Integer, Control> controlKeyAssignments = new HashMap<>();
+    private JoystickKeys keys;
 
-    public SwingJoystick() {
-        controlKeyAssignments.put(KeyEvent.VK_Q, Control.UP);
-        controlKeyAssignments.put(KeyEvent.VK_A, Control.DOWN);
-        controlKeyAssignments.put(KeyEvent.VK_O, Control.LEFT);
-        controlKeyAssignments.put(KeyEvent.VK_P, Control.RIGHT);
-        controlKeyAssignments.put(KeyEvent.VK_M, Control.FIRE);
+    public SwingJoystick(final JoystickKeys keys) {
+        setKeys(keys);
+    }
+
+    public void setKeys(final JoystickKeys keys) {
+        this.keys = keys;
+        controlKeyAssignments.clear();
+        controlKeyAssignments.put(keys.getUp(), Control.UP);
+        controlKeyAssignments.put(keys.getDown(), Control.DOWN);
+        controlKeyAssignments.put(keys.getLeft(), Control.LEFT);
+        controlKeyAssignments.put(keys.getRight(), Control.RIGHT);
+        controlKeyAssignments.put(keys.getFire(), Control.FIRE);
+    }
+
+    public JoystickKeys getKeys() {
+        return keys;
     }
 
     @Override

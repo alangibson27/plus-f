@@ -152,7 +152,7 @@ class TestDisplayComponent extends DisplayComponent {
 }
 
 class InspectableEmulator(frame: JFrame, prefs: UserPreferences, display: DisplayComponent)
-  extends Emulator(frame, () => (), prefs, display) {
+  extends Emulator(frame, prefs, display) {
   def peek(addr: Int): Int = computer.peek(addr)
   def reset(): Unit = {
     computer = newComputer(Model.PLUS_2)
