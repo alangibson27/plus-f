@@ -189,6 +189,9 @@ public class Emulator extends PlusFComponent implements Runnable {
         if (snapshot != null) {
             snapshot.setProcessorState(processor);
             snapshot.setBorderColour(ula);
+            if (snapshot.getJoystickKeys() != null) {
+                joystick.setKeys(snapshot.getJoystickKeys());
+            }
         }
 
         soundSystem.getBeeper().setModel(model);

@@ -1,6 +1,7 @@
 package com.socialthingy.plusf.snapshot;
 
 import com.socialthingy.plusf.spectrum.io.*;
+import com.socialthingy.plusf.ui.JoystickKeys;
 import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.util.Word;
@@ -8,6 +9,7 @@ import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 import java.io.*;
+import java.util.Map;
 
 public class Snapshot {
     private InputStream inputStream;
@@ -37,26 +39,30 @@ public class Snapshot {
     private int borderColour;
     private Model model;
     private int lastWriteTo0x7ffd;
+    private int lastWriteTo0xfffd;
+    private int lastWriteTo0x1ffd;
+    private int leftKey;
+    private int rightKey;
+    private int upKey;
+    private int downKey;
+    private int fireKey;
 
-    private enum HWMode {
-        HW_48K(0), HW_48K_IF1(1), HW_128K(3), UNSUPPORTED(-1);
-
-        private int modeNumber;
-
-        HWMode(final int modeNumber) {
-            this.modeNumber = modeNumber;
-        }
-
-        public static HWMode from(final int modeNumber) {
-            for (HWMode mode: values()) {
-                if (mode.modeNumber == modeNumber) {
-                    return mode;
-                }
-            }
-
-            return UNSUPPORTED;
-        }
-    }
+    private Map<Integer, Model> v2HardwareModes = Map.of(
+        0, Model._48K,
+        1, Model._48K,
+        3, Model._128K,
+        4, Model._128K
+    );
+    private Map<Integer, Model> v3HardwareModes = Map.of(
+        0, Model._48K,
+        1, Model._48K,
+        3, Model._48K,
+        4, Model._128K,
+        5, Model._128K,
+        6, Model._128K,
+        12, Model.PLUS_2,
+        13, Model.PLUS_2A
+    );
 
     public Snapshot(final InputStream inputStream) throws IOException {
         this.inputStream = inputStream;
@@ -82,6 +88,8 @@ public class Snapshot {
             }
 
             memory.write(0xfd, 0x7f, lastWriteTo0x7ffd);
+            memory.write(0xfd, 0xff, lastWriteTo0xfffd);
+            memory.write(0xfd, 0x1f, lastWriteTo0x1ffd);
             return memory;
         }
     }
@@ -106,19 +114,18 @@ public class Snapshot {
         borderColour = snapshotInfo.borderColour;
         if (pcValue == 0x0000) {
             final int headerLength = Word.from(inputStream.read(), inputStream.read());
+            final int version = headerLength == 23 ? 2 : 3;
             pcValue = Word.from(inputStream.read(), inputStream.read());
 
-            final HWMode hwMode = HWMode.from(inputStream.read());
-            if (hwMode == HWMode.UNSUPPORTED || hwMode == HWMode.HW_128K) {
-                throw new IOException("Unsupported machine version. Only 48k snapshots supported.");
+            model = getHWMode(version, inputStream.read());
+            if (model == null) {
+                throw new IOException("Unsupported machine version. Only 48k and 128k spectrum snapshots supported.");
             }
-
-            model = Model._48K;
 
             lastWriteTo0x7ffd = inputStream.read(); // byte 35
             skipByte(); // byte 36
             skipByte(); // byte 37
-            skipByte(); // byte 38
+            lastWriteTo0xfffd = inputStream.read(); // byte 38
             skipBytes(16); // bytes 39-54
 
             if (headerLength > 23) {
@@ -130,7 +137,11 @@ public class Snapshot {
                 skipByte(); // byte 60
                 skipByte(); // byte 61
                 skipByte(); // byte 62
-                skipBytes(10); // bytes 63-72
+                leftKey = readJoystickKey(); // bytes 63-64
+                rightKey = readJoystickKey(); // bytes 65-66
+                downKey = readJoystickKey(); // bytes 67-68
+                upKey = readJoystickKey(); // bytes 69-70
+                fireKey = readJoystickKey(); // bytes 71-72
                 skipBytes(10); // bytes 73-82
                 skipByte(); // byte 83
                 skipByte(); // byte 84
@@ -138,7 +149,7 @@ public class Snapshot {
             }
 
             if (headerLength > 54) {
-                skipByte(); // byte 86
+                lastWriteTo0x1ffd = inputStream.read(); // byte 86
             }
 
             int blockStart = inputStream.read();
@@ -157,6 +168,22 @@ public class Snapshot {
             model = Model._48K;
             extractV1Memory(snapshotInfo.memoryIsCompressed);
         }
+    }
+
+    private int readJoystickKey() throws IOException {
+        final int row = inputStream.read();
+        final int columnMask = inputStream.read();
+        return KeyIdentifier.identify(row, columnMask);
+    }
+
+    private Model getHWMode(final int version, final int mode) {
+        if (version == 2) {
+            return v2HardwareModes.get(mode);
+        } else if (version == 3) {
+            return v3HardwareModes.get(mode);
+        }
+
+        return null;
     }
 
     private void extractV1Memory(final boolean memoryIsCompressed) throws IOException {
@@ -290,6 +317,13 @@ public class Snapshot {
 
     private void skipBytes(final int bytes) throws IOException {
         inputStream.skip(bytes);
+    }
+
+    public JoystickKeys getJoystickKeys() {
+        if (leftKey > 0 && rightKey > 0 && upKey > 0 && downKey > 0 && fireKey > 0) {
+            return new JoystickKeys(upKey, downKey, leftKey, rightKey, fireKey);
+        }
+        return null;
     }
 
     private class SnapshotInfo {
