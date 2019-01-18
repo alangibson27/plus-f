@@ -1,9 +1,9 @@
 package com.socialthingy.plusf.snapshot
 
-object EDCompressor {
-    fun compress(input: Array<Int>): Array<Int> = compress(input, false)
+import java.io.InputStream
 
-    fun compress(input: Array<Int>, addEndMarker: Boolean): Array<Int> {
+object EDCompressor {
+    fun compress(input: Array<Int>): Array<Int> {
         if (input.isEmpty()) {
             return arrayOf()
         }
@@ -37,48 +37,37 @@ object EDCompressor {
             }
         }
 
-        if (addEndMarker) {
-            output.add(0)
-            output.add(0xed)
-            output.add(0xed)
-            output.add(0)
-        }
-
         return output.toTypedArray()
     }
 
-    fun decompress(input: Array<Int>): Array<Int> {
-        if (input.isEmpty()) {
-            return arrayOf()
-        }
+    fun decompress(inputStream: InputStream, compressedLength: Int): IntArray {
+        val out = mutableListOf<Int>()
 
-        val endMarkerLength = if (input.reversedArray().take(4) == listOf(0, 0xed, 0xed, 0)) 4 else 0
+        var count = 0
+        while (count < compressedLength) {
+            val nextByte = inputStream.read()
+            count++
+            if (nextByte == 0xed) {
+                val nextByte2 = inputStream.read()
+                count++
+                if (nextByte2 == 0xed) {
+                    val repetitions = inputStream.read()
+                    count++
+                    val value = inputStream.read()
+                    count++
 
-        val output = mutableListOf<Int>()
-        var lastValue = -1
-        var inCompressionBlock = false
-        var repetitions = 0
-        for (value in input.dropLast(endMarkerLength)) {
-            if (!inCompressionBlock) {
-                if (value == 0xed) {
-                    inCompressionBlock = lastValue == 0xed
-                } else {
-                    if (lastValue == 0xed) {
-                        output.add(0xed)
+                    for (i in 0 until repetitions) {
+                        out.add(value)
                     }
-                    output.add(value)
-                }
-                lastValue = value
-            } else {
-                if (repetitions == 0) {
-                    repetitions = value
                 } else {
-                    repeat(repetitions) { output.add(value) }
-                    lastValue = -1
+                    out.add(nextByte)
+                    out.add(nextByte2)
                 }
+            } else {
+                out.add(nextByte)
             }
         }
 
-        return output.toTypedArray()
+        return out.toIntArray()
     }
 }

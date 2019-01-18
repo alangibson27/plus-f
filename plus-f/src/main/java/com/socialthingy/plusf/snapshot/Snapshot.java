@@ -1,5 +1,6 @@
 package com.socialthingy.plusf.snapshot;
 
+import com.socialthingy.plusf.spectrum.Computer;
 import com.socialthingy.plusf.spectrum.io.*;
 import com.socialthingy.plusf.ui.JoystickKeys;
 import com.socialthingy.plusf.z80.Clock;
@@ -9,7 +10,9 @@ import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 import java.io.*;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Snapshot {
     private InputStream inputStream;
@@ -71,6 +74,117 @@ public class Snapshot {
             memoryPages[i] = new int[0x4000];
         }
         read();
+    }
+
+    public Snapshot(final Computer computer) {
+        aValue = computer.getProcessor().register("a").get();
+        fValue = computer.getProcessor().register("f").get();
+        cValue = computer.getProcessor().register("c").get();
+        bValue = computer.getProcessor().register("b").get();
+        lValue = computer.getProcessor().register("l").get();
+        hValue = computer.getProcessor().register("h").get();
+        hValue = computer.getProcessor().register("pc").get();
+    }
+
+    private final int lsb(final int value) {
+        return value & 0xff;
+    }
+
+    private final int msb(final int value) {
+        return value >> 8;
+    }
+
+    public void write(final File target) throws IOException {
+        try (final FileOutputStream fos = new FileOutputStream(target)) {
+            fos.write(aValue);
+            fos.write(fValue);
+            fos.write(cValue);
+            fos.write(bValue);
+            fos.write(lValue);
+            fos.write(hValue);
+            fos.write(lsb(pcValue));
+            fos.write(msb(pcValue));
+            fos.write(lsb(spValue));
+            fos.write(msb(spValue));
+            fos.write(iValue);
+            fos.write(rValue);
+            fos.write(rValue);
+            fos.write(rValue >> 7 | borderColour << 1 | 0x10);
+            fos.write(eValue);
+            fos.write(dValue);
+            fos.write(lsb(bcPValue));
+            fos.write(msb(bcPValue));
+            fos.write(lsb(dePValue));
+            fos.write(msb(dePValue));
+            fos.write(lsb(hlPValue));
+            fos.write(msb(hlPValue));
+            fos.write(aPValue);
+            fos.write(fPValue);
+            fos.write(lsb(iyValue));
+            fos.write(msb(iyValue));
+            fos.write(lsb(ixValue));
+            fos.write(msb(ixValue));
+            fos.write(iff0);
+            fos.write(iff1);
+            fos.write(interruptMode);
+
+            fos.write(0);
+            fos.write(55);
+
+            fos.write(lsb(pcValue));
+            fos.write(msb(pcValue));
+            fos.write(hwModeFrom(model));
+            fos.write(model == Model._48K ? 0 : lastWriteTo0x7ffd);
+            fos.write(0);
+            fos.write(0);
+            fos.write(lastWriteTo0xfffd);
+            for (int i = 0; i < 16; i++) {
+                fos.write(0);
+            }
+            fos.write(0);
+            fos.write(0);
+            fos.write(0);
+            fos.write(0);
+            fos.write(0);
+            fos.write(0);
+            fos.write(0);
+            fos.write(msb(leftKey));
+            fos.write(lsb(leftKey));
+            fos.write(msb(rightKey));
+            fos.write(lsb(rightKey));
+            fos.write(msb(downKey));
+            fos.write(lsb(downKey));
+            fos.write(msb(upKey));
+            fos.write(lsb(upKey));
+            fos.write(msb(fireKey));
+            fos.write(lsb(fireKey));
+            for (int i = 0; i < 10; i++) {
+                fos.write(0);
+            }
+            fos.write(0);
+            fos.write(0);
+            fos.write(0);
+            fos.write(lastWriteTo0x1ffd);
+
+            if (model == Model._48K) {
+                writeMemory(fos, 4);
+                writeMemory(fos, 5);
+                writeMemory(fos, 8);
+            } else {
+                for (int i = 1; i <= 8; i++) {
+                    writeMemory(fos, i);
+                }
+            }
+        }
+    }
+
+    private void writeMemory(final FileOutputStream fos, final int page) throws IOException {
+        fos.write(0xff);
+        fos.write(0xff);
+        fos.write(page);
+        for (int i = 0; i < 0xffff; i++) {
+            fos.write(memoryPages[page][i]);
+        }
     }
 
     public SpectrumMemory getMemory() {
@@ -157,9 +271,9 @@ public class Snapshot {
                 final int blockLength = Word.from(blockStart, inputStream.read());
                 final int pageNumber = inputStream.read();
                 if (blockLength == 0xffff) {
-                    throw new IllegalStateException("uncompressed memory block");
+                    loadMemoryFromBinary(memoryPages[pageNumber]);
                 } else {
-                    loadMemoryFromCompressedBinary(0, 0x4000, memoryPages[pageNumber]);
+                    loadMemoryFromCompressedBinary(0, blockLength, memoryPages[pageNumber]);
                 }
 
                 blockStart = inputStream.read();
@@ -184,6 +298,14 @@ public class Snapshot {
         }
 
         return null;
+    }
+
+    private int hwModeFrom(final Model model) {
+        final List<Integer> hwModes = v3HardwareModes.entrySet().stream().filter(e -> e.getValue() == model)
+                .map(e -> e.getKey())
+                .collect(Collectors.toList());
+
+        return hwModes.isEmpty() ? 0 : hwModes.get(0);
     }
 
     private void extractV1Memory(final boolean memoryIsCompressed) throws IOException {
@@ -281,28 +403,9 @@ public class Snapshot {
         return model;
     }
 
-    private void loadMemoryFromCompressedBinary(final int base, final int length, final int[] memory) throws IOException {
-        int next = base;
-        final int top = base + length;
-        while (next < top) {
-            final int nextByte = inputStream.read();
-            if (nextByte == 0xed) {
-                final int nextByte2 = inputStream.read();
-                if (nextByte2 == 0xed) {
-                    final int repetitions = inputStream.read();
-                    final int value = inputStream.read();
-
-                    for (int i = 0; i < repetitions; i++) {
-                        memory[next++] = value;
-                    }
-                } else{
-                    memory[next++] = nextByte;
-                    memory[next++] = nextByte2;
-                }
-            } else {
-                memory[next++] = nextByte;
-            }
-        }
+    private void loadMemoryFromCompressedBinary(final int base, final int length, final int[] targetMemory) {
+        final int[] decompressed = EDCompressor.INSTANCE.decompress(inputStream, length);
+        System.arraycopy(decompressed, 0, targetMemory, base, decompressed.length);
     }
 
     private void loadMemoryFromBinary(final int[] memory) throws IOException {
