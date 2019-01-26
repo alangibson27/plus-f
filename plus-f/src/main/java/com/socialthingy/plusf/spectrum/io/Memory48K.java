@@ -29,6 +29,23 @@ public class Memory48K extends SpectrumMemory {
     }
 
     @Override
+    public void copyFromBank(final int sourceBank, final int[] target) {
+        switch (sourceBank) {
+            case 5:
+                System.arraycopy(addressableMemory, 0x4000, target, 0, PAGE_SIZE);
+                break;
+
+            case 1:
+                System.arraycopy(addressableMemory, 0x8000, target, 0, PAGE_SIZE);
+                break;
+
+            case 2:
+                System.arraycopy(addressableMemory, 0xc000, target, 0, PAGE_SIZE);
+                break;
+        }
+    }
+
+    @Override
     public void resetDisplayMemory() {
         System.arraycopy(addressableMemory, 0x4000, displayMemory, 0x0000, 0x1b00);
     }

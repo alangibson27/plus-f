@@ -43,6 +43,10 @@ public class Computer {
         return processor;
     }
 
+    public ULA getULA() {
+        return ula;
+    }
+
     public void singleCycle() {
         boolean newCycle = true;
         processor.requestInterrupt();

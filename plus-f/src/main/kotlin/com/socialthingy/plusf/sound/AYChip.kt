@@ -15,6 +15,8 @@ class AYChip(private val toneChannels: List<ToneChannel>): IO {
     private val toneAFlag = 1
 
     private var selectedRegister = 0
+    public var lastWriteTo0xfffd = 0
+        get() = field
 
     private val registers = IntArray(18)
 
@@ -27,6 +29,10 @@ class AYChip(private val toneChannels: List<ToneChannel>): IO {
     override fun read(low: Int, high: Int): Int = registers[selectedRegister]
 
     override fun write(low: Int, high: Int, value: Int) {
+        if (high == 0xff && low == 0xfd) {
+            lastWriteTo0xfffd = value
+        }
+
         if ((high and 64) != 0) selectRegister(value and 0xf) else writeRegister(value)
     }
 

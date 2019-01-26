@@ -3,9 +3,9 @@ package com.socialthingy.plusf.snapshot
 import java.io.InputStream
 
 object EDCompressor {
-    fun compress(input: Array<Int>): Array<Int> {
+    fun compress(input: IntArray): IntArray {
         if (input.isEmpty()) {
-            return arrayOf()
+            return IntArray(0)
         }
 
         val output = mutableListOf<Int>()
@@ -16,6 +16,13 @@ object EDCompressor {
         for (value in input.drop(1).plus(-1)) {
             if (value == lastValue) {
                 lastValueRepetitions++
+                if (lastValueRepetitions === 255) {
+                    output.add(0xed)
+                    output.add(0xed)
+                    output.add(0xff)
+                    output.add(lastValue)
+                    lastValueRepetitions = 0
+                }
             } else {
                 if (lastValueRepetitions == 1) {
                     afterSingleEd = lastValue == 0xed
@@ -37,7 +44,7 @@ object EDCompressor {
             }
         }
 
-        return output.toTypedArray()
+        return output.toIntArray()
     }
 
     fun decompress(inputStream: InputStream, compressedLength: Int): IntArray {

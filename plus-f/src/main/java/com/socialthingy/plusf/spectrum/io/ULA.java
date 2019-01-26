@@ -96,6 +96,10 @@ public class ULA implements IO {
         this.currentBorderColour = borderColour & 0b111;
     }
 
+    public int getBorderColour() {
+        return currentBorderColour;
+    }
+
     public void newCycle() {
         if (!borderColourChanged) {
             unchangedBorderCycles++;

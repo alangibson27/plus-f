@@ -71,5 +71,7 @@ public abstract class SpectrumMemory extends UncontendedMemory implements IO {
         return addr >> 14 == 1;
     }
 
+    public abstract void copyFromBank(int sourceBank, int[] target);
+
     public abstract void resetDisplayMemory();
 }

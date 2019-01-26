@@ -19,8 +19,11 @@ class EDCompressorSpec extends FlatSpec with Matchers with TableDrivenPropertyCh
       (bytes(0xed, 0xed), bytes(0xed, 0xed, 2, 0xed)),
       (bytes(0xed, 0, 0, 0, 0, 0, 0), bytes(0xed, 0, 0xed, 0xed, 5, 0)),
       (bytes(0xed, 0xed, 0xed, 0xed, 0xed, 0xed), bytes(0xed, 0xed, 6, 0xed)),
-      (bytes(1, 2, 3, 4, 5), bytes(1, 2, 3, 4, 5))
+      (bytes(1, 2, 3, 4, 5), bytes(1, 2, 3, 4, 5)),
+      ((List.fill[Int](256)(1) ::: List(2)).toArray, bytes(0xed, 0xed, 0xff, 0x01, 0x01, 0x02)),
+      ((List.fill[Int](255)(1) ::: List(2)).toArray, bytes(0xed, 0xed, 0xff, 0x01, 0x02))
     )
+
 
     forAll(sequencesToCompress) { (input, output) =>
       compress(input) shouldBe output
@@ -41,7 +44,7 @@ class EDCompressorSpec extends FlatSpec with Matchers with TableDrivenPropertyCh
     }
   }
 
-  def bytes(bytes: Int*): Array[Integer] = bytes.map(Integer.valueOf).toArray
+  def bytes(bytes: Int*): Array[Int] = bytes.toArray
 
   def stream(bytes: Int*): ByteArrayInputStream = new ByteArrayInputStream(bytes.map(x => x.asInstanceOf[Byte]).toArray)
 }

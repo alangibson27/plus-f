@@ -14,6 +14,7 @@ public class Memory128K extends SpectrumMemory {
     protected int activeRomBank;
     protected int activeScreenBank;
     protected int activeHighBank;
+    protected int lastWriteTo0x7ffd = 0;
 
     public Memory128K(final Model model) {
         super(model);
@@ -53,6 +54,7 @@ public class Memory128K extends SpectrumMemory {
     @Override
     public void write(int low, int high, int value) {
         if (!pagingDisabled) {
+            lastWriteTo0x7ffd = value;
             final int newHighPage = value & 0b00000111;
             final int newScreenPage = (value & 0b00001000) == 0 ? 5 : 7;
             final int newRomPage = (value & 0b00010000) == 0 ? 0 : 1;
@@ -114,5 +116,14 @@ public class Memory128K extends SpectrumMemory {
 
     public void copyIntoBank(final int[] source, final int targetBank) {
         System.arraycopy(source, 0x0000, ramBanks[targetBank], 0x0000, PAGE_SIZE);
+    }
+
+    @Override
+    public void copyFromBank(final int sourceBank, final int[] target) {
+        System.arraycopy(ramBanks[sourceBank], 0x0000, target, 0x0000, PAGE_SIZE);
+    }
+
+    public int getLastWriteTo0x7ffd() {
+        return lastWriteTo0x7ffd;
     }
 }

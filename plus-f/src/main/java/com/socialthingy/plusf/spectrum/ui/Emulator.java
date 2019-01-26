@@ -1,7 +1,8 @@
 package com.socialthingy.plusf.spectrum.ui;
 
 import com.codahale.metrics.MetricRegistry;
-import com.socialthingy.plusf.snapshot.Snapshot;
+import com.socialthingy.plusf.snapshot.SnapshotLoader;
+import com.socialthingy.plusf.snapshot.SnapshotSaver;
 import com.socialthingy.plusf.sound.SoundSystem;
 import com.socialthingy.plusf.spectrum.*;
 import com.socialthingy.plusf.spectrum.display.DisplayComponent;
@@ -28,10 +29,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +77,7 @@ public class Emulator extends PlusFComponent implements Runnable {
     private JMenuItem kempstonJoystickItem;
     private JMenuItem sinclairJoystickItem;
     private JMenuItem noJoystickItem;
+    private SnapshotSaver snapshotSaver;
 
     public Emulator(final Frame window) {
         this(window, new UserPreferences(), new DisplayComponent());
@@ -154,7 +153,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         return newComputer(model, null);
     }
 
-    private Computer newComputer(final Model model, final Snapshot snapshot) {
+    private Computer newComputer(final Model model, final SnapshotLoader snapshot) {
         final SpectrumMemory memory;
         final ContentionModel contentionModel;
         if (snapshot == null) {
@@ -187,14 +186,16 @@ public class Emulator extends PlusFComponent implements Runnable {
 
         final Processor processor = new Processor(memory, contentionModel, ioMux, clock);
         if (snapshot != null) {
-            snapshot.setProcessorState(processor);
-            snapshot.setBorderColour(ula);
+            snapshot.writeProcessorState(processor);
+            snapshot.writeBorderColour(ula);
+            snapshot.writeAYChip(soundSystem.getAyChip());
             if (snapshot.getJoystickKeys() != null) {
                 joystick.setKeys(snapshot.getJoystickKeys());
             }
         }
 
         soundSystem.getBeeper().setModel(model);
+        this.snapshotSaver = new SnapshotSaver(processor, ula, memory, model, soundSystem.getAyChip(), joystick.getKeys());
         return new Computer(
             processor,
             memory,
@@ -466,9 +467,33 @@ public class Emulator extends PlusFComponent implements Runnable {
                 } catch (TapeException | IOException ex) {
                     JOptionPane.showMessageDialog(
                         this,
-                        format("An error occurred while loading the file file:\n%s", ex.getMessage()),
+                        format("An error occurred while loading the file:\n%s", ex.getMessage()),
                         "Loading Error",
                         JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        });
+    }
+
+    private void save(final ActionEvent e) {
+        whilePaused(() -> {
+            final JFileChooser chooser = new JFileChooser("Save .Z80 file");
+            if (prefs.definedFor(LAST_LOAD_DIRECTORY)) {
+                chooser.setCurrentDirectory(new File(prefs.get(LAST_LOAD_DIRECTORY)));
+            }
+
+            final int result = chooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                try (final FileOutputStream target = new FileOutputStream(chooser.getSelectedFile())) {
+                    snapshotSaver.write(target);
+                    prefs.set(LAST_LOAD_DIRECTORY, chooser.getSelectedFile().getAbsolutePath());
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            format("An error occurred while saving the file:\n%s", ex.getMessage()),
+                            "Saving Error",
+                            JOptionPane.ERROR_MESSAGE
                     );
                 }
             }
@@ -561,7 +586,7 @@ public class Emulator extends PlusFComponent implements Runnable {
             loadFromZip(selectedFile);
         } else {
             try (final FileInputStream fis = new FileInputStream(selectedFile)) {
-                final Snapshot snapshot = new Snapshot(fis);
+                final SnapshotLoader snapshot = new SnapshotLoader(fis);
                 computer = newComputer(snapshot.getModel(), snapshot);
                 resetComputer();
             }
@@ -690,6 +715,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         final JMenu fileMenu = new JMenu("File");
         fileMenu.add(menuItemFor("Load from file ...", this::load, Optional.of(KeyEvent.VK_L)));
         fileMenu.add(menuItemFor("Load from WOS ...", this::loadFromWos, Optional.of(KeyEvent.VK_W)));
+        fileMenu.add(menuItemFor("Save snapshot ...", this::save, Optional.empty()));
         fileMenu.add(menuItemFor("Quit", this::quit, Optional.of(KeyEvent.VK_Q)));
         menuBar.add(fileMenu);
 

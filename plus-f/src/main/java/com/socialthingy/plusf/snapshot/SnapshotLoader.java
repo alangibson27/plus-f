@@ -1,20 +1,21 @@
 package com.socialthingy.plusf.snapshot;
 
-import com.socialthingy.plusf.spectrum.Computer;
+import com.socialthingy.plusf.sound.AYChip;
+import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.spectrum.io.*;
 import com.socialthingy.plusf.ui.JoystickKeys;
-import com.socialthingy.plusf.z80.Clock;
-import com.socialthingy.plusf.spectrum.Model;
 import com.socialthingy.plusf.util.Word;
+import com.socialthingy.plusf.z80.Clock;
 import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
-import java.io.*;
-import java.util.List;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class Snapshot {
+public class SnapshotLoader {
     private InputStream inputStream;
     private int aValue;
     private int fValue;
@@ -67,124 +68,13 @@ public class Snapshot {
         13, Model.PLUS_2A
     );
 
-    public Snapshot(final InputStream inputStream) throws IOException {
-        this.inputStream = inputStream;
+    public SnapshotLoader(final InputStream inputStream) throws IOException {
+        this.inputStream = new BufferedInputStream(inputStream);
         memoryPages = new int[12][];
         for (int i = 0; i < 12; i++) {
             memoryPages[i] = new int[0x4000];
         }
         read();
-    }
-
-    public Snapshot(final Computer computer) {
-        aValue = computer.getProcessor().register("a").get();
-        fValue = computer.getProcessor().register("f").get();
-        cValue = computer.getProcessor().register("c").get();
-        bValue = computer.getProcessor().register("b").get();
-        lValue = computer.getProcessor().register("l").get();
-        hValue = computer.getProcessor().register("h").get();
-        hValue = computer.getProcessor().register("pc").get();
-    }
-
-    private final int lsb(final int value) {
-        return value & 0xff;
-    }
-
-    private final int msb(final int value) {
-        return value >> 8;
-    }
-
-    public void write(final File target) throws IOException {
-        try (final FileOutputStream fos = new FileOutputStream(target)) {
-            fos.write(aValue);
-            fos.write(fValue);
-            fos.write(cValue);
-            fos.write(bValue);
-            fos.write(lValue);
-            fos.write(hValue);
-            fos.write(lsb(pcValue));
-            fos.write(msb(pcValue));
-            fos.write(lsb(spValue));
-            fos.write(msb(spValue));
-            fos.write(iValue);
-            fos.write(rValue);
-            fos.write(rValue);
-            fos.write(rValue >> 7 | borderColour << 1 | 0x10);
-            fos.write(eValue);
-            fos.write(dValue);
-            fos.write(lsb(bcPValue));
-            fos.write(msb(bcPValue));
-            fos.write(lsb(dePValue));
-            fos.write(msb(dePValue));
-            fos.write(lsb(hlPValue));
-            fos.write(msb(hlPValue));
-            fos.write(aPValue);
-            fos.write(fPValue);
-            fos.write(lsb(iyValue));
-            fos.write(msb(iyValue));
-            fos.write(lsb(ixValue));
-            fos.write(msb(ixValue));
-            fos.write(iff0);
-            fos.write(iff1);
-            fos.write(interruptMode);
-
-            fos.write(0);
-            fos.write(55);
-
-            fos.write(lsb(pcValue));
-            fos.write(msb(pcValue));
-            fos.write(hwModeFrom(model));
-            fos.write(model == Model._48K ? 0 : lastWriteTo0x7ffd);
-            fos.write(0);
-            fos.write(0);
-            fos.write(lastWriteTo0xfffd);
-            for (int i = 0; i < 16; i++) {
-                fos.write(0);
-            }
-            fos.write(0);
-            fos.write(0);
-            fos.write(0);
-            fos.write(0);
-            fos.write(0);
-            fos.write(0);
-            fos.write(0);
-            fos.write(msb(leftKey));
-            fos.write(lsb(leftKey));
-            fos.write(msb(rightKey));
-            fos.write(lsb(rightKey));
-            fos.write(msb(downKey));
-            fos.write(lsb(downKey));
-            fos.write(msb(upKey));
-            fos.write(lsb(upKey));
-            fos.write(msb(fireKey));
-            fos.write(lsb(fireKey));
-            for (int i = 0; i < 10; i++) {
-                fos.write(0);
-            }
-            fos.write(0);
-            fos.write(0);
-            fos.write(0);
-            fos.write(lastWriteTo0x1ffd);
-
-            if (model == Model._48K) {
-                writeMemory(fos, 4);
-                writeMemory(fos, 5);
-                writeMemory(fos, 8);
-            } else {
-                for (int i = 1; i <= 8; i++) {
-                    writeMemory(fos, i);
-                }
-            }
-        }
-    }
-
-    private void writeMemory(final FileOutputStream fos, final int page) throws IOException {
-        fos.write(0xff);
-        fos.write(0xff);
-        fos.write(page);
-        for (int i = 0; i < 0xffff; i++) {
-            fos.write(memoryPages[page][i]);
-        }
     }
 
     public SpectrumMemory getMemory() {
@@ -201,9 +91,16 @@ public class Snapshot {
                 memory.copyIntoBank(memoryPages[i], i - 3);
             }
 
-            memory.write(0xfd, 0x7f, lastWriteTo0x7ffd);
-            memory.write(0xfd, 0xff, lastWriteTo0xfffd);
-            memory.write(0xfd, 0x1f, lastWriteTo0x1ffd);
+            if (memory.recognises(0xfd, 0x7f)) {
+                memory.write(0xfd, 0x7f, lastWriteTo0x7ffd);
+            }
+
+            if (memory.recognises(0xfd, 0xff)) {
+                memory.write(0xfd, 0xff, lastWriteTo0xfffd);
+            }
+
+
+
             return memory;
         }
     }
@@ -287,7 +184,7 @@ public class Snapshot {
     private int readJoystickKey() throws IOException {
         final int row = inputStream.read();
         final int columnMask = inputStream.read();
-        return KeyIdentifier.identify(row, columnMask);
+        return KeyTranslator.coordinateToKeyCode(row, columnMask);
     }
 
     private Model getHWMode(final int version, final int mode) {
@@ -300,18 +197,14 @@ public class Snapshot {
         return null;
     }
 
-    private int hwModeFrom(final Model model) {
-        final List<Integer> hwModes = v3HardwareModes.entrySet().stream().filter(e -> e.getValue() == model)
-                .map(e -> e.getKey())
-                .collect(Collectors.toList());
-
-        return hwModes.isEmpty() ? 0 : hwModes.get(0);
-    }
-
     private void extractV1Memory(final boolean memoryIsCompressed) throws IOException {
         final int[] wholeMemory = new int[0xc000];
         if (memoryIsCompressed) {
-            loadMemoryFromCompressedBinary(0x0000, 0xc000, wholeMemory);
+            inputStream.mark(0x10000);
+            final byte[] remainder = inputStream.readAllBytes();
+            inputStream.reset();
+
+            loadMemoryFromCompressedBinary(0x0000, remainder.length - 4, wholeMemory);
             final int[] endMarker = new int[]{
                     inputStream.read(), inputStream.read(), inputStream.read(), inputStream.read()
             };
@@ -366,7 +259,7 @@ public class Snapshot {
         return new SnapshotInfo(memoryIsCompressed, borderColour);
     }
 
-    public void setProcessorState(final Processor processor) {
+    public void writeProcessorState(final Processor processor) {
         processor.register("a").set(aValue);
         processor.register("f").set(fValue);
         processor.register("c").set(cValue);
@@ -395,8 +288,14 @@ public class Snapshot {
         processor.setInterruptMode(interruptMode);
     }
 
-    public void setBorderColour(final ULA ula) {
+    public void writeBorderColour(final ULA ula) {
         ula.setBorderColour(borderColour);
+    }
+
+    public void writeAYChip(final AYChip ayChip) {
+        if (lastWriteTo0x1ffd != -1) {
+            ayChip.write(0xfd, 0x1f, lastWriteTo0x1ffd);
+        }
     }
 
     public Model getModel() {

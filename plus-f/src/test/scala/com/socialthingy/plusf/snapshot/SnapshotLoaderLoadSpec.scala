@@ -2,31 +2,35 @@ package com.socialthingy.plusf.snapshot
 
 import java.io.IOException
 
+import com.codahale.metrics.MetricRegistry
 import com.socialthingy.plusf.ProcessorSpec
-import com.socialthingy.plusf.spectrum.io.ULA
+import com.socialthingy.plusf.spectrum.Computer
+import com.socialthingy.plusf.spectrum.io.{IOMultiplexer, MemoryPlus2A, SpectrumMemory, ULA}
 import com.socialthingy.plusf.z80._
+import org.mockito.Mockito
 import org.mockito.Mockito.verify
 import org.scalatest.Matchers
 import org.scalatest.mockito.MockitoSugar
 
-class SnapshotSpec extends ProcessorSpec with Matchers with MockitoSugar {
+trait Spectrum {
+  val ula = Mockito.mock(classOf[ULA])
+  val clock = new Clock()
+  val memory = Mockito.mock(classOf[SpectrumMemory])
+  val processor = new Processor(memory, Mockito.mock(classOf[ContentionModel]), Mockito.mock(classOf[IO]), clock)
+  val computer = new Computer(processor, memory, ula, Mockito.mock(classOf[MetricRegistry]))
 
-  trait Spectrum {
-    val ula = mock[ULA]
-    val clock = new Clock()
-    val processor = new Processor(mock[Memory], mock[ContentionModel], mock[IO], clock)
+  def registerValue(name: String) = processor.register(name).get()
+}
 
-    def registerValue(name: String) = processor.register(name).get()
-  }
-
+class SnapshotLoaderLoadSpec extends ProcessorSpec with Matchers with MockitoSugar {
   "Snapshot loader" should "load a z80 v1 snapshot" in new Spectrum {
     // given
-    val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80"))
+    val snapshot = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80"))
 
     // when
-    val memory = snapshot.getMemory()
-    snapshot.setBorderColour(ula)
-    snapshot.setProcessorState(processor)
+    val snapshotMemory = snapshot.getMemory()
+    snapshot.writeBorderColour(ula)
+    snapshot.writeProcessorState(processor)
 
     // then
     verify(ula).setBorderColour(7)
@@ -64,17 +68,16 @@ class SnapshotSpec extends ProcessorSpec with Matchers with MockitoSugar {
 
     processor.getInterruptMode shouldBe 1
 
-    (0x4000 until 0x4100) foreach (memory.get(_) shouldBe 0xff)
+    (0x4000 until 0x4100) foreach (snapshotMemory.get(_) shouldBe 0xff)
   }
 
   it should "load z80 v3 snapshot" in new Spectrum {
     // given
-    val snapshot = new Snapshot(getClass.getResourceAsStream("/screenfiller.z80-v3"))
+    val snapshot = new SnapshotLoader(getClass.getResourceAsStream("/screenfiller.z80-v3"))
 
     // when
-    val memory = snapshot.getMemory()
-    snapshot.setBorderColour(ula)
-    snapshot.setProcessorState(processor)
+    snapshot.writeBorderColour(ula)
+    snapshot.writeProcessorState(processor)
 
     // then
     verify(ula).setBorderColour(7)
@@ -110,11 +113,5 @@ class SnapshotSpec extends ProcessorSpec with Matchers with MockitoSugar {
     processor.getIff(0) shouldBe false
     processor.getIff(1) shouldBe false
 
-  }
-
-  it should "reject a snapshot for a non-48k machine" in new Spectrum {
-    intercept[IOException] {
-      new Snapshot(getClass.getResourceAsStream("/screenfiller.z80-128k"))
-    }
   }
 }

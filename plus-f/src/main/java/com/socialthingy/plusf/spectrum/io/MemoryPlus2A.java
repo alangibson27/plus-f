@@ -5,6 +5,7 @@ import com.socialthingy.plusf.spectrum.Model;
 public class MemoryPlus2A extends Memory128K {
     private boolean specialPagingMode = false;
     private int[] activeSpecialBanks = new int[4];
+    private int lastWriteTo0x1ffd = 0;
 
     MemoryPlus2A(final boolean addBankMarkerValues) {
         this();
@@ -33,6 +34,7 @@ public class MemoryPlus2A extends Memory128K {
     public void write(int low, int high, int value) {
         if (!pagingDisabled) {
             if (port0x7ffd(low, high)) {
+                lastWriteTo0x7ffd = value;
                 final int newHighPage = value & 0b00000111;
                 final int newScreenPage = (value & 0b00001000) == 0 ? 5 : 7;
                 final int newRomLowBitSelector = (value & 0b00010000) >> 4;
@@ -41,6 +43,7 @@ public class MemoryPlus2A extends Memory128K {
                 activeRomBank = (activeRomBank & 0b10) | newRomLowBitSelector;
                 pagingDisabled = (value & 0b00100000) != 0;
             } else if (port0x1ffd(low, high)) {
+                lastWriteTo0x1ffd = value;
                 specialPagingMode = (value & 0b1) == 1;
                 if (specialPagingMode) {
                     final int pagingSelector = (value & 0b110) >> 1;
@@ -131,6 +134,10 @@ public class MemoryPlus2A extends Memory128K {
                     return activeHighBank >= 4;
             }
         }
+    }
+
+    public int getLastWriteTo0x1ffd() {
+        return lastWriteTo0x1ffd;
     }
 
     private boolean port0x7ffd(final int low, final int high) {
