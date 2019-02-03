@@ -485,6 +485,19 @@ public class Emulator extends PlusFComponent implements Runnable {
 
             final int result = chooser.showSaveDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
+                final File targetFile = chooser.getSelectedFile();
+                if (targetFile.exists()) {
+                    if (JOptionPane.showConfirmDialog(
+                        this,
+                        format("A file named %s already exists. Do you want to overwrite it?", targetFile.getName()),
+                        "Overwrite File?",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                    ) == JOptionPane.CANCEL_OPTION) {
+                        return;
+                    }
+                }
+
                 try (final FileOutputStream target = new FileOutputStream(chooser.getSelectedFile())) {
                     snapshotSaver.write(target);
                     prefs.set(LAST_LOAD_DIRECTORY, chooser.getSelectedFile().getAbsolutePath());
