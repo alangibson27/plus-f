@@ -427,14 +427,14 @@ public class Emulator extends PlusFComponent implements Runnable {
     }
 
     private void handleTurboLoading() {
-        final boolean ulaAccessed = computer.ulaAccessed();
-        if (!turboLoadActive && ulaAccessed && turboLoadEnabled
+        final boolean probablyLoadingTape = computer.probablyLoadingTape();
+        if (!turboLoadActive && probablyLoadingTape && turboLoadEnabled
                 && tapePlayer.isPlaying() && currentSpeed != EmulatorSpeed.TURBO) {
             turboLoadActive = true;
             setSpeed(EmulatorSpeed.TURBO);
         }
 
-        if (turboLoadActive && (!ulaAccessed || !tapePlayer.isPlaying())) {
+        if (turboLoadActive && (!probablyLoadingTape || !tapePlayer.isPlaying())) {
             turboLoadActive = false;
             setSpeed(EmulatorSpeed.NORMAL);
         }

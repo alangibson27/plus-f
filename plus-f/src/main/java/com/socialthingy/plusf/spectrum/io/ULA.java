@@ -38,7 +38,6 @@ public class ULA implements IO {
     private final int[] renderedDisplayMemory = new int[SCREEN_WIDTH * SCREEN_HEIGHT];
     private final SpectrumMemory memory;
 
-    private boolean ulaAccessed = false;
     private boolean beeperIsOn = false;
 
     public ULA(final SpectrumMemory memory, final Keyboard keyboard, final TapePlayer tapePlayer, final Beeper beeper, final Clock clock, final Model model) {
@@ -58,10 +57,6 @@ public class ULA implements IO {
         return clock;
     }
 
-    public boolean ulaAccessed() {
-        return ulaAccessed;
-    }
-
     @Override
     public boolean recognises(final int low, final int high) {
         return (low & 0b1) == 0;
@@ -69,7 +64,6 @@ public class ULA implements IO {
 
     @Override
     public int read(int low, int high) {
-        ulaAccessed = true;
         if (tapeCyclesAdvanced > 0) {
             earBit = tapePlayer.skip(tapeCyclesAdvanced) ? 1 << 6 : 0;
             beeperIsOn = earBit == 0;
@@ -111,7 +105,6 @@ public class ULA implements IO {
         }
         clock.reset();
         memory.resetDisplayMemory();
-        ulaAccessed = false;
         lastScanlineRendered = scanlinesBeforeDisplay - 1;
     }
 

@@ -4,7 +4,6 @@ import com.socialthingy.plusf.z80.ContentionModel;
 import com.socialthingy.plusf.z80.Processor;
 
 public class OpAndAImmediate extends AndOperation {
-
     private final Processor processor;
 
     public OpAndAImmediate(final Processor processor) {

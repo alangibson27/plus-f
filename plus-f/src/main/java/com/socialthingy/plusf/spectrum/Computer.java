@@ -5,8 +5,8 @@ import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.z80.*;
+import com.socialthingy.plusf.z80.operations.OpAndAImmediate;
 import com.socialthingy.plusf.z80.operations.OpInA;
-import com.socialthingy.plusf.z80.operations.OpRra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +28,9 @@ public class Computer {
     private boolean dumping;
     private List<ExecutedOperation> executedOperations = new ArrayList<>();
 
+    private int instructionsSinceLastUlaIn;
+    private boolean probablyLoadingTape;
+
     public Computer(
         final Processor processor,
         final SpectrumMemory memory,
@@ -45,12 +48,9 @@ public class Computer {
         return processor;
     }
 
-    public ULA getULA() {
-        return ula;
-    }
-
     public void singleCycle() {
         boolean newCycle = true;
+        probablyLoadingTape = false;
         processor.requestInterrupt();
 
         final Timer.Context timer = processorExecuteTimer.time();
@@ -78,6 +78,20 @@ public class Computer {
                         processor.cancelInterrupt();
                         newCycle = false;
                     }
+                }
+
+                if (executed.operation instanceof OpInA &&
+                        processor.fetchRelative(-1) == 0xfe) {
+                    instructionsSinceLastUlaIn = 0;
+                } else {
+                    instructionsSinceLastUlaIn++;
+                }
+
+                if (executed.operation instanceof OpAndAImmediate &&
+                        (processor.fetchRelative(-1) == 0x20 || processor.fetchRelative(-1) == 0x40) &&
+                        instructionsSinceLastUlaIn > 0 && instructionsSinceLastUlaIn <= 5) {
+                    probablyLoadingTape = true;
+                    instructionsSinceLastUlaIn = 0;
                 }
 
                 final int duration = ula.getClock().getTicks() - ticksBefore;
@@ -132,8 +146,8 @@ public class Computer {
         return ula.getPixels();
     }
 
-    public boolean ulaAccessed() {
-        return ula.ulaAccessed();
+    public boolean probablyLoadingTape() {
+        return probablyLoadingTape;
     }
 
     public int peek(final int addr) {
