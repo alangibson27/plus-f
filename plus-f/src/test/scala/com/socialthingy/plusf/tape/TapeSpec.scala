@@ -122,5 +122,5 @@ class TapeSpec extends FlatSpec with Matchers {
   }
 
   implicit def tuple2ToPair(tuple: (String, String)): KPair[String, String] = new KPair(tuple._1, tuple._2)
-  private def givenTapeOf(blocks: TapeBlock*): Tape = new Tape("1.0", blocks.toList.asJava)
+  private def givenTapeOf(blocks: TapeBlock*): Tape = new Tape("1.0", "", blocks.toList.asJava)
 }

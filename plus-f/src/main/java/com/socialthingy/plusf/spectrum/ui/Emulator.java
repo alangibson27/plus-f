@@ -78,6 +78,7 @@ public class Emulator extends PlusFComponent implements Runnable {
     private JMenuItem sinclairJoystickItem;
     private JMenuItem noJoystickItem;
     private SnapshotSaver snapshotSaver;
+    private ButtonModel soundModel;
 
     public Emulator(final Frame window) {
         this(window, new UserPreferences(), new DisplayComponent());
@@ -302,38 +303,27 @@ public class Emulator extends PlusFComponent implements Runnable {
                     JOptionPane.INFORMATION_MESSAGE
             );
         } else {
-            final DefaultListModel<NavigableBlock> listModel = new DefaultListModel<>();
-            blocks.forEach(listModel::addElement);
+            final TapeDialog td = new TapeDialog(this.window);
+            tapePlayer.addTapeListener(td);
+            td.tapeChanged(tapePlayer.getTape().orElse(null));
+            td.blockChanged(tapePlayer.getCurrentBlock());
 
-            final JList<NavigableBlock> blockList = new JList<>(listModel);
-            blockList.setCellRenderer(new DefaultListCellRenderer() {
+            final ActionListener jumpToAction = e -> {
+                tapePlayer.jumpToBlock(td.getSelectedBlock());
+                td.setVisible(false);
+            };
+            td.getJumpButton().addActionListener(jumpToAction);
+            td.addWindowListener(new WindowAdapter() {
                 @Override
-                public Component getListCellRendererComponent(
-                    final JList<?> list,
-                    final Object value,
-                    final int index,
-                    final boolean isSelected,
-                    final boolean cellHasFocus
-                ) {
-                    final NavigableBlock selected = (NavigableBlock) list.getModel().getElementAt(index);
-                    return super.getListCellRendererComponent(list, selected.getBlock().getDisplayName(), index, isSelected, cellHasFocus);
+                public void windowClosed(WindowEvent e) {
+                    tapePlayer.removeTapeListener(td);
+                    super.windowClosed(e);
                 }
             });
-            final int result = JOptionPane.showConfirmDialog(
-                    this,
-                    new JScrollPane(blockList),
-                    "Jump to Block",
-                    JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
 
-            if (result == JOptionPane.OK_OPTION && blockList.getSelectedValue() != null) {
-                try {
-                    tapePlayer.jumpToBlock(blockList.getSelectedValue().getIndex());
-                } catch (TapeException ex) {
-                    log.error("Unable to jump to tape block", ex);
-                }
-            }
+            td.setSize(400, 600);
+            td.setLocationRelativeTo(this);
+            td.setVisible(true);
         }
     }
 
@@ -396,6 +386,8 @@ public class Emulator extends PlusFComponent implements Runnable {
 
         if (newSpeed != EmulatorSpeed.NORMAL) {
             soundSystem.setEnabled(false);
+        } else {
+            soundSystem.setEnabled(soundModel.isSelected());
         }
     }
 
@@ -464,7 +456,7 @@ public class Emulator extends PlusFComponent implements Runnable {
                 try {
                     detectAndLoad(chooser.getSelectedFile());
                     prefs.set(LAST_LOAD_DIRECTORY, chooser.getSelectedFile().getAbsolutePath());
-                } catch (TapeException | IOException ex) {
+                } catch (IOException ex) {
                     JOptionPane.showMessageDialog(
                         this,
                         format("An error occurred while loading the file:\n%s", ex.getMessage()),
@@ -573,7 +565,7 @@ public class Emulator extends PlusFComponent implements Runnable {
 
             Files.copy(is, downloaded.toPath(), REPLACE_EXISTING);
             detectAndLoad(downloaded);
-        } catch (TapeException|IOException e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(
                 this,
                 "There was an error opening the archive.",
@@ -583,7 +575,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         }
     }
 
-    private void detectAndLoad(final File selectedFile) throws IOException, TapeException {
+    private void detectAndLoad(final File selectedFile) throws IOException {
         final byte[] prelude = new byte[256];
         try (final InputStream is = new FileInputStream(selectedFile)) {
             is.read(prelude);
@@ -606,7 +598,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         }
     }
 
-    private void loadFromZip(final File zipFile) throws IOException, TapeException {
+    private void loadFromZip(final File zipFile) throws IOException {
         final List<ZipEntry> filesInZip = ZipUtils.INSTANCE.findFiles(zipFile);
         if (filesInZip.isEmpty()) {
             JOptionPane.showMessageDialog(
@@ -625,7 +617,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         }
     }
 
-    private void unzipAndLoad(final File selectedFile, final ZipEntry fileInZip) throws IOException, TapeException {
+    private void unzipAndLoad(final File selectedFile, final ZipEntry fileInZip) throws IOException {
         final Optional<File> unzipped = ZipUtils.INSTANCE.unzipFile(selectedFile, fileInZip);
         if (unzipped.isPresent()) {
             detectAndLoad(unzipped.get());
@@ -710,7 +702,7 @@ public class Emulator extends PlusFComponent implements Runnable {
     }
 
     private void whilePaused(final Runnable action) {
-        final boolean wasEnabled = soundSystem.setEnabled(false);
+        soundSystem.setEnabled(false);
         cycleTimer.cancel(true);
         currentSpeed = EmulatorSpeed.NORMAL;
         keyboard.reset();
@@ -718,7 +710,7 @@ public class Emulator extends PlusFComponent implements Runnable {
             action.run();
         } finally {
             setSpeed(currentSpeed);
-            soundSystem.setEnabled(wasEnabled);
+            soundSystem.setEnabled(soundModel.isSelected());
         }
     }
 
@@ -738,12 +730,13 @@ public class Emulator extends PlusFComponent implements Runnable {
 
         final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");
         sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
-        sound.addActionListener(e -> {
-            prefs.set(SOUND_ENABLED, sound.isSelected());
-            soundSystem.setEnabled(sound.isSelected());
-        });
         sound.setSelected(prefs.getOrElse(SOUND_ENABLED, true));
-        soundSystem.setEnabled(sound.isSelected());
+        soundModel = sound.getModel();
+        soundModel.addActionListener(e -> {
+            prefs.set(SOUND_ENABLED, soundModel.isSelected());
+            soundSystem.setEnabled(soundModel.isSelected());
+        });
+        soundSystem.setEnabled(soundModel.isSelected());
         computerMenu.add(sound);
 
         addJoystickMenu(computerMenu);
@@ -862,3 +855,5 @@ public class Emulator extends PlusFComponent implements Runnable {
         return hostInputMultiplexer;
     }
 }
+
+

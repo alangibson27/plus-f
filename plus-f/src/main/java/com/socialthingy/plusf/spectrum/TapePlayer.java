@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 public class TapePlayer implements Iterator<Boolean> {
     private final Logger log = LoggerFactory.getLogger(TapePlayer.class);
@@ -23,7 +21,7 @@ public class TapePlayer implements Iterator<Boolean> {
     private int loopCount = 0;
     private Tape tape;
 
-    private TapeBlock[] blocks = null;
+    private Set<TapeListener> tapeListeners = new HashSet<>();
 
     public TapePlayer() {
         this.tapePresentModel = new DefaultButtonModel();
@@ -34,12 +32,16 @@ public class TapePlayer implements Iterator<Boolean> {
         this.jumpButtonModel = new DefaultButtonModel();
 
         rewindToStartButtonModel.addActionListener(action -> {
-            try {
-                rewindToStart();
-            } catch (TapeException e) {
-                log.error("Error while rewinding tape", e);
-            }
+            rewindToStart();
         });
+    }
+
+    public void addTapeListener(final TapeListener tl) {
+        tapeListeners.add(tl);
+    }
+
+    public void removeTapeListener(final TapeListener tl) {
+        tapeListeners.remove(tl);
     }
 
     public Optional<Tape> getTape() {
@@ -67,8 +69,11 @@ public class TapePlayer implements Iterator<Boolean> {
     }
 
     public void ejectTape() {
+        ejectTape(true);
+    }
+
+    private void ejectTape(final boolean notifyListeners) {
         currentBlock = null;
-        blocks = null;
         blockIdx = -1;
         loopStart = -1;
         tape = null;
@@ -78,35 +83,39 @@ public class TapePlayer implements Iterator<Boolean> {
         playButtonModel.setEnabled(false);
         stopButtonModel.setEnabled(false);
         rewindToStartButtonModel.setEnabled(false);
+
+        if (notifyListeners) {
+            tapeListeners.forEach(tl -> tl.tapeChanged(null));
+        }
     }
 
-    public void setTape(final Tape tape) throws TapeException {
-        ejectTape();
+    public void setTape(final Tape tape) {
+        ejectTape(false);
         this.tape = tape;
-        this.blocks = tape.getBlocks().toArray(new TapeBlock[tape.getBlocks().size()]);
         this.currentBlock = nextBlock();
         tapePresentModel.setEnabled(true);
         jumpButtonModel.setEnabled(true);
         playButtonModel.setEnabled(true);
         stopButtonModel.setEnabled(true);
         rewindToStartButtonModel.setEnabled(true);
+        tapeListeners.forEach(tl -> tl.tapeChanged(tape));
     }
 
     public void play() {
-        if (blocks != null) {
+        if (tape != null) {
             signalState.set(false);
         }
     }
 
-    public void rewindToStart() throws TapeException {
-        if (blocks != null) {
+    public void rewindToStart() {
+        if (tape != null) {
             blockIdx = -1;
             currentBlock = nextBlock();
         }
     }
 
-    public void jumpToBlock(final int idx) throws TapeException {
-        if (blocks != null && idx < blocks.length) {
+    public void jumpToBlock(final int idx) {
+        if (tape != null && idx < tape.getBlocks().size()) {
             blockIdx = idx - 1;
             currentBlock = nextBlock();
         }
@@ -114,6 +123,10 @@ public class TapePlayer implements Iterator<Boolean> {
 
     public boolean isPlaying() {
         return playButtonModel.isSelected();
+    }
+
+    public int getCurrentBlock() {
+        return this.blockIdx;
     }
 
     @Override
@@ -161,17 +174,19 @@ public class TapePlayer implements Iterator<Boolean> {
     }
 
     private BlockSignal nextBlock() {
-        if (blocks == null) {
+        if (tape == null) {
             return null;
         }
 
         blockIdx++;
-        if (blockIdx >= blocks.length || blockIdx < 0) {
+        if (blockIdx >= tape.getBlocks().size() || blockIdx < 0) {
             return null;
         }
 
-        final TapeBlock nextBlock = blocks[blockIdx];
-        if (nextBlock instanceof PauseBlock && ((PauseBlock) nextBlock).shouldStopTape()) {
+        tapeListeners.forEach(tl -> tl.blockChanged(blockIdx));
+
+        final TapeBlock nextBlock = tape.getBlocks().get(blockIdx);
+        if (nextBlock.shouldStopTape()) {
             playButtonModel.setSelected(false);
             return nextBlock();
         }

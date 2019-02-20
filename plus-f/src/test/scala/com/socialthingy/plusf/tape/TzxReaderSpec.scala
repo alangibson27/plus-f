@@ -1,5 +1,7 @@
 package com.socialthingy.plusf.tape
 
+import java.io.IOException
+
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 
@@ -55,7 +57,7 @@ class TzxReaderSpec extends FlatSpec with Matchers {
     val malformedFile = getClass.getResourceAsStream("/screenfiller.z80")
 
     // when
-    intercept[TapeException] {
+    intercept[IOException] {
       new TapeFileReader(malformedFile).readTzx()
     }
   }

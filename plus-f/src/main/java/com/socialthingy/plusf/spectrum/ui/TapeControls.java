@@ -38,7 +38,6 @@ public class TapeControls extends JPanel {
 
         tapePlayer.getStopButtonModel().addActionListener(action -> playButtonGroup.clearSelection());
         tapePlayer.getRewindToStartButtonModel().addActionListener(action -> playButtonGroup.clearSelection());
-        tapePlayer.getJumpButtonModel().addActionListener(action -> playButtonGroup.clearSelection());
 
         add(playButton);
         add(stopButton);

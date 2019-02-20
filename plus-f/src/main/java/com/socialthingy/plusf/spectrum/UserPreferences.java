@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class UserPreferences {
     public static final String LAST_LOAD_DIRECTORY = "last-load-directory";
@@ -76,5 +80,26 @@ public class UserPreferences {
         } catch (NumberFormatException nfe) {
             return ifUndefinedOrInvalid;
         }
+    }
+
+    public List<Integer> getOverridePositionsFor(final String signature) {
+        final String overridePropertyName = overridePropertyName(signature);
+        if (definedFor(overridePropertyName)) {
+            final String overrideList = get(overridePropertyName).trim();
+            return Arrays.stream(overrideList.split(","))
+                    .mapToInt(Integer::parseInt).boxed()
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
+    }
+
+    public void saveOverridePositions(final String signature, final List<Integer> overridePositions) {
+        set(overridePropertyName(signature),
+            overridePositions.stream().map(Object::toString).collect(Collectors.joining(",")));
+    }
+
+    private String overridePropertyName(final String signature) {
+        return String.format("tapeoverrides.%s", signature.replaceAll("=", ""));
     }
 }

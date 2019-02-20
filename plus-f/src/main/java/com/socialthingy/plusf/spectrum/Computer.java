@@ -5,6 +5,8 @@ import com.codahale.metrics.Timer;
 import com.socialthingy.plusf.spectrum.io.SpectrumMemory;
 import com.socialthingy.plusf.spectrum.io.ULA;
 import com.socialthingy.plusf.z80.*;
+import com.socialthingy.plusf.z80.operations.OpInA;
+import com.socialthingy.plusf.z80.operations.OpRra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

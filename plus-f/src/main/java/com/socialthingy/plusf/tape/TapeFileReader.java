@@ -1,13 +1,13 @@
 package com.socialthingy.plusf.tape;
 
+import com.socialthingy.plusf.spectrum.UserPreferences;
 import com.socialthingy.plusf.util.Try;
 
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,18 +19,31 @@ public class TapeFileReader {
 
     private Map<Integer, Function<InputStream, Try<? extends TapeBlock>>> blockMappers = new HashMap<>();
 
-    private final InputStream tzxFile;
+    private final BufferedInputStream tzxFile;
+    private final String signature;
 
     public static boolean recognises(byte[] start) {
         return "ZXTape!".equals(new String(start, 0, 7));
     }
 
-    public TapeFileReader(final File tzxFile) throws FileNotFoundException {
+    public TapeFileReader(final File tzxFile) throws IOException {
         this(new FileInputStream(tzxFile));
     }
 
-    public TapeFileReader(final InputStream tzxFile) {
-        this.tzxFile = tzxFile;
+    public TapeFileReader(final InputStream tzxFile) throws IOException {
+        this.tzxFile = new BufferedInputStream(tzxFile);
+        this.tzxFile.mark(512);
+        byte[] signatureBytes;
+        try {
+            final MessageDigest md5 = MessageDigest.getInstance("MD5");
+            signatureBytes = md5.digest(this.tzxFile.readNBytes(512));
+        } catch (NoSuchAlgorithmException e) {
+            signatureBytes = "ERROR".getBytes();
+            e.printStackTrace();
+        } finally {
+            this.tzxFile.reset();
+        }
+        signature = Base64.getEncoder().encodeToString(signatureBytes);
 
         blockMappers.put(0x10, VariableSpeedBlock::readStandardSpeedBlock);
         blockMappers.put(0x11, VariableSpeedBlock::readTurboSpeedBlock);
@@ -48,7 +61,7 @@ public class TapeFileReader {
         blockMappers.put(0x32, ArchiveInfoBlock::read);
     }
 
-    public Tape readTap() throws TapeException, IOException {
+    public Tape readTap() throws IOException {
         try {
             int lenLo = tzxFile.read();
             int lenHi = tzxFile.read();
@@ -66,17 +79,18 @@ public class TapeFileReader {
             addSuffixBlocks(blocks);
 
             logger.fine("Reached end of file");
-            return new Tape("TAP", blocks);
+            insertOverrides(blocks);
+            return new Tape("TAP", signature, blocks);
         } finally {
             tzxFile.close();
         }
     }
 
-    public Tape readTzx() throws TapeException, IOException {
+    public Tape readTzx() throws IOException {
         try {
             final String header = readText();
             if (!header.equals("ZXTape!")) {
-                throw new TapeException("Incorrect header");
+                throw new IOException("Incorrect header");
             }
 
             final String version = String.format("%d.%d", tzxFile.read(), tzxFile.read());
@@ -105,10 +119,17 @@ public class TapeFileReader {
             addSuffixBlocks(blocks);
 
             logger.fine("Reached end of file");
-            return new Tape(version, blocks);
+            insertOverrides(blocks);
+            return new Tape(version, signature, blocks);
         } finally {
             tzxFile.close();
         }
+    }
+
+    private void insertOverrides(final List<TapeBlock> blocks) {
+        final UserPreferences prefs = new UserPreferences();
+        final List<Integer> overridePositions = prefs.getOverridePositionsFor(signature);
+        overridePositions.forEach(idx -> blocks.add(idx, new OverrideBlock(new PauseBlock(Duration.ZERO))));
     }
 
     private void addSuffixBlocks(final List<TapeBlock> blocks) {

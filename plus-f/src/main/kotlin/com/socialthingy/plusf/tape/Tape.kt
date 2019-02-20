@@ -1,15 +1,43 @@
 package com.socialthingy.plusf.tape
 
+import java.time.Duration
+
 data class NavigableBlock(val index: Int, val block: TapeBlock)
 
-class Tape(val version: String, val blocks: List<TapeBlock>) {
+class OverrideBlock(private val underlying: TapeBlock): TapeBlock() {
+    override fun getBlockSignal(signalState: SignalState?): BlockSignal {
+        return underlying.getBlockSignal(signalState)
+    }
+
+    override fun getDisplayName(): String {
+        return underlying.displayName
+    }
+
+    override fun isDataBlock(): Boolean {
+        return underlying.isDataBlock
+    }
+
+    override fun shouldStopTape(): Boolean {
+        return underlying.shouldStopTape()
+    }
+}
+
+enum class OverrideType {
+    STOP_TAPE
+}
+
+class Tape(val version: String, val signature: String, val blocks: MutableList<TapeBlock>) {
     val archiveInfo = blocks.filter { it is ArchiveInfoBlock }
         .flatMap { (it as ArchiveInfoBlock).descriptions.toList() }
         .toList()
 
-    val navigableBlocks: List<NavigableBlock> = navigableBlocks()
+    fun addOverride(overrideType: OverrideType, position: Int) {
+        when (overrideType) {
+            OverrideType.STOP_TAPE -> blocks.add(position, OverrideBlock(PauseBlock(Duration.ZERO)))
+        }
+    }
 
-    private fun navigableBlocks(): List<NavigableBlock> {
+    fun getNavigableBlocks(): List<NavigableBlock> {
         fun loop(idx: Int, navigableBlocks: List<NavigableBlock>, nestingLevel: Int): List<NavigableBlock> {
             if (idx == blocks.size) {
                 return navigableBlocks

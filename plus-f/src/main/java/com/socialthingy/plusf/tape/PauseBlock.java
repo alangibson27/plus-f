@@ -25,6 +25,7 @@ public class PauseBlock extends TapeBlock {
         this.pauseBits = (int) pauseLength.toMillis() * 3500;
     }
 
+    @Override
     public boolean shouldStopTape() {
         return pauseLength.isZero();
     }
@@ -36,7 +37,11 @@ public class PauseBlock extends TapeBlock {
 
     @Override
     public String toString() {
-        return String.format("%s pause", pauseLength.getSeconds());
+        if (pauseLength.isZero()) {
+            return "Stop tape";
+        } else {
+            return String.format("%s pause", pauseLength.getSeconds());
+        }
     }
 
     @Override
