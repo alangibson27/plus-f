@@ -20,6 +20,7 @@ public class UserPreferences {
     public static final String JOYSTICK_LEFT = "joystick-left";
     public static final String JOYSTICK_RIGHT = "joystick-right";
     public static final String JOYSTICK_FIRE = "joystick-fire";
+    public static final String EXTEND_BORDER = "extend-border";
 
     private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
     private final Properties prefs;

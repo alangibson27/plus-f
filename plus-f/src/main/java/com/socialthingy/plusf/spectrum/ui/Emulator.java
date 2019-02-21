@@ -726,7 +726,7 @@ public class Emulator extends PlusFComponent implements Runnable {
 
         final JMenu computerMenu = new JMenu("Computer");
         computerMenu.add(menuItemFor("Reset", this::reset, Optional.of(KeyEvent.VK_R)));
-        computerMenu.add(menuItemFor("Dump next cycle", e -> computer.startDumping(), Optional.of(KeyEvent.VK_Z)));
+//        computerMenu.add(menuItemFor("Dump next cycle", e -> computer.startDumping(), Optional.of(KeyEvent.VK_Z)));
 
         final JCheckBoxMenuItem sound = new JCheckBoxMenuItem("Sound");
         sound.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_MASK));
@@ -785,7 +785,12 @@ public class Emulator extends PlusFComponent implements Runnable {
         displayMenu.add(smoothRendering);
 
         final JCheckBoxMenuItem extendBorder = new JCheckBoxMenuItem("Extend Border");
-        extendBorder.addActionListener(e -> display.setExtendBorder(extendBorder.isSelected()));
+        extendBorder.addActionListener(e -> {
+            prefs.set(EXTEND_BORDER, extendBorder.isSelected());
+            display.setExtendBorder(extendBorder.isSelected());
+        });
+        extendBorder.setSelected(prefs.getOrElse(EXTEND_BORDER, false));
+        display.setExtendBorder(extendBorder.isSelected());
         displayMenu.add(extendBorder);
         menuBar.add(displayMenu);
 
