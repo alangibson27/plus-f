@@ -21,8 +21,10 @@ public class UserPreferences {
     public static final String JOYSTICK_RIGHT = "joystick-right";
     public static final String JOYSTICK_FIRE = "joystick-fire";
     public static final String EXTEND_BORDER = "extend-border";
+    public static final String PREVIOUS_SESSION = "previous-session";
 
-    private final File prefsFile = new File(System.getProperty("user.home"), "plusf.properties");
+    private final String filename = System.getProperty("plusf.properties", "plusf.properties");
+    private final File prefsFile = new File(System.getProperty("user.home"), filename);
     private final Properties prefs;
 
     public UserPreferences() {

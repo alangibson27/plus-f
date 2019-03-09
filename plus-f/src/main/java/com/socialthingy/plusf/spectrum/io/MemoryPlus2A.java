@@ -122,7 +122,7 @@ public class MemoryPlus2A extends Memory128K {
         } else {
             switch (page) {
                 case 0:
-                    return activeRomBank >= 4;
+                    return false;
 
                 case 1:
                     return activeScreenBank >= 4;

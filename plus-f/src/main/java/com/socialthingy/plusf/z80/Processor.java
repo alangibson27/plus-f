@@ -175,8 +175,15 @@ public class Processor {
                 clock.tick(2);
                 return im1ResponseOp;
             } else {
-                clock.tick(7);
                 final int jumpBase = Word.from(0xff, iReg.get());
+                contentionModel.applyContention(jumpBase, 3);
+                contentionModel.applyContention(jumpBase + 1, 3);
+                contentionModel.applyContention(jumpBase + 1, 1);
+
+                final int sp = spReg.get();
+                contentionModel.applyContention(sp - 1, 3);
+                contentionModel.applyContention(sp - 2, 3);
+
                 final int jumpLow = memory.get(jumpBase);
                 final int jumpHigh = memory.get(jumpBase + 1);
                 return new OpCallDirect(this, Word.from(jumpLow, jumpHigh));

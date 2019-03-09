@@ -15,9 +15,8 @@ abstract class PlusFComponent extends JComponent implements Runnable {
         closeListeners.remove(closeListener);
     }
 
-    public void notifyWillClose(final boolean confirmRequired) {
-        final CloseEvent ce = new CloseEvent(confirmRequired, this);
-        closeListeners.removeIf(closeListener -> closeListener.willClose(ce));
+    public void notifyWillClose(final CloseEvent closeEvent) {
+        closeListeners.removeIf(closeListener -> closeListener.willClose(closeEvent));
     }
 
     abstract void stop();
@@ -32,10 +31,12 @@ interface CloseListener {
 class CloseEvent {
     private final boolean confirmRequired;
     private final PlusFComponent source;
+    private final boolean reconnectToPeer;
 
-    public CloseEvent(final boolean confirmRequired, final PlusFComponent source) {
+    public CloseEvent(final boolean confirmRequired, final PlusFComponent source, final boolean reconnectToPeer) {
         this.confirmRequired = confirmRequired;
         this.source = source;
+        this.reconnectToPeer = reconnectToPeer;
     }
 
     public boolean isConfirmRequired() {
@@ -44,5 +45,9 @@ class CloseEvent {
 
     public PlusFComponent getSource() {
         return source;
+    }
+
+    public boolean shouldReconnectToPeer() {
+        return reconnectToPeer;
     }
 }

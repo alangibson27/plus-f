@@ -12,6 +12,7 @@ import com.socialthingy.plusf.spectrum.joystick.*;
 import com.socialthingy.plusf.spectrum.network.EmulatorPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestState;
+import com.socialthingy.plusf.spectrum.network.SessionInfo;
 import com.socialthingy.plusf.tape.*;
 import com.socialthingy.plusf.ui.JoystickKeys;
 import com.socialthingy.plusf.ui.RedefineKeysPanel;
@@ -368,6 +369,21 @@ public class Emulator extends PlusFComponent implements Runnable {
         peer.disconnect();
         kempstonJoystickItem.setEnabled(true);
         sinclairJoystickItem.setEnabled(true);
+    }
+
+    private void reconnect(final ActionEvent e) {
+        if (prefs.definedFor(PREVIOUS_SESSION)) {
+            try {
+                final SessionInfo sessionInfo = new SessionInfo(prefs.get(PREVIOUS_SESSION));
+                if (sessionInfo.isHost()) {
+                    peer.reconnect(sessionInfo.getDestination());
+                } else {
+                    notifyWillClose(new CloseEvent(true, this, true));
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Unable to Reconnect", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void setSpeed(final EmulatorSpeed newSpeed) {
@@ -833,8 +849,11 @@ public class Emulator extends PlusFComponent implements Runnable {
         final JMenu networkMenu = new JMenu("Network");
         final JMenuItem connectItem = menuItemFor("Start Session", this::connect, Optional.of(KeyEvent.VK_C));
         networkMenu.add(connectItem);
-        final JMenuItem joinItem = menuItemFor("Join Session", e -> notifyWillClose(true), Optional.of(KeyEvent.VK_J));
+        final JMenuItem joinItem = menuItemFor("Join Session", e -> notifyWillClose(new CloseEvent(true, this, false)), Optional.of(KeyEvent.VK_J));
         networkMenu.add(joinItem);
+        final JMenuItem reconnectItem = menuItemFor("Reconnect", this::reconnect, Optional.empty());
+        networkMenu.add(reconnectItem);
+        reconnectItem.setEnabled(prefs.definedFor(UserPreferences.PREVIOUS_SESSION));
         final JMenuItem disconnectItem = menuItemFor("End Session", this::disconnect, Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);
         menuBar.add(networkMenu);
@@ -843,6 +862,7 @@ public class Emulator extends PlusFComponent implements Runnable {
         disconnectItem.setEnabled(false);
         peer.connectedProperty().addObserver((observable, arg) -> {
             connectItem.setEnabled(!peer.connectedProperty().get());
+            reconnectItem.setEnabled(!peer.connectedProperty().get());
             joinItem.setEnabled(!peer.connectedProperty().get());
             disconnectItem.setEnabled(peer.connectedProperty().get());
         });

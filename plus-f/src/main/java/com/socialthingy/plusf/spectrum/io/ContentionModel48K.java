@@ -20,7 +20,8 @@ public class ContentionModel48K extends ContentionModel {
 
     @Override
     public void applyContention(final int address, final int baseLength) {
-        if (memory.contendedAddress(address)) {
+        final int safeAddress = address & 0xffff;
+        if (memory.contendedAddress(safeAddress)) {
             handleContention(clock);
         }
         clock.tick(baseLength);

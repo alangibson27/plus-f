@@ -39,3 +39,8 @@ overall quality of the connection:
 * Green: The connection is good enough for games to be playable.
 * Yellow: The connection quality is poor, and delays may be experienced.
 * Red: The connection has dropped, either temporarily or permanently.
+
+### Reconnecting
+
+If you restart Plus-F and want to resume your previous session, select the *Reconnect* item from the *Network* menu.
+You will be reconnected to your partner, provided the partner is still running Plus-F.

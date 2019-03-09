@@ -70,6 +70,10 @@ public class PeerAdapter<T> implements Callbacks {
         peer.join(sessionId, forwardedPort);
     }
 
+    public void reconnect(final InetSocketAddress destination) {
+        peer.connectDirectly(destination.getPort(), destination.getHostString());
+    }
+
     public void disconnect() {
         connected.set(false);
         peer.close();
@@ -103,10 +107,10 @@ public class PeerAdapter<T> implements Callbacks {
     }
 
     @Override
-    public void connectedToPeer(final int port) {
+    public void connectedToPeer(final InetSocketAddress address) {
         connected.set(true);
         withConnectionDialog(cp -> {
-            cp.setMessage(String.format("Connected to peer on port %d", port));
+            cp.setMessage(String.format("Connected to peer on port %d", address.getPort()));
             cp.close();
             connectionProgress = Optional.empty();
         });

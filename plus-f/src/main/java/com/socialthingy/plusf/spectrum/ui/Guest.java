@@ -8,6 +8,7 @@ import com.socialthingy.plusf.spectrum.joystick.JoystickInterfaceType;
 import com.socialthingy.plusf.spectrum.network.EmulatorState;
 import com.socialthingy.plusf.spectrum.network.GuestPeerAdapter;
 import com.socialthingy.plusf.spectrum.network.GuestState;
+import com.socialthingy.plusf.spectrum.network.SessionInfo;
 import com.socialthingy.plusf.ui.JoystickKeys;
 import com.socialthingy.plusf.ui.RedefineKeysPanel;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static com.socialthingy.plusf.spectrum.UserPreferences.PREVIOUS_SESSION;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.joystickItem;
 import static com.socialthingy.plusf.spectrum.ui.MenuUtils.menuItemFor;
 import static java.awt.GridBagConstraints.BOTH;
@@ -35,9 +37,11 @@ public class Guest extends PlusFComponent implements Runnable {
     private final Frame window;
     private JoystickInterfaceType joystickType = JoystickInterfaceType.KEMPSTON;
     private UserPreferences prefs;
+    private final boolean reconnect;
 
-    public Guest(final Frame window) {
+    public Guest(final Frame window, final boolean reconnect) {
         this.window = window;
+        this.reconnect = reconnect;
         prefs = new UserPreferences();
         display = new DisplayComponent();
         pixelMapper = new PixelMapper();
@@ -70,7 +74,11 @@ public class Guest extends PlusFComponent implements Runnable {
     public void run() {
         setVisible(true);
         setMinimumSize(getSize());
-        connect();
+        if (reconnect) {
+            reconnect();
+        } else {
+            connect();
+        }
         cycleScheduler.scheduleAtFixedRate(this::refresh, 0, 20, TimeUnit.MILLISECONDS);
     }
 
@@ -95,7 +103,7 @@ public class Guest extends PlusFComponent implements Runnable {
             }
             peer.connect(window, codename, port);
         } else {
-            notifyWillClose(false);
+            notifyWillClose(new CloseEvent(false, this, false));
         }
     }
 
@@ -157,7 +165,7 @@ public class Guest extends PlusFComponent implements Runnable {
         joystickMenu.add(sinclairJoystick);
 
         final JMenu networkMenu = new JMenu("Network");
-        final JMenuItem disconnectItem = menuItemFor("End Session", e -> notifyWillClose(true), Optional.of(KeyEvent.VK_D));
+        final JMenuItem disconnectItem = menuItemFor("End Session", e -> notifyWillClose(new CloseEvent(true, this, false)), Optional.of(KeyEvent.VK_D));
         networkMenu.add(disconnectItem);
         menuBar.add(networkMenu);
 
@@ -187,6 +195,11 @@ public class Guest extends PlusFComponent implements Runnable {
             joystick.setKeys(keys);
             keys.save(prefs);
         }
+    }
+
+    public void reconnect() {
+        final SessionInfo sessionInfo = new SessionInfo(prefs.get(PREVIOUS_SESSION));
+        peer.reconnect(sessionInfo.getDestination());
     }
 
     private class JoystickHandler implements KeyListener {

@@ -78,12 +78,9 @@ class Peer(private val bindAddress: InetSocketAddress,
 
         when {
             splitMessage.size == 3 && splitMessage[0] == "PEER" -> {
-                val peerHost = splitMessage[1]
-                val peerPort = splitMessage[2].toInt()
-                callbacks.connectedToPeer(peerPort)
-                log.info("Connected to peer at {}:{}", peerHost, peerPort)
-                currentState = State.CONNECTED
-                peerConnection = Optional.of(InetSocketAddress(peerHost, peerPort))
+                val targetHost = splitMessage[1]
+                val targetPort = splitMessage[2].toInt()
+                connectDirectly(targetPort, targetHost)
             }
 
             splitMessage.size == 1 && splitMessage[0] == "WAIT" -> {
@@ -99,6 +96,15 @@ class Peer(private val bindAddress: InetSocketAddress,
                 )
             }
         }
+    }
+
+    fun connectDirectly(targetPort: Int, targetHost: String) {
+        startIfRequired()
+        val targetAddress = InetSocketAddress(targetHost, targetPort)
+        callbacks.connectedToPeer(targetAddress)
+        log.info("Connected to peer at {}:{}", targetHost, targetPort)
+        currentState = State.CONNECTED
+        peerConnection = Optional.of(targetAddress)
     }
 
     private fun startIfRequired() {

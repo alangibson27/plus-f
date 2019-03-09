@@ -103,7 +103,10 @@ public class ULA implements IO {
             cyclesUntilFlashChange = 16;
             flashActive = !flashActive;
         }
+
+        final int ticksOver = clock.getTicks() - ticksPerCycle;
         clock.reset();
+        clock.tick(ticksOver);
         memory.resetDisplayMemory();
         lastScanlineRendered = scanlinesBeforeDisplay - 1;
     }

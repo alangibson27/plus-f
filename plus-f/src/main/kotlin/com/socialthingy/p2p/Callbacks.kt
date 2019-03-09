@@ -1,11 +1,13 @@
 package com.socialthingy.p2p
 
+import java.net.InetSocketAddress
+
 interface Callbacks {
     fun data(content: Any)
     fun discoveryTimeout()
     fun discoveryCancelled()
     fun waitingForPeer()
-    fun connectedToPeer(port: Int)
+    fun connectedToPeer(address: InetSocketAddress)
     fun discovering()
     fun initialising()
     fun closed()

@@ -50,7 +50,7 @@ public class PlusF extends JFrame implements CloseListener {
             Arrays.stream(getKeyListeners()).forEach(this::removeKeyListener);
             closeEvent.getSource().stop();
             if (closeEvent.getSource() instanceof Emulator) {
-                setComponent(new Guest(this));
+                setComponent(new Guest(this, closeEvent.shouldReconnectToPeer()));
             } else {
                 setComponent(new Emulator(this));
             }
