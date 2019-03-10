@@ -305,7 +305,7 @@ class SnapshotSaveSpec extends FlatSpec with Matchers with TableDrivenPropertyCh
   trait Spectrum48k extends AbstractSpectrum {
     val model = Model._48K
     val memory = new Memory48K()
-    val io = new IOMultiplexer(memory)
+    val io = new IOMultiplexer(model, memory)
     val processor = new Processor(memory, contentionModel, io, clock)
   }
 
@@ -313,7 +313,7 @@ class SnapshotSaveSpec extends FlatSpec with Matchers with TableDrivenPropertyCh
     val model = Model.PLUS_2A
     val memory = new MemoryPlus2A()
     val ayChip = new AYChip(new java.util.ArrayList())
-    val io = new IOMultiplexer(memory, ayChip)
+    val io = new IOMultiplexer(model, memory, ayChip)
     val processor = new Processor(memory, contentionModel, io, clock)
   }
 }
