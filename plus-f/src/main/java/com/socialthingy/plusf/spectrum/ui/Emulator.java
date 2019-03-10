@@ -184,7 +184,10 @@ public class Emulator extends PlusFComponent implements Runnable {
         }
 
         final ULA ula = new ULA(memory, keyboard, tapePlayer, soundSystem.getBeeper(), clock, model);
-        final IOMultiplexer ioMux = new IOMultiplexer(memory, ula, soundSystem.getAyChip(), kempstonJoystickInterface);
+        final IOMultiplexer ioMux = new IOMultiplexer(model, memory, ula, kempstonJoystickInterface);
+        if (model != Model._48K) {
+            ioMux.addDevice(soundSystem.getAyChip());
+        }
 
         final Processor processor = new Processor(memory, contentionModel, ioMux, clock);
         if (snapshot != null) {
